@@ -52,13 +52,13 @@
     .stat-number { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; color: var(--white); line-height: 1; }
     .stat-label { font-size: 12px; color: rgba(200,216,232,0.55); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
 
-    /* MÉTÉO */
-    .weather-bar { position: absolute; top: 84px; right: 60px; z-index: 2; display: flex; gap: 10px; }
-    .weather-card { background: rgba(11,31,58,0.7); backdrop-filter: blur(10px); border: 1px solid rgba(200,216,232,0.15); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; min-width: 120px; }
-    .weather-icon { font-size: 20px; line-height: 1; }
-    .weather-city { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: rgba(200,216,232,0.5); margin-bottom: 2px; }
-    .weather-temp { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--white); line-height: 1; }
-    .weather-desc { font-size: 10px; color: rgba(200,216,232,0.55); margin-top: 2px; }
+    /* MÉTÉO dans nav */
+    .weather-bar { display: flex; gap: 16px; align-items: center; }
+    .weather-card { display: flex; align-items: center; gap: 6px; }
+    .weather-icon { font-size: 16px; line-height: 1; }
+    .weather-city { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: rgba(200,216,232,0.45); margin-bottom: 1px; }
+    .weather-temp { font-size: 14px; font-weight: 500; color: var(--white); line-height: 1; }
+    .weather-desc { display: none; }
     @media (max-width: 900px) { .weather-bar { display: none; } }
 
     section { padding: 100px 60px; }
@@ -204,6 +204,11 @@
     <li><a href="#apropos">À propos</a></li>
     <li><a href="#contact" class="nav-cta">Demander un devis</a></li>
   </ul>
+    <div class="weather-bar" id="weatherBar">
+      <div class="weather-card" id="w-lavaltrie"><div class="weather-icon">⏳</div><div class="weather-info"><div class="weather-city">Lavaltrie</div><div class="weather-temp">--°</div><div class="weather-desc">...</div></div></div>
+      <div class="weather-card" id="w-montreal"><div class="weather-icon">⏳</div><div class="weather-info"><div class="weather-city">Montréal</div><div class="weather-temp">--°</div><div class="weather-desc">...</div></div></div>
+      <div class="weather-card" id="w-saguenay"><div class="weather-icon">⏳</div><div class="weather-info"><div class="weather-city">Saguenay</div><div class="weather-temp">--°</div><div class="weather-desc">...</div></div></div>
+    </div>
 </nav>
 
 <!-- HERO -->
@@ -211,13 +216,6 @@
   <div class="hero-bg-img"></div>
   <div class="hero-bg-overlay"></div>
   <div class="hero-grid"></div>
-
-  <!-- MÉTÉO -->
-  <div class="weather-bar" id="weatherBar">
-    <div class="weather-card" id="w-montreal"><div class="weather-icon">⏳</div><div class="weather-info"><div class="weather-city">Montréal</div><div class="weather-temp">--°</div><div class="weather-desc">...</div></div></div>
-    <div class="weather-card" id="w-lavaltrie"><div class="weather-icon">⏳</div><div class="weather-info"><div class="weather-city">Lavaltrie</div><div class="weather-temp">--°</div><div class="weather-desc">...</div></div></div>
-    <div class="weather-card" id="w-saguenay"><div class="weather-icon">⏳</div><div class="weather-info"><div class="weather-city">Saguenay</div><div class="weather-temp">--°</div><div class="weather-desc">...</div></div></div>
-  </div>
   <div class="hero-content">
     <div class="hero-badge">Lanaudière · Québec</div>
     <h1 class="hero-title">
@@ -408,8 +406,8 @@
 
   // MÉTÉO en temps réel (Open-Meteo, gratuit)
   const weatherCities = [
-    { id: 'w-montreal',  name: 'Montréal',  lat: 45.5017, lon: -73.5673 },
     { id: 'w-lavaltrie', name: 'Lavaltrie', lat: 45.8833, lon: -73.2833 },
+    { id: 'w-montreal',  name: 'Montréal',  lat: 45.5017, lon: -73.5673 },
     { id: 'w-saguenay',  name: 'Saguenay',  lat: 48.4279, lon: -71.0656 },
   ];
   const weatherIcons = {
