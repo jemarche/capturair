@@ -289,6 +289,7 @@
       <div class="apropos-photo">
         <img src="https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=600&q=80" alt="Pilote de drone professionnel">
       </div>
+      </div>
     </div>
     <div class="apropos-content">
       <span class="section-tag">À propos</span>
@@ -338,21 +339,24 @@
       </div>
     </div>
     <form class="contact-form" onsubmit="handleSubmit(event)">
+      <input type="hidden" name="access_key" value="968327d5-cc33-42ad-a702-52e138057bff">
+      <input type="hidden" name="subject" value="Nouvelle demande - CapturAir">
+      <input type="hidden" name="from_name" value="CapturAir Site Web">
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Prénom</label><input type="text" class="form-input" placeholder="Jean" required></div>
-        <div class="form-group"><label class="form-label">Nom</label><input type="text" class="form-input" placeholder="Tremblay" required></div>
+        <div class="form-group"><label class="form-label">Prénom</label><input type="text" name="prenom" class="form-input" placeholder="Jean" required></div>
+        <div class="form-group"><label class="form-label">Nom</label><input type="text" name="nom" class="form-input" placeholder="Tremblay" required></div>
       </div>
-      <div class="form-group"><label class="form-label">Courriel</label><input type="email" class="form-input" placeholder="jean@example.com" required></div>
-      <div class="form-group"><label class="form-label">Téléphone</label><input type="tel" class="form-input" placeholder="514 000-0000"></div>
+      <div class="form-group"><label class="form-label">Courriel</label><input type="email" name="email" class="form-input" placeholder="jean@example.com" required></div>
+      <div class="form-group"><label class="form-label">Téléphone</label><input type="tel" name="telephone" class="form-input" placeholder="514 000-0000"></div>
       <div class="form-group">
         <label class="form-label">Type de projet</label>
-        <select class="form-select form-input">
+        <select name="type_projet" class="form-select form-input">
           <option value="">Sélectionner...</option>
           <option>Immobilier</option><option>Événement</option>
           <option>Industriel / Construction</option><option>Nature / Tourisme</option><option>Autre</option>
         </select>
       </div>
-      <div class="form-group"><label class="form-label">Message</label><textarea class="form-textarea" placeholder="Décrivez votre projet..."></textarea></div>
+      <div class="form-group"><label class="form-label">Message</label><textarea name="message" class="form-textarea" placeholder="Décrivez votre projet..."></textarea></div>
       <button type="submit" class="btn-primary form-submit">Envoyer la demande</button>
     </form>
   </div>
@@ -372,12 +376,27 @@
     const nav = document.querySelector('nav');
     nav.style.background = window.scrollY > 50 ? 'rgba(11,31,58,0.98)' : 'rgba(11,31,58,0.92)';
   });
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     const btn = e.target.querySelector('.form-submit');
-    btn.textContent = 'Message envoyé';
-    btn.style.background = '#27ae60';
-    setTimeout(() => { btn.textContent = 'Envoyer la demande'; btn.style.background = ''; e.target.reset(); }, 3000);
+    btn.textContent = 'Envoi en cours...';
+    btn.disabled = true;
+    const formData = new FormData(e.target);
+    const response = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await response.json();
+    if (data.success) {
+      btn.textContent = '✓ Message envoyé !';
+      btn.style.background = '#27ae60';
+      e.target.reset();
+      setTimeout(() => { btn.textContent = 'Envoyer la demande'; btn.style.background = ''; btn.disabled = false; }, 4000);
+    } else {
+      btn.textContent = 'Erreur, réessayez';
+      btn.style.background = '#e74c3c';
+      setTimeout(() => { btn.textContent = 'Envoyer la demande'; btn.style.background = ''; btn.disabled = false; }, 3000);
+    }
   }
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => { if (entry.isIntersecting) { entry.target.style.opacity='1'; entry.target.style.transform='translateY(0)'; } });
