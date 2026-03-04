@@ -11,7 +11,6 @@
       --navy: #0B1F3A;
       --blue: #1A8FD1;
       --blue-light: #3AABEF;
-      --silver: #C8D8E8;
       --offwhite: #F4F7FA;
       --white: #FFFFFF;
       --gray: #6B7C93;
@@ -21,13 +20,7 @@
     html { scroll-behavior: smooth; }
     body { font-family: 'DM Sans', sans-serif; font-weight: 300; color: var(--navy); background: var(--white); overflow-x: hidden; }
 
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 60px; height: 72px;
-      background: rgba(11, 31, 58, 0.92); backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(200, 216, 232, 0.1); transition: background 0.3s;
-    }
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 60px; height: 72px; background: rgba(11,31,58,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(200,216,232,0.1); transition: background 0.3s; }
     .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
     .nav-logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--blue), #0D5C8A); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
     .nav-logo-text { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--white); letter-spacing: 0.5px; }
@@ -38,17 +31,9 @@
     .nav-cta { background: var(--blue) !important; color: var(--white) !important; padding: 9px 22px !important; border-radius: 6px !important; font-weight: 500 !important; }
     .nav-cta:hover { background: var(--blue-light) !important; }
 
-    #hero {
-      min-height: 100vh; position: relative; display: flex; align-items: center; overflow: hidden;
-    }
-    .hero-bg-img {
-      position: absolute; inset: 0;
-      background: url('https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=1800&q=80') center/cover no-repeat;
-    }
-    .hero-bg-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(160deg, rgba(13,21,32,0.85) 0%, rgba(11,31,58,0.75) 50%, rgba(13,21,32,0.9) 100%);
-    }
+    #hero { min-height: 100vh; position: relative; display: flex; align-items: center; overflow: hidden; }
+    .hero-bg-img { position: absolute; inset: 0; background: url('https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=1800&q=80') center/cover no-repeat; }
+    .hero-bg-overlay { position: absolute; inset: 0; background: linear-gradient(160deg, rgba(13,21,32,0.85) 0%, rgba(11,31,58,0.75) 50%, rgba(13,21,32,0.9) 100%); }
     .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(26,143,209,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(26,143,209,0.04) 1px, transparent 1px); background-size: 60px 60px; }
     .hero-content { position: relative; z-index: 2; padding: 0 60px; max-width: 700px; animation: fadeUp 1s ease both; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
@@ -63,7 +48,7 @@
     .btn-primary:hover { background: var(--blue-light); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(26,143,209,0.35); }
     .btn-secondary { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--white); text-decoration: none; padding: 14px 30px; border-radius: 8px; font-size: 15px; font-weight: 400; border: 1px solid rgba(255,255,255,0.3); transition: all 0.2s; }
     .btn-secondary:hover { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.05); }
-    .hero-stats { position: absolute; bottom: 48px; left: 60px; right: 60px; display: flex; gap: 48px; animation: fadeUp 1s 0.4s ease both; }
+    .hero-stats { position: absolute; bottom: 48px; left: 60px; right: 60px; z-index: 2; display: flex; gap: 48px; animation: fadeUp 1s 0.4s ease both; }
     .stat-number { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; color: var(--white); line-height: 1; }
     .stat-label { font-size: 12px; color: rgba(200,216,232,0.55); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
 
@@ -92,13 +77,13 @@
     #galerie .section-lead { color: rgba(200,216,232,0.65); }
     .galerie-header { max-width: 1200px; margin: 0 auto 48px; }
     .galerie-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 1200px; margin: 0 auto; }
-    .galerie-item { border-radius: 12px; overflow: hidden; position: relative; aspect-ratio: 4/3; cursor: pointer; transition: all 0.3s; }
+    .galerie-item { border-radius: 12px; overflow: hidden; position: relative; aspect-ratio: 4/3; cursor: pointer; }
     .galerie-item:first-child { grid-column: span 2; aspect-ratio: 16/9; }
     .galerie-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; display: block; }
     .galerie-item:hover img { transform: scale(1.05); }
     .galerie-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(11,31,58,0.75), transparent 50%); opacity: 0; transition: opacity 0.3s; display: flex; align-items: flex-end; padding: 20px; }
     .galerie-item:hover .galerie-overlay { opacity: 1; }
-    .galerie-label { color: white; font-size: 13px; font-weight: 500; letter-spacing: 0.5px; }
+    .galerie-label { color: white; font-size: 13px; font-weight: 500; }
 
     #apropos { background: var(--white); }
     .apropos-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
@@ -108,11 +93,10 @@
     .apropos-badge { position: absolute; bottom: -20px; right: -20px; background: var(--blue); color: white; border-radius: 16px; padding: 20px 24px; text-align: center; box-shadow: 0 12px 32px rgba(26,143,209,0.3); }
     .apropos-badge-num { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; line-height: 1; }
     .apropos-badge-label { font-size: 11px; opacity: 0.8; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
-    .apropos-content { padding-right: 20px; }
     .apropos-content .section-lead { margin-bottom: 24px; }
     .apropos-content p { font-size: 15px; color: var(--gray); line-height: 1.8; margin-bottom: 16px; }
     .certifications { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
-    .cert-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--offwhite); border: 1px solid rgba(26,143,209,0.15); color: var(--navy); font-size: 13px; padding: 7px 14px; border-radius: 100px; }
+    .cert-tag { display: inline-flex; align-items: center; background: var(--offwhite); border: 1px solid rgba(26,143,209,0.15); color: var(--navy); font-size: 13px; padding: 7px 14px; border-radius: 100px; }
 
     #contact { background: var(--dark); }
     #contact .section-tag { color: var(--blue-light); }
@@ -124,7 +108,6 @@
     .contact-detail { display: flex; align-items: center; gap: 14px; font-size: 14px; color: rgba(200,216,232,0.75); }
     .contact-detail-icon { width: 40px; height: 40px; background: rgba(26,143,209,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .contact-detail a { color: var(--blue-light); text-decoration: none; }
-    .contact-detail a:hover { text-decoration: underline; }
     .contact-form { background: rgba(255,255,255,0.04); border: 1px solid rgba(200,216,232,0.1); border-radius: 20px; padding: 40px; }
     .form-group { margin-bottom: 20px; }
     .form-label { display: block; font-size: 12px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: rgba(200,216,232,0.6); margin-bottom: 8px; }
@@ -136,6 +119,19 @@
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .form-submit { width: 100%; margin-top: 8px; }
 
+    /* MODAL SUCCÈS */
+    .modal-overlay { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal-box { background: var(--navy); border: 1px solid rgba(26,143,209,0.3); border-radius: 24px; padding: 52px 48px; max-width: 480px; width: 90%; text-align: center; animation: slideUp 0.4s ease; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-icon { width: 72px; height: 72px; background: linear-gradient(135deg, rgba(26,143,209,0.2), rgba(58,171,239,0.1)); border: 2px solid var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; }
+    .modal-title { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 600; color: var(--white); margin-bottom: 16px; }
+    .modal-text { font-size: 15px; color: rgba(200,216,232,0.75); line-height: 1.8; margin-bottom: 32px; }
+    .modal-text strong { color: var(--blue-light); font-weight: 500; }
+    .modal-close { background: var(--blue); color: var(--white); border: none; border-radius: 8px; padding: 13px 40px; font-size: 15px; font-family: 'DM Sans', sans-serif; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .modal-close:hover { background: var(--blue-light); transform: translateY(-1px); }
+
     footer { background: #060E18; padding: 40px 60px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(200,216,232,0.06); }
     .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: rgba(255,255,255,0.5); }
     .footer-logo span { color: var(--blue-light); }
@@ -145,8 +141,10 @@
     .footer-links a:hover { color: var(--blue-light); }
 
     @media (max-width: 900px) {
-      nav { padding: 0 24px; } .nav-links { display: none; }
-      section { padding: 72px 24px; } .hero-content { padding: 0 24px; }
+      nav { padding: 0 24px; }
+      .nav-links { display: none; }
+      section { padding: 72px 24px; }
+      .hero-content { padding: 0 24px; }
       .hero-stats { left: 24px; right: 24px; gap: 24px; }
       .galerie-grid { grid-template-columns: 1fr 1fr; }
       .galerie-item:first-child { grid-column: span 2; }
@@ -154,11 +152,30 @@
       .contact-inner { grid-template-columns: 1fr; gap: 48px; }
       .form-row { grid-template-columns: 1fr; }
       footer { flex-direction: column; gap: 16px; text-align: center; }
+      .modal-box { padding: 36px 28px; }
     }
   </style>
 </head>
 <body>
 
+<!-- MODAL DE SUCCÈS -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal-box">
+    <div class="modal-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <h2 class="modal-title">Merci pour votre message !</h2>
+    <p class="modal-text">
+      Votre demande a bien été reçue. Nous vous répondrons <strong>dans les 24 heures</strong> avec une soumission personnalisée.<br><br>
+      À très bientôt,<br>— Mohand · CapturAir
+    </p>
+    <button class="modal-close" onclick="closeModal()">Fermer</button>
+  </div>
+</div>
+
+<!-- NAVIGATION -->
 <nav>
   <a href="#" class="nav-logo">
     <div class="nav-logo-icon">
@@ -180,7 +197,7 @@
   </ul>
 </nav>
 
-<!-- HERO avec vraie photo drone -->
+<!-- HERO -->
 <section id="hero">
   <div class="hero-bg-img"></div>
   <div class="hero-bg-overlay"></div>
@@ -198,9 +215,10 @@
       <a href="#galerie" class="btn-secondary">Voir la galerie</a>
     </div>
   </div>
-  </div>
-    
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-number">100+</div><div class="stat-label">Projets réalisés</div></div>
     <div class="stat"><div class="stat-number">48h</div><div class="stat-label">Livraison rapide</div></div>
+    <div class="stat"><div class="stat-number">5★</div><div class="stat-label">Satisfaction client</div></div>
   </div>
 </section>
 
@@ -251,7 +269,7 @@
   </div>
 </section>
 
-<!-- GALERIE avec vraies photos -->
+<!-- GALERIE -->
 <section id="galerie">
   <div class="galerie-header">
     <span class="section-tag">Notre travail</span>
@@ -282,13 +300,16 @@
   </div>
 </section>
 
-<!-- À PROPOS avec photo -->
+<!-- À PROPOS -->
 <section id="apropos">
   <div class="apropos-inner">
     <div class="apropos-visual">
       <div class="apropos-photo">
         <img src="https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=600&q=80" alt="Pilote de drone professionnel">
       </div>
+      <div class="apropos-badge">
+        <div class="apropos-badge-num">5★</div>
+        <div class="apropos-badge-label">Satisfaction</div>
       </div>
     </div>
     <div class="apropos-content">
@@ -298,10 +319,10 @@
       <p>Avec une attention particulière à la qualité et à la sécurité, je capture des images uniques qui donnent une nouvelle dimension à vos projets immobiliers, événements et initiatives industrielles.</p>
       <p>Chaque mission est préparée avec soin pour garantir des résultats qui dépassent vos attentes, dans le respect des réglementations de Transports Canada.</p>
       <div class="certifications">
-        <span class="cert-tag">Certifié Transports Canada</span>
-        <span class="cert-tag">Assurance responsabilité</span>
-        <span class="cert-tag">Lanaudière &amp; environs</span>
-        <span class="cert-tag">Livraison 48h</span>
+        <span class="cert-tag">✓ Certifié Transports Canada</span>
+        <span class="cert-tag">✓ Assurance responsabilité</span>
+        <span class="cert-tag">✓ Lanaudière &amp; environs</span>
+        <span class="cert-tag">✓ Livraison 48h</span>
       </div>
     </div>
   </div>
@@ -326,7 +347,7 @@
           <div class="contact-detail-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
           <div>
             <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(200,216,232,0.4);margin-bottom:2px;">Courriel</div>
-            <a href="/cdn-cgi/l/email-protection#bed3d1d6dfd0dafedddfcecacbccdfd7cc90ddd1d3"><span class="__cf_email__" data-cfemail="117c7e79707f75517270616564637078633f727e7c">[email&#160;protected]</span></a>
+            <a href="mailto:info@capturair.com">info@capturair.com</a>
           </div>
         </div>
         <div class="contact-detail">
@@ -352,8 +373,11 @@
         <label class="form-label">Type de projet</label>
         <select name="type_projet" class="form-select form-input">
           <option value="">Sélectionner...</option>
-          <option>Immobilier</option><option>Événement</option>
-          <option>Industriel / Construction</option><option>Nature / Tourisme</option><option>Autre</option>
+          <option>Immobilier</option>
+          <option>Événement</option>
+          <option>Industriel / Construction</option>
+          <option>Nature / Tourisme</option>
+          <option>Autre</option>
         </select>
       </div>
       <div class="form-group"><label class="form-label">Message</label><textarea name="message" class="form-textarea" placeholder="Décrivez votre projet..."></textarea></div>
@@ -366,37 +390,75 @@
   <div class="footer-logo">Captur<span>Air</span></div>
   <div class="footer-copy">© 2026 CapturAir · Tous droits réservés</div>
   <div class="footer-links">
-    <a href="/cdn-cgi/l/email-protection#117c7e79707f75517270616564637078633f727e7c">Contact</a>
+    <a href="mailto:info@capturair.com">Contact</a>
     <a href="#">Politique de confidentialité</a>
   </div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
   window.addEventListener('scroll', () => {
     const nav = document.querySelector('nav');
     nav.style.background = window.scrollY > 50 ? 'rgba(11,31,58,0.98)' : 'rgba(11,31,58,0.92)';
   });
+
+  function showModal() {
+    document.getElementById('successModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    document.getElementById('successModal').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('successModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
   async function handleSubmit(e) {
     e.preventDefault();
     const btn = e.target.querySelector('.form-submit');
+    const originalText = btn.textContent;
     btn.textContent = 'Envoi en cours...';
     btn.disabled = true;
-    const formData = new FormData(e.target);
-    const response = await fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      body: formData
-    });
-    const data = await response.json();
-    if (data.success) {
-      btn.textContent = '✓ Message envoyé !';
-      btn.style.background = '#27ae60';
-      e.target.reset();
-      setTimeout(() => { btn.textContent = 'Envoyer la demande'; btn.style.background = ''; btn.disabled = false; }, 4000);
-    } else {
-      btn.textContent = 'Erreur, réessayez';
+    try {
+      const formData = new FormData(e.target);
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      if (data.success) {
+        e.target.reset();
+        showModal();
+      } else {
+        btn.textContent = 'Erreur, réessayez';
+        btn.style.background = '#e74c3c';
+        setTimeout(() => { btn.textContent = originalText; btn.style.background = ''; btn.disabled = false; }, 3000);
+        return;
+      }
+    } catch (err) {
+      btn.textContent = 'Erreur de connexion';
       btn.style.background = '#e74c3c';
-      setTimeout(() => { btn.textContent = 'Envoyer la demande'; btn.style.background = ''; btn.disabled = false; }, 3000);
+      setTimeout(() => { btn.textContent = originalText; btn.style.background = ''; btn.disabled = false; }, 3000);
+      return;
     }
+    btn.textContent = originalText;
+    btn.disabled = false;
   }
+
   const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => { if (entry.isIntersecting) { entry.target.style.opacity='1'; entry.target.style.transform='translateY(0)'; } });
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.service-card, .galerie-item').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
