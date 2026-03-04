@@ -404,43 +404,43 @@
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 
-  // MÉTÉO en temps réel (Open-Meteo, gratuit)
+  // MÉTÉO wttr.in
   const weatherCities = [
-    { id: 'w-lavaltrie', name: 'Lavaltrie', lat: 45.8833, lon: -73.2833 },
-    { id: 'w-montreal',  name: 'Montréal',  lat: 45.5017, lon: -73.5673 },
-    { id: 'w-saguenay',  name: 'Saguenay',  lat: 48.4279, lon: -71.0656 },
+    { id: 'w-lavaltrie', query: 'Lavaltrie,Quebec' },
+    { id: 'w-montreal',  query: 'Montreal,Quebec' },
+    { id: 'w-saguenay',  query: 'Saguenay,Quebec' },
   ];
-  const weatherIcons = {
-    0:'☀️', 1:'🌤️', 2:'⛅', 3:'☁️',
-    45:'🌫️', 48:'🌫️',
-    51:'🌦️', 53:'🌦️', 55:'🌧️',
-    61:'🌧️', 63:'🌧️', 65:'🌧️',
-    71:'🌨️', 73:'🌨️', 75:'❄️',
-    80:'🌦️', 81:'🌧️', 82:'⛈️',
-    95:'⛈️', 96:'⛈️', 99:'⛈️'
-  };
-  const weatherDescs = {
-    0:'Ciel dégagé', 1:'Peu nuageux', 2:'Partiellement nuageux', 3:'Couvert',
-    45:'Brouillard', 48:'Brouillard givrant',
-    51:'Bruine légère', 53:'Bruine', 55:'Bruine forte',
-    61:'Pluie légère', 63:'Pluie', 65:'Pluie forte',
-    71:'Neige légère', 73:'Neige', 75:'Neige forte',
-    80:'Averses légères', 81:'Averses', 82:'Averses fortes',
-    95:'Orage', 96:'Orage avec grêle', 99:'Orage violent'
-  };
+  function getWeatherEmoji(code) {
+    if (code <= 113) return '☀️';
+    if (code <= 119) return '🌤️';
+    if (code <= 143) return '🌫️';
+    if (code <= 176) return '🌦️';
+    if (code <= 179) return '🌨️';
+    if (code <= 200) return '🌧️';
+    if (code <= 227) return '❄️';
+    if (code <= 260) return '🌫️';
+    if (code <= 296) return '🌦️';
+    if (code <= 315) return '🌧️';
+    if (code <= 353) return '🌦️';
+    if (code <= 395) return '🌨️';
+    return '⛈️';
+  }
   async function loadWeather() {
     for (const city of weatherCities) {
       try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,weathercode&timezone=America/Toronto`;
+        const url = `https://wttr.in/${encodeURIComponent(city.query)}?format=j1`;
         const res = await fetch(url);
         const data = await res.json();
-        const temp = Math.round(data.current.temperature_2m);
-        const code = data.current.weathercode;
+        const current = data.current_condition[0];
+        const temp = current.temp_C;
+        const code = parseInt(current.weatherCode);
         const card = document.getElementById(city.id);
-        card.querySelector('.weather-icon').textContent = weatherIcons[code] || '🌡️';
+        card.querySelector('.weather-icon').textContent = getWeatherEmoji(code);
         card.querySelector('.weather-temp').textContent = temp + '°C';
-        card.querySelector('.weather-desc').textContent = weatherDescs[code] || 'Variable';
-      } catch(e) { console.log('Météo indisponible pour', city.name); }
+      } catch(e) { 
+        const card = document.getElementById(city.id);
+        if(card) card.querySelector('.weather-temp').textContent = 'N/A';
+      }
     }
   }
   loadWeather();
