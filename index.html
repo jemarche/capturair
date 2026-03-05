@@ -141,6 +141,12 @@
 
     @media (max-width: 900px) {
       nav { padding: 0 14px; gap: 10px; }
+      /* Mobile: compact nav + météo */
+      .nav-logo-icon { width: 32px; height: 32px; border-radius: 8px; }
+      .nav-logo-text { font-size: 18px; }
+      .weather-widget { max-width: 46vw; flex-shrink: 1; overflow: hidden; }
+      .weather-widget-info { min-width: 0; }
+      .weather-widget-temp { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .nav-links { display: none; }
       .weather-widget { display: flex; padding: 5px 10px; border-radius: 10px; gap: 6px; }
       .weather-widget-icon { font-size: 16px; }
@@ -383,7 +389,7 @@
 window.addEventListener('scroll', function() {
   var nav = document.querySelector('nav');
   nav.style.background = window.scrollY > 50 ? 'rgba(11,31,58,0.98)' : 'rgba(11,31,58,0.92)';
-});
+    });
 
 function showModal() {
   document.getElementById('successModal').classList.add('active');
@@ -429,7 +435,7 @@ fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.283
     if (wind >= 35) { condition = '❌ Vol déconseillé'; }
 
     document.getElementById('w-temp').textContent =
-      c + '°C · ' + f + '°F · Vent/Wind ' + wind + ' km/h · ' + condition;
+      c + '°C · ' + f + '°F · Vent ' + wind + ' km/h · ' + condition;
   })
   .catch(function() {});
 
