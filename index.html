@@ -55,22 +55,90 @@
     .btn-primary:hover { background: var(--blue-light); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(26,143,209,0.35); }
     .btn-secondary { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--white); text-decoration: none; padding: 14px 30px; border-radius: 8px; font-size: 15px; font-weight: 400; border: 1px solid rgba(255,255,255,0.3); transition: all 0.2s; }
     .btn-secondary:hover { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.05); }
-    /* Quick contact icons (hero) */
-    .quick-contact { display: inline-flex; gap: 10px; align-items: center; }
-    .quick-contact a { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.22); border-radius: 10px; transition: all 0.2s; }
-    .quick-contact a:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); border-color: rgba(255,255,255,0.35); }
-    .quick-contact img { width: 22px; height: 22px; display: block; }
 
-    /* Trust strip above form */
-    .trust-strip { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
-    .trust-item { display: inline-flex; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(200,216,232,0.10); color: rgba(200,216,232,0.85); font-size: 12px; padding: 8px 12px; border-radius: 999px; }
+    section { padding: 100px 60px; }
+    .section-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 16px; }
+    .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 4vw, 52px); font-weight: 300; color: var(--navy); line-height: 1.15; margin-bottom: 20px; }
+    .section-title strong { font-weight: 600; }
+    .section-lead { font-size: 16px; color: var(--gray); line-height: 1.75; max-width: 560px; }
 
-    /* Contact quick actions (desktop & mobile) */
-    .contact-quick { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0 18px; }
-    .contact-quick a { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: rgba(200,216,232,0.9); background: rgba(255,255,255,0.05); border: 1px solid rgba(200,216,232,0.12); padding: 10px 14px; border-radius: 14px; transition: all 0.2s; }
-    .contact-quick a:hover { background: rgba(255,255,255,0.08); transform: translateY(-1px); border-color: rgba(200,216,232,0.22); }
-    .contact-quick img { width: 18px; height: 18px; }
-    .contact-quick span { font-size: 13px; }
+    #services { background: var(--offwhite); }
+    .services-header { max-width: 1200px; margin: 0 auto 60px; }
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 1200px; margin: 0 auto; }
+    .service-card { background: var(--white); border-radius: 16px; padding: 36px 32px; border: 1px solid rgba(26,143,209,0.1); transition: all 0.3s; position: relative; overflow: hidden; }
+    .service-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--blue), var(--blue-light)); transform: scaleX(0); transform-origin: left; transition: transform 0.3s; }
+    .service-card:hover { box-shadow: 0 16px 48px rgba(26,143,209,0.12); transform: translateY(-4px); }
+    .service-card:hover::before { transform: scaleX(1); }
+    .service-icon { width: 52px; height: 52px; background: linear-gradient(135deg, rgba(26,143,209,0.12), rgba(26,143,209,0.05)); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+    .service-name { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--navy); margin-bottom: 10px; }
+    .service-desc { font-size: 14px; color: var(--gray); line-height: 1.7; margin-bottom: 20px; }
+    .service-price { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: var(--blue); }
+    .service-price span { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 300; color: var(--gray); }
+
+    #galerie { background: var(--navy); }
+    #galerie .section-tag { color: var(--blue-light); }
+    #galerie .section-title { color: var(--white); }
+    #galerie .section-lead { color: rgba(200,216,232,0.65); }
+    .galerie-header { max-width: 1200px; margin: 0 auto 48px; }
+    .galerie-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 1200px; margin: 0 auto; }
+    .galerie-item { border-radius: 12px; overflow: hidden; position: relative; aspect-ratio: 4/3; cursor: pointer; }
+    .galerie-item:first-child { grid-column: span 2; aspect-ratio: 16/9; }
+    .galerie-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; display: block; }
+    .galerie-item:hover img { transform: scale(1.05); }
+    .galerie-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(11,31,58,0.75), transparent 50%); opacity: 0; transition: opacity 0.3s; display: flex; align-items: flex-end; padding: 20px; }
+    .galerie-item:hover .galerie-overlay { opacity: 1; }
+    .galerie-label { color: white; font-size: 13px; font-weight: 500; }
+
+    #apropos { background: var(--white); }
+    .apropos-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .apropos-visual { position: relative; }
+    .apropos-photo { width: 100%; aspect-ratio: 3/4; border-radius: 20px; overflow: hidden; border: 1px solid rgba(26,143,209,0.1); }
+    .apropos-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .apropos-content .section-lead { margin-bottom: 24px; }
+    .apropos-content p { font-size: 15px; color: var(--gray); line-height: 1.8; margin-bottom: 16px; }
+    .certifications { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
+    .cert-tag { display: inline-flex; align-items: center; background: var(--offwhite); border: 1px solid rgba(26,143,209,0.15); color: var(--navy); font-size: 13px; padding: 7px 14px; border-radius: 100px; }
+
+    #contact { background: var(--dark); }
+    #contact .section-tag { color: var(--blue-light); }
+    #contact .section-title { color: var(--white); }
+    .contact-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+    .contact-info { color: rgba(200,216,232,0.75); }
+    .contact-info p { font-size: 15px; line-height: 1.8; margin-bottom: 36px; }
+    .contact-details { display: flex; flex-direction: column; gap: 16px; }
+    .contact-detail { display: flex; align-items: center; gap: 14px; font-size: 14px; color: rgba(200,216,232,0.75); }
+    .contact-detail-icon { width: 40px; height: 40px; background: rgba(26,143,209,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .contact-detail a { color: var(--blue-light); text-decoration: none; }
+    .contact-form { background: rgba(255,255,255,0.04); border: 1px solid rgba(200,216,232,0.1); border-radius: 20px; padding: 40px; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 12px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: rgba(200,216,232,0.6); margin-bottom: 8px; }
+    .form-input, .form-select, .form-textarea { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(200,216,232,0.15); border-radius: 10px; padding: 13px 16px; font-size: 14px; color: var(--white); font-family: 'DM Sans', sans-serif; transition: border-color 0.2s; outline: none; }
+    .form-input::placeholder, .form-textarea::placeholder { color: rgba(200,216,232,0.3); }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--blue); background: rgba(26,143,209,0.08); }
+    .form-select option { background: var(--navy); color: var(--white); }
+    .form-textarea { min-height: 120px; resize: vertical; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-submit { width: 100%; margin-top: 8px; }
+
+    .modal-overlay { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal-box { background: var(--navy); border: 1px solid rgba(26,143,209,0.3); border-radius: 24px; padding: 52px 48px; max-width: 480px; width: 90%; text-align: center; animation: slideUp 0.4s ease; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-icon { width: 72px; height: 72px; background: linear-gradient(135deg, rgba(26,143,209,0.2), rgba(58,171,239,0.1)); border: 2px solid var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; }
+    .modal-title { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 600; color: var(--white); margin-bottom: 16px; }
+    .modal-text { font-size: 15px; color: rgba(200,216,232,0.75); line-height: 1.8; margin-bottom: 32px; }
+    .modal-text strong { color: var(--blue-light); font-weight: 500; }
+    .modal-close { background: var(--blue); color: var(--white); border: none; border-radius: 8px; padding: 13px 40px; font-size: 15px; font-family: 'DM Sans', sans-serif; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .modal-close:hover { background: var(--blue-light); transform: translateY(-1px); }
+
+    footer { background: #060E18; padding: 40px 60px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(200,216,232,0.06); }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: rgba(255,255,255,0.5); }
+    .footer-logo span { color: var(--blue-light); }
+    .footer-copy { font-size: 12px; color: rgba(200,216,232,0.3); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { text-decoration: none; font-size: 12px; color: rgba(200,216,232,0.35); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--blue-light); }
 
     @media (max-width: 900px) {
       nav { padding: 0 14px; gap: 10px; }
@@ -97,12 +165,6 @@
       .form-row { grid-template-columns: 1fr; }
       footer { flex-direction: column; gap: 16px; text-align: center; }
       .modal-box { padding: 36px 28px; }
-      body { padding-bottom: 96px; }
-
-      .hero-actions { gap: 12px; }
-      .quick-contact a { width: 40px; height: 40px; }
-      .quick-contact img { width: 20px; height: 20px; }
-
     }
   </style>
 </head>
@@ -159,7 +221,7 @@
     <div class="hero-actions">
       <a href="#contact" class="btn-primary">Demander un devis</a>
       <a href="#galerie" class="btn-secondary">Voir la galerie</a>
-      </div>
+    </div>
   </div>
 </section>
 
@@ -268,11 +330,6 @@
       <span class="section-tag">Contact</span>
       <h2 class="section-title">Parlons de <strong>votre projet</strong></h2>
       <p>Prêt à donner de la hauteur à votre projet ? Contactez-nous pour une soumission gratuite et sans engagement. Nous répondons sous 24h.</p>
-      <div class="contact-quick" aria-label="Contact rapide">
-        <a href="https://wa.me/15144466078?text=Bonjour%20Mohand%2C%20je%20souhaite%20un%20devis%20CapturAir%2C%20Merci%20%F0%9F%98%8A" title="WhatsApp" aria-label="WhatsApp"><img src="images/whatsapp.png" alt="WhatsApp"><span>WhatsApp</span></a>
-        <a href="tel:+15144466078" title="Appeler" aria-label="Appeler"><img src="images/phone.png" alt="Appeler"><span>Appeler</span></a>
-        <a href="sms:+15144466078" title="SMS" aria-label="SMS"><img src="images/sms.png" alt="SMS"><span>SMS</span></a>
-      </div>
       <div class="contact-details">
         <div class="contact-detail">
           <div class="contact-detail-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
@@ -297,20 +354,16 @@
         </div>
       </div>
     </div>
-
-    <div class="trust-strip">
-      <span class="trust-item">✓ Certifié Transports Canada</span>
-      <span class="trust-item">✓ Assurance responsabilité</span>
-      <span class="trust-item">✓ Réponse sous 24h</span>
-      <span class="trust-item">✓ Livraison 48h</span>
-    </div>
     <form class="contact-form" onsubmit="handleSubmit(event)">
       <input type="hidden" name="access_key" value="968327d5-cc33-42ad-a702-52e138057bff">
       <input type="hidden" name="subject" value="Nouvelle demande - CapturAir">
       <input type="hidden" name="from_name" value="CapturAir Site Web">
-      <div class="form-group"><label class="form-label">Prénom</label><input type="text" name="prenom" class="form-input" placeholder="Jean" required></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Prénom</label><input type="text" name="prenom" class="form-input" placeholder="Jean" required></div>
+        <div class="form-group"><label class="form-label">Nom</label><input type="text" name="nom" class="form-input" placeholder="Tremblay" required></div>
+      </div>
       <div class="form-group"><label class="form-label">Courriel</label><input type="email" name="email" class="form-input" placeholder="jean@example.com" required></div>
-      <div class="form-group"><label class="form-label">Téléphone (optionnel, pour rappel)</label><input type="tel" name="telephone" class="form-input" placeholder="514 000-0000"></div>
+      <div class="form-group"><label class="form-label">Téléphone</label><input type="tel" name="telephone" class="form-input" placeholder="514 000-0000"></div>
       <div class="form-group">
         <label class="form-label">Type de projet</label>
         <select name="type_projet" class="form-select form-input">
@@ -322,7 +375,7 @@
           <option>Autre</option>
         </select>
       </div>
-      <div class="form-group"><label class="form-label">Message</label><textarea name="message" class="form-textarea" placeholder="Ville/adresse, type (photos/vidéo), deadline (date), détails utiles..."></textarea></div>
+      <div class="form-group"><label class="form-label">Message</label><textarea name="message" class="form-textarea" placeholder="Décrivez votre projet..."></textarea></div>
       <button type="submit" class="btn-primary form-submit">Envoyer la demande</button>
     </form>
   </div>
@@ -337,25 +390,7 @@
   </div>
 </footer>
 
-
-
-
-
 <script>
-
-// Floating dock (mobile only)
-(function() {
-  var dock = document.getElementById('floatingDock');
-  if (!dock) return;
-  function updateDock() {
-    var isMobile = window.matchMedia('(max-width: 900px)').matches;
-    dock.style.display = (isMobile && window.scrollY > 220) ? 'flex' : 'none';
-  }
-  window.addEventListener('scroll', updateDock);
-  window.addEventListener('resize', updateDock);
-  updateDock();
-})();
-
 window.addEventListener('scroll', function() {
   var nav = document.querySelector('nav');
   nav.style.background = window.scrollY > 50 ? 'rgba(11,31,58,0.98)' : 'rgba(11,31,58,0.92)';
@@ -420,36 +455,5 @@ document.querySelectorAll('.service-card, .galerie-item').forEach(function(el) {
   obs.observe(el);
 });
 </script>
-
-<a href="https://wa.me/15144466078?text=Bonjour%20Mohand%2C%20je%20souhaite%20un%20devis%20CapturAir%2C%20Merci%20%F0%9F%98%8A" class="whatsapp-float" target="_blank" aria-label="WhatsApp">
-  <img src="images/whatsapp.png" alt="WhatsApp">
-</a>
-
-<style>
-.whatsapp-float{
-position:fixed;
-bottom:20px;
-right:20px;
-width:56px;
-height:56px;
-border-radius:16px;
-background:#25D366;
-display:flex;
-align-items:center;
-justify-content:center;
-box-shadow:0 10px 25px rgba(0,0,0,0.25);
-z-index:1500;
-transition:all .2s ease;
-}
-.whatsapp-float:hover{
-transform:translateY(-2px);
-box-shadow:0 14px 35px rgba(0,0,0,0.35);
-}
-.whatsapp-float img{
-width:26px;
-height:26px;
-}
-</style>
-
 </body>
 </html>
