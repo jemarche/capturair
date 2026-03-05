@@ -250,7 +250,37 @@ gtag('config', 'G-44EB1JEJ2C');
       .contact-actions { gap: 10px; }
       .contact-action-btn { flex: 1 1 100%; justify-content: center; padding: 13px 16px; }
     }
-  </style>
+  
+/* WhatsApp floating button */
+.whatsapp-float{
+position:fixed;
+bottom:20px;
+right:20px;
+width:60px;
+height:60px;
+z-index:999;
+}
+
+.whatsapp-float img{
+width:100%;
+height:100%;
+border-radius:50%;
+box-shadow:0 8px 20px rgba(0,0,0,0.3);
+transition:transform .2s;
+}
+
+.whatsapp-float:hover img{
+transform:scale(1.08);
+}
+
+/* visible seulement sur mobile */
+@media (min-width:900px){
+.whatsapp-float{
+display:none;
+}
+}
+
+</style>
 </head>
 <body>
 
@@ -600,5 +630,13 @@ document.querySelectorAll('.service-card, .galerie-item').forEach(function(el) {
   obs.observe(el);
 });
 </script>
+
+<a href="https://wa.me/15144466078?text=Bonjour%20Mohand,%20je%20souhaite%20un%20devis%20CapturAir,%20Merci%20et%20bonne%20journ%C3%A9e%20%F0%9F%99%82"
+class="whatsapp-float"
+target="_blank"
+aria-label="WhatsApp CapturAir">
+<img src="images/whatsapp.png" alt="WhatsApp">
+</a>
+
 </body>
 </html>
