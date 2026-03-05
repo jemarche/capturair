@@ -160,20 +160,10 @@
 <div class="modal-overlay" id="successModal">
   <div class="modal-box">
     <div class="modal-icon">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="20 6 9 17 4 12"/>
-      </svg>
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
-
     <h2 class="modal-title">Merci pour votre message !</h2>
-
-    <p class="modal-text">
-      Votre demande a bien été reçue. Nous vous contacterons <strong>dans les 24 heures</strong>.
-      <br><br>
-      À très bientôt,<br>
-      — Mohand · CapturAir —
-    </p>
-
+    <p class="modal-text">Votre demande a bien été reçue. Nous vous contacterons <strong>dans les 24 heures</strong>.<br><br>À très bientôt,<br>— Mohand · CapturAir — </p>
     <button class="modal-close" onclick="closeModal()">Fermer</button>
   </div>
 </div>
@@ -421,18 +411,17 @@ async function handleSubmit(e) {
   setTimeout(function() { btn.textContent = orig; btn.style.background = ''; btn.disabled = false; }, 3000);
 }
 
-fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code&timezone=America%2FToronto')
+fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FToronto')
   .then(function(r) { return r.json(); })
   .then(function(d) {
     var e = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
-
-    document.getElementById('w-icon').textContent =
-    e[d.current.weather_code] || '🌡️';
+    document.getElementById('w-icon').textContent = e[d.current.weather_code] || '🌡️';
 
     var c = Math.round(d.current.temperature_2m);
     var f = Math.round((c * 9/5) + 32);
+    var wind = Math.round(d.current.wind_speed_10m);
 
-    document.getElementById('w-temp').textContent = c + '°C · ' + f + '°F';
+    document.getElementById('w-temp').textContent = c + '°C · ' + f + '°F · Vent/Wind ' + wind + ' km/h';
   })
   .catch(function() {});
 
