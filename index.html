@@ -379,9 +379,9 @@
           Appeler
         </a>
 
-        <a class="contact-action-btn"
-           href="sms:+15144466078?body=Bonjour%20Mohand%2C%20je%20souhaite%20un%20devis%20CapturAir%2C%20Merci%20et%20bonne%20journ%C3%A9e%20%F0%9F%99%82"
-           aria-label="Envoyer un SMS pré-rempli">
+        <a class="contact-action-btn" id="smsQuickBtn"
+           href="sms:15144466078"
+           aria-label="Envoyer un SMS pré-rempli" onclick="return openSms(event)">
           <svg viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             <path d="M7.5 9h9"></path>
@@ -452,6 +452,32 @@
 </footer>
 
 <script>
+
+function openSms(e) {
+  if (e) e.preventDefault();
+
+  // Message pré-rempli
+  var body = "Bonjour Mohand, je souhaite un devis CapturAir, Merci et bonne journée 🙂";
+  var encoded = encodeURIComponent(body);
+
+  // Numéros
+  var numberIntl = "+15144466078";   // Android / autres
+  var numberNoPlus = "15144466078";  // iOS aime souvent sans '+'
+
+  // Détection iOS
+  var ua = navigator.userAgent || navigator.vendor || window.opera;
+  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+
+  // iOS: utiliser &body= (sinon iOS colle ?body au numéro)
+  // Android/Autres: ?body= fonctionne mieux
+  var smsUrl = isIOS
+    ? ("sms:" + numberNoPlus + "&body=" + encoded)
+    : ("sms:" + numberIntl + "?body=" + encoded);
+
+  window.location.href = smsUrl;
+  return false;
+}
+
 window.addEventListener('scroll', function() {
   var nav = document.querySelector('nav');
   nav.style.background = window.scrollY > 50 ? 'rgba(11,31,58,0.98)' : 'rgba(11,31,58,0.92)';
