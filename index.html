@@ -55,6 +55,35 @@
     .btn-primary:hover { background: var(--blue-light); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(26,143,209,0.35); }
     .btn-secondary { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--white); text-decoration: none; padding: 14px 30px; border-radius: 8px; font-size: 15px; font-weight: 400; border: 1px solid rgba(255,255,255,0.3); transition: all 0.2s; }
     .btn-secondary:hover { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.05); }
+    /* Quick contact icons (hero) */
+    .quick-contact { display: inline-flex; gap: 10px; align-items: center; }
+    .quick-contact a { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.22); border-radius: 10px; transition: all 0.2s; }
+    .quick-contact a:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); border-color: rgba(255,255,255,0.35); }
+    .quick-contact img { width: 22px; height: 22px; display: block; }
+
+    /* Trust strip above form */
+    .trust-strip { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+    .trust-item { display: inline-flex; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(200,216,232,0.10); color: rgba(200,216,232,0.85); font-size: 12px; padding: 8px 12px; border-radius: 999px; }
+
+    /* Contact quick actions (desktop & mobile) */
+    .contact-quick { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0 18px; }
+    .contact-quick a { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: rgba(200,216,232,0.9); background: rgba(255,255,255,0.05); border: 1px solid rgba(200,216,232,0.12); padding: 10px 14px; border-radius: 14px; transition: all 0.2s; }
+    .contact-quick a:hover { background: rgba(255,255,255,0.08); transform: translateY(-1px); border-color: rgba(200,216,232,0.22); }
+    .contact-quick img { width: 18px; height: 18px; }
+    .contact-quick span { font-size: 13px; }
+
+    /* Floating dock (mobile) */
+    .floating-dock { display: none; position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 1200;
+      padding: 10px; border-radius: 18px; background: rgba(11,31,58,0.82); border: 1px solid rgba(200,216,232,0.14);
+      backdrop-filter: blur(12px); gap: 10px; align-items: center; justify-content: space-between; }
+    .dock-item { width: 46px; height: 46px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.16); text-decoration: none; transition: all 0.2s; }
+    .dock-item:hover { background: rgba(255,255,255,0.10); transform: translateY(-1px); border-color: rgba(255,255,255,0.28); }
+    .dock-item img { width: 22px; height: 22px; }
+    .dock-primary { flex: 1; width: auto; padding: 0 14px; font-size: 14px; font-weight: 600; color: var(--white);
+      background: var(--blue); border-color: rgba(26,143,209,0.55); justify-content: center; }
+    .dock-primary:hover { background: var(--blue-light); }
+
 
     section { padding: 100px 60px; }
     .section-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 16px; }
@@ -165,8 +194,39 @@
       .form-row { grid-template-columns: 1fr; }
       footer { flex-direction: column; gap: 16px; text-align: center; }
       .modal-box { padding: 36px 28px; }
+      body { padding-bottom: 96px; }
+
+      .hero-actions { gap: 12px; }
+      .quick-contact a { width: 40px; height: 40px; }
+      .quick-contact img { width: 20px; height: 20px; }
+
     }
-  </style>
+  
+.whatsapp-float{
+position:fixed;
+bottom:20px;
+right:20px;
+width:56px;
+height:56px;
+border-radius:16px;
+background:#25D366;
+display:flex;
+align-items:center;
+justify-content:center;
+box-shadow:0 10px 25px rgba(0,0,0,0.25);
+z-index:1500;
+transition:all .2s ease;
+}
+.whatsapp-float:hover{
+transform:translateY(-2px);
+box-shadow:0 14px 35px rgba(0,0,0,0.35);
+}
+.whatsapp-float img{width:26px;height:26px;}
+@media (max-width:900px){
+.whatsapp-float{bottom:18px;right:18px;width:52px;height:52px;}
+}
+
+</style>
 </head>
 <body>
 
@@ -221,7 +281,7 @@
     <div class="hero-actions">
       <a href="#contact" class="btn-primary">Demander un devis</a>
       <a href="#galerie" class="btn-secondary">Voir la galerie</a>
-    </div>
+      </div>
   </div>
 </section>
 
@@ -330,6 +390,11 @@
       <span class="section-tag">Contact</span>
       <h2 class="section-title">Parlons de <strong>votre projet</strong></h2>
       <p>Prêt à donner de la hauteur à votre projet ? Contactez-nous pour une soumission gratuite et sans engagement. Nous répondons sous 24h.</p>
+      <div class="contact-quick" aria-label="Contact rapide">
+        <a href="https://wa.me/15144466078?text=Bonjour%20Mohand%2C%20je%20souhaite%20un%20devis%20CapturAir%20%28photos/vid%C3%A9o%20drone%29." title="WhatsApp" aria-label="WhatsApp"><img src="images/whatsapp.png" alt="WhatsApp"><span>WhatsApp</span></a>
+        <a href="tel:+15144466078" title="Appeler" aria-label="Appeler"><img src="images/phone.png" alt="Appeler"><span>Appeler</span></a>
+        <a href="sms:+15144466078" title="SMS" aria-label="SMS"><img src="images/sms.png" alt="SMS"><span>SMS</span></a>
+      </div>
       <div class="contact-details">
         <div class="contact-detail">
           <div class="contact-detail-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
@@ -354,16 +419,20 @@
         </div>
       </div>
     </div>
+
+    <div class="trust-strip">
+      <span class="trust-item">✓ Certifié Transports Canada</span>
+      <span class="trust-item">✓ Assurance responsabilité</span>
+      <span class="trust-item">✓ Réponse sous 24h</span>
+      <span class="trust-item">✓ Livraison 48h</span>
+    </div>
     <form class="contact-form" onsubmit="handleSubmit(event)">
       <input type="hidden" name="access_key" value="968327d5-cc33-42ad-a702-52e138057bff">
       <input type="hidden" name="subject" value="Nouvelle demande - CapturAir">
       <input type="hidden" name="from_name" value="CapturAir Site Web">
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Prénom</label><input type="text" name="prenom" class="form-input" placeholder="Jean" required></div>
-        <div class="form-group"><label class="form-label">Nom</label><input type="text" name="nom" class="form-input" placeholder="Tremblay" required></div>
-      </div>
+      <div class="form-group"><label class="form-label">Prénom</label><input type="text" name="prenom" class="form-input" placeholder="Jean" required></div>
       <div class="form-group"><label class="form-label">Courriel</label><input type="email" name="email" class="form-input" placeholder="jean@example.com" required></div>
-      <div class="form-group"><label class="form-label">Téléphone</label><input type="tel" name="telephone" class="form-input" placeholder="514 000-0000"></div>
+      <div class="form-group"><label class="form-label">Téléphone (optionnel, pour rappel)</label><input type="tel" name="telephone" class="form-input" placeholder="514 000-0000"></div>
       <div class="form-group">
         <label class="form-label">Type de projet</label>
         <select name="type_projet" class="form-select form-input">
@@ -375,7 +444,7 @@
           <option>Autre</option>
         </select>
       </div>
-      <div class="form-group"><label class="form-label">Message</label><textarea name="message" class="form-textarea" placeholder="Décrivez votre projet..."></textarea></div>
+      <div class="form-group"><label class="form-label">Message</label><textarea name="message" class="form-textarea" placeholder="Ville/adresse, type (photos/vidéo), deadline (date), détails utiles..."></textarea></div>
       <button type="submit" class="btn-primary form-submit">Envoyer la demande</button>
     </form>
   </div>
@@ -390,7 +459,30 @@
   </div>
 </footer>
 
+
+<div class="floating-dock" id="floatingDock" aria-label="Raccourcis contact">
+  <a class="dock-item dock-primary" href="#contact" aria-label="Devis">Devis</a>
+  <a class="dock-item" href="https://wa.me/15144466078?text=Bonjour%20Mohand%2C%20je%20souhaite%20un%20devis%20CapturAir%20%28photos/vid%C3%A9o%20drone%29." aria-label="WhatsApp"><img src="images/whatsapp.png" alt="WhatsApp"></a>
+  <a class="dock-item" href="tel:+15144466078" aria-label="Appeler"><img src="images/phone.png" alt="Appeler"></a>
+  <a class="dock-item" href="sms:+15144466078" aria-label="SMS"><img src="images/sms.png" alt="SMS"></a>
+</div>
+
+
 <script>
+
+// Floating dock (mobile only)
+(function() {
+  var dock = document.getElementById('floatingDock');
+  if (!dock) return;
+  function updateDock() {
+    var isMobile = window.matchMedia('(max-width: 900px)').matches;
+    dock.style.display = (isMobile && window.scrollY > 220) ? 'flex' : 'none';
+  }
+  window.addEventListener('scroll', updateDock);
+  window.addEventListener('resize', updateDock);
+  updateDock();
+})();
+
 window.addEventListener('scroll', function() {
   var nav = document.querySelector('nav');
   nav.style.background = window.scrollY > 50 ? 'rgba(11,31,58,0.98)' : 'rgba(11,31,58,0.92)';
@@ -455,5 +547,11 @@ document.querySelectorAll('.service-card, .galerie-item').forEach(function(el) {
   obs.observe(el);
 });
 </script>
+
+<a href="https://wa.me/15144466078?text=Bonjour%20Mohand%2C%20je%20souhaite%20un%20devis%20CapturAir."
+class="whatsapp-float" target="_blank" aria-label="WhatsApp">
+<img src="images/whatsapp.png" alt="WhatsApp">
+</a>
+
 </body>
 </html>
