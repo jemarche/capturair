@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -405,39 +404,42 @@
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 
-  // MÉTÉO Open-Meteo (gratuit, CORS OK)
+  // MÉTÉO wttr.in
   const weatherCities = [
-    { id: 'w-lavaltrie', name: 'Lavaltrie', lat: 45.8833, lon: -73.2833 },
-    { id: 'w-montreal',  name: 'Montreal',  lat: 45.5017, lon: -73.5673 },
-    { id: 'w-saguenay',  name: 'Saguenay',  lat: 48.4279, lon: -71.0656 },
+    { id: 'w-lavaltrie', query: 'Lavaltrie,Quebec' },
+    { id: 'w-montreal',  query: 'Montreal,Quebec' },
+    { id: 'w-saguenay',  query: 'Saguenay,Quebec' },
   ];
   function getWeatherEmoji(code) {
-    if (code === 0) return '☀️';
-    if (code <= 2) return '🌤️';
-    if (code === 3) return '☁️';
-    if (code <= 48) return '🌫️';
-    if (code <= 57) return '🌦️';
-    if (code <= 67) return '🌧️';
-    if (code <= 77) return '❄️';
-    if (code <= 82) return '🌦️';
-    if (code <= 99) return '⛈️';
-    return '🌡️';
+    if (code <= 113) return '☀️';
+    if (code <= 119) return '🌤️';
+    if (code <= 143) return '🌫️';
+    if (code <= 176) return '🌦️';
+    if (code <= 179) return '🌨️';
+    if (code <= 200) return '🌧️';
+    if (code <= 227) return '❄️';
+    if (code <= 260) return '🌫️';
+    if (code <= 296) return '🌦️';
+    if (code <= 315) return '🌧️';
+    if (code <= 353) return '🌦️';
+    if (code <= 395) return '🌨️';
+    return '⛈️';
   }
   async function loadWeather() {
     for (const city of weatherCities) {
       try {
-        const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + city.lat + '&longitude=' + city.lon + '&current=temperature_2m,weather_code&timezone=America%2FToronto&forecast_days=1';
+        const url = `https://wttr.in/${encodeURIComponent(city.query)}?format=j1`;
         const res = await fetch(url);
         const data = await res.json();
-        const temp = Math.round(data.current.temperature_2m);
-        const code = data.current.weather_code;
+        const current = data.current_condition[0];
+        const temp = current.temp_C;
+        const code = parseInt(current.weatherCode);
         const card = document.getElementById(city.id);
-        if (card) {
-          card.querySelector('.weather-icon').textContent = getWeatherEmoji(code);
-          card.querySelector('.weather-temp').textContent = temp + '°C';
-        }
-      } catch(e) {
-        console.warn('Météo erreur:', city.name, e);
+        card.querySelector('.weather-icon').textContent = getWeatherEmoji(code);
+        card.querySelector('.weather-temp').textContent = temp + '°C';
+      } catch(e) { 
+        const card = document.getElementById(city.id);
+        if(card) card.querySelector('.weather-temp').textContent = 'N/A';
       }
     }
   }
