@@ -167,6 +167,24 @@
     footer a { color: rgba(200,216,232,0.4); text-decoration: none; }
     footer a:hover { color: var(--blue-light); }
 
+    /* ── WHATSAPP FLOATING BUTTON ── */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 60px;
+      height: 60px;
+      z-index: 999;
+    }
+    .whatsapp-float img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+      transition: transform .2s;
+    }
+    .whatsapp-float:hover img { transform: scale(1.08); }
+
     /* ── WEATHER WIDGET ── */
     .weather-widget { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.07); border: 1px solid rgba(200,216,232,0.12); border-radius: 10px; padding: 6px 14px; flex-shrink: 0; }
     .weather-widget-icon { font-size: 18px; }
@@ -314,6 +332,13 @@
 <footer>
   <p>© 2025 CapturAir · Drone &amp; Photographie Aérienne · <a href="index.html">Retour au site</a></p>
 </footer>
+
+<!-- ── WHATSAPP FLOATING BUTTON ── -->
+<a class="whatsapp-float"
+   href="https://wa.me/15144466078?text=Bonjour%20L%27%C3%A9quipe%20CapturAir%2C%20je%20souhaite%20un%20devis%20CapturAir%2C%20Merci%20et%20bonne%20journ%C3%A9e%20%F0%9F%99%82"
+   target="_blank" rel="noopener" aria-label="Contacter CapturAir sur WhatsApp">
+  <img src="images/whatsapp.png" alt="WhatsApp CapturAir">
+</a>
 
 <script>
 fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FToronto')
