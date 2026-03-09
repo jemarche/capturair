@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact · CapturAir — Drone & Photographie Aérienne</title>
+  <meta name="description" content="Contactez CapturAir par WhatsApp, téléphone, SMS ou courriel. Drone & photographie aérienne en Lanaudière & Grand Montréal.">
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:       #0B1F3A;
+      --blue:       #1A8FD1;
+      --blue-light: #3AABEF;
+      --offwhite:   #F4F7FA;
+      --white:      #FFFFFF;
+      --gray:       #6B7C93;
+      --dark:       #0D1520;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; font-weight: 300; color: var(--white); background: var(--dark); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 72px;
+      background: rgba(11,31,58,0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(200,216,232,0.1);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .nav-logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--blue), #0D5C8A);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    }
+    .nav-logo-icon svg { width: 20px; height: 20px; }
+    .nav-logo-text { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--white); letter-spacing: 0.5px; }
+    .nav-logo-text span { color: var(--blue-light); }
+    .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+    .nav-links a { text-decoration: none; color: rgba(255,255,255,0.75); font-size: 14px; font-weight: 400; letter-spacing: 0.5px; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--white); }
+    .nav-links a.active { color: var(--blue-light); }
+    .nav-cta { background: var(--blue) !important; color: var(--white) !important; padding: 9px 22px !important; border-radius: 6px !important; font-weight: 500 !important; }
+    .nav-cta:hover { background: var(--blue-light) !important; color: var(--white) !important; }
+
+    /* ── PAGE WRAPPER ── */
+    .page-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 100px 24px 60px;
+      background: var(--dark);
+    }
+
+    /* ── CONTACT CARD ── */
+    .contact-card {
+      width: 100%;
+      max-width: 560px;
+    }
+
+    .section-tag {
+      display: inline-block;
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--blue-light);
+      margin-bottom: 16px;
+    }
+
+    .page-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 6vw, 58px);
+      font-weight: 300;
+      color: var(--white);
+      line-height: 1.1;
+      margin-bottom: 14px;
+    }
+    .page-title strong { font-weight: 600; color: var(--blue-light); }
+
+    .page-lead {
+      color: rgba(200,216,232,0.65);
+      font-size: 15px;
+      line-height: 1.65;
+      margin-bottom: 40px;
+    }
+
+    /* ── ACTION BUTTONS ── */
+    .contact-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 44px;
+    }
+
+    .contact-action-btn {
+      display: inline-flex; align-items: center; gap: 9px;
+      padding: 13px 22px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(200,216,232,0.15);
+      border-radius: 50px;
+      color: var(--white);
+      font-size: 14px; font-weight: 400;
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      cursor: pointer;
+    }
+    .contact-action-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .contact-action-btn:hover {
+      background: rgba(26,143,209,0.18);
+      border-color: rgba(58,171,239,0.4);
+      transform: translateY(-1px);
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: rgba(200,216,232,0.1);
+      margin-bottom: 36px;
+    }
+
+    /* ── CONTACT DETAILS ── */
+    .contact-details { display: flex; flex-direction: column; gap: 24px; }
+
+    .contact-detail {
+      display: flex; align-items: center; gap: 18px;
+    }
+
+    .contact-detail-icon {
+      width: 48px; height: 48px; flex-shrink: 0;
+      background: rgba(26,143,209,0.12);
+      border: 1px solid rgba(26,143,209,0.2);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .contact-detail-label {
+      font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: rgba(200,216,232,0.4);
+      margin-bottom: 4px;
+    }
+
+    .contact-detail-value {
+      font-size: 16px; font-weight: 400; color: var(--white);
+    }
+
+    .contact-detail-value a {
+      color: var(--blue-light);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .contact-detail-value a:hover { color: var(--white); }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 20px 24px;
+      font-size: 12px;
+      color: rgba(200,216,232,0.3);
+      border-top: 1px solid rgba(200,216,232,0.08);
+      background: var(--dark);
+    }
+    footer a { color: rgba(200,216,232,0.4); text-decoration: none; }
+    footer a:hover { color: var(--blue-light); }
+
+    /* ── MOBILE ── */
+    @media (max-width: 600px) {
+      nav { padding: 0 16px; }
+      .nav-links { display: none; }
+      .contact-actions { flex-direction: column; }
+      .contact-action-btn { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+    </div>
+    <span class="nav-logo-text">Captur<span>Air</span></span>
+  </a>
+
+  <ul class="nav-links">
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#galerie">Galerie</a></li>
+    <li><a href="index.html#apropos">À propos</a></li>
+    <li><a href="contact.html" class="active">Contact</a></li>
+    <li><a href="index.html#contact" class="nav-cta">Demander un devis</a></li>
+  </ul>
+</nav>
+
+<!-- ── MAIN ── -->
+<main class="page-wrapper">
+  <div class="contact-card">
+
+    <span class="section-tag">Contact</span>
+    <h1 class="page-title">Parlons de <strong>votre projet</strong></h1>
+    <p class="page-lead">Prêt à donner de la hauteur à votre projet ? Contactez-nous directement — nous répondons sous 24h.</p>
+
+    <!-- Boutons rapides -->
+    <div class="contact-actions">
+
+      <a class="contact-action-btn"
+         href="https://wa.me/15144466078?text=Bonjour%20L%27%C3%A9quipe%20CapturAir%2C%20je%20souhaite%20un%20devis%20CapturAir%2C%20Merci%20et%20bonne%20journ%C3%A9e%20%F0%9F%99%82"
+         target="_blank" rel="noopener" aria-label="Ouvrir WhatsApp">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5z"/>
+          <path d="M8.8 9.8c.2-.3.5-.5.9-.4l1.1.3c.3.1.6.4.6.7.1.6.3 1.2.7 1.7.2.3.2.7-.1 1l-.4.4a6.8 6.8 0 0 0 2.7 2.1l.4-.4c.3-.3.7-.3 1-.1.6.4 1.2.6 1.8.7.4.1.6.3.7.6l.3 1.1c.1.4-.1.7-.4.9-.9.6-2.1.8-3.2.4-2.2-.7-4.9-3-6-5.1-.6-1.1-.4-2.3.1-3.2z"/>
+        </svg>
+        WhatsApp
+      </a>
+
+      <a class="contact-action-btn" href="tel:+15144466078" aria-label="Appeler CapturAir">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1A19.5 19.5 0 0 1 3.1 9.8 19.8 19.8 0 0 1 0 1.1 2 2 0 0 1 2 0h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.4 2.1L6.1 8.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>
+        </svg>
+        Appeler
+      </a>
+
+      <a class="contact-action-btn" href="sms:+15144466078" aria-label="Envoyer un SMS">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          <path d="M7.5 9h9"/><path d="M7.5 12h6.5"/>
+        </svg>
+        SMS
+      </a>
+
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Coordonnées -->
+    <div class="contact-details">
+
+      <div class="contact-detail">
+        <div class="contact-detail-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="contact-detail-label">Téléphone</div>
+          <div class="contact-detail-value"><a href="tel:+15144466078">(+1) 514 446-6078</a></div>
+        </div>
+      </div>
+
+      <div class="contact-detail">
+        <div class="contact-detail-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+        </div>
+        <div>
+          <div class="contact-detail-label">Courriel</div>
+          <div class="contact-detail-value"><a href="mailto:info@capturair.ca">info@capturair.ca</a></div>
+        </div>
+      </div>
+
+      <div class="contact-detail">
+        <div class="contact-detail-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+        <div>
+          <div class="contact-detail-label">Zone de service</div>
+          <div class="contact-detail-value">Lanaudière &amp; Grand Montréal</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <p>© 2025 CapturAir · Drone &amp; Photographie Aérienne · <a href="index.html">Retour au site</a></p>
+</footer>
+
+</body>
+</html>
