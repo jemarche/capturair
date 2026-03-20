@@ -145,12 +145,10 @@ gtag('config', 'G-44EB1JEJ2C');
     .contact-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
     .contact-info { color: rgba(200,216,232,0.75); }
     .contact-info p { font-size: 15px; line-height: 1.8; margin-bottom: 18px; }
-
     .contact-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0 28px; }
     .contact-action-btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 18px; border-radius: 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(200,216,232,0.18); color: var(--white); text-decoration: none; font-size: 14px; font-weight: 500; transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease; user-select: none; }
     .contact-action-btn:hover { transform: translateY(-1px); background: rgba(26,143,209,0.12); border-color: rgba(58,171,239,0.45); }
     .contact-action-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
-
     .contact-details { display: flex; flex-direction: column; gap: 16px; }
     .contact-detail { display: flex; align-items: center; gap: 14px; font-size: 14px; color: rgba(200,216,232,0.75); }
     .contact-detail-icon { width: 40px; height: 40px; background: rgba(26,143,209,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -161,17 +159,13 @@ gtag('config', 'G-44EB1JEJ2C');
     .form-input, .form-select, .form-textarea { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(200,216,232,0.15); border-radius: 10px; padding: 13px 16px; font-size: 14px; color: var(--white); font-family: 'DM Sans', sans-serif; transition: border-color 0.2s; outline: none; }
     .form-input::placeholder, .form-textarea::placeholder { color: rgba(200,216,232,0.3); }
     .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--blue); background: rgba(26,143,209,0.08); }
-    .form-select option { background: var(--navy); color: var(--white); }
+    .form-select option, .form-select optgroup { background: var(--navy); color: var(--white); }
     .form-textarea { min-height: 120px; resize: vertical; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .form-submit { width: 100%; margin-top: 8px; }
-
-    .form-input.is-invalid,
-    .form-select.is-invalid,
-    .form-textarea.is-invalid { border-color: var(--error) !important; background: rgba(231,76,60,0.08) !important; }
-    .form-input.is-valid,
-    .form-select.is-valid,
-    .form-textarea.is-valid { border-color: var(--success) !important; background: rgba(46,204,113,0.06) !important; }
+    input[type="date"].form-input::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.5; cursor: pointer; }
+    .form-input.is-invalid, .form-select.is-invalid, .form-textarea.is-invalid { border-color: var(--error) !important; background: rgba(231,76,60,0.08) !important; }
+    .form-input.is-valid, .form-select.is-valid, .form-textarea.is-valid { border-color: var(--success) !important; background: rgba(46,204,113,0.06) !important; }
     .field-error { display: none; color: var(--error); font-size: 12px; margin-top: 6px; padding-left: 4px; }
     .field-error.visible { display: block; }
 
@@ -232,7 +226,7 @@ gtag('config', 'G-44EB1JEJ2C');
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
     <h2 class="modal-title">Merci pour votre message !</h2>
-    <p class="modal-text">Votre demande a bien été reçue. Nous vous contacterons <strong>dans les 24 heures</strong>.<br><br>À très bientôt,<br>— L'équipe CapturAir — </p>
+    <p class="modal-text">Votre demande a bien été reçue. Nous vous contacterons <strong>dans les 24 heures</strong>.<br><br>À très bientôt,<br>— L'équipe CapturAir —</p>
     <button class="modal-close" onclick="closeModal()">Fermer</button>
   </div>
 </div>
@@ -387,33 +381,20 @@ gtag('config', 'G-44EB1JEJ2C');
       <span class="section-tag">Contact</span>
       <h2 class="section-title">Parlons de <strong>votre projet</strong></h2>
       <p>Prêt à donner de la hauteur à votre projet ? Contactez-nous pour une soumission gratuite et sans engagement. Nous répondons sous 24h.</p>
-
-      <div class="contact-actions" aria-label="Actions rapides de contact">
-        <a class="contact-action-btn"
-           href="https://wa.me/15144466078?text=Bonjour%20L%27%C3%A9quipe%20CapturAir%2C%20je%20souhaite%20un%20devis%20CapturAir%2C%20Merci%20et%20bonne%20journ%C3%A9e%20%F0%9F%99%82"
-           target="_blank" rel="noopener" aria-label="Ouvrir WhatsApp avec un message pré-rempli">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5z"></path>
-            <path d="M8.8 9.8c.2-.3.5-.5.9-.4l1.1.3c.3.1.6.4.6.7.1.6.3 1.2.7 1.7.2.3.2.7-.1 1l-.4.4a6.8 6.8 0 0 0 2.7 2.1l.4-.4c.3-.3.7-.3 1-.1.6.4 1.2.6 1.8.7.4.1.6.3.7.6l.3 1.1c.1.4-.1.7-.4.9-.9.6-2.1.8-3.2.4-2.2-.7-4.9-3-6-5.1-.6-1.1-.4-2.3.1-3.2z"></path>
-          </svg>
+      <div class="contact-actions">
+        <a class="contact-action-btn" href="https://wa.me/15144466078?text=Bonjour%20L%27%C3%A9quipe%20CapturAir%2C%20je%20souhaite%20un%20devis%20CapturAir%2C%20Merci%20et%20bonne%20journ%C3%A9e%20%F0%9F%99%82" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5z"/><path d="M8.8 9.8c.2-.3.5-.5.9-.4l1.1.3c.3.1.6.4.6.7.1.6.3 1.2.7 1.7.2.3.2.7-.1 1l-.4.4a6.8 6.8 0 0 0 2.7 2.1l.4-.4c.3-.3.7-.3 1-.1.6.4 1.2.6 1.8.7.4.1.6.3.7.6l.3 1.1c.1.4-.1.7-.4.9-.9.6-2.1.8-3.2.4-2.2-.7-4.9-3-6-5.1-.6-1.1-.4-2.3.1-3.2z"/></svg>
           WhatsApp
         </a>
-        <a class="contact-action-btn" href="tel:+15144466078" aria-label="Appeler CapturAir">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1A19.5 19.5 0 0 1 3.1 9.8 19.8 19.8 0 0 1 0 1.1 2 2 0 0 1 2 0h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.4 2.1L6.1 8.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"></path>
-          </svg>
+        <a class="contact-action-btn" href="tel:+15144466078">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1A19.5 19.5 0 0 1 3.1 9.8 19.8 19.8 0 0 1 0 1.1 2 2 0 0 1 2 0h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.4 2.1L6.1 8.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
           Appeler
         </a>
-        <a class="contact-action-btn" id="smsQuickBtn" href="sms:15144466078" aria-label="Envoyer un SMS pré-rempli" onclick="return openSms(event)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            <path d="M7.5 9h9"></path>
-            <path d="M7.5 12h6.5"></path>
-          </svg>
+        <a class="contact-action-btn" href="sms:15144466078" onclick="return openSms(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M7.5 9h9"/><path d="M7.5 12h6.5"/></svg>
           SMS
         </a>
       </div>
-
       <div class="contact-details">
         <div class="contact-detail">
           <div class="contact-detail-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
@@ -470,6 +451,143 @@ gtag('config', 'G-44EB1JEJ2C');
       </div>
 
       <div class="form-group">
+        <label class="form-label">Ville / Municipalité *</label>
+        <select name="ville" id="ville" class="form-select form-input" required>
+          <option value="">Sélectionner votre ville...</option>
+          <optgroup label="── Zone de service principale ──">
+            <option>Lavaltrie</option>
+            <option>Repentigny</option>
+            <option>Joliette</option>
+            <option>L'Assomption</option>
+            <option>Terrebonne</option>
+            <option>Mascouche</option>
+            <option>Berthierville</option>
+            <option>Lanoraie</option>
+            <option>Saint-Sulpice</option>
+            <option>Saint-Ambroise-de-Kildare</option>
+          </optgroup>
+          <optgroup label="── Lanaudière ──">
+            <option>Rawdon</option>
+            <option>Saint-Charles-Borromée</option>
+            <option>Notre-Dame-des-Prairies</option>
+            <option>Saint-Paul</option>
+            <option>Saint-Lin–Laurentides</option>
+            <option>Sainte-Julienne</option>
+            <option>Saint-Jean-de-Matha</option>
+            <option>Saint-Félix-de-Valois</option>
+            <option>Sainte-Mélanie</option>
+            <option>Mandeville</option>
+            <option>Saint-Gabriel-de-Brandon</option>
+            <option>Saint-Norbert</option>
+            <option>Crabtree</option>
+            <option>Saint-Esprit</option>
+            <option>Sainte-Marie-Salomé</option>
+            <option>L'Épiphanie</option>
+            <option>Saint-Roch-de-l'Achigan</option>
+            <option>Saint-Jacques</option>
+            <option>Sainte-Élisabeth</option>
+            <option>Saint-Cléophas-de-Brandon</option>
+          </optgroup>
+          <optgroup label="── Grand Montréal ──">
+            <option>Montréal</option>
+            <option>Laval</option>
+            <option>Longueuil</option>
+            <option>Brossard</option>
+            <option>Anjou</option>
+            <option>Montréal-Est</option>
+            <option>Montréal-Nord</option>
+            <option>Saint-Léonard</option>
+            <option>Rivière-des-Prairies</option>
+            <option>Pointe-aux-Trembles</option>
+            <option>Verdun</option>
+            <option>LaSalle</option>
+            <option>Lachine</option>
+            <option>Saint-Michel</option>
+            <option>Rosemont</option>
+            <option>Plateau-Mont-Royal</option>
+            <option>Outremont</option>
+            <option>Westmount</option>
+            <option>Mont-Royal</option>
+            <option>Côte-Saint-Luc</option>
+            <option>Dollard-des-Ormeaux</option>
+            <option>Pointe-Claire</option>
+            <option>Kirkland</option>
+            <option>Beaconsfield</option>
+            <option>Baie-d'Urfé</option>
+            <option>Sainte-Anne-de-Bellevue</option>
+            <option>Dorval</option>
+            <option>L'Île-Perrot</option>
+            <option>Pincourt</option>
+            <option>Vaudreuil-Dorion</option>
+            <option>Boucherville</option>
+            <option>Saint-Bruno-de-Montarville</option>
+            <option>Saint-Lambert</option>
+            <option>Greenfield Park</option>
+            <option>Candiac</option>
+            <option>La Prairie</option>
+            <option>Sainte-Catherine</option>
+          </optgroup>
+          <optgroup label="── Laurentides ──">
+            <option>Saint-Jérôme</option>
+            <option>Blainville</option>
+            <option>Boisbriand</option>
+            <option>Rosemère</option>
+            <option>Sainte-Thérèse</option>
+            <option>Mirabel</option>
+            <option>Saint-Eustache</option>
+            <option>Deux-Montagnes</option>
+            <option>Sainte-Marthe-sur-le-Lac</option>
+            <option>Mont-Tremblant</option>
+            <option>Saint-Sauveur</option>
+            <option>Sainte-Agathe-des-Monts</option>
+            <option>Morin-Heights</option>
+            <option>Lachute</option>
+          </optgroup>
+          <optgroup label="── Montérégie ──">
+            <option>Saint-Hyacinthe</option>
+            <option>Sorel-Tracy</option>
+            <option>Granby</option>
+            <option>Saint-Jean-sur-Richelieu</option>
+            <option>Chambly</option>
+            <option>Varennes</option>
+            <option>Contrecoeur</option>
+            <option>Verchères</option>
+            <option>Sainte-Julie</option>
+            <option>McMasterville</option>
+            <option>Otterburn Park</option>
+            <option>Beloeil</option>
+            <option>Mont-Saint-Hilaire</option>
+          </optgroup>
+          <optgroup label="── Québec ──">
+            <option>Québec</option>
+            <option>Lévis</option>
+            <option>Sainte-Foy</option>
+            <option>Beauport</option>
+            <option>Charlesbourg</option>
+            <option>Sainte-Marie</option>
+          </optgroup>
+          <optgroup label="── Autres régions ──">
+            <option>Trois-Rivières</option>
+            <option>Sherbrooke</option>
+            <option>Gatineau</option>
+            <option>Saguenay</option>
+            <option>Drummondville</option>
+            <option>Saint-Georges</option>
+            <option>Victoriaville</option>
+            <option>Shawinigan</option>
+            <option>Rimouski</option>
+            <option>Sept-Îles</option>
+            <option>Rouyn-Noranda</option>
+            <option>Val-d'Or</option>
+          </optgroup>
+          <optgroup label="──────────────">
+            <option value="Autre">Autre (préciser dans le message)</option>
+          </optgroup>
+        </select>
+        <div class="field-error" id="ville-error">Veuillez sélectionner votre ville.</div>
+      </div>
+
+      <div class="form-group">
         <label class="form-label">Type de projet *</label>
         <select name="type_projet" id="type_projet" class="form-select form-input" required>
           <option value="">Sélectionner...</option>
@@ -480,6 +598,25 @@ gtag('config', 'G-44EB1JEJ2C');
           <option>Autre</option>
         </select>
         <div class="field-error" id="type_projet-error">Veuillez sélectionner un type de projet.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Date souhaitée <span style="color:rgba(200,216,232,0.4);font-size:11px;">(min. 48h)</span></label>
+        <input type="date" name="date_souhaitee" id="date_souhaitee" class="form-input">
+        <div class="field-error" id="date_souhaitee-error">La date doit être au minimum 48h à partir d'aujourd'hui.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Budget approximatif *</label>
+        <select name="budget" id="budget" class="form-select form-input" required>
+          <option value="">Sélectionner...</option>
+          <option>Moins de 300 $</option>
+          <option>300 $ – 500 $</option>
+          <option>500 $ – 800 $</option>
+          <option>800 $ +</option>
+          <option>À discuter</option>
+        </select>
+        <div class="field-error" id="budget-error">Veuillez sélectionner un budget approximatif.</div>
       </div>
 
       <div class="form-group">
@@ -502,41 +639,66 @@ gtag('config', 'G-44EB1JEJ2C');
   </div>
 </footer>
 
-<a class="whatsapp-float"
-   href="https://wa.me/15144466078?text=Bonjour%20L%27%C3%A9quipe%20CapturAir%2C%20je%20souhaite%20un%20devis%20CapturAir%2C%20Merci%20et%20bonne%20journ%C3%A9e%20%F0%9F%99%82"
-   target="_blank" rel="noopener" aria-label="Contacter CapturAir sur WhatsApp">
+<a class="whatsapp-float" href="https://wa.me/15144466078?text=Bonjour%20L%27%C3%A9quipe%20CapturAir%2C%20je%20souhaite%20un%20devis%20CapturAir%2C%20Merci%20et%20bonne%20journ%C3%A9e%20%F0%9F%99%82" target="_blank" rel="noopener">
   <img src="images/whatsapp.png" alt="WhatsApp CapturAir">
 </a>
 
 <script>
 /* ══════════════════════════════════════════
-   VALIDATION DU FORMULAIRE
+   DATE MIN — +48h
 ══════════════════════════════════════════ */
+(function() {
+  var minDate = new Date();
+  minDate.setDate(minDate.getDate() + 2);
+  var yyyy = minDate.getFullYear();
+  var mm   = String(minDate.getMonth() + 1).padStart(2, '0');
+  var dd   = String(minDate.getDate()).padStart(2, '0');
+  var el   = document.getElementById('date_souhaitee');
+  if (el) el.setAttribute('min', yyyy + '-' + mm + '-' + dd);
+})();
 
+/* ══════════════════════════════════════════
+   VALIDATION
+══════════════════════════════════════════ */
 var RULES = {
-  prenom:      { required: true },
-  nom:         { required: true },
-  email:       { required: true, email: true },
-  telephone:   { required: false, phone: true },
-  type_projet: { required: true },
-  message:     { required: true }
+  prenom:         { required: true },
+  nom:            { required: true },
+  email:          { required: true, email: true },
+  telephone:      { required: false, phone: true },
+  ville:          { required: true },
+  type_projet:    { required: true },
+  date_souhaitee: { required: false, futureDate: true },
+  budget:         { required: true },
+  message:        { required: true }
 };
 
 var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 var PHONE_RE = /^(\+?1[\s.\-]?)?(\(?\d{3}\)?[\s.\-]?)(\d{3}[\s.\-]?\d{4})$/;
 
 function validateField(id) {
-  var rule   = RULES[id];
+  var rule  = RULES[id];
   if (!rule) return true;
-  var el     = document.getElementById(id);
-  var errEl  = document.getElementById(id + '-error');
-  var val    = el.value.trim();
-  var valid  = true;
-  if (rule.required && val === '') { valid = false; }
-  else if (rule.email && val !== '' && !EMAIL_RE.test(val)) { valid = false; }
-  else if (rule.phone && val !== '' && !PHONE_RE.test(val)) { valid = false; }
+  var el    = document.getElementById(id);
+  var errEl = document.getElementById(id + '-error');
+  var val   = el.value.trim();
+  var valid = true;
+
+  if (rule.required && val === '') {
+    valid = false;
+  } else if (rule.email && val !== '' && !EMAIL_RE.test(val)) {
+    valid = false;
+  } else if (rule.phone && val !== '' && !PHONE_RE.test(val)) {
+    valid = false;
+  } else if (rule.futureDate && val !== '') {
+    var minD = new Date();
+    minD.setHours(0, 0, 0, 0);
+    minD.setDate(minD.getDate() + 2);
+    var picked = new Date(val + 'T00:00:00');
+    if (isNaN(picked) || picked < minD) { valid = false; }
+  }
+
   el.classList.toggle('is-invalid', !valid);
-  el.classList.toggle('is-valid',    valid && val !== '');
+  el.classList.toggle('is-valid', valid && val !== '');
   if (errEl) errEl.classList.toggle('visible', !valid);
   return valid;
 }
@@ -544,10 +706,9 @@ function validateField(id) {
 Object.keys(RULES).forEach(function(id) {
   var el = document.getElementById(id);
   if (el) {
-    el.addEventListener('blur', function() { validateField(id); });
-    el.addEventListener('input', function() {
-      if (el.classList.contains('is-invalid')) validateField(id);
-    });
+    el.addEventListener('blur',   function() { validateField(id); });
+    el.addEventListener('change', function() { validateField(id); });
+    el.addEventListener('input',  function() { if (el.classList.contains('is-invalid')) validateField(id); });
   }
 });
 
@@ -571,20 +732,17 @@ function handleSubmit(e) {
 
   var formData = new FormData(e.target);
 
-  // ── Envoyer à Make webhook ──
-  // Les noms de champs correspondent exactement au formulaire Tally
-  // pour permettre l'utilisation d'un seul scénario Make
   var makePayload = {
     fields: {
-      "Prénom": formData.get('prenom'),
-      "Nom": formData.get('nom'),
-      "Courriel": formData.get('email'),
-      "Téléphone": formData.get('telephone'),
-      "Type de service": formData.get('type_projet'),
-      "Description du projet": formData.get('message'),
-      "Ville / Municipalité": "",
-      "Date souhaitée": "",
-      "Budget approximatif": ""
+      "Prénom":                formData.get('prenom'),
+      "Nom":                   formData.get('nom'),
+      "Courriel":              formData.get('email'),
+      "Téléphone":             formData.get('telephone'),
+      "Ville / Municipalité":  formData.get('ville'),
+      "Type de service":       formData.get('type_projet'),
+      "Date souhaitée":        formData.get('date_souhaitee'),
+      "Budget approximatif":   formData.get('budget'),
+      "Description du projet": formData.get('message')
     }
   };
 
@@ -594,7 +752,6 @@ function handleSubmit(e) {
     body: JSON.stringify(makePayload)
   }).catch(function(err) { console.warn('Make webhook error:', err); });
 
-  // ── Envoyer à Web3Forms ──
   fetch('https://api.web3forms.com/submit', {
     method: 'POST',
     body: formData
@@ -605,7 +762,7 @@ function handleSubmit(e) {
       e.target.reset();
       Object.keys(RULES).forEach(function(id) {
         var el = document.getElementById(id);
-        if (el) { el.classList.remove('is-valid', 'is-invalid'); }
+        if (el) el.classList.remove('is-valid', 'is-invalid');
         var errEl = document.getElementById(id + '-error');
         if (errEl) errEl.classList.remove('visible');
       });
@@ -652,9 +809,7 @@ function openSms(e) {
   var encoded = encodeURIComponent(body);
   var ua      = navigator.userAgent || navigator.vendor || window.opera;
   var isIOS   = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-  window.location.href = isIOS
-    ? ('sms:15144466078&body=' + encoded)
-    : ('sms:+15144466078?body=' + encoded);
+  window.location.href = isIOS ? ('sms:15144466078&body=' + encoded) : ('sms:+15144466078?body=' + encoded);
   return false;
 }
 
