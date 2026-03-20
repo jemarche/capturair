@@ -426,7 +426,7 @@ gtag('config', 'G-44EB1JEJ2C');
           <div class="contact-detail-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
           <div>
             <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(200,216,232,0.4);margin-bottom:2px;">Courriel</div>
-            <a href="/cdn-cgi/l/email-protection#660f08000926050716121314070f14480507"><span class="__cf_email__" data-cfemail="51383f373e113230212524233038237f3230">[email&#160;protected]</span></a>
+            <a href="mailto:info@capturair.ca">info@capturair.ca</a>
           </div>
         </div>
         <div class="contact-detail">
@@ -460,7 +460,7 @@ gtag('config', 'G-44EB1JEJ2C');
       <div class="form-group">
         <label class="form-label">Courriel *</label>
         <input type="email" name="email" id="email" class="form-input" placeholder="jean@example.com" required>
-        <div class="field-error" id="email-error">Entrez une adresse courriel valide (ex. <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="68020d0906280d10090518040d460b0705">[email&#160;protected]</a>).</div>
+        <div class="field-error" id="email-error">Entrez une adresse courriel valide (ex. jean@example.com).</div>
       </div>
 
       <div class="form-group">
@@ -497,7 +497,7 @@ gtag('config', 'G-44EB1JEJ2C');
   <div class="footer-logo">Captur<span>Air</span></div>
   <div class="footer-copy">© 2026 CapturAir · Tous droits réservés</div>
   <div class="footer-links">
-    <a href="/cdn-cgi/l/email-protection#0861666e67486b69787c7d7a69617a266b69">Contact</a>
+    <a href="mailto:info@capturair.ca">Contact</a>
     <a href="#">Politique de confidentialité</a>
   </div>
 </footer>
@@ -508,7 +508,7 @@ gtag('config', 'G-44EB1JEJ2C');
   <img src="images/whatsapp.png" alt="WhatsApp CapturAir">
 </a>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 /* ══════════════════════════════════════════
    VALIDATION DU FORMULAIRE
 ══════════════════════════════════════════ */
@@ -683,4 +683,14 @@ fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.283
    ANIMATION SCROLL
 ══════════════════════════════════════════ */
 var obs = new IntersectionObserver(function(entries) {
-  entries.forEach(funct
+  entries.forEach(function(en) {
+    if (en.isIntersecting) { en.target.style.opacity='1'; en.target.style.transform='translateY(0)'; }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.service-card, .galerie-item').forEach(function(el) {
+  el.style.opacity='0'; el.style.transform='translateY(20px)'; el.style.transition='opacity 0.5s ease, transform 0.5s ease';
+  obs.observe(el);
+});
+</script>
+</body>
+</html>
