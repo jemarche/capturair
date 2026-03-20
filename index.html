@@ -572,15 +572,19 @@ function handleSubmit(e) {
   var formData = new FormData(e.target);
 
   // ── Envoyer à Make webhook ──
+  // Les noms de champs correspondent exactement au formulaire Tally
+  // pour permettre l'utilisation d'un seul scénario Make
   var makePayload = {
     fields: {
-      Prenom: formData.get('prenom'),
-      Nom: formData.get('nom'),
-      Courriel: formData.get('email'),
-      Telephone: formData.get('telephone'),
-      TypeDeService: formData.get('type_projet'),
-      DescriptionDuProjet: formData.get('message'),
-      Source: 'Site Web capturair.com'
+      "Prénom": formData.get('prenom'),
+      "Nom": formData.get('nom'),
+      "Courriel": formData.get('email'),
+      "Téléphone": formData.get('telephone'),
+      "Type de service": formData.get('type_projet'),
+      "Description du projet": formData.get('message'),
+      "Ville / Municipalité": "",
+      "Date souhaitée": "",
+      "Budget approximatif": ""
     }
   };
 
