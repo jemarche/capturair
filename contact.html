@@ -8,10 +8,10 @@
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://capturair.com/contact.html">
+  <meta property="og:url" content="https://jemarche.github.io/capturair/contact.html">
   <meta property="og:title" content="Contact — CapturAir | Drone & Photographie Aérienne">
   <meta property="og:description" content="Contactez CapturAir pour vos photos aériennes par drone en Lanaudière et Grand Montréal. Certifié Transports Canada. Demandez une soumission gratuite !">
-  <meta property="og:image" content="https://capturair.com/images/Facebook%20Publication%20Open%20Graph%201200%C3%97630px.png">
+  <meta property="og:image" content="https://jemarche.github.io/capturair/images/Facebook%20Publication%20Open%20Graph%201200%C3%97630px.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:locale" content="fr_CA">
@@ -21,7 +21,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Contact — CapturAir | Drone & Photographie Aérienne">
   <meta name="twitter:description" content="Contactez CapturAir pour vos photos aériennes par drone en Lanaudière et Grand Montréal. Certifié Transports Canada. Demandez une soumission gratuite !">
-  <meta name="twitter:image" content="https://capturair.com/images/Facebook%20Publication%20Open%20Graph%201200%C3%97630px.png">
+  <meta name="twitter:image" content="https://jemarche.github.io/capturair/images/Facebook%20Publication%20Open%20Graph%201200%C3%97630px.png">
   <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
@@ -133,6 +133,42 @@
       transform: translateY(-1px);
     }
 
+    /* ── VCARD ── */
+    .vcard-widget {
+      background: linear-gradient(135deg, rgba(26,143,209,0.12) 0%, rgba(11,31,58,0.6) 100%);
+      border: 1px solid rgba(26,143,209,0.25);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 36px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .vcard-widget:hover { border-color: rgba(58,171,239,0.5); box-shadow: 0 8px 32px rgba(26,143,209,0.15); }
+    .vcard-icon {
+      width: 52px; height: 52px; flex-shrink: 0;
+      background: linear-gradient(135deg, #1A8FD1, #0D5C8A);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .vcard-text { flex: 1; }
+    .vcard-text strong { display: block; color: #FFFFFF; font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+    .vcard-text span { font-size: 13px; color: rgba(200,216,232,0.55); line-height: 1.5; }
+    .vcard-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #1A8FD1; color: #FFFFFF;
+      text-decoration: none; padding: 10px 20px;
+      border-radius: 10px; font-size: 13px; font-weight: 500;
+      white-space: nowrap; transition: background 0.2s, transform 0.15s;
+      flex-shrink: 0;
+    }
+    .vcard-btn:hover { background: #3AABEF; transform: translateY(-1px); }
+    @media (max-width: 600px) {
+      .vcard-widget { flex-direction: column; align-items: flex-start; gap: 14px; padding: 20px; }
+      .vcard-btn { width: 100%; justify-content: center; padding: 12px 20px; }
+    }
+
     /* ── DIVIDER ── */
     .divider {
       height: 1px;
@@ -210,46 +246,12 @@
     .weather-widget-temp { font-size: 14px; font-weight: 500; color: var(--white); }
     .weather-widget-temp-short { display: none; }
 
-    /* ── VCARD WIDGET ── */
-    .vcard-widget {
-      background: linear-gradient(135deg, rgba(26,143,209,0.12) 0%, rgba(11,31,58,0.6) 100%);
-      border: 1px solid rgba(26,143,209,0.25);
-      border-radius: 16px;
-      padding: 24px 28px;
-      margin-bottom: 36px;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .vcard-widget:hover { border-color: rgba(58,171,239,0.5); box-shadow: 0 8px 32px rgba(26,143,209,0.15); }
-    .vcard-icon {
-      width: 52px; height: 52px; flex-shrink: 0;
-      background: linear-gradient(135deg, #1A8FD1, #0D5C8A);
-      border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .vcard-text { flex: 1; }
-    .vcard-text strong { display: block; color: #FFFFFF; font-size: 15px; font-weight: 500; margin-bottom: 4px; }
-    .vcard-text span { font-size: 13px; color: rgba(200,216,232,0.55); line-height: 1.5; }
-    .vcard-btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: #1A8FD1; color: #FFFFFF;
-      text-decoration: none; padding: 10px 20px;
-      border-radius: 10px; font-size: 13px; font-weight: 500;
-      white-space: nowrap; transition: background 0.2s, transform 0.15s;
-      flex-shrink: 0;
-    }
-    .vcard-btn:hover { background: #3AABEF; transform: translateY(-1px); }
-
     /* ── MOBILE ── */
     @media (max-width: 600px) {
       nav { padding: 0 16px; }
       .nav-links { display: none; }
       .contact-actions { flex-direction: column; }
       .contact-action-btn { justify-content: center; }
-      .vcard-widget { flex-direction: column; align-items: flex-start; gap: 14px; padding: 20px; }
-      .vcard-btn { width: 100%; justify-content: center; padding: 12px 20px; }
       .weather-widget { padding: 5px 10px; border-radius: 10px; gap: 6px; max-width: 46vw; flex-shrink: 1; overflow: hidden; }
       .weather-widget-icon { font-size: 16px; }
       .weather-widget-info { min-width: 0; }
@@ -332,7 +334,7 @@
 
     </div>
 
-    <!-- ── VCARD ── -->
+    <!-- Widget VCF -->
     <div class="vcard-widget">
       <div class="vcard-icon">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -379,7 +381,7 @@
         </div>
         <div>
           <div class="contact-detail-label">Courriel</div>
-          <div class="contact-detail-value"><a href="/cdn-cgi/l/email-protection#2a43444c456a494b5a5e5f584b435804494b"><span class="__cf_email__" data-cfemail="98f1f6fef7d8fbf9e8ecedeaf9f1eab6fbf9">[email&#160;protected]</span></a></div>
+          <div class="contact-detail-value"><a href="/cdn-cgi/l/email-protection#4c25222a230c2f2d3c38393e2d253e622f2d"><span class="__cf_email__" data-cfemail="bfd6d1d9d0ffdcdecfcbcacdded6cd91dcde">[email&#160;protected]</span></a></div>
         </div>
       </div>
 
@@ -429,4 +431,4 @@ fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.283
 
     // Desktop : temp + vent + condition de vol
     document.getElementById('w-temp').textContent =
-      c + '°C · ' + f + '°F · 
+      c + '°C · ' + f + '
