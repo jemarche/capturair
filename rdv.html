@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planifier une consultation · CapturAir</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --navy:       #0B1F3A;
+      --blue:       #1A8FD1;
+      --blue-light: #3AABEF;
+      --offwhite:   #F4F7FA;
+      --white:      #FFFFFF;
+      --gray:       #6B7C93;
+      --dark:       #0D1520;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; font-weight: 300; color: var(--navy); background: var(--offwhite); overflow-x: hidden; }
+
+    /* ── NAV ── */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; height: 72px; background: rgba(11,31,58,0.96); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(200,216,232,0.1); transition: background 0.3s; gap: 16px; }
+    .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; flex-shrink: 0; }
+    .nav-logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--blue), #0D5C8A); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .nav-logo-text { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--white); letter-spacing: 0.5px; }
+    .nav-logo-text span { color: var(--blue-light); }
+    .nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+    .nav-links a { text-decoration: none; color: rgba(255,255,255,0.75); font-size: 14px; font-weight: 400; letter-spacing: 0.5px; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--white); }
+    .nav-cta { background: var(--blue) !important; color: var(--white) !important; padding: 9px 22px !important; border-radius: 6px !important; font-weight: 500 !important; }
+    .nav-cta:hover { background: var(--blue-light) !important; }
+    .weather-widget { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.07); border: 1px solid rgba(200,216,232,0.12); border-radius: 10px; padding: 6px 14px; flex-shrink: 0; }
+    .weather-widget-icon { font-size: 18px; }
+    .weather-widget-info { display: flex; flex-direction: column; line-height: 1.3; }
+    .weather-widget-city { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(200,216,232,0.45); }
+    .weather-widget-temp { font-size: 14px; font-weight: 500; color: var(--white); }
+    .weather-widget-temp-short { display: none; }
+
+    /* ── HERO ── */
+    .rdv-hero { padding: 140px 60px 60px; background: var(--offwhite); text-align: center; position: relative; overflow: hidden; }
+    .rdv-hero::before { content: ''; position: absolute; top: 72px; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--blue), var(--blue-light), var(--blue)); }
+    .rdv-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 16px; }
+    .rdv-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 5vw, 62px); font-weight: 300; color: var(--navy); line-height: 1.1; margin-bottom: 16px; }
+    .rdv-title strong { font-weight: 600; color: var(--blue); }
+    .rdv-subtitle { font-size: 15px; color: var(--gray); line-height: 1.7; max-width: 540px; margin: 0 auto 40px; }
+    .rdv-info-bar { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; }
+    .rdv-info-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--gray); }
+    .rdv-info-icon { width: 36px; height: 36px; background: rgba(26,143,209,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .rdv-info-icon svg { width: 16px; height: 16px; }
+
+    /* ── CALENDRIER ── */
+    .rdv-calendar-section { padding: 40px 60px 20px; max-width: 1100px; margin: 0 auto; }
+    .rdv-calendar-wrapper { background: var(--white); border-radius: 20px; overflow: hidden; box-shadow: 0 4px 32px rgba(11,31,58,0.08); border: 1px solid rgba(26,143,209,0.1); }
+    .rdv-calendar-wrapper iframe { width: 100%; height: 700px; border: none; display: block; }
+
+    /* ── BOUTON RDV PRIS ── */
+    .rdv-confirm-section { text-align: center; padding: 28px 60px 60px; max-width: 1100px; margin: 0 auto; }
+    .rdv-confirm-btn { display: inline-flex; align-items: center; gap: 10px; background: transparent; border: 1.5px solid rgba(26,143,209,0.4); color: var(--blue); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 13px 32px; border-radius: 50px; cursor: pointer; transition: all 0.2s; }
+    .rdv-confirm-btn:hover { background: rgba(26,143,209,0.08); border-color: var(--blue); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(26,143,209,0.15); }
+    .rdv-confirm-btn svg { width: 16px; height: 16px; }
+
+    /* ── MODAL ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal-box { background: var(--navy); border: 1px solid rgba(26,143,209,0.3); border-radius: 24px; padding: 52px 48px; max-width: 480px; width: 90%; text-align: center; animation: slideUp 0.4s ease; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-icon { width: 72px; height: 72px; background: linear-gradient(135deg, rgba(26,143,209,0.2), rgba(58,171,239,0.1)); border: 2px solid var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; }
+    .modal-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; color: var(--white); margin-bottom: 16px; }
+    .modal-text { font-size: 15px; color: rgba(200,216,232,0.75); line-height: 1.8; margin-bottom: 32px; }
+    .modal-text strong { color: var(--blue-light); font-weight: 500; }
+    .modal-text a { color: var(--blue-light); text-decoration: none; }
+    .modal-close { background: var(--blue); color: var(--white); border: none; border-radius: 8px; padding: 13px 40px; font-size: 15px; font-family: 'DM Sans', sans-serif; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .modal-close:hover { background: var(--blue-light); transform: translateY(-1px); }
+
+    /* ── FOOTER ── */
+    footer { background: #060E18; padding: 40px 60px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(200,216,232,0.06); }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: rgba(255,255,255,0.5); }
+    .footer-logo span { color: var(--blue-light); }
+    .footer-copy { font-size: 12px; color: rgba(200,216,232,0.3); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { text-decoration: none; font-size: 12px; color: rgba(200,216,232,0.35); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--blue-light); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 0 16px; gap: 10px; }
+      .nav-links { display: none; }
+      .rdv-hero { padding: 120px 24px 48px; }
+      .rdv-calendar-section { padding: 24px 16px 12px; }
+      .rdv-confirm-section { padding: 20px 16px 48px; }
+      .rdv-calendar-wrapper iframe { height: 600px; }
+      .rdv-info-bar { gap: 16px; }
+      footer { flex-direction: column; gap: 16px; text-align: center; }
+      .weather-widget { padding: 5px 10px; gap: 6px; max-width: 46vw; flex-shrink: 1; overflow: hidden; }
+      .weather-widget-icon { font-size: 16px; }
+      #w-temp { display: none; }
+      .weather-widget-temp-short { display: block; font-size: 12px; }
+      .modal-box { padding: 36px 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── MODAL ── -->
+<div class="modal-overlay" id="rdvModal">
+  <div class="modal-box">
+    <div class="modal-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <h2 class="modal-title">Votre consultation est confirmée !</h2>
+    <p class="modal-text">
+      Un email de confirmation vous sera envoyé <strong>automatiquement dans les prochaines minutes</strong>.<br><br>
+      Si vous ne le recevez pas, vérifiez vos courriels indésirables ou contactez-nous à <a href="/cdn-cgi/l/email-protection#84edeae2ebc4e7e5f4f0f1f6e5edf6aae7ebe9"><span class="__cf_email__" data-cfemail="5e373038311e3d3f2e2a2b2c3f372c703d3133">[email&#160;protected]</span></a><br><br>
+      — L'équipe CapturAir —
+    </p>
+    <button class="modal-close" onclick="closeModal()">Fermer</button>
+  </div>
+</div>
+
+<!-- ── NAV ── -->
+<nav id="mainNav">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round">
+        <rect x="9" y="10" width="6" height="4" rx="1"/>
+        <line x1="9" y1="11" x2="4" y2="6"/><line x1="15" y1="11" x2="20" y2="6"/>
+        <line x1="9" y1="13" x2="4" y2="18"/><line x1="15" y1="13" x2="20" y2="18"/>
+        <circle cx="4" cy="6" r="2"/><circle cx="20" cy="6" r="2"/>
+        <circle cx="4" cy="18" r="2"/><circle cx="20" cy="18" r="2"/>
+      </svg>
+    </div>
+    <span class="nav-logo-text">Captur<span>Air</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#galerie">Galerie</a></li>
+    <li><a href="index.html#apropos">À propos</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="#calendrier" class="nav-cta">Prise de RDV</a></li>
+  </ul>
+  <div class="weather-widget">
+    <span class="weather-widget-icon" id="w-icon">⏳</span>
+    <div class="weather-widget-info">
+      <span class="weather-widget-city">Lavaltrie</span>
+      <span class="weather-widget-temp" id="w-temp">--°C</span>
+      <span class="weather-widget-temp weather-widget-temp-short" id="w-temp-short">--°C</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="rdv-hero">
+  <span class="rdv-tag">Consultation gratuite</span>
+  <h1 class="rdv-title">Planifier un appel de<br><strong>30 minutes</strong></h1>
+  <p class="rdv-subtitle">Discutons de votre projet de photographie aérienne par drone — vos besoins, la zone de vol, les délais et la soumission de prix. Sans engagement.</p>
+  <div class="rdv-info-bar">
+    <div class="rdv-info-item">
+      <div class="rdv-info-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <span>30 minutes</span>
+    </div>
+    <div class="rdv-info-item">
+      <div class="rdv-info-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round">
+          <path d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14"/><rect x="3" y="6" width="12" height="12" rx="2"/>
+        </svg>
+      </div>
+      <span>Google Meet</span>
+    </div>
+    <div class="rdv-info-item">
+      <div class="rdv-info-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+      </div>
+      <span>Heure de l'Est — Toronto</span>
+    </div>
+    <div class="rdv-info-item">
+      <div class="rdv-info-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <span>Sans engagement</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── CALENDRIER ── -->
+<div class="rdv-calendar-section" id="calendrier">
+  <div class="rdv-calendar-wrapper">
+    <iframe
+      src="https://calendar.app.google/LaZD3WtLdGRXoLEFA"
+      frameborder="0"
+      scrolling="no"
+      title="Planifier une consultation CapturAir">
+    </iframe>
+  </div>
+</div>
+
+<!-- ── BOUTON CONFIRMATION ── -->
+<div class="rdv-confirm-section">
+  <button class="rdv-confirm-btn" onclick="showModal()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    J'ai pris mon RDV
+  </button>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">Captur<span>Air</span></div>
+  <div class="footer-copy">© 2026 CapturAir · Tous droits réservés</div>
+  <div class="footer-links">
+    <a href="contact.html">Contact</a>
+    <a href="#">Politique de confidentialité</a>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  function showModal() {
+    document.getElementById('rdvModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    document.getElementById('rdvModal').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('rdvModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FToronto')
+    .then(r => r.json())
+    .then(d => {
+      var e = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+      document.getElementById('w-icon').textContent = e[d.current.weather_code] || '🌡️';
+      var c = Math.round(d.current.temperature_2m);
+      var f = Math.round((c * 9/5) + 32);
+      var wind = Math.round(d.current.wind_speed_10m);
+      var condition = '✅ Vol OK';
+      if (wind >= 20 && wind < 35) condition = '⚠️ Vol prudent';
+      if (wind >= 35) condition = '❌ Vol déconseillé';
+      document.getElementById('w-temp').textContent = c + '°C · ' + f + '°F · Vent ' + wind + ' km/h · ' + condition;
+      document.getElementById('w-temp-short').textContent = c + '°C · ' + f + '°F';
+    
