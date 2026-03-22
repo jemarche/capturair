@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    background: #0B1F3A;
+  }
+
+  .card {
+    width: 1200px;
+    height: 630px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0B1F3A 0%, #0D2B50 50%, #0B1F3A 100%);
+  }
+
+  /* Grid texture */
+  .grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(26,143,209,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(26,143,209,0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* Glow */
+  .glow {
+    position: absolute;
+    width: 800px;
+    height: 800px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(26,143,209,0.1) 0%, transparent 65%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 60px 100px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(26,143,209,0.12);
+    border: 1px solid rgba(26,143,209,0.35);
+    color: #3AABEF;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    padding: 7px 20px;
+    border-radius: 100px;
+    margin-bottom: 36px;
+  }
+
+  .badge::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    background: #3AABEF;
+    border-radius: 50%;
+  }
+
+  .drone-wrap {
+    margin-bottom: 32px;
+    filter: drop-shadow(0 10px 40px rgba(26,143,209,0.4));
+  }
+
+  .main-text {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .brand {
+    font-family: Arial, sans-serif;
+    font-size: 88px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -3px;
+    line-height: 1;
+  }
+
+  .brand span {
+    font-weight: 300;
+    color: #D0EEFF;
+  }
+
+  .subtitle {
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(200,216,232,0.55);
+    font-weight: 400;
+    margin-top: 10px;
+  }
+
+  .pills {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .pill {
+    font-family: Arial, sans-serif;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(200,216,232,0.15);
+    color: rgba(200,216,232,0.75);
+    font-size: 13px;
+    padding: 8px 18px;
+    border-radius: 100px;
+  }
+
+  .url {
+    position: absolute;
+    bottom: 28px;
+    right: 50px;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    color: rgba(200,216,232,0.25);
+    letter-spacing: 1px;
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="grid"></div>
+  <div class="glow"></div>
+
+  <div class="content">
+    <div class="badge">Lanaudière · Grand Montréal</div>
+
+    <!-- Le SVG drone agrandi -->
+    <div class="drone-wrap">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 200" width="420" height="168">
+        <defs>
+          <linearGradient id="skyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#1A8FD1;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#0D5C8A;stop-opacity:1" />
+          </linearGradient>
+          <linearGradient id="droneGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#D0EEFF;stop-opacity:1" />
+          </linearGradient>
+          <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0D5C8A" flood-opacity="0.3"/>
+          </filter>
+        </defs>
+        <rect x="0" y="0" width="500" height="200" rx="20" ry="20" fill="url(#skyGrad)"/>
+        <rect x="60" y="88" width="80" height="24" rx="6" ry="6" fill="url(#droneGrad)" filter="url(#shadow)"/>
+        <circle cx="100" cy="100" r="7" fill="#1A8FD1" stroke="white" stroke-width="2"/>
+        <circle cx="100" cy="100" r="3" fill="white" opacity="0.8"/>
+        <line x1="68" y1="90" x2="42" y2="68" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+        <line x1="132" y1="90" x2="158" y2="68" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+        <line x1="68" y1="110" x2="42" y2="132" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+        <line x1="132" y1="110" x2="158" y2="132" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+        <circle cx="42" cy="68" r="5" fill="white" opacity="0.95"/>
+        <circle cx="158" cy="68" r="5" fill="white" opacity="0.95"/>
+        <circle cx="42" cy="132" r="5" fill="white" opacity="0.95"/>
+        <circle cx="158" cy="132" r="5" fill="white" opacity="0.95"/>
+        <ellipse cx="42" cy="68" rx="18" ry="4" fill="white" opacity="0.75" transform="rotate(-30 42 68)"/>
+        <ellipse cx="42" cy="68" rx="18" ry="4" fill="white" opacity="0.75" transform="rotate(60 42 68)"/>
+        <ellipse cx="158" cy="68" rx="18" ry="4" fill="white" opacity="0.75" transform="rotate(30 158 68)"/>
+        <ellipse cx="158" cy="68" rx="18" ry="4" fill="white" opacity="0.75" transform="rotate(-60 158 68)"/>
+        <ellipse cx="42" cy="132" rx="18" ry="4" fill="white" opacity="0.75" transform="rotate(30 42 132)"/>
+        <ellipse cx="42" cy="132" rx="18" ry="4" fill="white" opacity="0.75" transform="rotate(-60 42 132)"/>
+        <ellipse cx="158" cy="132" rx="18" ry="4" fill="white" opacity="0.75" transform="rotate(-30 158 132)"/>
+        <ellipse cx="158" cy="132" rx="18" ry="4" fill="white" opacity="0.75" transform="rotate(60 158 132)"/>
+        <line x1="82" y1="112" x2="78" y2="126" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+        <line x1="118" y1="112" x2="122" y2="126" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+        <line x1="74" y1="126" x2="126" y2="126" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+        <path d="M 88 72 Q 100 62 112 72" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+        <path d="M 82 66 Q 100 52 118 66" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
+        <text x="195" y="115" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="700" fill="white" letter-spacing="-1">Captur</text>
+        <text x="366" y="115" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="300" fill="#D0EEFF" letter-spacing="-1">Air</text>
+        <text x="195" y="138" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="400" fill="white" opacity="0.7" letter-spacing="2">PHOTOGRAPHIE AÉRIENNE · DRONE</text>
+      </svg>
+    </div>
+
+    <div class="pills">
+      <span class="pill">✓ Certifié Transports Canada</span>
+      <span class="pill">✓ Livraison 72h</span>
+      <span class="pill">✓ À partir de 199$</span>
+    </div>
+  </div>
+
+  <div class="url">capturair.com</div>
+</div>
+</body>
+</html>
