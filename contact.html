@@ -401,4 +401,11 @@ fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.283
 
     // Desktop : temp + vent + condition de vol
     document.getElementById('w-temp').textContent =
-      c + '°C · ' + f + '�
+      c + '°C · ' + f + '°F · Vent ' + wind + ' km/h · ' + condition;
+    // Mobile : Lavaltrie + température seulement
+    document.getElementById('w-temp-short').textContent = c + '°C · ' + f + '°F';
+  })
+  .catch(function() {});
+</script>
+</body>
+</html>
