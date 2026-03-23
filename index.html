@@ -91,6 +91,8 @@ gtag('config', 'G-44EB1JEJ2C');
       --white: #FFFFFF;
       --gray: #6B7C93;
       --dark: #0D1520;
+      --error: #e74c3c;
+      --success: #2ecc71;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -217,7 +219,7 @@ gtag('config', 'G-44EB1JEJ2C');
     .contact-info { color: rgba(200,216,232,0.75); }
     .contact-info p { font-size: 15px; line-height: 1.8; margin-bottom: 18px; }
 
-    /* NEW: Contact quick actions (WhatsApp · Appeler · SMS) */
+    /* Contact quick actions (WhatsApp · Appeler · SMS) */
     .contact-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0 28px; }
     .contact-action-btn {
       display: inline-flex;
@@ -252,6 +254,25 @@ gtag('config', 'G-44EB1JEJ2C');
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .form-submit { width: 100%; margin-top: 8px; }
 
+    /* ── Validation states ── */
+    .form-input.is-invalid, .form-select.is-invalid, .form-textarea.is-invalid {
+      border-color: var(--error) !important;
+      background: rgba(231,76,60,0.06) !important;
+    }
+    .form-input.is-valid, .form-select.is-valid, .form-textarea.is-valid {
+      border-color: var(--success) !important;
+    }
+    .field-error {
+      font-size: 11px;
+      color: var(--error);
+      margin-top: 5px;
+      display: none;
+    }
+    .field-error.visible { display: block; }
+
+    /* Date input calendar icon color fix on dark bg */
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(0.5); cursor: pointer; }
+
     .modal-overlay { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); align-items: center; justify-content: center; }
     .modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -279,7 +300,6 @@ gtag('config', 'G-44EB1JEJ2C');
       .weather-widget-city { display: block; font-size: 9px; }
       #w-temp { display: none; }
       .weather-widget-temp-short { display: block; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      /* Mobile: compact nav + météo */
       .nav-logo-icon { width: 32px; height: 32px; border-radius: 8px; }
       .nav-logo-text { font-size: 18px; }
       .weather-widget { max-width: 46vw; flex-shrink: 1; overflow: hidden; }
@@ -299,7 +319,6 @@ gtag('config', 'G-44EB1JEJ2C');
       footer { flex-direction: column; gap: 16px; text-align: center; }
       .modal-box { padding: 36px 28px; }
 
-      /* Mobile: make contact buttons easy to tap */
       .contact-actions { gap: 10px; }
       .contact-action-btn { flex: 1 1 100%; justify-content: center; padding: 13px 16px; }
     }
@@ -499,7 +518,7 @@ display:none;
       <h2 class="section-title">Parlons de <strong>votre projet</strong></h2>
       <p>Prêt à donner de la hauteur à votre projet ? Contactez-nous pour une soumission gratuite et sans engagement. Nous répondons sous 24h.</p>
 
-      <!-- NEW: Buttons order (WhatsApp · Appeler · SMS) -->
+      <!-- Buttons order (WhatsApp · Appeler · SMS) -->
       <div class="contact-actions" aria-label="Actions rapides de contact">
         <a class="contact-action-btn"
            href="https://wa.me/15144466078?text=Bonjour%20L%27%C3%A9quipe%20CapturAir%2C%20je%20souhaite%20un%20devis%20CapturAir%2C%20Merci%20et%20bonne%20journ%C3%A9e%20%F0%9F%99%82"
@@ -566,7 +585,7 @@ display:none;
           <div class="contact-detail-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
           <div>
             <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(200,216,232,0.4);margin-bottom:2px;">Courriel</div>
-            <a href="/cdn-cgi/l/email-protection#543d3a323b14373524202126353d267a373b39"><span class="__cf_email__" data-cfemail="85ecebe3eac5e6e4f5f1f0f7e4ecf7abe6eae8">[email&#160;protected]</span></a>
+            <a href="mailto:info@capturair.com">info@capturair.com</a>
           </div>
         </div>
         <div class="contact-detail">
@@ -578,19 +597,165 @@ display:none;
         </div>
       </div>
     </div>
-    <form class="contact-form" onsubmit="handleSubmit(event)">
+
+    <!-- ══════════════════════════════════════════
+         FORMULAIRE — version complète
+    ══════════════════════════════════════════ -->
+    <form class="contact-form" id="contactForm" novalidate onsubmit="handleSubmit(event)">
       <input type="hidden" name="access_key" value="968327d5-cc33-42ad-a702-52e138057bff">
       <input type="hidden" name="subject" value="Nouvelle demande - CapturAir">
       <input type="hidden" name="from_name" value="CapturAir Site Web">
+
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Prénom</label><input type="text" name="prenom" class="form-input" placeholder="Jean" required></div>
-        <div class="form-group"><label class="form-label">Nom</label><input type="text" name="nom" class="form-input" placeholder="Tremblay" required></div>
+        <div class="form-group">
+          <label class="form-label">Prénom *</label>
+          <input type="text" name="prenom" id="prenom" class="form-input" placeholder="Jean" required>
+          <div class="field-error" id="prenom-error">Ce champ est obligatoire.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nom *</label>
+          <input type="text" name="nom" id="nom" class="form-input" placeholder="Tremblay" required>
+          <div class="field-error" id="nom-error">Ce champ est obligatoire.</div>
+        </div>
       </div>
-      <div class="form-group"><label class="form-label">Courriel</label><input type="email" name="email" class="form-input" placeholder="jean@example.com" required></div>
-      <div class="form-group"><label class="form-label">Téléphone</label><input type="tel" name="telephone" class="form-input" placeholder="514 000-0000"></div>
+
       <div class="form-group">
-        <label class="form-label">Type de projet</label>
-        <select name="type_projet" class="form-select form-input">
+        <label class="form-label">Courriel *</label>
+        <input type="email" name="email" id="email" class="form-input" placeholder="jean@example.com" required>
+        <div class="field-error" id="email-error">Entrez une adresse courriel valide (ex. jean@example.com).</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Téléphone</label>
+        <input type="tel" name="telephone" id="telephone" class="form-input" placeholder="514 446-6078">
+        <div class="field-error" id="telephone-error">Entrez un numéro de téléphone valide (ex. 514 446-6078).</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Ville / Municipalité *</label>
+        <select name="ville" id="ville" class="form-select form-input" required>
+          <option value="">Sélectionner votre ville...</option>
+          <option>Anjou</option>
+          <option>Baie-d'Urfé</option>
+          <option>Beaconsfield</option>
+          <option>Beauport</option>
+          <option>Beloeil</option>
+          <option>Berthierville</option>
+          <option>Blainville</option>
+          <option>Boisbriand</option>
+          <option>Boucherville</option>
+          <option>Brossard</option>
+          <option>Candiac</option>
+          <option>Chambly</option>
+          <option>Charlesbourg</option>
+          <option>Contrecoeur</option>
+          <option>Côte-Saint-Luc</option>
+          <option>Crabtree</option>
+          <option>Deux-Montagnes</option>
+          <option>Dollard-des-Ormeaux</option>
+          <option>Dorval</option>
+          <option>Drummondville</option>
+          <option>Gatineau</option>
+          <option>Granby</option>
+          <option>Greenfield Park</option>
+          <option>Joliette</option>
+          <option>Kirkland</option>
+          <option>L'Assomption</option>
+          <option>L'Épiphanie</option>
+          <option>L'Île-Perrot</option>
+          <option>La Prairie</option>
+          <option>Lachine</option>
+          <option>Lachute</option>
+          <option>Lanoraie</option>
+          <option>LaSalle</option>
+          <option>Laval</option>
+          <option>Lavaltrie</option>
+          <option>Longueuil</option>
+          <option>Lévis</option>
+          <option>Mandeville</option>
+          <option>Mascouche</option>
+          <option>McMasterville</option>
+          <option>Mirabel</option>
+          <option>Mont-Royal</option>
+          <option>Mont-Saint-Hilaire</option>
+          <option>Mont-Tremblant</option>
+          <option>Montréal</option>
+          <option>Montréal-Est</option>
+          <option>Montréal-Nord</option>
+          <option>Morin-Heights</option>
+          <option>Notre-Dame-des-Prairies</option>
+          <option>Otterburn Park</option>
+          <option>Outremont</option>
+          <option>Pincourt</option>
+          <option>Plateau-Mont-Royal</option>
+          <option>Pointe-aux-Trembles</option>
+          <option>Pointe-Claire</option>
+          <option>Québec</option>
+          <option>Rawdon</option>
+          <option>Repentigny</option>
+          <option>Rimouski</option>
+          <option>Rivière-des-Prairies</option>
+          <option>Rosemont</option>
+          <option>Rosemère</option>
+          <option>Rouyn-Noranda</option>
+          <option>Saguenay</option>
+          <option>Saint-Ambroise-de-Kildare</option>
+          <option>Saint-Bruno-de-Montarville</option>
+          <option>Saint-Charles-Borromée</option>
+          <option>Saint-Cléophas-de-Brandon</option>
+          <option>Saint-Esprit</option>
+          <option>Saint-Eustache</option>
+          <option>Saint-Félix-de-Valois</option>
+          <option>Saint-Gabriel-de-Brandon</option>
+          <option>Saint-Georges</option>
+          <option>Saint-Hyacinthe</option>
+          <option>Saint-Jacques</option>
+          <option>Saint-Jean-de-Matha</option>
+          <option>Saint-Jean-sur-Richelieu</option>
+          <option>Saint-Jérôme</option>
+          <option>Saint-Lambert</option>
+          <option>Saint-Laurent</option>
+          <option>Saint-Lin–Laurentides</option>
+          <option>Saint-Léonard</option>
+          <option>Saint-Michel</option>
+          <option>Saint-Norbert</option>
+          <option>Saint-Paul</option>
+          <option>Saint-Roch-de-l'Achigan</option>
+          <option>Saint-Sauveur</option>
+          <option>Saint-Sulpice</option>
+          <option>Sainte-Agathe-des-Monts</option>
+          <option>Sainte-Anne-de-Bellevue</option>
+          <option>Sainte-Catherine</option>
+          <option>Sainte-Élisabeth</option>
+          <option>Sainte-Foy</option>
+          <option>Sainte-Julie</option>
+          <option>Sainte-Julienne</option>
+          <option>Sainte-Marie</option>
+          <option>Sainte-Marie-Salomé</option>
+          <option>Sainte-Marthe-sur-le-Lac</option>
+          <option>Sainte-Mélanie</option>
+          <option>Sainte-Thérèse</option>
+          <option>Sept-Îles</option>
+          <option>Shawinigan</option>
+          <option>Sherbrooke</option>
+          <option>Sorel-Tracy</option>
+          <option>Terrebonne</option>
+          <option>Trois-Rivières</option>
+          <option>Val-d'Or</option>
+          <option>Varennes</option>
+          <option>Vaudreuil-Dorion</option>
+          <option>Verchères</option>
+          <option>Verdun</option>
+          <option>Victoriaville</option>
+          <option>Westmount</option>
+          <option value="Autre">Autre (préciser dans le message)</option>
+        </select>
+        <div class="field-error" id="ville-error">Veuillez sélectionner votre ville.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Type de projet *</label>
+        <select name="type_projet" id="type_projet" class="form-select form-input" required>
           <option value="">Sélectionner...</option>
           <option>Immobilier</option>
           <option>Événement</option>
@@ -598,8 +763,34 @@ display:none;
           <option>Nature / Tourisme</option>
           <option>Autre</option>
         </select>
+        <div class="field-error" id="type_projet-error">Veuillez sélectionner un type de projet.</div>
       </div>
-      <div class="form-group"><label class="form-label">Message</label><textarea name="message" class="form-textarea" placeholder="Décrivez votre projet..."></textarea></div>
+
+      <div class="form-group">
+        <label class="form-label">Date souhaitée <span style="color:rgba(200,216,232,0.4);font-size:11px;">(min. 48h)</span></label>
+        <input type="date" name="date_souhaitee" id="date_souhaitee" class="form-input">
+        <div class="field-error" id="date_souhaitee-error">La date doit être au minimum 48h à partir d'aujourd'hui.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Budget approximatif *</label>
+        <select name="budget" id="budget" class="form-select form-input" required>
+          <option value="">Sélectionner...</option>
+          <option>Moins de 300 $</option>
+          <option>300 $ – 500 $</option>
+          <option>500 $ – 800 $</option>
+          <option>800 $ +</option>
+          <option>À discuter</option>
+        </select>
+        <div class="field-error" id="budget-error">Veuillez sélectionner un budget approximatif.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Message *</label>
+        <textarea name="message" id="message" class="form-textarea" placeholder="Décrivez votre projet..." required></textarea>
+        <div class="field-error" id="message-error">Veuillez décrire votre projet.</div>
+      </div>
+
       <button type="submit" class="btn-primary form-submit">Envoyer la demande</button>
     </form>
   </div>
@@ -609,11 +800,10 @@ display:none;
   <div class="footer-logo">Captur<span>Air</span></div>
   <div class="footer-copy">© 2026 CapturAir · Tous droits réservés</div>
   <div class="footer-links">
-    <a href="/cdn-cgi/l/email-protection#177e79717857747667636265767e653974787a">Contact</a>
+    <a href="mailto:info@capturair.com">Contact</a>
     <a href="#">Politique de confidentialité</a>
   </div>
 </footer>
-
 
 <!-- ── WHATSAPP FLOATING BUTTON ── -->
 <a class="whatsapp-float"
@@ -622,38 +812,151 @@ display:none;
   <img src="images/whatsapp.png" alt="WhatsApp CapturAir">
 </a>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
+/* ══════════════════════════════════════════
+   DATE MIN — +48h
+══════════════════════════════════════════ */
+(function() {
+  var minDate = new Date();
+  minDate.setDate(minDate.getDate() + 2);
+  var yyyy = minDate.getFullYear();
+  var mm   = String(minDate.getMonth() + 1).padStart(2, '0');
+  var dd   = String(minDate.getDate()).padStart(2, '0');
+  var el   = document.getElementById('date_souhaitee');
+  if (el) el.setAttribute('min', yyyy + '-' + mm + '-' + dd);
+})();
 
-function openSms(e) {
-  if (e) e.preventDefault();
+/* ══════════════════════════════════════════
+   VALIDATION EN TEMPS RÉEL
+══════════════════════════════════════════ */
+var RULES = {
+  prenom:         { required: true },
+  nom:            { required: true },
+  email:          { required: true, email: true },
+  telephone:      { required: false, phone: true },
+  ville:          { required: true },
+  type_projet:    { required: true },
+  date_souhaitee: { required: false, futureDate: true },
+  budget:         { required: true },
+  message:        { required: true }
+};
 
-  // Message pré-rempli
-  var body = "Bonjour L'équipe CapturAir, je souhaite un devis CapturAir, Merci et bonne journée 🙂";
-  var encoded = encodeURIComponent(body);
+var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+var PHONE_RE = /^(\+?1[\s.\-]?)?(\(?\d{3}\)?[\s.\-]?)(\d{3}[\s.\-]?\d{4})$/;
 
-  // Numéros
-  var numberIntl = "+15144466078";   // Android / autres
-  var numberNoPlus = "15144466078";  // iOS aime souvent sans '+'
+function validateField(id) {
+  var rule  = RULES[id];
+  if (!rule) return true;
+  var el    = document.getElementById(id);
+  var errEl = document.getElementById(id + '-error');
+  var val   = el.value.trim();
+  var valid = true;
 
-  // Détection iOS
-  var ua = navigator.userAgent || navigator.vendor || window.opera;
-  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  if (rule.required && val === '') {
+    valid = false;
+  } else if (rule.email && val !== '' && !EMAIL_RE.test(val)) {
+    valid = false;
+  } else if (rule.phone && val !== '' && !PHONE_RE.test(val)) {
+    valid = false;
+  } else if (rule.futureDate && val !== '') {
+    var minD = new Date();
+    minD.setHours(0, 0, 0, 0);
+    minD.setDate(minD.getDate() + 2);
+    var picked = new Date(val + 'T00:00:00');
+    if (isNaN(picked) || picked < minD) { valid = false; }
+  }
 
-  // iOS: utiliser &body= (sinon iOS colle ?body au numéro)
-  // Android/Autres: ?body= fonctionne mieux
-  var smsUrl = isIOS
-    ? ("sms:" + numberNoPlus + "&body=" + encoded)
-    : ("sms:" + numberIntl + "?body=" + encoded);
-
-  window.location.href = smsUrl;
-  return false;
+  el.classList.toggle('is-invalid', !valid);
+  el.classList.toggle('is-valid', valid && val !== '');
+  if (errEl) errEl.classList.toggle('visible', !valid);
+  return valid;
 }
 
-window.addEventListener('scroll', function() {
-  var nav = document.querySelector('nav');
-  nav.style.background = window.scrollY > 50 ? 'rgba(11,31,58,0.98)' : 'rgba(11,31,58,0.92)';
-    });
+Object.keys(RULES).forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('blur',   function() { validateField(id); });
+    el.addEventListener('change', function() { validateField(id); });
+    el.addEventListener('input',  function() { if (el.classList.contains('is-invalid')) validateField(id); });
+  }
+});
 
+/* ══════════════════════════════════════════
+   SOUMISSION — Web3Forms + Make Webhook
+══════════════════════════════════════════ */
+function handleSubmit(e) {
+  e.preventDefault();
+
+  var allValid = Object.keys(RULES).map(validateField).every(Boolean);
+  if (!allValid) {
+    var first = document.querySelector('.is-invalid');
+    if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  var btn  = e.target.querySelector('.form-submit');
+  var orig = btn.textContent;
+  btn.textContent = 'Envoi en cours…';
+  btn.disabled = true;
+
+  var formData = new FormData(e.target);
+
+  var makePayload = {
+    fields: {
+      "Prénom":                formData.get('prenom'),
+      "Nom":                   formData.get('nom'),
+      "Courriel":              formData.get('email'),
+      "Téléphone":             formData.get('telephone'),
+      "Ville / Municipalité":  formData.get('ville'),
+      "Type de service":       formData.get('type_projet'),
+      "Date souhaitée":        formData.get('date_souhaitee'),
+      "Budget approximatif":   formData.get('budget'),
+      "Description du projet": formData.get('message')
+    }
+  };
+
+  fetch('https://hook.us2.make.com/x75qa35so1yxlo24aa1bi1w65880ndm9', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(makePayload)
+  }).catch(function(err) { console.warn('Make webhook error:', err); });
+
+  fetch('https://api.web3forms.com/submit', {
+    method: 'POST',
+    body: formData
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    if (data.success) {
+      e.target.reset();
+      Object.keys(RULES).forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.classList.remove('is-valid', 'is-invalid');
+        var errEl = document.getElementById(id + '-error');
+        if (errEl) errEl.classList.remove('visible');
+      });
+      showModal();
+    } else {
+      btn.textContent = 'Erreur, réessayez';
+      btn.style.background = '#e74c3c';
+    }
+  })
+  .catch(function() {
+    btn.textContent = 'Erreur de connexion';
+    btn.style.background = '#e74c3c';
+  })
+  .finally(function() {
+    setTimeout(function() {
+      btn.textContent = orig;
+      btn.style.background = '';
+      btn.disabled = false;
+    }, 3000);
+  });
+}
+
+/* ══════════════════════════════════════════
+   MODALE
+══════════════════════════════════════════ */
 function showModal() {
   document.getElementById('successModal').classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -666,43 +969,47 @@ document.getElementById('successModal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
 
-async function handleSubmit(e) {
-  e.preventDefault();
-  var btn = e.target.querySelector('.form-submit');
-  var orig = btn.textContent;
-  btn.textContent = 'Envoi en cours...';
-  btn.disabled = true;
-  try {
-    var res = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: new FormData(e.target) });
-    var data = await res.json();
-    if (data.success) { e.target.reset(); showModal(); }
-    else { btn.textContent = 'Erreur, réessayez'; btn.style.background = '#e74c3c'; }
-  } catch(err) {
-    btn.textContent = 'Erreur de connexion'; btn.style.background = '#e74c3c';
-  }
-  setTimeout(function() { btn.textContent = orig; btn.style.background = ''; btn.disabled = false; }, 3000);
+/* ══════════════════════════════════════════
+   SMS
+══════════════════════════════════════════ */
+function openSms(e) {
+  if (e) e.preventDefault();
+  var body    = "Bonjour L'équipe CapturAir, je souhaite un devis CapturAir, Merci et bonne journée 🙂";
+  var encoded = encodeURIComponent(body);
+  var ua      = navigator.userAgent || navigator.vendor || window.opera;
+  var isIOS   = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  window.location.href = isIOS ? ('sms:15144466078&body=' + encoded) : ('sms:+15144466078?body=' + encoded);
+  return false;
 }
 
+/* ══════════════════════════════════════════
+   NAV SCROLL
+══════════════════════════════════════════ */
+window.addEventListener('scroll', function() {
+  document.querySelector('nav').style.background =
+    window.scrollY > 50 ? 'rgba(11,31,58,0.98)' : 'rgba(11,31,58,0.92)';
+});
+
+/* ══════════════════════════════════════════
+   MÉTÉO
+══════════════════════════════════════════ */
 fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FToronto')
   .then(function(r) { return r.json(); })
   .then(function(d) {
-    var e = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
-    document.getElementById('w-icon').textContent = e[d.current.weather_code] || '🌡️';
-
-    var c = Math.round(d.current.temperature_2m);
-    var f = Math.round((c * 9/5) + 32);
+    var icons = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+    document.getElementById('w-icon').textContent = icons[d.current.weather_code] || '🌡️';
+    var c    = Math.round(d.current.temperature_2m);
+    var f    = Math.round((c * 9/5) + 32);
     var wind = Math.round(d.current.wind_speed_10m);
-
-    var condition = '✅ Vol OK';
-    if (wind >= 20 && wind < 35) { condition = '⚠️ Vol prudent'; }
-    if (wind >= 35) { condition = '❌ Vol déconseillé'; }
-
-    document.getElementById('w-temp').textContent =
-      c + '°C · ' + f + '°F · Vent ' + wind + ' km/h · ' + condition;
+    var cond = wind >= 35 ? '❌ Vol déconseillé' : wind >= 20 ? '⚠️ Vol prudent' : '✅ Vol OK';
+    document.getElementById('w-temp').textContent = c + '°C · ' + f + '°F · Vent ' + wind + ' km/h · ' + cond;
     document.getElementById('w-temp-short').textContent = c + '°C · ' + f + '°F';
   })
   .catch(function() {});
 
+/* ══════════════════════════════════════════
+   ANIMATION SCROLL
+══════════════════════════════════════════ */
 var obs = new IntersectionObserver(function(entries) {
   entries.forEach(function(en) {
     if (en.isIntersecting) { en.target.style.opacity='1'; en.target.style.transform='translateY(0)'; }
@@ -714,4 +1021,5 @@ document.querySelectorAll('.service-card, .galerie-item').forEach(function(el) {
 });
 </script>
 
-<a href="ht
+</body>
+</html>
