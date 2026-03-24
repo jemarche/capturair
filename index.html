@@ -518,7 +518,6 @@ display:none;
       <h2 class="section-title">Parlons de <strong>votre projet</strong></h2>
       <p>Prêt à donner de la hauteur à votre projet ? Contactez-nous pour une soumission gratuite et sans engagement. Nous répondons sous 24h.</p>
 
-      <!-- Buttons order (WhatsApp · Appeler · SMS) -->
       <div class="contact-actions" aria-label="Actions rapides de contact">
         <a class="contact-action-btn"
            href="https://wa.me/15144466078?text=Bonjour%20L%27%C3%A9quipe%20CapturAir%2C%20je%20souhaite%20un%20devis%20CapturAir%2C%20Merci%20et%20bonne%20journ%C3%A9e%20%F0%9F%99%82"
@@ -598,9 +597,6 @@ display:none;
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════
-         FORMULAIRE — version complète
-    ══════════════════════════════════════════ -->
     <form class="contact-form" id="contactForm" novalidate onsubmit="handleSubmit(event)">
       <input type="hidden" name="access_key" value="968327d5-cc33-42ad-a702-52e138057bff">
       <input type="hidden" name="subject" value="Nouvelle demande - CapturAir">
@@ -876,14 +872,24 @@ Object.keys(RULES).forEach(function(id) {
   var el = document.getElementById(id);
   if (el) {
     el.addEventListener('blur', function() {
-  if (id === 'telephone') {
-    var digits = el.value.replace(/\D/g, '');
-    if (digits.length === 10) {
-      el.value = digits.slice(0,3) + '-' + digits.slice(3,6) + '-' + digits.slice(6);
-    }
-  }
-  validateField(id);
-});
+      /* ── Téléphone : formatage xxx-xxx-xxxx ── */
+      if (id === 'telephone') {
+        var digits = el.value.replace(/\D/g, '');
+        if (digits.length === 10) {
+          el.value = digits.slice(0,3) + '-' + digits.slice(3,6) + '-' + digits.slice(6);
+        }
+      }
+      /* ── Prénom / Nom : capitalisation robuste (accents, tirets, apostrophes) ── */
+      if (id === 'prenom' || id === 'nom') {
+        var val = el.value.trim();
+        if (val !== '') {
+          el.value = val.toLowerCase().replace(/(?:^|\s|[-'])(\p{L})/gu, function(match, letter) {
+            return match.replace(letter, letter.toUpperCase());
+          });
+        }
+      }
+      validateField(id);
+    });
     el.addEventListener('change', function() { validateField(id); });
     el.addEventListener('input',  function() { if (el.classList.contains('is-invalid')) validateField(id); });
   }
