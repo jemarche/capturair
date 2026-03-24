@@ -875,7 +875,15 @@ function validateField(id) {
 Object.keys(RULES).forEach(function(id) {
   var el = document.getElementById(id);
   if (el) {
-    el.addEventListener('blur',   function() { validateField(id); });
+    el.addEventListener('blur', function() {
+  if (id === 'telephone') {
+    var digits = el.value.replace(/\D/g, '');
+    if (digits.length === 10) {
+      el.value = digits.slice(0,3) + '-' + digits.slice(3,6) + '-' + digits.slice(6);
+    }
+  }
+  validateField(id);
+});
     el.addEventListener('change', function() { validateField(id); });
     el.addEventListener('input',  function() { if (el.classList.contains('is-invalid')) validateField(id); });
   }
