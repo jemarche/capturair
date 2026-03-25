@@ -1046,7 +1046,7 @@ fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.283
     var c    = Math.round(d.current.temperature_2m);
     var f    = Math.round((c * 9/5) + 32);
     var wind = Math.round(d.current.wind_speed_10m);
-    var cond = wind >= 35 ? '❌ Vol déconseillé' : wind >= 20 ? '⚠️ Vol prudent' : '✅ Vol OK';
+    var cond = wind >= 30 ? '❌ Vol déconseillé' : wind >= 15 ? '⚠️ Vol prudent' : '✅ Vol OK';
     document.getElementById('w-temp').textContent = c + '°C · ' + f + '°F · Vent ' + wind + ' km/h · ' + cond;
     document.getElementById('w-temp-short').textContent = c + '°C · ' + f + '°F';
   })
