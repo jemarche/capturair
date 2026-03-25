@@ -566,7 +566,7 @@ display:none;
           <strong>Enregistrer nos coordonnées</strong>
           <span>Ajoutez CapturAir à vos contacts — téléphone, courriel et lien rapide pour demander une soumission.</span>
         </div>
-        <a href="CapturAir.vcf" download="CapturAir.vcf" class="vcard-btn">
+        <a href="CapturAir.vcf" class="vcard-btn" onclick="return openVcf(event)">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Ajouter le contact
         </a>
@@ -810,6 +810,39 @@ display:none;
 
 <script>
 /* ══════════════════════════════════════════
+   VCF — Ouverture intelligente selon l'OS/navigateur
+   - Android  : intent:// pour forcer l'app Contacts
+   - iOS      : Blob URL avec type text/vcard
+   - Fallback : navigation directe (comportement précédent)
+══════════════════════════════════════════ */
+function openVcf(e) {
+  e.preventDefault();
+  var vcfUrl = 'CapturAir.vcf';
+  var ua = navigator.userAgent || '';
+  var isAndroid = /Android/i.test(ua);
+  var isIOS = /iPad|iPhone|iPod/i.test(ua) && !window.MSStream;
+
+  if (isAndroid) {
+    window.location.href =
+      'intent://' + location.host + '/CapturAir.vcf' +
+      '#Intent;scheme=https;type=text/x-vcard;action=android.intent.action.VIEW;end';
+  } else if (isIOS) {
+    fetch(vcfUrl)
+      .then(function(r) { return r.text(); })
+      .then(function(data) {
+        var blob = new Blob([data], { type: 'text/vcard' });
+        var url  = URL.createObjectURL(blob);
+        window.location.href = url;
+        setTimeout(function() { URL.revokeObjectURL(url); }, 3000);
+      })
+      .catch(function() { window.location.href = vcfUrl; });
+  } else {
+    window.location.href = vcfUrl;
+  }
+  return false;
+}
+
+/* ══════════════════════════════════════════
    DATE MIN — +48h
 ══════════════════════════════════════════ */
 (function() {
@@ -872,14 +905,12 @@ Object.keys(RULES).forEach(function(id) {
   var el = document.getElementById(id);
   if (el) {
     el.addEventListener('blur', function() {
-      /* ── Téléphone : formatage xxx-xxx-xxxx ── */
       if (id === 'telephone') {
         var digits = el.value.replace(/\D/g, '');
         if (digits.length === 10) {
           el.value = digits.slice(0,3) + '-' + digits.slice(3,6) + '-' + digits.slice(6);
         }
       }
-      /* ── Prénom / Nom : capitalisation robuste (accents, tirets, apostrophes) ── */
       if (id === 'prenom' || id === 'nom') {
         var val = el.value.trim();
         if (val !== '') {
