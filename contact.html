@@ -319,7 +319,7 @@
         <strong>Enregistrer nos coordonnées</strong>
         <span>Téléphone, courriel et lien rapide pour une soumission — tout en un clic.</span>
       </div>
-      <a href="CapturAir.vcf" download="CapturAir.vcf" class="vcard-btn">
+      <a href="CapturAir.vcf" class="vcard-btn" onclick="return openVcf(event)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Ajouter le contact
       </a>
@@ -351,7 +351,7 @@
         </div>
         <div>
           <div class="contact-detail-label">Courriel</div>
-          <div class="contact-detail-value"><a href="/cdn-cgi/l/email-protection#345d5a525b74575544404146555d461a5755"><span class="__cf_email__" data-cfemail="b3daddd5dcf3d0d2c3c7c6c1d2dac19dd0d2">[email&#160;protected]</span></a></div>
+          <div class="contact-detail-value"><a href="mailto:info@capturair.com">info@capturair.com</a></div>
         </div>
       </div>
 
@@ -384,7 +384,43 @@
   <img src="images/whatsapp.png" alt="WhatsApp CapturAir">
 </a>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
+/* ══════════════════════════════════════════
+   VCF — Ouverture intelligente selon l'OS/navigateur
+   - Android  : intent:// pour forcer l'app Contacts
+   - iOS      : Blob URL avec type text/vcard
+   - Fallback : navigation directe (comportement précédent)
+══════════════════════════════════════════ */
+function openVcf(e) {
+  e.preventDefault();
+  var vcfUrl = 'CapturAir.vcf';
+  var ua = navigator.userAgent || '';
+  var isAndroid = /Android/i.test(ua);
+  var isIOS = /iPad|iPhone|iPod/i.test(ua) && !window.MSStream;
+
+  if (isAndroid) {
+    window.location.href =
+      'intent://' + location.host + '/CapturAir.vcf' +
+      '#Intent;scheme=https;type=text/x-vcard;action=android.intent.action.VIEW;end';
+  } else if (isIOS) {
+    fetch(vcfUrl)
+      .then(function(r) { return r.text(); })
+      .then(function(data) {
+        var blob = new Blob([data], { type: 'text/vcard' });
+        var url  = URL.createObjectURL(blob);
+        window.location.href = url;
+        setTimeout(function() { URL.revokeObjectURL(url); }, 3000);
+      })
+      .catch(function() { window.location.href = vcfUrl; });
+  } else {
+    window.location.href = vcfUrl;
+  }
+  return false;
+}
+
+/* ══════════════════════════════════════════
+   MÉTÉO
+══════════════════════════════════════════ */
 fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FToronto')
   .then(function(r) { return r.json(); })
   .then(function(d) {
@@ -399,10 +435,8 @@ fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.283
     if (wind >= 20 && wind < 35) { condition = '⚠️ Vol prudent'; }
     if (wind >= 35) { condition = '❌ Vol déconseillé'; }
 
-    // Desktop : temp + vent + condition de vol
     document.getElementById('w-temp').textContent =
       c + '°C · ' + f + '°F · Vent ' + wind + ' km/h · ' + condition;
-    // Mobile : Lavaltrie + température seulement
     document.getElementById('w-temp-short').textContent = c + '°C · ' + f + '°F';
   })
   .catch(function() {});
