@@ -136,7 +136,16 @@
     .vcard-text { flex: 1; }
     .vcard-text strong { display: block; color: #FFFFFF; font-size: 15px; font-weight: 500; margin-bottom: 4px; }
     .vcard-text span { font-size: 13px; color: rgba(200,216,232,0.55); line-height: 1.5; }
-    .vcard-btn { display: inline-flex; align-items: center; gap: 8px; background: #1A8FD1; color: #FFFFFF; text-decoration: none; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; white-space: nowrap; transition: background 0.2s, transform 0.15s; flex-shrink: 0; }
+    .vcard-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #1A8FD1; color: #FFFFFF;
+      border: none; cursor: pointer;
+      padding: 10px 20px;
+      border-radius: 10px; font-size: 13px; font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      white-space: nowrap; transition: background 0.2s, transform 0.15s;
+      flex-shrink: 0;
+    }
     .vcard-btn:hover { background: #3AABEF; transform: translateY(-1px); }
 
     /* ── DIVIDER ── */
@@ -222,6 +231,8 @@
       .nav-links { display: none; }
       .contact-actions { flex-direction: column; }
       .contact-action-btn { justify-content: center; }
+      .vcard-widget { flex-direction: column; align-items: flex-start; gap: 14px; padding: 20px; }
+      .vcard-btn { width: 100%; justify-content: center; padding: 12px 20px; }
       .weather-widget { padding: 5px 10px; border-radius: 10px; gap: 6px; max-width: 46vw; flex-shrink: 1; overflow: hidden; }
       .weather-widget-icon { font-size: 16px; }
       .weather-widget-info { min-width: 0; }
@@ -294,7 +305,7 @@
         Appeler
       </a>
 
-      <a class="contact-action-btn" href="sms:+15144466078" aria-label="Envoyer un SMS">
+      <a class="contact-action-btn" href="sms:+15144466078" aria-label="Envoyer un SMS" onclick="return openSms(event)">
         <svg viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
           <path d="M7.5 9h9"/><path d="M7.5 12h6.5"/>
@@ -319,10 +330,10 @@
         <strong>Enregistrer nos coordonnées</strong>
         <span>Téléphone, courriel et lien rapide pour une soumission — tout en un clic.</span>
       </div>
-      <a href="CapturAir.vcf" class="vcard-btn" onclick="return openVcf(event)">
+      <button type="button" class="vcard-btn" onclick="openVcf()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Ajouter le contact
-      </a>
+      </button>
     </div>
 
     <div class="divider"></div>
@@ -386,35 +397,58 @@
 
 <script>
 /* ══════════════════════════════════════════
-   VCF — Ouverture intelligente selon l'OS/navigateur
-   - Android  : intent:// pour forcer l'app Contacts
-   - iOS      : Blob URL avec type text/vcard
-   - Fallback : navigation directe (comportement précédent)
+   VCF v2 — Stratégie robuste multi-navigateurs
+   1. fetch() → arrayBuffer() pour conserver les données binaires (photo, etc.)
+   2. Blob avec type text/x-vcard (meilleure compatibilité Android)
+   3. createObjectURL + <a> invisible avec .download → déclenche le bon handler
+   Fallbacks :
+   - Android sans fetch → intent://
+   - Tout le reste → navigation directe
 ══════════════════════════════════════════ */
-function openVcf(e) {
-  e.preventDefault();
+function openVcf() {
   var vcfUrl = 'CapturAir.vcf';
   var ua = navigator.userAgent || '';
   var isAndroid = /Android/i.test(ua);
-  var isIOS = /iPad|iPhone|iPod/i.test(ua) && !window.MSStream;
 
-  if (isAndroid) {
-    window.location.href =
-      'intent://' + location.host + '/CapturAir.vcf' +
-      '#Intent;scheme=https;type=text/x-vcard;action=android.intent.action.VIEW;end';
-  } else if (isIOS) {
-    fetch(vcfUrl)
-      .then(function(r) { return r.text(); })
-      .then(function(data) {
-        var blob = new Blob([data], { type: 'text/vcard' });
-        var url  = URL.createObjectURL(blob);
-        window.location.href = url;
-        setTimeout(function() { URL.revokeObjectURL(url); }, 3000);
-      })
-      .catch(function() { window.location.href = vcfUrl; });
-  } else {
-    window.location.href = vcfUrl;
-  }
+  fetch(vcfUrl)
+    .then(function(r) {
+      if (!r.ok) throw new Error('fetch failed');
+      return r.arrayBuffer();
+    })
+    .then(function(buf) {
+      var blob = new Blob([buf], { type: 'text/x-vcard' });
+      var url  = URL.createObjectURL(blob);
+      var a    = document.createElement('a');
+      a.href     = url;
+      a.download = 'CapturAir.vcf';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function() { URL.revokeObjectURL(url); }, 4000);
+    })
+    .catch(function() {
+      /* Fallback Android : intent:// pour Chrome natif */
+      if (isAndroid) {
+        window.location.href =
+          'intent://' + location.host + '/CapturAir.vcf' +
+          '#Intent;scheme=https;type=text/x-vcard;action=android.intent.action.VIEW;end';
+      } else {
+        window.location.href = vcfUrl;
+      }
+    });
+}
+
+/* ══════════════════════════════════════════
+   SMS
+══════════════════════════════════════════ */
+function openSms(e) {
+  if (e) e.preventDefault();
+  var body    = "Bonjour L'équipe CapturAir, je souhaite un devis CapturAir, Merci et bonne journée 🙂";
+  var encoded = encodeURIComponent(body);
+  var ua      = navigator.userAgent || navigator.vendor || window.opera;
+  var isIOS   = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  window.location.href = isIOS ? ('sms:15144466078&body=' + encoded) : ('sms:+15144466078?body=' + encoded);
   return false;
 }
 
