@@ -4,9 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <link rel="canonical" href="https://capturair.com/rdv.html">
   <title>Planifier une consultation · CapturAir</title>
-  
 
   <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
@@ -31,7 +29,7 @@
     body { font-family: 'DM Sans', sans-serif; font-weight: 300; color: var(--navy); background: var(--offwhite); overflow-x: hidden; }
 
     /* ── NAV ── */
-    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; height: 72px; background: rgba(11,31,58,0.96); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(200,216,232,0.1); transition: background 0.3s; gap: 16px; }
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; height: 72px; background: rgba(11,31,58,0.96); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(200,216,232,0.1); gap: 16px; }
     .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; flex-shrink: 0; }
     .nav-logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--blue), #0D5C8A); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
     .nav-logo-text { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--white); letter-spacing: 0.5px; }
@@ -40,7 +38,6 @@
     .nav-links a { text-decoration: none; color: rgba(255,255,255,0.75); font-size: 14px; font-weight: 400; letter-spacing: 0.5px; transition: color 0.2s; }
     .nav-links a:hover { color: var(--white); }
     .nav-cta { background: var(--blue) !important; color: var(--white) !important; padding: 9px 22px !important; border-radius: 6px !important; font-weight: 500 !important; }
-    .nav-cta:hover { background: var(--blue-light) !important; }
     .weather-widget { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.07); border: 1px solid rgba(200,216,232,0.12); border-radius: 10px; padding: 6px 14px; flex-shrink: 0; }
     .weather-widget-icon { font-size: 18px; }
     .weather-widget-info { display: flex; flex-direction: column; line-height: 1.3; }
@@ -48,42 +45,107 @@
     .weather-widget-temp { font-size: 14px; font-weight: 500; color: var(--white); }
     .weather-widget-temp-short { display: none; }
 
+    /* ── SCREENS ── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── GATE (token invalide / expiré) ── */
+    .gate-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 80px 24px 40px; }
+    .gate-card { background: var(--white); border-radius: 20px; padding: 52px 48px; max-width: 480px; width: 100%; text-align: center; box-shadow: 0 4px 32px rgba(11,31,58,0.08); border: 1px solid rgba(26,143,209,0.1); }
+    .gate-icon { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; }
+    .gate-icon.error { background: rgba(239,68,68,0.1); border: 2px solid #ef4444; }
+    .gate-icon.used  { background: rgba(26,143,209,0.1); border: 2px solid var(--blue); }
+    .gate-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: var(--navy); margin-bottom: 12px; }
+    .gate-text { font-size: 15px; color: var(--gray); line-height: 1.8; }
+
     /* ── HERO ── */
-    .rdv-hero { padding: 140px 60px 60px; background: var(--offwhite); text-align: center; position: relative; overflow: hidden; }
+    .rdv-hero { padding: 140px 60px 48px; background: var(--offwhite); text-align: center; position: relative; overflow: hidden; }
     .rdv-hero::before { content: ''; position: absolute; top: 72px; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--blue), var(--blue-light), var(--blue)); }
     .rdv-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 16px; }
     .rdv-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 5vw, 62px); font-weight: 300; color: var(--navy); line-height: 1.1; margin-bottom: 16px; }
     .rdv-title strong { font-weight: 600; color: var(--blue); }
-    .rdv-subtitle { font-size: 15px; color: var(--gray); line-height: 1.7; max-width: 540px; margin: 0 auto 40px; }
+    .rdv-subtitle { font-size: 15px; color: var(--gray); line-height: 1.7; max-width: 540px; margin: 0 auto 32px; }
     .rdv-info-bar { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; }
     .rdv-info-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--gray); }
     .rdv-info-icon { width: 36px; height: 36px; background: rgba(26,143,209,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .rdv-info-icon svg { width: 16px; height: 16px; }
 
     /* ── CALENDRIER ── */
-    .rdv-calendar-section { padding: 40px 60px 20px; max-width: 1100px; margin: 0 auto; }
-    .rdv-calendar-wrapper { background: var(--white); border-radius: 20px; overflow: hidden; box-shadow: 0 4px 32px rgba(11,31,58,0.08); border: 1px solid rgba(26,143,209,0.1); }
-    .rdv-calendar-wrapper iframe { width: 100%; height: 700px; border: none; display: block; }
+    .cal-section { padding: 40px 60px 60px; max-width: 960px; margin: 0 auto; }
+    .cal-card { background: var(--white); border-radius: 20px; overflow: hidden; box-shadow: 0 4px 32px rgba(11,31,58,0.08); border: 1px solid rgba(26,143,209,0.1); }
 
-    /* ── BOUTON RDV PRIS ── */
-    .rdv-confirm-section { text-align: center; padding: 28px 60px 60px; max-width: 1100px; margin: 0 auto; }
-    .rdv-confirm-btn { display: inline-flex; align-items: center; gap: 10px; background: transparent; border: 1.5px solid rgba(26,143,209,0.4); color: var(--blue); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 13px 32px; border-radius: 50px; cursor: pointer; transition: all 0.2s; }
-    .rdv-confirm-btn:hover { background: rgba(26,143,209,0.08); border-color: var(--blue); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(26,143,209,0.15); }
-    .rdv-confirm-btn svg { width: 16px; height: 16px; }
+    /* Header */
+    .cal-header { background: var(--navy); padding: 22px 28px 18px; display: flex; align-items: center; justify-content: space-between; }
+    .cal-header-left .cal-month-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; color: var(--white); letter-spacing: 0.3px; }
+    .cal-header-left .cal-subtitle { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--blue-light); margin-top: 2px; }
+    .cal-nav { display: flex; gap: 6px; }
+    .cal-nav button { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: var(--white); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+    .cal-nav button:hover { background: rgba(58,171,239,0.2); }
 
-    /* ── MODAL ── */
-    .modal-overlay { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); align-items: center; justify-content: center; }
-    .modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .modal-box { background: var(--navy); border: 1px solid rgba(26,143,209,0.3); border-radius: 24px; padding: 52px 48px; max-width: 480px; width: 90%; text-align: center; animation: slideUp 0.4s ease; }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    .modal-icon { width: 72px; height: 72px; background: linear-gradient(135deg, rgba(26,143,209,0.2), rgba(58,171,239,0.1)); border: 2px solid var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; }
-    .modal-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; color: var(--white); margin-bottom: 16px; }
-    .modal-text { font-size: 15px; color: rgba(200,216,232,0.75); line-height: 1.8; margin-bottom: 32px; }
-    .modal-text strong { color: var(--blue-light); font-weight: 500; }
-    .modal-text a { color: var(--blue-light); text-decoration: none; }
-    .modal-close { background: var(--blue); color: var(--white); border: none; border-radius: 8px; padding: 13px 40px; font-size: 15px; font-family: 'DM Sans', sans-serif; font-weight: 500; cursor: pointer; transition: all 0.2s; }
-    .modal-close:hover { background: var(--blue-light); transform: translateY(-1px); }
+    /* Grid */
+    .cal-body { padding: 20px 28px 16px; }
+    .cal-day-labels { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 8px; }
+    .cal-day-label { text-align: center; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray); padding: 4px 0; }
+    .cal-cells { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+    .cal-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 13px; border-radius: 8px; cursor: default; color: var(--gray); transition: all 0.15s; position: relative; }
+    .cal-cell.other-month { opacity: 0.25; }
+    .cal-cell.past { opacity: 0.2; }
+    .cal-cell.today { outline: 2px solid var(--blue-light); outline-offset: -2px; color: var(--blue); font-weight: 500; }
+    .cal-cell.available { cursor: pointer; color: var(--blue); font-weight: 500; background: rgba(26,143,209,0.07); border: 1px solid rgba(26,143,209,0.18); }
+    .cal-cell.available:hover { background: rgba(26,143,209,0.16); border-color: var(--blue); transform: scale(1.06); box-shadow: 0 2px 8px rgba(26,143,209,0.2); }
+    .cal-cell.selected { background: var(--blue) !important; color: var(--white) !important; border-color: var(--blue) !important; box-shadow: 0 2px 12px rgba(26,143,209,0.4); transform: scale(1.06); }
+    .cal-cell.loading-dispo { background: rgba(26,143,209,0.04); animation: pulse 1.2s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    /* Légende */
+    .cal-legend { display: flex; gap: 20px; padding: 0 28px 16px; flex-wrap: wrap; }
+    .cal-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--gray); }
+    .cal-legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+    .cal-legend-dot.available { background: rgba(26,143,209,0.2); border: 1px solid rgba(26,143,209,0.4); }
+    .cal-legend-dot.unavailable { background: rgba(107,124,147,0.15); }
+
+    /* Créneaux */
+    .slots-panel { border-top: 1px solid rgba(26,143,209,0.1); padding: 20px 28px; }
+    .slots-panel-title { font-size: 13px; font-weight: 500; color: var(--navy); margin-bottom: 14px; }
+    .slots-panel-title span { color: var(--blue); }
+    .slots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; }
+    .slot-btn { padding: 10px 8px; text-align: center; border-radius: 8px; border: 1px solid rgba(26,143,209,0.25); color: var(--blue); font-size: 13px; font-weight: 400; cursor: pointer; background: rgba(26,143,209,0.04); transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+    .slot-btn:hover { background: rgba(26,143,209,0.12); border-color: var(--blue); }
+    .slot-btn.selected { background: var(--blue); color: var(--white); border-color: var(--blue); }
+    .slots-empty { font-size: 13px; color: var(--gray); padding: 4px 0; }
+
+    /* Confirmation panel */
+    .confirm-panel { border-top: 1px solid rgba(26,143,209,0.1); padding: 20px 28px; display: none; }
+    .confirm-panel.show { display: block; }
+    .confirm-inner { background: rgba(26,143,209,0.05); border: 1px solid rgba(26,143,209,0.15); border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+    .confirm-summary { font-size: 14px; color: var(--navy); line-height: 1.6; }
+    .confirm-summary strong { color: var(--blue); font-weight: 500; }
+    .confirm-phone-wrap { display: flex; flex-direction: column; gap: 5px; }
+    .confirm-phone-label { font-size: 12px; font-weight: 500; color: var(--navy); letter-spacing: 0.3px; }
+    .confirm-phone-input { background: var(--white); border: 1px solid rgba(26,143,209,0.2); border-radius: 8px; padding: 9px 14px; font-size: 13px; color: var(--navy); font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s; width: 100%; max-width: 220px; }
+    .confirm-phone-input:focus { border-color: var(--blue); }
+    .confirm-phone-input::placeholder { color: var(--gray); }
+    .confirm-actions { display: flex; justify-content: flex-end; }
+    .confirm-btn { background: var(--blue); color: var(--white); border: none; border-radius: 8px; padding: 11px 24px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+    .confirm-btn:hover { background: var(--blue-light); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(26,143,209,0.3); }
+    .confirm-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* Loading spinner */
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── SUCCESS SCREEN ── */
+    .success-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 80px 24px 40px; }
+    .success-card { background: var(--white); border-radius: 20px; padding: 52px 48px; max-width: 520px; width: 100%; text-align: center; box-shadow: 0 4px 32px rgba(11,31,58,0.08); border: 1px solid rgba(26,143,209,0.1); }
+    .success-icon { width: 72px; height: 72px; background: rgba(26,143,209,0.1); border: 2px solid var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; animation: pop 0.5s cubic-bezier(0.175,0.885,0.32,1.275); }
+    @keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .success-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; color: var(--navy); margin-bottom: 16px; }
+    .success-text { font-size: 15px; color: var(--gray); line-height: 1.8; margin-bottom: 28px; }
+    .success-detail { background: var(--offwhite); border-radius: 10px; padding: 16px 20px; margin-bottom: 28px; text-align: left; }
+    .success-detail-row { display: flex; gap: 12px; font-size: 13px; color: var(--navy); padding: 4px 0; }
+    .success-detail-label { color: var(--gray); min-width: 80px; }
+    .success-meet-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--blue); color: var(--white); text-decoration: none; border-radius: 8px; padding: 12px 28px; font-size: 14px; font-weight: 500; transition: background 0.2s; }
+    .success-meet-btn:hover { background: var(--blue-light); }
 
     /* ── FOOTER ── */
     footer { background: #060E18; padding: 40px 60px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(200,216,232,0.06); }
@@ -96,44 +158,30 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 900px) {
-      nav { padding: 0 16px; gap: 10px; }
+      nav { padding: 0 14px; gap: 10px; }
       .nav-links { display: none; }
-      .rdv-hero { padding: 120px 24px 48px; }
-      .rdv-calendar-section { padding: 24px 16px 12px; }
-      .rdv-confirm-section { padding: 20px 16px 48px; }
-      .rdv-calendar-wrapper iframe { height: 600px; }
-      .rdv-info-bar { gap: 16px; }
-      footer { flex-direction: column; gap: 16px; text-align: center; }
-      .weather-widget { padding: 5px 10px; gap: 6px; max-width: 46vw; flex-shrink: 1; overflow: hidden; }
+      .nav-logo-icon { width: 32px; height: 32px; }
+      .nav-logo-text { font-size: 18px; }
+      .weather-widget { display: flex; padding: 5px 10px; border-radius: 10px; gap: 6px; max-width: 46vw; flex-shrink: 1; overflow: hidden; }
       .weather-widget-icon { font-size: 16px; }
+      .weather-widget-info { min-width: 0; }
+      .weather-widget-city { display: block; font-size: 9px; }
       #w-temp { display: none; }
-      .weather-widget-temp-short { display: block; font-size: 12px; }
-      .modal-box { padding: 36px 28px; }
+      .weather-widget-temp-short { display: block; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .rdv-hero { padding: 120px 24px 40px; }
+      .cal-section { padding: 24px 16px 40px; }
+      .cal-body { padding: 16px 16px 12px; }
+      .slots-panel, .confirm-panel { padding: 16px; }
+      .cal-header { padding: 18px 16px; }
+      footer { flex-direction: column; gap: 16px; text-align: center; }
+      .gate-card, .success-card { padding: 36px 24px; }
     }
   </style>
 </head>
 <body>
 
-<!-- ── MODAL ── -->
-<div class="modal-overlay" id="rdvModal">
-  <div class="modal-box">
-    <div class="modal-icon">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="20 6 9 17 4 12"/>
-      </svg>
-    </div>
-    <h2 class="modal-title">Votre consultation est confirmée !</h2>
-    <p class="modal-text">
-      Un email de confirmation vous sera envoyé <strong>automatiquement dans les prochaines minutes</strong>.<br><br>
-      Si vous ne le recevez pas, vérifiez vos courriels indésirables ou contactez-nous à <a href="/cdn-cgi/l/email-protection#84edeae2ebc4e7e5f4f0f1f6e5edf6aae7ebe9"><span class="__cf_email__" data-cfemail="5e373038311e3d3f2e2a2b2c3f372c703d3133">[email&#160;protected]</span></a><br><br>
-      — L'équipe CapturAir —
-    </p>
-    <button class="modal-close" onclick="closeModal()">Fermer</button>
-  </div>
-</div>
-
 <!-- ── NAV ── -->
-<nav id="mainNav">
+<nav>
   <a href="index.html" class="nav-logo">
     <div class="nav-logo-icon">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round">
@@ -151,7 +199,6 @@
     <li><a href="index.html#galerie">Galerie</a></li>
     <li><a href="index.html#apropos">À propos</a></li>
     <li><a href="contact.html">Contact</a></li>
-    <li><a href="#calendrier" class="nav-cta">Prise de RDV</a></li>
   </ul>
   <div class="weather-widget">
     <span class="weather-widget-icon" id="w-icon">⏳</span>
@@ -163,69 +210,161 @@
   </div>
 </nav>
 
-<!-- ── HERO ── -->
-<div class="rdv-hero">
-  <span class="rdv-tag">Consultation gratuite</span>
-  <h1 class="rdv-title">Planifier un appel de<br><strong>30 minutes</strong></h1>
-  <p class="rdv-subtitle">Discutons de votre projet de photographie aérienne par drone — vos besoins, la zone de vol, les délais et la soumission de prix. Sans engagement.</p>
-  <div class="rdv-info-bar">
-    <div class="rdv-info-item">
-      <div class="rdv-info-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round">
-          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- SCREEN: TOKEN INVALIDE / EXPIRÉ                                   -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-invalid">
+  <div class="gate-wrap">
+    <div class="gate-card">
+      <div class="gate-icon error">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
       </div>
-      <span>30 minutes</span>
+      <h2 class="gate-title" id="invalid-title">Lien invalide</h2>
+      <p class="gate-text" id="invalid-text">Ce lien de prise de rendez-vous est invalide ou a expiré.<br><br>Si vous pensez qu'il s'agit d'une erreur, contactez-nous à <a href="mailto:info@capturair.com" style="color:var(--blue);">info@capturair.com</a></p>
     </div>
-    <div class="rdv-info-item">
-      <div class="rdv-info-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round">
-          <path d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14"/><rect x="3" y="6" width="12" height="12" rx="2"/>
-        </svg>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- SCREEN: CALENDRIER PRINCIPAL                                       -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-calendar">
+
+  <div class="rdv-hero">
+    <span class="rdv-tag">Consultation gratuite</span>
+    <h1 class="rdv-title">Planifier un appel de<br><strong>30 minutes</strong></h1>
+    <p class="rdv-subtitle" id="hero-subtitle">Choisissez le créneau qui vous convient le mieux.</p>
+    <div class="rdv-info-bar">
+      <div class="rdv-info-item">
+        <div class="rdv-info-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <span>30 minutes</span>
       </div>
-      <span>Google Meet</span>
-    </div>
-    <div class="rdv-info-item">
-      <div class="rdv-info-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="2" y1="12" x2="22" y2="12"/>
-          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-        </svg>
+      <div class="rdv-info-item">
+        <div class="rdv-info-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round">
+            <path d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14"/><rect x="3" y="6" width="12" height="12" rx="2"/>
+          </svg>
+        </div>
+        <span>Google Meet</span>
       </div>
-      <span>Heure de l'Est — Toronto</span>
+      <div class="rdv-info-item">
+        <div class="rdv-info-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </div>
+        <span>Heure de l'Est — Toronto</span>
+      </div>
+      <div class="rdv-info-item">
+        <div class="rdv-info-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <span>Sans engagement</span>
+      </div>
     </div>
-    <div class="rdv-info-item">
-      <div class="rdv-info-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round">
+  </div>
+
+  <div class="cal-section">
+    <div class="cal-card">
+
+      <!-- Header -->
+      <div class="cal-header">
+        <div class="cal-header-left">
+          <div class="cal-month-title" id="calMonthTitle">Chargement…</div>
+          <div class="cal-subtitle">Consultation gratuite · 30 min</div>
+        </div>
+        <div class="cal-nav">
+          <button onclick="changeMonth(-1)" aria-label="Mois précédent">&#8249;</button>
+          <button onclick="changeMonth(1)"  aria-label="Mois suivant">&#8250;</button>
+        </div>
+      </div>
+
+      <!-- Grille -->
+      <div class="cal-body">
+        <div class="cal-day-labels">
+          <div class="cal-day-label">Lun</div>
+          <div class="cal-day-label">Mar</div>
+          <div class="cal-day-label">Mer</div>
+          <div class="cal-day-label">Jeu</div>
+          <div class="cal-day-label">Ven</div>
+          <div class="cal-day-label">Sam</div>
+          <div class="cal-day-label">Dim</div>
+        </div>
+        <div class="cal-cells" id="calCells"></div>
+      </div>
+
+      <!-- Légende -->
+      <div class="cal-legend">
+        <div class="cal-legend-item">
+          <div class="cal-legend-dot available"></div>
+          <span>Disponible</span>
+        </div>
+        <div class="cal-legend-item">
+          <div class="cal-legend-dot unavailable"></div>
+          <span>Indisponible</span>
+        </div>
+      </div>
+
+      <!-- Créneaux -->
+      <div class="slots-panel" id="slotsPanel" style="display:none;">
+        <div class="slots-panel-title" id="slotsPanelTitle">Créneaux disponibles</div>
+        <div class="slots-grid" id="slotsGrid"></div>
+      </div>
+
+      <!-- Confirmation -->
+      <div class="confirm-panel" id="confirmPanel">
+        <div class="confirm-inner">
+          <div class="confirm-summary" id="confirmSummary"></div>
+          <div class="confirm-phone-wrap">
+            <label class="confirm-phone-label" for="confirmPhone">📞 Votre téléphone <span style="color:var(--gray);font-size:11px;">(optionnel)</span></label>
+            <input type="tel" id="confirmPhone" class="confirm-phone-input" placeholder="514 446-6078" autocomplete="tel">
+          </div>
+          <button class="confirm-btn" id="confirmBtn" onclick="bookRdv()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Confirmer le RDV
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /.cal-card -->
+  </div><!-- /.cal-section -->
+
+</div><!-- /#screen-calendar -->
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- SCREEN: SUCCÈS                                                     -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-success">
+  <div class="success-wrap">
+    <div class="success-card">
+      <div class="success-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="20 6 9 17 4 12"/>
         </svg>
       </div>
-      <span>Sans engagement</span>
+      <h2 class="success-title">Votre consultation est confirmée !</h2>
+      <p class="success-text">
+        Un email de confirmation avec votre invitation de calendrier (<strong>.ics</strong>) vous a été envoyé.<br>
+        Si vous ne le recevez pas, vérifiez vos courriels indésirables.
+      </p>
+      <div class="success-detail" id="successDetail"></div>
+      <a href="#" id="successMeetBtn" class="success-meet-btn" style="display:none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14"/><rect x="3" y="6" width="12" height="12" rx="2"/></svg>
+        Rejoindre l'appel Google Meet
+      </a>
+      <p style="margin-top:24px;font-size:13px;color:var(--gray);">— L'équipe CapturAir —</p>
     </div>
   </div>
-</div>
-
-<!-- ── CALENDRIER ── -->
-<div class="rdv-calendar-section" id="calendrier">
-  <div class="rdv-calendar-wrapper">
-    <iframe
-      src="https://calendar.app.google/LaZD3WtLdGRXoLEFA"
-      frameborder="0"
-      scrolling="no"
-      title="Planifier une consultation CapturAir">
-    </iframe>
-  </div>
-</div>
-
-<!-- ── BOUTON CONFIRMATION ── -->
-<div class="rdv-confirm-section">
-  <button class="rdv-confirm-btn" onclick="showModal()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="20 6 9 17 4 12"/>
-    </svg>
-    J'ai pris mon RDV
-  </button>
 </div>
 
 <!-- ── FOOTER ── -->
@@ -238,53 +377,325 @@
   </div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-  function showModal() {
-    document.getElementById('rdvModal').classList.add('active');
-    document.body.style.overflow = 'hidden';
+<script>
+// ══════════════════════════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════════════════════════
+const API = 'https://capturair-rdv.TONCOMPTE.workers.dev'; // ← adapte
+
+const MONTHS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const MONTHS_FR_SHORT = ['janv.','févr.','mars','avr.','mai','juin','juill.','août','sept.','oct.','nov.','déc.'];
+const DAYS_FR = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+
+// ── STATE ──────────────────────────────────────────────────────────────
+let TOKEN = '';
+let PRENOM = '';
+let AVAILABILITY = {}; // { "2026-04-08": ["09:00","10:00",...], ... }
+let currentYear = new Date().getFullYear();
+let currentMonth = new Date().getMonth();
+let selectedDate = null;
+let selectedSlot = null;
+
+// ══════════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════════
+(async function init() {
+  const params = new URLSearchParams(window.location.search);
+  TOKEN = params.get('token') || '';
+
+  if (!TOKEN) {
+    showScreen('invalid', 'Lien manquant', 'Aucun token de réservation trouvé dans ce lien.');
+    return;
   }
-  function closeModal() {
-    document.getElementById('rdvModal').classList.remove('active');
-    document.body.style.overflow = '';
+
+  // Vérifie le token
+  try {
+    const resp = await fetch(`${API}/api/token/verify?token=${encodeURIComponent(TOKEN)}`);
+    const data = await resp.json();
+
+    if (!data.valid) {
+      if (data.reason === 'already_used') {
+        showScreen('invalid',
+          'Rendez-vous déjà pris',
+          `Bonjour${data.prenom ? ' ' + data.prenom : ''}, vous avez déjà planifié votre consultation via ce lien.<br><br>Consultez votre email pour les détails ou contactez-nous à <a href="mailto:info@capturair.com" style="color:var(--blue);">info@capturair.com</a>`
+        );
+      } else {
+        showScreen('invalid',
+          'Lien expiré ou invalide',
+          'Ce lien de prise de rendez-vous n\'est plus valide (expiré après 48h).<br><br>Contactez-nous à <a href="mailto:info@capturair.com" style="color:var(--blue);">info@capturair.com</a> pour obtenir un nouveau lien.'
+        );
+      }
+      return;
+    }
+
+    PRENOM = data.prenom || '';
+    if (PRENOM) {
+      document.getElementById('hero-subtitle').textContent =
+        `Bonjour ${PRENOM} ! Choisissez le créneau qui vous convient le mieux.`;
+    }
+
+    // Affiche le calendrier
+    showScreen('calendar');
+    renderCalendar();
+
+    // Charge les disponibilités en arrière-plan
+    loadAvailability();
+
+  } catch (err) {
+    showScreen('invalid', 'Erreur de connexion', 'Impossible de vérifier votre lien. Veuillez réessayer ou contacter info@capturair.com');
   }
-  document.getElementById('rdvModal').addEventListener('click', function(e) {
-    if (e.target === this) closeModal();
+})();
+
+// ══════════════════════════════════════════════════════════════════════
+// AVAILABILITY
+// ══════════════════════════════════════════════════════════════════════
+async function loadAvailability() {
+  try {
+    const resp = await fetch(`${API}/api/availability?token=${encodeURIComponent(TOKEN)}`);
+    const data = await resp.json();
+    AVAILABILITY = data.available || {};
+    renderCalendar(); // re-render avec les vraies dispos
+  } catch (err) {
+    console.error('Erreur disponibilités', err);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// CALENDAR RENDER
+// ══════════════════════════════════════════════════════════════════════
+function renderCalendar() {
+  document.getElementById('calMonthTitle').textContent =
+    MONTHS_FR[currentMonth] + ' ' + currentYear;
+
+  const cells = document.getElementById('calCells');
+  cells.innerHTML = '';
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const first = new Date(currentYear, currentMonth, 1);
+  const last  = new Date(currentYear, currentMonth + 1, 0);
+  const startDow = (first.getDay() + 6) % 7; // lundi = 0
+
+  // Jours du mois précédent
+  for (let i = 0; i < startDow; i++) {
+    const d = new Date(currentYear, currentMonth, -startDow + i + 1);
+    cells.innerHTML += `<div class="cal-cell other-month">${d.getDate()}</div>`;
+  }
+
+  // Jours du mois
+  for (let d = 1; d <= last.getDate(); d++) {
+    const date = new Date(currentYear, currentMonth, d);
+    const dateKey = toDateKey(date);
+    const isToday = date.getTime() === today.getTime();
+    const isPast  = date < today;
+    const isSel   = selectedDate && toDateKey(selectedDate) === dateKey;
+    const hasSlots = AVAILABILITY[dateKey] && AVAILABILITY[dateKey].length > 0;
+    const dispoLoaded = Object.keys(AVAILABILITY).length > 0;
+
+    let cls = 'cal-cell';
+    let onclick = '';
+
+    if (isPast) {
+      cls += ' past';
+    } else if (isSel) {
+      cls += ' available selected';
+      onclick = `onclick="selectDate('${dateKey}')"`;
+    } else if (hasSlots) {
+      cls += ' available';
+      onclick = `onclick="selectDate('${dateKey}')"`;
+    } else if (!dispoLoaded && !isPast) {
+      cls += ' loading-dispo';
+    }
+
+    if (isToday) cls += ' today';
+
+    cells.innerHTML += `<div class="${cls}" ${onclick}>${d}</div>`;
+  }
+
+  // Compléter la grille
+  const total = startDow + last.getDate();
+  const rem = 7 - (total % 7);
+  if (rem < 7) {
+    for (let i = 1; i <= rem; i++) {
+      cells.innerHTML += `<div class="cal-cell other-month">${i}</div>`;
+    }
+  }
+}
+
+function toDateKey(date) {
+  return date.toISOString().split('T')[0];
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// SELECT DATE
+// ══════════════════════════════════════════════════════════════════════
+function selectDate(dateKey) {
+  const [y, m, d] = dateKey.split('-').map(Number);
+  selectedDate = new Date(y, m - 1, d);
+  selectedSlot = null;
+
+  renderCalendar();
+
+  const slots = AVAILABILITY[dateKey] || [];
+  const panel = document.getElementById('slotsPanel');
+  const grid  = document.getElementById('slotsGrid');
+  const title = document.getElementById('slotsPanelTitle');
+
+  const dayName = DAYS_FR[selectedDate.getDay()];
+  const dayNum  = selectedDate.getDate();
+  const monthName = MONTHS_FR[selectedDate.getMonth()];
+  title.innerHTML = `Créneaux du <span>${dayName} ${dayNum} ${monthName}</span>`;
+
+  grid.innerHTML = '';
+  if (slots.length === 0) {
+    grid.innerHTML = '<div class="slots-empty">Aucun créneau disponible ce jour.</div>';
+  } else {
+    slots.forEach(s => {
+      grid.innerHTML += `<button class="slot-btn" onclick="selectSlot(this,'${s}')">${s}</button>`;
+    });
+  }
+
+  panel.style.display = 'block';
+  document.getElementById('confirmPanel').classList.remove('show');
+
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// SELECT SLOT
+// ══════════════════════════════════════════════════════════════════════
+function selectSlot(el, slot) {
+  document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedSlot = slot;
+
+  const dayName   = DAYS_FR[selectedDate.getDay()];
+  const dayNum    = selectedDate.getDate();
+  const monthName = MONTHS_FR[selectedDate.getMonth()];
+  const year      = selectedDate.getFullYear();
+
+  document.getElementById('confirmSummary').innerHTML =
+    `<strong>${dayName} ${dayNum} ${monthName} ${year} · ${slot}</strong><br>` +
+    `Heure de l'Est (Toronto) · Google Meet · 30 min`;
+
+  const panel = document.getElementById('confirmPanel');
+  panel.classList.add('show');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// BOOK
+// ══════════════════════════════════════════════════════════════════════
+async function bookRdv() {
+  if (!selectedDate || !selectedSlot) return;
+
+  const btn = document.getElementById('confirmBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Réservation en cours…';
+
+  try {
+    const resp = await fetch(`${API}/api/book`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: TOKEN,
+        date: toDateKey(selectedDate),
+        time: selectedSlot,
+        telephone: document.getElementById('confirmPhone').value.trim() || '',
+      })
+    });
+
+    const data = await resp.json();
+
+    if (!resp.ok) {
+      if (resp.status === 410) {
+        alert('Ce lien a déjà été utilisé pour réserver un rendez-vous.');
+        return;
+      }
+      throw new Error(data.error || 'Erreur inconnue');
+    }
+
+    // Succès
+    const dayName   = DAYS_FR[selectedDate.getDay()];
+    const dayNum    = selectedDate.getDate();
+    const monthName = MONTHS_FR[selectedDate.getMonth()];
+    const year      = selectedDate.getFullYear();
+
+    document.getElementById('successDetail').innerHTML = `
+      <div class="success-detail-row"><span class="success-detail-label">📅 Date</span><span>${dayName} ${dayNum} ${monthName} ${year} à ${selectedSlot} (heure de l'Est)</span></div>
+      <div class="success-detail-row"><span class="success-detail-label">⏱ Durée</span><span>30 minutes</span></div>
+      <div class="success-detail-row"><span class="success-detail-label">📧 Email</span><span>Confirmation envoyée avec fichier .ics</span></div>
+    `;
+
+    if (data.meet) {
+      const meetBtn = document.getElementById('successMeetBtn');
+      meetBtn.href = data.meet;
+      meetBtn.style.display = 'inline-flex';
+    }
+
+    showScreen('success');
+
+  } catch (err) {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Confirmer le RDV';
+    alert('Une erreur est survenue : ' + err.message + '\n\nVeuillez réessayer ou contacter info@capturair.com');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════════════════════
+function showScreen(name, title, text) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  if (name === 'invalid' && title) {
+    document.getElementById('invalid-title').textContent = title;
+    document.getElementById('invalid-text').innerHTML = text;
+  }
+}
+
+function changeMonth(dir) {
+  currentMonth += dir;
+  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  if (currentMonth < 0)  { currentMonth = 11; currentYear--; }
+  selectedDate = null;
+  selectedSlot = null;
+  document.getElementById('slotsPanel').style.display = 'none';
+  document.getElementById('confirmPanel').classList.remove('show');
+  renderCalendar();
+}
+
+// ── MÉTÉO ──────────────────────────────────────────────────────────────
+fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FToronto')
+  .then(r => r.json())
+  .then(d => {
+    const icons = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+    const c = Math.round(d.current.temperature_2m);
+    const f = Math.round(c * 9/5 + 32);
+    const wind = Math.round(d.current.wind_speed_10m);
+    const cond = wind >= 30 ? '❌ Vol déconseillé' : wind >= 15 ? '⚠️ Vol prudent' : '✅ Vol OK';
+    document.getElementById('w-icon').textContent = icons[d.current.weather_code] || '🌡️';
+    document.getElementById('w-temp').textContent = `${c}°C · ${f}°F · Vent ${wind} km/h · ${cond}`;
+    document.getElementById('w-temp-short').textContent = `${c}°C · ${f}°F`;
+  }).catch(() => {
+    document.getElementById('w-icon').textContent = '🌤️';
+    document.getElementById('w-temp').textContent = 'Météo indisponible';
   });
 
-  fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FToronto')
-    .then(function(r) {
-      if (!r.ok) throw new Error('Erreur météo');
-      return r.json();
-    })
-    .then(function(d) {
-      var icons = {
-        0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',
-        51:'🌦️',53:'🌦️',55:'🌧️',56:'🌧️',57:'🌧️',
-        61:'🌧️',63:'🌧️',65:'🌧️',66:'🌧️',67:'🌧️',
-        71:'🌨️',73:'🌨️',75:'❄️',77:'❄️',
-        80:'🌦️',81:'🌧️',82:'⛈️',85:'🌨️',86:'❄️',
-        95:'⛈️',96:'⛈️',99:'⛈️'
-      };
+// ── NAV SCROLL (identique à index.html) ────────────────────────────────
+window.addEventListener('scroll', function() {
+  document.querySelector('nav').style.background =
+    window.scrollY > 50 ? 'rgba(11,31,58,0.98)' : 'rgba(11,31,58,0.92)';
+});
+</script>
 
-      if (!d.current) throw new Error('Données météo absentes');
-
-      var c = Math.round(d.current.temperature_2m);
-      var f = Math.round((c * 9 / 5) + 32);
-      var wind = Math.round(d.current.wind_speed_10m || 0);
-      var condition = '✅ Vol OK';
-
-      if (wind >= 20 && wind < 35) condition = '⚠️ Vol prudent';
-      if (wind >= 35) condition = '❌ Vol déconseillé';
-
-      document.getElementById('w-icon').textContent = icons[d.current.weather_code] || '🌡️';
-      document.getElementById('w-temp').textContent = c + '°C · ' + f + '°F · Vent ' + wind + ' km/h · ' + condition;
-      document.getElementById('w-temp-short').textContent = c + '°C · ' + f + '°F';
-    })
-    .catch(function() {
-      document.getElementById('w-icon').textContent = '🌤️';
-      document.getElementById('w-temp').textContent = 'Météo indisponible';
-      document.getElementById('w-temp-short').textContent = '--';
-    });
+<!-- Google Analytics (identique à index.html) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-44EB1JEJ2C"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-44EB1JEJ2C');
 </script>
 </body>
 </html>
