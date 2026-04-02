@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /rdv.html
+Disallow: /CapturAir.vcf
 
 Sitemap: https://capturair.com/sitemap.xml
