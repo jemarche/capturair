@@ -277,41 +277,18 @@
       </svg>
       <p style="color:#6B7A99;font-size:13px;margin-top:12px;">Carnet de vol numérique sécurisé</p>
     </div>
-    <!-- ÉTAPE 1 : Email + PIN -->
-    <div id="step-1">
-      <div class="pin-info" id="pin-info">
-        🔐 Première connexion — crée ton PIN (minimum 4 chiffres)
-      </div>
-      <div class="form-group">
-        <label>Adresse courriel</label>
-        <input type="email" id="login-email" placeholder="ton@email.com" autocomplete="email">
-      </div>
-      <div class="form-group">
-        <label id="pin-label">Code PIN</label>
-        <input type="password" id="login-pin" placeholder="••••" maxlength="8" autocomplete="current-password">
-      </div>
-      <button class="btn-login" onclick="login()">Continuer →</button>
+    <div class="pin-info" id="pin-info">
+      🔐 Première connexion — crée ton PIN (minimum 4 chiffres)
     </div>
-
-    <!-- ÉTAPE 2 : OTP -->
-    <div id="step-2" style="display:none;">
-      <div style="text-align:center;margin-bottom:1.5rem;padding:1rem;background:#F5F7FA;border-radius:12px;">
-        <div style="font-size:32px;margin-bottom:8px;">📧</div>
-        <p style="font-size:14px;color:#1B2A47;font-weight:600;">Code envoyé par email !</p>
-        <p style="font-size:13px;color:#6B7A99;margin-top:4px;">Vérifie ta boîte — le code expire dans 5 minutes</p>
-      </div>
-      <div class="form-group">
-        <label>Code de vérification (6 chiffres)</label>
-        <input type="text" id="login-otp" placeholder="000000" maxlength="6" style="text-align:center;font-size:24px;font-weight:700;letter-spacing:8px;">
-      </div>
-      <button class="btn-login" onclick="verifyOTP()">✅ Vérifier le code</button>
-      <div style="text-align:center;margin-top:12px;">
-        <button onclick="resendOTP()" style="background:none;border:none;color:#6B7A99;font-size:13px;cursor:pointer;text-decoration:underline;">Renvoyer un code</button>
-        &nbsp;|&nbsp;
-        <button onclick="backToStep1()" style="background:none;border:none;color:#6B7A99;font-size:13px;cursor:pointer;text-decoration:underline;">← Retour</button>
-      </div>
+    <div class="form-group">
+      <label>Adresse courriel</label>
+      <input type="email" id="login-email" placeholder="ton@email.com" autocomplete="email">
     </div>
-
+    <div class="form-group">
+      <label id="pin-label">Code PIN</label>
+      <input type="password" id="login-pin" placeholder="••••" maxlength="8" autocomplete="current-password">
+    </div>
+    <button class="btn-login" onclick="login()">Se connecter</button>
     <div class="login-error" id="login-error"></div>
   </div>
 </div>
@@ -801,113 +778,37 @@ let meteoSelected = 'Ensoleillé';
 let map = null, directionsService = null, directionsRenderer = null;
 
 // ── AUTH ──────────────────────────────────────────────────────────
-let currentEmail = '';
-
 async function login() {
   const email = document.getElementById('login-email').value.trim();
   const pin = document.getElementById('login-pin').value.trim();
   if (!email || !pin) { showLoginError('Remplis tous les champs'); return; }
-  if (pin.length < 4) { showLoginError('PIN minimum 4 chiffres'); return; }
-
-  const btn = document.querySelector('.btn-login');
-  btn.textContent = 'Envoi en cours...';
-  btn.disabled = true;
 
   try {
-    // Vérifier si utilisateur existe, sinon créer
-    const checkUser = await fetch(API + '/api/carnet/admin/users', {
-      headers: { 'Authorization': 'Bearer dummy' }
-    });
-
-    const res = await fetch(API + '/api/carnet/auth/init', {
+    const res = await fetch(API + '/api/carnet/auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, pin })
     });
     const data = await res.json();
-
-    if (data.error) {
-      showLoginError(data.error);
-      btn.textContent = 'Continuer →';
-      btn.disabled = false;
+    if (data.needsSetup) {
+      document.getElementById('pin-info').style.display = 'block';
+      document.getElementById('pin-label').textContent = 'Créer ton PIN (4 chiffres minimum)';
+      showLoginError('Premier accès — entre un PIN pour le créer');
       return;
     }
-
-    // Succès → afficher étape OTP
-    currentEmail = email;
-    document.getElementById('step-1').style.display = 'none';
-    document.getElementById('step-2').style.display = 'block';
-    document.getElementById('login-otp').focus();
-    document.getElementById('login-error').style.display = 'none';
-
-  } catch(e) {
-    showLoginError('Erreur de connexion — réessaie');
-  }
-  btn.textContent = 'Continuer →';
-  btn.disabled = false;
-}
-
-async function verifyOTP() {
-  const otp = document.getElementById('login-otp').value.trim();
-  if (otp.length !== 6) { showLoginError('Entre les 6 chiffres du code'); return; }
-
-  const btn = document.querySelectorAll('.btn-login')[1];
-  btn.textContent = 'Vérification...';
-  btn.disabled = true;
-
-  try {
-    const res = await fetch(API + '/api/carnet/auth/otp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: currentEmail, otp })
-    });
-    const data = await res.json();
-
-    if (data.error) {
-      showLoginError(data.error);
-      btn.textContent = '✅ Vérifier le code';
-      btn.disabled = false;
-      return;
-    }
-
-    // Connexion réussie !
+    if (data.error) { showLoginError(data.error); return; }
     TOKEN = data.token;
     localStorage.setItem('carnet_token', TOKEN);
-    document.getElementById('user-name').textContent = data.nom || currentEmail.split('@')[0];
+    document.getElementById('user-name').textContent = email.split('@')[0];
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     initApp();
-
-  } catch(e) {
-    showLoginError('Erreur de vérification');
-    btn.textContent = '✅ Vérifier le code';
-    btn.disabled = false;
-  }
-}
-
-async function resendOTP() {
-  const pin = document.getElementById('login-pin').value.trim();
-  await fetch(API + '/api/carnet/auth/init', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: currentEmail, pin })
-  });
-  showLoginError('✅ Nouveau code envoyé !');
-  document.getElementById('login-error').style.color = 'var(--green)';
-  document.getElementById('login-error').style.display = 'block';
-}
-
-function backToStep1() {
-  document.getElementById('step-1').style.display = 'block';
-  document.getElementById('step-2').style.display = 'none';
-  document.getElementById('login-error').style.display = 'none';
-  document.getElementById('login-otp').value = '';
+  } catch(e) { showLoginError('Erreur de connexion'); }
 }
 
 function showLoginError(msg) {
   const el = document.getElementById('login-error');
   el.textContent = msg;
-  el.style.color = 'var(--red)';
   el.style.display = 'block';
 }
 
@@ -918,7 +819,6 @@ function logout() {
 }
 
 document.getElementById('login-pin').addEventListener('keypress', e => { if(e.key === 'Enter') login(); });
-document.getElementById('login-otp') && document.getElementById('login-otp').addEventListener('keypress', e => { if(e.key === 'Enter') verifyOTP(); });
 
 // Vérifier si déjà connecté
 if (TOKEN) {
@@ -1231,7 +1131,7 @@ function initMap() {
   if (map) return;
   if (!window.google) {
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=VOTRE_CLE_API&callback=initMapCallback&libraries=places`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBa_29f6i2nUKqTPepHFLYE_pEff8VfogY&callback=initMapCallback&libraries=places`;
     script.async = true;
     document.head.appendChild(script);
   } else {
