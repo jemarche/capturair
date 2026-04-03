@@ -469,6 +469,12 @@
             <label>Longitude</label>
             <input type="text" id="f-lon" placeholder="-73.2849">
           </div>
+          <div class="field full">
+            <button type="button" class="btn btn-secondary" onclick="capturerGPS()" style="width:auto;">
+              📍 Capturer ma position GPS automatiquement
+            </button>
+            <div id="gps-status" style="font-size:12px;color:var(--text-muted);margin-top:4px;"></div>
+          </div>
         </div>
         <div class="form-grid">
           <div class="field">
@@ -505,6 +511,12 @@
 
       <div class="card">
         <div class="card-title">🌤️ Conditions météo</div>
+        <div style="margin-bottom:1rem;">
+          <button type="button" class="btn btn-secondary" onclick="chargerMeteoVol()" style="width:auto;font-size:13px;">
+            🌤️ Charger la météo prévue pour la date et le lieu du vol
+          </button>
+          <div id="meteo-vol-status" style="font-size:12px;color:var(--text-muted);margin-top:4px;"></div>
+        </div>
         <div class="meteo-grid" style="margin-bottom:1rem;" id="meteo-btns">
           <button class="meteo-btn selected" onclick="selMeteo(this,'Ensoleillé')">☀️ Ensoleillé</button>
           <button class="meteo-btn" onclick="selMeteo(this,'Partiellement nuageux')">⛅ Part. nuageux</button>
@@ -629,6 +641,7 @@
       <div id="meteo-container">
         <div class="empty"><div class="empty-icon">🌤️</div><p>Entre une ville pour voir les conditions météo</p></div>
       </div>
+      <div id="previsions-container"></div>
     </div>
 
     <!-- ── CARTE ── -->
@@ -1164,6 +1177,95 @@ function resetForm() {
   meteoSelected = 'Ensoleillé';
 }
 
+// ── GPS AUTOMATIQUE ───────────────────────────────────────────────
+function capturerGPS() {
+  const status = document.getElementById('gps-status');
+  status.textContent = '📡 Recherche de ta position...';
+  status.style.color = 'var(--text-muted)';
+  if (!navigator.geolocation) {
+    status.textContent = '❌ Géolocalisation non disponible';
+    status.style.color = 'var(--red)';
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      document.getElementById('f-lat').value = pos.coords.latitude.toFixed(6);
+      document.getElementById('f-lon').value = pos.coords.longitude.toFixed(6);
+      status.textContent = '✅ Position capturée ! Précision : ' + Math.round(pos.coords.accuracy) + ' mètres';
+      status.style.color = 'var(--green)';
+    },
+    err => {
+      status.textContent = '❌ Impossible de capturer — vérifie les permissions de localisation';
+      status.style.color = 'var(--red)';
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+// ── MÉTÉO SELON DATE ET LIEU DU VOL ──────────────────────────────
+async function chargerMeteoVol() {
+  const lat = document.getElementById('f-lat').value;
+  const lon = document.getElementById('f-lon').value;
+  const lieu = document.getElementById('f-lieu').value;
+  const date = document.getElementById('f-date').value;
+  const status = document.getElementById('meteo-vol-status');
+
+  if (!date) { status.textContent = '❌ Entre d\'abord une date de vol'; status.style.color = 'var(--red)'; return; }
+  if (!lat && !lon && !lieu) { status.textContent = '❌ Entre d\'abord un lieu ou capture ta position GPS'; status.style.color = 'var(--red)'; return; }
+
+  status.textContent = '📡 Chargement de la météo...';
+  status.style.color = 'var(--text-muted)';
+
+  let latitude = lat;
+  let longitude = lon;
+
+  // Si pas de coordonnées, géocoder le lieu
+  if (!latitude || !longitude) {
+    try {
+      const geo = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(lieu)}&format=json&limit=1`);
+      const geoData = await geo.json();
+      if (!geoData.length) { status.textContent = '❌ Lieu introuvable'; status.style.color = 'var(--red)'; return; }
+      latitude = geoData[0].lat;
+      longitude = geoData[0].lon;
+    } catch(e) { status.textContent = '❌ Erreur de géocodage'; status.style.color = 'var(--red)'; return; }
+  }
+
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const url = date === today
+      ? `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_gusts_10m,surface_pressure,visibility,weather_code,precipitation&wind_speed_unit=kmh&timezone=America/Toronto`
+      : `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,wind_gusts_10m_max,precipitation_sum,weather_code&wind_speed_unit=kmh&timezone=America/Toronto&start_date=${date}&end_date=${date}`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (date === today) {
+      const c = data.current;
+      document.getElementById('f-vent').value = Math.round(c.wind_speed_10m);
+      document.getElementById('f-temp').value = Math.round(c.temperature_2m);
+      document.getElementById('f-vis').value = Math.round(c.visibility / 1000);
+      document.getElementById('f-press').value = Math.round(c.surface_pressure);
+      document.getElementById('f-hum').value = c.relative_humidity_2m;
+      status.textContent = `✅ Météo actuelle chargée — ${Math.round(c.temperature_2m)}°C, vent ${Math.round(c.wind_speed_10m)} km/h`;
+    } else {
+      const d = data.daily;
+      if (!d || !d.temperature_2m_max || !d.temperature_2m_max[0]) {
+        status.textContent = '❌ Prévisions non disponibles pour cette date (max 16 jours)';
+        status.style.color = 'var(--red)';
+        return;
+      }
+      const tempMoy = Math.round((d.temperature_2m_max[0] + d.temperature_2m_min[0]) / 2);
+      document.getElementById('f-vent').value = Math.round(d.wind_speed_10m_max[0]);
+      document.getElementById('f-temp').value = tempMoy;
+      status.textContent = `✅ Prévisions chargées pour le ${date} — ${tempMoy}°C, vent max ${Math.round(d.wind_speed_10m_max[0])} km/h`;
+    }
+    status.style.color = 'var(--green)';
+  } catch(e) {
+    status.textContent = '❌ Erreur de chargement météo';
+    status.style.color = 'var(--red)';
+  }
+}
+
 // ── HISTORIQUE ────────────────────────────────────────────────────
 async function loadHistorique() {
   const data = await api('/api/carnet/vols');
@@ -1225,7 +1327,7 @@ async function getMeteo() {
 async function fetchMeteo(lat, lon, nom) {
   document.getElementById('meteo-container').innerHTML = '<div class="empty"><div class="spinner" style="width:32px;height:32px;border-width:3px;border-color:rgba(0,0,0,0.1);border-top-color:var(--navy);"></div></div>';
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_gusts_10m,surface_pressure,visibility,weather_code,precipitation&wind_speed_unit=kmh&timezone=America/Toronto`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_gusts_10m,surface_pressure,visibility,weather_code,precipitation&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,wind_gusts_10m_max,precipitation_sum,weather_code&wind_speed_unit=kmh&timezone=America/Toronto`;
     const res = await fetch(url);
     const data = await res.json();
     const c = data.current;
@@ -1236,9 +1338,9 @@ async function fetchMeteo(lat, lon, nom) {
     const pression = Math.round(c.surface_pressure);
     const humidite = c.relative_humidity_2m;
 
-    let condition = 'vert', condText = '✅ Conditions favorables au vol', condClass = 'meteo-vert';
-    if (vent > 40 || vis < 3 || c.precipitation > 0) { condition = 'rouge'; condText = '🔴 Conditions défavorables — Vol déconseillé'; condClass = 'meteo-rouge'; }
-    else if (vent > 25 || vis < 5) { condition = 'jaune'; condText = '🟡 Conditions limites — Prudence requise'; condClass = 'meteo-jaune'; }
+    let condText = '✅ Conditions favorables au vol', condClass = 'meteo-vert';
+    if (vent > 40 || vis < 3 || c.precipitation > 0) { condText = '🔴 Conditions défavorables — Vol déconseillé'; condClass = 'meteo-rouge'; }
+    else if (vent > 25 || vis < 5) { condText = '🟡 Conditions limites — Prudence requise'; condClass = 'meteo-jaune'; }
 
     document.getElementById('meteo-container').innerHTML = `
       <div class="meteo-widget">
@@ -1255,47 +1357,76 @@ async function fetchMeteo(lat, lon, nom) {
           </div>
         </div>
         <div class="meteo-details" style="margin-top:1.5rem;">
-          <div class="meteo-detail">
-            <div class="meteo-detail-value">💨 ${Math.round(vent)}</div>
-            <div class="meteo-detail-label">Vent (km/h)</div>
-          </div>
-          <div class="meteo-detail">
-            <div class="meteo-detail-value">👁️ ${vis}</div>
-            <div class="meteo-detail-label">Visibilité (km)</div>
-          </div>
-          <div class="meteo-detail">
-            <div class="meteo-detail-value">🌡️ ${pression}</div>
-            <div class="meteo-detail-label">Pression (hPa)</div>
-          </div>
-          <div class="meteo-detail">
-            <div class="meteo-detail-value">💧 ${humidite}%</div>
-            <div class="meteo-detail-label">Humidité</div>
-          </div>
+          <div class="meteo-detail"><div class="meteo-detail-value">💨 ${Math.round(vent)}</div><div class="meteo-detail-label">Vent (km/h)</div></div>
+          <div class="meteo-detail"><div class="meteo-detail-value">👁️ ${vis}</div><div class="meteo-detail-label">Visibilité (km)</div></div>
+          <div class="meteo-detail"><div class="meteo-detail-value">🌡️ ${pression}</div><div class="meteo-detail-label">Pression (hPa)</div></div>
+          <div class="meteo-detail"><div class="meteo-detail-value">💧 ${humidite}%</div><div class="meteo-detail-label">Humidité</div></div>
         </div>
       </div>
       <div class="card">
         <div class="card-title">📊 Analyse pour le vol de drone</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-          <div style="padding:1rem;background:var(--grey);border-radius:8px;">
-            <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Vent</div>
-            ${getAnalyse('vent', vent)}
-          </div>
-          <div style="padding:1rem;background:var(--grey);border-radius:8px;">
-            <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Visibilité</div>
-            ${getAnalyse('vis', parseFloat(vis))}
-          </div>
-          <div style="padding:1rem;background:var(--grey);border-radius:8px;">
-            <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Température</div>
-            ${getAnalyse('temp', temp)}
-          </div>
-          <div style="padding:1rem;background:var(--grey);border-radius:8px;">
-            <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Rafales</div>
-            ${getAnalyse('raf', rafales)}
-          </div>
+          <div style="padding:1rem;background:var(--grey);border-radius:8px;"><div style="font-size:13px;font-weight:600;margin-bottom:8px;">Vent</div>${getAnalyse('vent', vent)}</div>
+          <div style="padding:1rem;background:var(--grey);border-radius:8px;"><div style="font-size:13px;font-weight:600;margin-bottom:8px;">Visibilité</div>${getAnalyse('vis', parseFloat(vis))}</div>
+          <div style="padding:1rem;background:var(--grey);border-radius:8px;"><div style="font-size:13px;font-weight:600;margin-bottom:8px;">Température</div>${getAnalyse('temp', temp)}</div>
+          <div style="padding:1rem;background:var(--grey);border-radius:8px;"><div style="font-size:13px;font-weight:600;margin-bottom:8px;">Rafales</div>${getAnalyse('raf', rafales)}</div>
         </div>
       </div>
     `;
-  } catch(e) { document.getElementById('meteo-container').innerHTML = '<div class="alert alert-error">Erreur lors du chargement météo</div>'; }
+
+    // Prévisions 14 jours
+    if (data.daily && data.daily.time) {
+      const jours = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+      const mois = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+      const prevHTML = data.daily.time.map((date, i) => {
+        const d = new Date(date + 'T12:00:00');
+        const jourNom = jours[d.getDay()];
+        const dateStr = d.getDate() + ' ' + mois[d.getMonth()];
+        const tmax = Math.round(data.daily.temperature_2m_max[i]);
+        const tmin = Math.round(data.daily.temperature_2m_min[i]);
+        const ventMax = Math.round(data.daily.wind_speed_10m_max[i]);
+        const pluie = data.daily.precipitation_sum[i];
+        const code = data.daily.weather_code[i];
+        let couleur = '#C6EFCE', textCol = '#006400';
+        if (ventMax > 40 || pluie > 1) { couleur = '#FFC7CE'; textCol = '#C00000'; }
+        else if (ventMax > 25 || pluie > 0) { couleur = '#FCE4D6'; textCol = '#E67E22'; }
+        return `
+          <div style="background:${couleur};border-radius:10px;padding:10px 8px;text-align:center;min-width:85px;">
+            <div style="font-size:11px;font-weight:700;color:${textCol};">${jourNom}</div>
+            <div style="font-size:11px;color:${textCol};opacity:0.8;">${dateStr}</div>
+            <div style="font-size:20px;margin:4px 0;">${getMeteoEmoji(code)}</div>
+            <div style="font-size:13px;font-weight:700;color:${textCol};">${tmax}° / ${tmin}°</div>
+            <div style="font-size:11px;color:${textCol};">💨 ${ventMax} km/h</div>
+            ${pluie > 0 ? `<div style="font-size:11px;color:${textCol};">🌧️ ${pluie}mm</div>` : ''}
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('previsions-container').innerHTML = `
+        <div class="card" style="margin-top:1rem;">
+          <div class="card-title">📅 Prévisions 14 jours — Conditions de vol</div>
+          <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;">${prevHTML}</div>
+          <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap;font-size:12px;">
+            <span style="background:#C6EFCE;color:#006400;padding:4px 10px;border-radius:20px;">🟢 Favorable</span>
+            <span style="background:#FCE4D6;color:#E67E22;padding:4px 10px;border-radius:20px;">🟡 Limites</span>
+            <span style="background:#FFC7CE;color:#C00000;padding:4px 10px;border-radius:20px;">🔴 Déconseillé</span>
+          </div>
+        </div>
+      `;
+    }
+  } catch(e) {
+    document.getElementById('meteo-container').innerHTML = '<div class="alert alert-error">Erreur lors du chargement météo</div>';
+  }
+}
+
+function getMeteoEmoji(code) {
+  if (code === 0) return '☀️';
+  if (code <= 3) return '⛅';
+  if (code <= 49) return '🌫️';
+  if (code <= 69) return '🌧️';
+  if (code <= 79) return '🌨️';
+  if (code <= 99) return '⛈️';
+  return '🌥️';
 }
 
 function getAnalyse(type, val) {
@@ -1326,7 +1457,7 @@ function initMap() {
   if (map) return;
   if (!window.google) {
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=VOTRE_CLE_API&callback=initMapCallback&libraries=places`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBa_29f6i2nUKqTPepHFLYE_pEff8VfogY&callback=initMapCallback&libraries=places`;
     script.async = true;
     document.head.appendChild(script);
   } else {
