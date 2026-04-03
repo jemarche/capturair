@@ -981,7 +981,7 @@ async function verifyOTP() {
     document.getElementById('user-name').textContent = data.nom || currentEmail.split('@')[0];
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    if (data.role === 'admin') document.getElementById('nav-admin').style.display = 'flex';
+    if (data.role === 'admin' || data.role === 'superadmin') document.getElementById('nav-admin').style.display = 'flex';
     initApp();
 
   } catch(e) {
@@ -1032,7 +1032,7 @@ if (TOKEN) {
   document.getElementById('app').style.display = 'block';
   const payload = JSON.parse(atob(TOKEN));
   document.getElementById('user-name').textContent = payload.email.split('@')[0];
-  if (payload.role === 'admin') document.getElementById('nav-admin').style.display = 'flex';
+  if (payload.role === 'admin' || payload.role === 'superadmin') document.getElementById('nav-admin').style.display = 'flex';
   initApp();
 }
 
