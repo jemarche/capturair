@@ -277,18 +277,41 @@
       </svg>
       <p style="color:#6B7A99;font-size:13px;margin-top:12px;">Carnet de vol numérique sécurisé</p>
     </div>
-    <div class="pin-info" id="pin-info">
-      🔐 Première connexion — crée ton PIN (minimum 4 chiffres)
+    <!-- ÉTAPE 1 : Email + PIN -->
+    <div id="step-1">
+      <div class="pin-info" id="pin-info">
+        🔐 Première connexion — crée ton PIN (minimum 4 chiffres)
+      </div>
+      <div class="form-group">
+        <label>Adresse courriel</label>
+        <input type="email" id="login-email" placeholder="ton@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label id="pin-label">Code PIN</label>
+        <input type="password" id="login-pin" placeholder="••••" maxlength="8" autocomplete="current-password">
+      </div>
+      <button class="btn-login" onclick="login()">Continuer →</button>
     </div>
-    <div class="form-group">
-      <label>Adresse courriel</label>
-      <input type="email" id="login-email" placeholder="ton@email.com" autocomplete="email">
+
+    <!-- ÉTAPE 2 : OTP -->
+    <div id="step-2" style="display:none;">
+      <div style="text-align:center;margin-bottom:1.5rem;padding:1rem;background:#F5F7FA;border-radius:12px;">
+        <div style="font-size:32px;margin-bottom:8px;">📧</div>
+        <p style="font-size:14px;color:#1B2A47;font-weight:600;">Code envoyé par email !</p>
+        <p style="font-size:13px;color:#6B7A99;margin-top:4px;">Vérifie ta boîte — le code expire dans 5 minutes</p>
+      </div>
+      <div class="form-group">
+        <label>Code de vérification (6 chiffres)</label>
+        <input type="text" id="login-otp" placeholder="000000" maxlength="6" style="text-align:center;font-size:24px;font-weight:700;letter-spacing:8px;">
+      </div>
+      <button class="btn-login" onclick="verifyOTP()">✅ Vérifier le code</button>
+      <div style="text-align:center;margin-top:12px;">
+        <button onclick="resendOTP()" style="background:none;border:none;color:#6B7A99;font-size:13px;cursor:pointer;text-decoration:underline;">Renvoyer un code</button>
+        &nbsp;|&nbsp;
+        <button onclick="backToStep1()" style="background:none;border:none;color:#6B7A99;font-size:13px;cursor:pointer;text-decoration:underline;">← Retour</button>
+      </div>
     </div>
-    <div class="form-group">
-      <label id="pin-label">Code PIN</label>
-      <input type="password" id="login-pin" placeholder="••••" maxlength="8" autocomplete="current-password">
-    </div>
-    <button class="btn-login" onclick="login()">Se connecter</button>
+
     <div class="login-error" id="login-error"></div>
   </div>
 </div>
@@ -375,6 +398,9 @@
     </div>
     <div class="nav-item" onclick="exportPDF()">
       <span class="nav-icon">📄</span> Exporter PDF
+    </div>
+    <div class="nav-item" id="nav-admin" style="display:none;" onclick="showPage('admin')">
+      <span class="nav-icon">⚙️</span> Administration
     </div>
 
     <div class="sidebar-bottom">
@@ -765,6 +791,95 @@
       </div>
     </div>
 
+    <!-- ── ADMINISTRATION ── -->
+    <div class="page" id="page-admin">
+      <div class="page-header">
+        <h1>⚙️ Administration</h1>
+        <p>Gestion des utilisateurs et sécurité — Réservé à l'administrateur</p>
+      </div>
+      <div id="admin-alert"></div>
+
+      <!-- Liste des utilisateurs -->
+      <div class="card">
+        <div class="card-title">👥 Utilisateurs autorisés</div>
+        <div id="users-list"><div class="empty"><div class="empty-icon">👥</div><p>Chargement...</p></div></div>
+      </div>
+
+      <!-- Ajouter un utilisateur -->
+      <div class="card">
+        <div class="card-title">➕ Ajouter un utilisateur</div>
+        <div class="alert alert-info" style="margin-bottom:1rem;">
+          🔐 Un code OTP sera envoyé à ton email pour confirmer cette action
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Adresse email</label>
+            <input type="email" id="new-email" placeholder="pilote@exemple.com">
+          </div>
+          <div class="field">
+            <label>Nom complet</label>
+            <input type="text" id="new-nom" placeholder="Prénom Nom">
+          </div>
+          <div class="field">
+            <label>Rôle</label>
+            <select id="new-role">
+              <option value="pilote">Pilote</option>
+              <option value="admin">Administrateur</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>PIN initial (4 chiffres min)</label>
+            <input type="password" id="new-pin" placeholder="••••" maxlength="8">
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="demanderOTPPourAction('ajouter')">➕ Ajouter l'utilisateur</button>
+        </div>
+      </div>
+
+      <!-- Modifier mon PIN -->
+      <div class="card">
+        <div class="card-title">🔑 Modifier mon PIN</div>
+        <div class="alert alert-info" style="margin-bottom:1rem;">
+          🔐 Un code OTP sera envoyé à ton email pour confirmer le changement
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Ancien PIN</label>
+            <input type="password" id="old-pin" placeholder="••••" maxlength="8">
+          </div>
+          <div class="field">
+            <label>Nouveau PIN</label>
+            <input type="password" id="new-pin-change" placeholder="••••" maxlength="8">
+          </div>
+          <div class="field">
+            <label>Confirmer le nouveau PIN</label>
+            <input type="password" id="confirm-pin" placeholder="••••" maxlength="8">
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="demanderOTPPourAction('pin')">🔑 Changer le PIN</button>
+        </div>
+      </div>
+
+      <!-- Modal OTP confirmation -->
+      <div id="otp-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:999;display:none;align-items:center;justify-content:center;">
+        <div style="background:white;border-radius:16px;padding:2rem;width:100%;max-width:400px;margin:1rem;">
+          <h3 style="color:var(--navy);margin-bottom:1rem;">🔐 Confirmation requise</h3>
+          <p style="color:var(--text-muted);font-size:14px;margin-bottom:1rem;">Un code OTP a été envoyé à ton email. Entre-le pour confirmer l'action.</p>
+          <div class="field" style="margin-bottom:1rem;">
+            <label>Code OTP (6 chiffres)</label>
+            <input type="text" id="admin-otp" placeholder="000000" maxlength="6" style="text-align:center;font-size:24px;font-weight:700;letter-spacing:8px;">
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" style="flex:1;" onclick="confirmerAction()">✅ Confirmer</button>
+            <button class="btn btn-secondary" onclick="fermerModal()">Annuler</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
   </div><!-- /main -->
 </div><!-- /app -->
 
@@ -778,37 +893,114 @@ let meteoSelected = 'Ensoleillé';
 let map = null, directionsService = null, directionsRenderer = null;
 
 // ── AUTH ──────────────────────────────────────────────────────────
+let currentEmail = '';
+
 async function login() {
   const email = document.getElementById('login-email').value.trim();
   const pin = document.getElementById('login-pin').value.trim();
   if (!email || !pin) { showLoginError('Remplis tous les champs'); return; }
+  if (pin.length < 4) { showLoginError('PIN minimum 4 chiffres'); return; }
+
+  const btn = document.querySelector('.btn-login');
+  btn.textContent = 'Envoi en cours...';
+  btn.disabled = true;
 
   try {
-    const res = await fetch(API + '/api/carnet/auth', {
+    // Vérifier si utilisateur existe, sinon créer
+    const checkUser = await fetch(API + '/api/carnet/admin/users', {
+      headers: { 'Authorization': 'Bearer dummy' }
+    });
+
+    const res = await fetch(API + '/api/carnet/auth/init', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, pin })
     });
     const data = await res.json();
-    if (data.needsSetup) {
-      document.getElementById('pin-info').style.display = 'block';
-      document.getElementById('pin-label').textContent = 'Créer ton PIN (4 chiffres minimum)';
-      showLoginError('Premier accès — entre un PIN pour le créer');
+
+    if (data.error) {
+      showLoginError(data.error);
+      btn.textContent = 'Continuer →';
+      btn.disabled = false;
       return;
     }
-    if (data.error) { showLoginError(data.error); return; }
+
+    // Succès → afficher étape OTP
+    currentEmail = email;
+    document.getElementById('step-1').style.display = 'none';
+    document.getElementById('step-2').style.display = 'block';
+    document.getElementById('login-otp').focus();
+    document.getElementById('login-error').style.display = 'none';
+
+  } catch(e) {
+    showLoginError('Erreur de connexion — réessaie');
+  }
+  btn.textContent = 'Continuer →';
+  btn.disabled = false;
+}
+
+async function verifyOTP() {
+  const otp = document.getElementById('login-otp').value.trim();
+  if (otp.length !== 6) { showLoginError('Entre les 6 chiffres du code'); return; }
+
+  const btn = document.querySelectorAll('.btn-login')[1];
+  btn.textContent = 'Vérification...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(API + '/api/carnet/auth/otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: currentEmail, otp })
+    });
+    const data = await res.json();
+
+    if (data.error) {
+      showLoginError(data.error);
+      btn.textContent = '✅ Vérifier le code';
+      btn.disabled = false;
+      return;
+    }
+
+    // Connexion réussie !
     TOKEN = data.token;
     localStorage.setItem('carnet_token', TOKEN);
-    document.getElementById('user-name').textContent = email.split('@')[0];
+    document.getElementById('user-name').textContent = data.nom || currentEmail.split('@')[0];
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+    if (data.role === 'admin') document.getElementById('nav-admin').style.display = 'flex';
     initApp();
-  } catch(e) { showLoginError('Erreur de connexion'); }
+
+  } catch(e) {
+    showLoginError('Erreur de vérification');
+    btn.textContent = '✅ Vérifier le code';
+    btn.disabled = false;
+  }
+}
+
+async function resendOTP() {
+  const pin = document.getElementById('login-pin').value.trim();
+  await fetch(API + '/api/carnet/auth/init', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: currentEmail, pin })
+  });
+  showLoginError('✅ Nouveau code envoyé !');
+  document.getElementById('login-error').style.color = 'var(--green)';
+  document.getElementById('login-error').style.display = 'block';
+}
+
+function backToStep1() {
+  document.getElementById('step-1').style.display = 'block';
+  document.getElementById('step-2').style.display = 'none';
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('login-otp').value = '';
 }
 
 function showLoginError(msg) {
   const el = document.getElementById('login-error');
   el.textContent = msg;
+  el.style.color = 'var(--red)';
   el.style.display = 'block';
 }
 
@@ -819,13 +1011,15 @@ function logout() {
 }
 
 document.getElementById('login-pin').addEventListener('keypress', e => { if(e.key === 'Enter') login(); });
+document.getElementById('login-otp') && document.getElementById('login-otp').addEventListener('keypress', e => { if(e.key === 'Enter') verifyOTP(); });
 
 // Vérifier si déjà connecté
 if (TOKEN) {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  const email = JSON.parse(atob(TOKEN)).email;
-  document.getElementById('user-name').textContent = email.split('@')[0];
+  const payload = JSON.parse(atob(TOKEN));
+  document.getElementById('user-name').textContent = payload.email.split('@')[0];
+  if (payload.role === 'admin') document.getElementById('nav-admin').style.display = 'flex';
   initApp();
 }
 
@@ -843,6 +1037,7 @@ function showPage(name) {
   if (name === 'checklist') initChecklist();
   if (name === 'carte') initMap();
   if (name === 'nouveau-vol') initNewVol();
+  if (name === 'admin') loadUsers();
 }
 
 // ── INIT ──────────────────────────────────────────────────────────
@@ -1131,7 +1326,7 @@ function initMap() {
   if (map) return;
   if (!window.google) {
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBa_29f6i2nUKqTPepHFLYE_pEff8VfogY&callback=initMapCallback&libraries=places`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=VOTRE_CLE_API&callback=initMapCallback&libraries=places`;
     script.async = true;
     document.head.appendChild(script);
   } else {
@@ -1394,6 +1589,142 @@ async function exportPDF() {
 function showAlert(containerId, msg, type) {
   document.getElementById(containerId).innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
   setTimeout(() => { document.getElementById(containerId).innerHTML = ''; }, 4000);
+}
+
+// ── ADMINISTRATION ─────────────────────────────────────────────────
+let actionEnCours = '';
+
+function showPage_admin() {
+  loadUsers();
+}
+
+async function loadUsers() {
+  const data = await api('/api/carnet/admin/users');
+  const users = data.users || [];
+  if (!users.length) {
+    document.getElementById('users-list').innerHTML = '<div class="empty"><p>Aucun utilisateur</p></div>';
+    return;
+  }
+  document.getElementById('users-list').innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Email</th><th>Nom</th><th>Rôle</th><th>Créé le</th><th></th></tr></thead>
+        <tbody>
+          ${users.map(u => `
+            <tr>
+              <td>${u.email}</td>
+              <td>${u.nom || '—'}</td>
+              <td><span class="badge ${u.role === 'admin' ? 'badge-commercial' : 'badge-loisir'}">${u.role}</span></td>
+              <td style="font-size:12px;">${u.created_at ? u.created_at.split('T')[0] : '—'}</td>
+              <td>${u.email !== 'mohand.aidi@mohand.ca' ? `<button class="btn btn-danger btn-sm" onclick="demanderOTPPourAction('supprimer','${u.id}','${u.email}')">Supprimer</button>` : '<span style="font-size:11px;color:var(--text-muted);">Admin principal</span>'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+let userIdASupprimer = '';
+let userEmailASupprimer = '';
+
+async function demanderOTPPourAction(action, userId = '', userEmail = '') {
+  actionEnCours = action;
+  userIdASupprimer = userId;
+  userEmailASupprimer = userEmail;
+
+  if (action === 'ajouter') {
+    const email = document.getElementById('new-email').value.trim();
+    const pin = document.getElementById('new-pin').value.trim();
+    const nom = document.getElementById('new-nom').value.trim();
+    if (!email || !pin || !nom) { showAlert('admin-alert', 'Remplis tous les champs', 'error'); return; }
+    if (pin.length < 4) { showAlert('admin-alert', 'PIN minimum 4 chiffres', 'error'); return; }
+  }
+
+  if (action === 'pin') {
+    const oldPin = document.getElementById('old-pin').value.trim();
+    const newPin = document.getElementById('new-pin-change').value.trim();
+    const confirmPin = document.getElementById('confirm-pin').value.trim();
+    if (!oldPin || !newPin || !confirmPin) { showAlert('admin-alert', 'Remplis tous les champs', 'error'); return; }
+    if (newPin !== confirmPin) { showAlert('admin-alert', 'Les nouveaux PINs ne correspondent pas', 'error'); return; }
+    if (newPin.length < 4) { showAlert('admin-alert', 'PIN minimum 4 chiffres', 'error'); return; }
+  }
+
+  if (action === 'supprimer') {
+    if (!confirm(`Supprimer l'utilisateur ${userEmail} ?`)) return;
+  }
+
+  // Demander un OTP
+  const tokenData = JSON.parse(atob(TOKEN));
+  const pin = document.getElementById('login-pin')?.value || '';
+  await fetch(API + '/api/carnet/auth/init', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: tokenData.email, pin: document.getElementById('old-pin')?.value || '1977' })
+  });
+
+  // Afficher le modal OTP
+  const modal = document.getElementById('otp-modal');
+  modal.style.display = 'flex';
+  document.getElementById('admin-otp').value = '';
+  document.getElementById('admin-otp').focus();
+  showAlert('admin-alert', '📧 Code OTP envoyé à ton email !', 'success');
+}
+
+async function confirmerAction() {
+  const otp = document.getElementById('admin-otp').value.trim();
+  if (otp.length !== 6) { alert('Entre les 6 chiffres du code OTP'); return; }
+
+  fermerModal();
+
+  if (actionEnCours === 'ajouter') {
+    const res = await api('/api/carnet/admin/users', 'POST', {
+      email: document.getElementById('new-email').value.trim(),
+      nom: document.getElementById('new-nom').value.trim(),
+      role: document.getElementById('new-role').value,
+      pin: document.getElementById('new-pin').value.trim(),
+      otp,
+    });
+    if (res.success) {
+      showAlert('admin-alert', '✅ Utilisateur ajouté avec succès !', 'success');
+      document.getElementById('new-email').value = '';
+      document.getElementById('new-nom').value = '';
+      document.getElementById('new-pin').value = '';
+      loadUsers();
+    } else {
+      showAlert('admin-alert', '❌ ' + (res.error || 'Erreur'), 'error');
+    }
+  }
+
+  if (actionEnCours === 'supprimer') {
+    const res = await api('/api/carnet/admin/users/' + userIdASupprimer, 'DELETE', { otp });
+    if (res.success) {
+      showAlert('admin-alert', '✅ Utilisateur supprimé', 'success');
+      loadUsers();
+    } else {
+      showAlert('admin-alert', '❌ ' + (res.error || 'Erreur'), 'error');
+    }
+  }
+
+  if (actionEnCours === 'pin') {
+    const res = await api('/api/carnet/admin/change-pin', 'POST', {
+      old_pin: document.getElementById('old-pin').value.trim(),
+      new_pin: document.getElementById('new-pin-change').value.trim(),
+      otp,
+    });
+    if (res.success) {
+      showAlert('admin-alert', '✅ PIN modifié avec succès ! Reconnecte-toi.', 'success');
+      document.getElementById('old-pin').value = '';
+      document.getElementById('new-pin-change').value = '';
+      document.getElementById('confirm-pin').value = '';
+    } else {
+      showAlert('admin-alert', '❌ ' + (res.error || 'Erreur'), 'error');
+    }
+  }
+}
+
+function fermerModal() {
+  document.getElementById('otp-modal').style.display = 'none';
 }
 </script>
 
