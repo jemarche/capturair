@@ -1327,7 +1327,7 @@ async function getMeteo() {
 async function fetchMeteo(lat, lon, nom) {
   document.getElementById('meteo-container').innerHTML = '<div class="empty"><div class="spinner" style="width:32px;height:32px;border-width:3px;border-color:rgba(0,0,0,0.1);border-top-color:var(--navy);"></div></div>';
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_gusts_10m,surface_pressure,visibility,weather_code,precipitation&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,wind_gusts_10m_max,precipitation_sum,weather_code&wind_speed_unit=kmh&timezone=America/Toronto`&forecast_days=14`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_gusts_10m,surface_pressure,visibility,weather_code,precipitation&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,wind_gusts_10m_max,precipitation_sum,weather_code&wind_speed_unit=kmh&timezone=America/Toronto`;
     const res = await fetch(url);
     const data = await res.json();
     const c = data.current;
@@ -1457,7 +1457,7 @@ function initMap() {
   if (map) return;
   if (!window.google) {
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBa_29f6i2nUKqTPepHFLYE_pEff8VfogY&callback=initMapCallback&libraries=places`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=VOTRE_CLE_API&callback=initMapCallback&libraries=places`;
     script.async = true;
     document.head.appendChild(script);
   } else {
