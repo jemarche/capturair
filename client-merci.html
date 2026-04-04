@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Merci — CapturAir</title>
+
+  <!-- Favicon inline SVG -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='url(%23g)'/%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%231A8FD1'/%3E%3Cstop offset='100%25' stop-color='%230D5C8A'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='30' y='44' width='40' height='12' rx='3' fill='white' opacity='.9'/%3E%3Ccircle cx='50' cy='50' r='4' fill='%231A8FD1' stroke='white' stroke-width='1.5'/%3E%3Cline x1='34' y1='46' x2='21' y2='34' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='66' y1='46' x2='79' y2='34' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='34' y1='54' x2='21' y2='66' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='66' y1='54' x2='79' y2='66' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3Cellipse cx='21' cy='34' rx='11' ry='3' fill='white' opacity='.8' transform='rotate(-30 21 34)'/%3E%3Cellipse cx='79' cy='34' rx='11' ry='3' fill='white' opacity='.8' transform='rotate(30 79 34)'/%3E%3Cellipse cx='21' cy='66' rx='11' ry='3' fill='white' opacity='.8' transform='rotate(30 21 66)'/%3E%3Cellipse cx='79' cy='66' rx='11' ry='3' fill='white' opacity='.8' transform='rotate(-30 79 66)'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --navy: #0B1F3A;
+      --blue: #1A8FD1;
+      --blue-light: #3AABEF;
+      --offwhite: #F4F7FA;
+      --white: #FFFFFF;
+      --gray: #6B7C93;
+      --dark: #0D1520;
+      --teal: #1ABC9C;
+      --border: #DEE4EF;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; font-weight: 300; color: var(--navy); background: var(--offwhite); overflow-x: hidden; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 72px;
+      background: rgba(11,31,58,0.97); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(200,216,232,0.1);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .nav-logo-text { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--white); }
+    .nav-logo-text span { color: var(--blue-light); }
+    .nav-center { flex: 1; text-align: center; }
+    .nav-status { font-size: 13px; color: rgba(200,216,232,0.5); display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .nav-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #1ABC9C; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+    .weather-widget { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.07); border: 1px solid rgba(200,216,232,0.12); border-radius: 10px; padding: 6px 14px; }
+    .weather-widget-city { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(200,216,232,0.45); }
+    .weather-widget-temp { font-size: 13px; font-weight: 500; color: var(--white); }
+
+    /* ── HERO SUCCESS ── */
+    .hero-success {
+      background: linear-gradient(160deg, rgba(13,21,32,0.93) 0%, rgba(11,31,58,0.87) 50%, rgba(13,21,32,0.95) 100%),
+                  url('https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=1800&q=80') center/cover no-repeat;
+      padding: 80px 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-grid-bg {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(26,143,209,0.04) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(26,143,209,0.04) 1px, transparent 1px);
+      background-size: 60px 60px; pointer-events: none;
+    }
+    .hero-success-inner { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; }
+
+    /* Cercle de succès animé */
+    .success-circle {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: rgba(26,188,156,0.15);
+      border: 2px solid rgba(26,188,156,0.4);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 28px;
+      animation: scaleIn 0.5s ease both;
+    }
+    @keyframes scaleIn { from{opacity:0;transform:scale(0.6)} to{opacity:1;transform:scale(1)} }
+    .success-circle svg { animation: drawCheck 0.5s ease 0.3s both; }
+    @keyframes drawCheck { from{stroke-dashoffset:30} to{stroke-dashoffset:0} }
+
+    .hero-badge-success {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(26,188,156,0.15); border: 1px solid rgba(26,188,156,0.3);
+      color: #1ABC9C; font-size: 11px; font-weight: 500;
+      letter-spacing: 2px; text-transform: uppercase;
+      padding: 5px 14px; border-radius: 100px; margin-bottom: 20px;
+    }
+    .hero-title-merci { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 5vw, 64px); font-weight: 300; color: var(--white); line-height: 1.1; margin-bottom: 12px; }
+    .hero-title-merci strong { font-weight: 600; color: var(--blue-light); }
+    .hero-subtitle-merci { font-size: 16px; color: rgba(200,216,232,0.65); line-height: 1.7; max-width: 500px; margin: 0 auto 24px; }
+
+    /* Stats paiement */
+    .payment-stats { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 28px; }
+    .payment-stat { background: rgba(255,255,255,0.06); border: 1px solid rgba(200,216,232,0.1); border-radius: 12px; padding: 16px 24px; text-align: center; min-width: 140px; }
+    .payment-stat-val { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; color: var(--blue-light); }
+    .payment-stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(200,216,232,0.4); margin-top: 4px; }
+
+    /* ── MAIN ── */
+    .main { max-width: 900px; margin: 0 auto; padding: 3rem 60px 4rem; }
+
+    /* ── SECTION TITLE ── */
+    .section-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 8px; }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--white); border-radius: 16px; padding: 2rem;
+      border: 1px solid rgba(26,143,209,0.1); margin-bottom: 1.5rem;
+      transition: all 0.3s; position: relative; overflow: hidden;
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--blue), var(--blue-light));
+    }
+    .card-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--navy); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px; }
+
+    /* ── DOWNLOAD LIST ── */
+    .download-list { display: flex; flex-direction: column; gap: 12px; }
+    .download-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px; border-radius: 12px;
+      border: 1px solid var(--border); background: var(--offwhite);
+      transition: all 0.2s;
+    }
+    .download-item:hover { border-color: rgba(26,143,209,0.3); background: var(--white); box-shadow: 0 4px 12px rgba(26,143,209,0.08); }
+    .download-icon { font-size: 28px; flex-shrink: 0; }
+    .download-info { flex: 1; }
+    .download-name { font-size: 14px; font-weight: 500; color: var(--navy); }
+    .download-meta { font-size: 12px; color: var(--gray); margin-top: 2px; }
+    .btn-download {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--blue); color: white; border: none;
+      padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 500;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+      text-decoration: none; white-space: nowrap; flex-shrink: 0;
+    }
+    .btn-download:hover { background: var(--blue-light); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,143,209,0.3); }
+    .btn-download.downloading { opacity: 0.7; cursor: not-allowed; }
+
+    /* Expiration warning */
+    .expiry-warning { display: flex; align-items: center; gap: 10px; background: rgba(231,126,22,0.08); border: 1px solid rgba(231,126,22,0.2); border-radius: 10px; padding: 12px 16px; margin-top: 1rem; font-size: 13px; color: #E67E22; }
+
+    /* ── STEPS SUIVANTS ── */
+    .next-steps { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .next-step-card {
+      background: var(--offwhite); border-radius: 14px; padding: 20px;
+      border: 1px solid var(--border); transition: all 0.3s;
+    }
+    .next-step-card:hover { border-color: rgba(26,143,209,0.2); box-shadow: 0 4px 16px rgba(26,143,209,0.08); }
+    .next-step-icon { font-size: 28px; margin-bottom: 10px; }
+    .next-step-title { font-size: 14px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+    .next-step-text { font-size: 13px; color: var(--gray); line-height: 1.6; }
+    .next-step-link { display: inline-block; margin-top: 10px; font-size: 13px; color: var(--blue); text-decoration: none; }
+    .next-step-link:hover { color: var(--blue-light); }
+
+    /* ── AVIS GOOGLE ── */
+    .avis-card {
+      background: linear-gradient(135deg, rgba(11,31,58,0.97), rgba(14,44,70,0.97));
+      border-radius: 16px; padding: 2rem;
+      border: 1px solid rgba(26,143,209,0.2);
+      text-align: center; margin-bottom: 1.5rem;
+    }
+    .stars { font-size: 32px; letter-spacing: 4px; margin-bottom: 12px; }
+    .avis-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: var(--white); margin-bottom: 8px; }
+    .avis-text { font-size: 14px; color: rgba(200,216,232,0.6); line-height: 1.7; margin-bottom: 20px; }
+    .btn-avis {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--blue); color: white; border: none;
+      padding: 14px 28px; border-radius: 8px; font-size: 14px; font-weight: 500;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; text-decoration: none; transition: all 0.2s;
+    }
+    .btn-avis:hover { background: var(--blue-light); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(26,143,209,0.35); }
+
+    /* ── CHARGEMENT ── */
+    .state-center { text-align: center; padding: 5rem 2rem; }
+    .loading-spinner { width: 44px; height: 44px; border: 3px solid rgba(26,143,209,0.12); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 1.5rem; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .state-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: var(--navy); margin-bottom: 8px; }
+    .state-text { font-size: 15px; color: var(--gray); }
+
+    /* ── FOOTER ── */
+    footer { background: #060E18; padding: 32px 60px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(200,216,232,0.06); flex-wrap: wrap; gap: 1rem; }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: rgba(255,255,255,0.45); }
+    .footer-logo span { color: var(--blue-light); }
+    .footer-copy { font-size: 12px; color: rgba(200,216,232,0.22); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { text-decoration: none; font-size: 12px; color: rgba(200,216,232,0.28); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--blue-light); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 0 16px; }
+      .nav-status { display: none; }
+      .hero-success { padding: 56px 20px; }
+      .main { padding: 2rem 20px 3rem; }
+      .next-steps { grid-template-columns: 1fr; }
+      footer { padding: 24px 20px; flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     NAV
+══════════════════════════════════════════ -->
+<nav>
+  <a href="https://capturair.com" class="nav-logo">
+    <div style="width:34px;height:34px;background:linear-gradient(135deg,#1A8FD1,#0D5C8A);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round">
+        <rect x="9" y="10" width="6" height="4" rx="1"/>
+        <line x1="9" y1="11" x2="4" y2="6"/><line x1="15" y1="11" x2="20" y2="6"/>
+        <line x1="9" y1="13" x2="4" y2="18"/><line x1="15" y1="13" x2="20" y2="18"/>
+        <circle cx="4" cy="6" r="2"/><circle cx="20" cy="6" r="2"/>
+        <circle cx="4" cy="18" r="2"/><circle cx="20" cy="18" r="2"/>
+      </svg>
+    </div>
+    <span class="nav-logo-text">Captur<span>Air</span></span>
+  </a>
+  <div class="nav-center">
+    <div class="nav-status">
+      <div class="nav-status-dot"></div>
+      <span>Paiement confirmé</span>
+    </div>
+  </div>
+  <div class="weather-widget">
+    <span id="w-icon" style="font-size:18px;">⏳</span>
+    <div style="display:flex;flex-direction:column;line-height:1.3;margin-left:8px;">
+      <span class="weather-widget-city">Lavaltrie</span>
+      <span class="weather-widget-temp" id="w-temp">--°C</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     HERO SUCCESS
+══════════════════════════════════════════ -->
+<div class="hero-success">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-success-inner">
+    <div class="success-circle">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1ABC9C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="30" stroke-dashoffset="30" style="animation:drawCheck 0.5s ease 0.3s forwards;">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <div class="hero-badge-success">✓ Paiement confirmé</div>
+    <h1 class="hero-title-merci" id="hero-titre">
+      Merci <strong id="hero-prenom"></strong> !
+    </h1>
+    <p class="hero-subtitle-merci">Votre paiement a été reçu avec succès. Vos fichiers haute résolution sont disponibles ci-dessous. Un email de confirmation vous a également été envoyé.</p>
+    <div class="payment-stats">
+      <div class="payment-stat">
+        <div class="payment-stat-val" id="stat-fichiers">—</div>
+        <div class="payment-stat-label">Fichiers</div>
+      </div>
+      <div class="payment-stat">
+        <div class="payment-stat-val" id="stat-expiry">7 jours</div>
+        <div class="payment-stat-label">Validité liens</div>
+      </div>
+      <div class="payment-stat">
+        <div class="payment-stat-val">HD</div>
+        <div class="payment-stat-label">Qualité</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MAIN
+══════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- Chargement -->
+  <div id="loading-state" class="state-center">
+    <div class="loading-spinner"></div>
+    <div class="state-title">Préparation de vos fichiers...</div>
+    <p class="state-text">Veuillez patienter quelques instants.</p>
+  </div>
+
+  <!-- Contenu principal -->
+  <div id="main-content" style="display:none;">
+
+    <!-- Téléchargements -->
+    <div class="card">
+      <div class="card-title">
+        <span>📥</span>
+        <div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--navy);">Vos fichiers haute résolution</div>
+          <div style="font-size:13px;font-weight:300;color:var(--gray);margin-top:2px;">Sans watermark · Qualité originale</div>
+        </div>
+      </div>
+      <div class="download-list" id="download-list">
+        <div style="text-align:center;padding:2rem;color:var(--gray);font-size:14px;">Chargement des fichiers...</div>
+      </div>
+      <div class="expiry-warning">
+        ⏰ <span id="expiry-text">Ces liens sont valides 7 jours. Téléchargez vos fichiers dès maintenant.</span>
+      </div>
+    </div>
+
+    <!-- Prochaines étapes -->
+    <div class="card">
+      <div class="card-title"><span>🚀</span> Et maintenant ?</div>
+      <div class="next-steps">
+        <div class="next-step-card">
+          <div class="next-step-icon">📧</div>
+          <div class="next-step-title">Email de confirmation</div>
+          <div class="next-step-text">Un email avec vos liens de téléchargement vous a été envoyé. Vérifiez votre boîte de réception.</div>
+        </div>
+        <div class="next-step-card">
+          <div class="next-step-icon">🖼️</div>
+          <div class="next-step-title">Révision légère</div>
+          <div class="next-step-text">Une révision légère est incluse dans votre prestation. Contactez-nous si vous souhaitez des ajustements.</div>
+          <a href="mailto:info@capturair.com" class="next-step-link">info@capturair.com →</a>
+        </div>
+        <div class="next-step-card">
+          <div class="next-step-icon">📋</div>
+          <div class="next-step-title">Votre facture</div>
+          <div class="next-step-text">Votre facture avec TPS et TVQ a été générée automatiquement et envoyée par email.</div>
+        </div>
+        <div class="next-step-card">
+          <div class="next-step-icon">🚁</div>
+          <div class="next-step-title">Prochain projet ?</div>
+          <div class="next-step-text">Besoin d'un autre vol ? Planifiez votre prochain projet directement en ligne.</div>
+          <a href="https://capturair.com/rdv.html" class="next-step-link">Prendre rendez-vous →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Avis Google -->
+    <div class="avis-card">
+      <div class="stars">⭐⭐⭐⭐⭐</div>
+      <div class="avis-title">Vous avez aimé notre travail ?</div>
+      <p class="avis-text">Votre avis aide d'autres clients à nous découvrir et nous permet de continuer à offrir un service de qualité. Ça ne prend que 2 minutes !</p>
+      <a href="https://g.page/r/capturair/review" target="_blank" class="btn-avis">
+        ⭐ Laisser un avis Google
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Erreur téléchargements -->
+  <div id="error-state" class="state-center" style="display:none;">
+    <div style="font-size:56px;margin-bottom:1rem;">😕</div>
+    <div class="state-title">Liens introuvables</div>
+    <p class="state-text" id="error-msg">Vos liens de téléchargement ont peut-être expiré ou sont invalides.</p>
+    <a href="mailto:info@capturair.com" style="display:inline-flex;align-items:center;gap:8px;margin-top:1.5rem;color:var(--blue);font-size:14px;text-decoration:none;">✉️ Contactez-nous</a>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════ -->
+<footer>
+  <div class="footer-logo">Captur<span>Air</span></div>
+  <div class="footer-copy">© 2026 CapturAir · Tous droits réservés · Lavaltrie, QC</div>
+  <div class="footer-links">
+    <a href="mailto:info@capturair.com">info@capturair.com</a>
+    <a href="tel:+15144466078">514 446-6078</a>
+    <a href="https://capturair.com">capturair.com</a>
+  </div>
+</footer>
+
+<script>
+const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
+
+// ── MÉTÉO ─────────────────────────────────────────────────────────────
+fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code&timezone=America%2FToronto')
+  .then(r => r.json()).then(d => {
+    const icons = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',61:'🌧️',71:'🌨️',80:'🌦️',95:'⛈️'};
+    document.getElementById('w-icon').textContent = icons[d.current.weather_code] || '🌡️';
+    const c = Math.round(d.current.temperature_2m), f = Math.round(c*9/5+32);
+    document.getElementById('w-temp').textContent = `${c}°C · ${f}°F`;
+  }).catch(()=>{});
+
+// ── INIT ──────────────────────────────────────────────────────────────
+(async () => {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token') || '';
+
+  if (!token) {
+    showError('Aucun token valide. Vérifiez le lien reçu par email.');
+    return;
+  }
+
+  try {
+    // Charger les infos du projet via le token galerie
+    const [projetRes, selRes] = await Promise.all([
+      fetch(`${API}/api/portail/galerie/${token}`),
+      fetch(`${API}/api/portail/galerie/${token}/selection`)
+    ]);
+
+    const projetData = await projetRes.json();
+    const selData = await selRes.json();
+
+    if (projetData.error) {
+      showError('Galerie introuvable. Contactez CapturAir.');
+      return;
+    }
+
+    const projet = projetData.projet;
+    const selections = selData.selections || [];
+
+    // Mettre à jour le hero
+    document.title = `Merci ${projet.client_nom} — CapturAir`;
+    document.getElementById('hero-prenom').textContent = projet.client_nom;
+    document.getElementById('stat-fichiers').textContent = selections.length;
+
+    // Construire la liste de téléchargements depuis les sélections
+    // Les tokens de téléchargement sont dans la table telechargements
+    // On va les charger depuis l'API
+    await chargerTelechargements(token, selections, projet);
+
+  } catch(e) {
+    console.error(e);
+    showError('Erreur de chargement. Vérifiez votre connexion.');
+  }
+})();
+
+async function chargerTelechargements(token, selections, projet) {
+  if (!selections.length) {
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    document.getElementById('download-list').innerHTML = `
+      <div style="text-align:center;padding:2rem;color:var(--gray);">
+        <div style="font-size:40px;margin-bottom:1rem;">📧</div>
+        <div style="font-size:15px;font-weight:500;color:var(--navy);margin-bottom:8px;">Vos liens arrivent par email !</div>
+        <p style="font-size:14px;">Les liens de téléchargement ont été envoyés à <strong>${projet.client_email}</strong></p>
+      </div>`;
+    return;
+  }
+
+  // Afficher les fichiers sélectionnés avec leurs infos
+  // Note: les vraies URLs signées viennent du webhook Stripe
+  // On affiche les fichiers et l'email comme source de vérité
+  document.getElementById('loading-state').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+
+  // Récupérer les médias pour avoir les noms
+  const mediaRes = await fetch(`${API}/api/portail/galerie/${token}/medias`);
+  const mediaData = await mediaRes.json();
+  const medias = mediaData.medias || [];
+
+  const selectedMedias = selections.map(s => {
+    const media = medias.find(m => m.id === s.media_id);
+    return { ...s, media };
+  }).filter(s => s.media);
+
+  document.getElementById('stat-fichiers').textContent = selectedMedias.length;
+
+  if (!selectedMedias.length) {
+    document.getElementById('download-list').innerHTML = `
+      <div style="text-align:center;padding:2rem;color:var(--gray);">
+        📧 Vos liens de téléchargement ont été envoyés à <strong>${projet.client_email}</strong>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('download-list').innerHTML = selectedMedias.map(s => `
+    <div class="download-item">
+      <span class="download-icon">${s.media.type === 'VIDEO' ? '🎬' : '📸'}</span>
+      <div class="download-info">
+        <div class="download-name">${s.media.nom_fichier}</div>
+        <div class="download-meta">${s.media.type === 'VIDEO' ? 'Vidéo' : 'Photo'} · Haute résolution · Sans watermark</div>
+      </div>
+      <span style="font-size:12px;color:var(--gray);background:var(--offwhite);padding:4px 10px;border-radius:6px;">📧 Par email</span>
+    </div>
+  `).join('');
+
+  document.getElementById('expiry-text').innerHTML =
+    `📧 Vos liens de téléchargement ont été envoyés à <strong>${projet.client_email}</strong>. Vérifiez votre boîte de réception (et les indésirables).`;
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────
+function showError(msg) {
+  document.getElementById('loading-state').style.display = 'none';
+  document.getElementById('error-msg').textContent = msg;
+  document.getElementById('error-state').style.display = 'block';
+}
+</script>
+</body>
+</html>
