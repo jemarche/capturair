@@ -4,162 +4,167 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Portail — CapturAir</title>
-
-  <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='url(%23g)'/%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%231A8FD1'/%3E%3Cstop offset='100%25' stop-color='%230D5C8A'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='30' y='44' width='40' height='12' rx='3' fill='white' opacity='.9'/%3E%3Ccircle cx='50' cy='50' r='4' fill='%231A8FD1' stroke='white' stroke-width='1.5'/%3E%3Cline x1='34' y1='46' x2='21' y2='34' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='66' y1='46' x2='79' y2='34' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='34' y1='54' x2='21' y2='66' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='66' y1='54' x2='79' y2='66' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3Cellipse cx='21' cy='34' rx='11' ry='3' fill='white' opacity='.8' transform='rotate(-30 21 34)'/%3E%3Cellipse cx='79' cy='34' rx='11' ry='3' fill='white' opacity='.8' transform='rotate(30 79 34)'/%3E%3Cellipse cx='21' cy='66' rx='11' ry='3' fill='white' opacity='.8' transform='rotate(30 21 66)'/%3E%3Cellipse cx='79' cy='66' rx='11' ry='3' fill='white' opacity='.8' transform='rotate(-30 79 66)'/%3E%3C/svg%3E">
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-
   <style>
     :root {
-      --navy: #0B1F3A; --blue: #1A8FD1; --blue-light: #3AABEF;
-      --offwhite: #F4F7FA; --white: #FFFFFF; --gray: #6B7C93;
-      --dark: #0D1520; --teal: #1ABC9C; --border: #DEE4EF;
-      --red: #C00000; --green: #006400;
-      --light-green: #C6EFCE; --light-red: #FFC7CE;
-      --light-orange: #FCE4D6; --yellow: #FFF2CC;
+      --navy:#0B1F3A; --blue:#1A8FD1; --blue-light:#3AABEF;
+      --offwhite:#F4F7FA; --white:#FFFFFF; --gray:#6B7C93;
+      --dark:#0D1520; --teal:#1ABC9C; --border:#DEE4EF;
+      --red:#C00000; --green:#006400;
+      --light-green:#C6EFCE; --light-red:#FFC7CE;
+      --light-orange:#FCE4D6; --yellow:#FFF2CC;
     }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'DM Sans', sans-serif; font-weight: 300; background: var(--offwhite); color: var(--navy); }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--offwhite);color:var(--navy);}
 
-    /* ── SIDEBAR ── */
-    .sidebar { position: fixed; left:0; top:0; bottom:0; width:240px; background:var(--navy); z-index:100; overflow-y:auto; display:flex; flex-direction:column; }
-    .sidebar-logo { padding:1.5rem; border-bottom:1px solid rgba(255,255,255,0.08); }
-    .sidebar-logo-inner { display:flex; align-items:center; gap:10px; }
-    .sidebar-logo-icon { width:36px; height:36px; background:linear-gradient(135deg,var(--blue),#0D5C8A); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-    .sidebar-logo-text { font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:600; color:white; }
-    .sidebar-logo-text span { color:var(--blue-light); }
-    .sidebar-sub { font-size:10px; color:rgba(255,255,255,0.35); letter-spacing:1.5px; text-transform:uppercase; margin-top:6px; }
-    .nav-section { padding:1rem 1.5rem 0.4rem; font-size:10px; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,0.3); font-weight:600; }
-    .nav-item { display:flex; align-items:center; gap:10px; padding:11px 1.5rem; color:rgba(255,255,255,0.55); cursor:pointer; font-size:13px; transition:all 0.15s; border-left:3px solid transparent; text-decoration:none; }
-    .nav-item:hover { color:white; background:rgba(255,255,255,0.05); }
-    .nav-item.active { color:white; background:rgba(255,255,255,0.08); border-left-color:var(--teal); }
-    .sidebar-footer { margin-top:auto; padding:1.5rem; border-top:1px solid rgba(255,255,255,0.08); }
-    .sidebar-user { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
-    .sidebar-avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--blue),#0D5C8A); display:flex; align-items:center; justify-content:center; color:white; font-size:14px; font-weight:600; flex-shrink:0; }
-    .sidebar-user-info { }
-    .sidebar-user-name { font-size:13px; color:white; font-weight:500; }
-    .sidebar-user-role { font-size:11px; color:rgba(255,255,255,0.35); }
-    .btn-logout { width:100%; padding:9px; background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer; font-size:12px; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
-    .btn-logout:hover { background:rgba(192,0,0,0.15); color:rgba(255,100,100,0.8); border-color:rgba(192,0,0,0.2); }
+    /* SIDEBAR */
+    .sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:var(--navy);z-index:100;overflow-y:auto;display:flex;flex-direction:column;}
+    .sidebar-logo{padding:1.5rem;border-bottom:1px solid rgba(255,255,255,0.08);}
+    .sidebar-logo-inner{display:flex;align-items:center;gap:10px;}
+    .sidebar-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--blue),#0D5C8A);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .sidebar-logo-text{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:white;}
+    .sidebar-logo-text span{color:var(--blue-light);}
+    .sidebar-sub{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;}
+    .nav-section{padding:1rem 1.5rem 0.4rem;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);font-weight:600;}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:11px 1.5rem;color:rgba(255,255,255,0.55);cursor:pointer;font-size:13px;transition:all 0.15s;border-left:3px solid transparent;text-decoration:none;}
+    .nav-item:hover{color:white;background:rgba(255,255,255,0.05);}
+    .nav-item.active{color:white;background:rgba(255,255,255,0.08);border-left-color:var(--teal);}
+    .sidebar-footer{margin-top:auto;padding:1.5rem;border-top:1px solid rgba(255,255,255,0.08);}
+    .sidebar-user{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+    .sidebar-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#0D5C8A);display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:600;flex-shrink:0;}
+    .sidebar-user-name{font-size:13px;color:white;font-weight:500;}
+    .sidebar-user-role{font-size:11px;color:rgba(255,255,255,0.35);}
+    /* Role badge dans sidebar */
+    .role-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(26,143,209,0.2);border:1px solid rgba(26,143,209,0.3);color:var(--blue-light);font-size:10px;padding:2px 8px;border-radius:10px;margin-top:4px;}
+    .btn-logout{width:100%;padding:9px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.1);border-radius:8px;cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+    .btn-logout:hover{background:rgba(192,0,0,0.15);color:rgba(255,100,100,0.8);}
 
-    /* ── MAIN ── */
-    .main { margin-left:240px; padding:2rem; min-height:100vh; }
-    .page { display:none; }
-    .page.active { display:block; }
-    .page-header { margin-bottom:1.5rem; display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:1rem; }
-    .page-header-left h1 { font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:600; color:var(--navy); }
-    .page-header-left p { font-size:13px; color:var(--gray); margin-top:4px; }
+    /* MAIN */
+    .main{margin-left:240px;padding:2rem;min-height:100vh;}
+    .page{display:none;}
+    .page.active{display:block;}
+    .page-header{margin-bottom:1.5rem;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+    .page-header-left h1{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:var(--navy);}
+    .page-header-left p{font-size:13px;color:var(--gray);margin-top:4px;}
 
-    /* ── STATS ── */
-    .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
-    .stat-card { background:white; border-radius:14px; padding:1.25rem; border:1px solid rgba(26,143,209,0.1); position:relative; overflow:hidden; transition:all 0.3s; }
-    .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--blue),var(--blue-light)); }
-    .stat-card:hover { box-shadow:0 8px 24px rgba(26,143,209,0.1); transform:translateY(-2px); }
-    .stat-icon { font-size:22px; margin-bottom:10px; }
-    .stat-value { font-family:'Cormorant Garamond',serif; font-size:32px; font-weight:600; color:var(--navy); line-height:1; }
-    .stat-label { font-size:12px; color:var(--gray); margin-top:4px; letter-spacing:0.5px; }
+    /* STATS */
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;}
+    .stat-card{background:white;border-radius:14px;padding:1.25rem;border:1px solid rgba(26,143,209,0.1);position:relative;overflow:hidden;transition:all 0.3s;}
+    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--blue-light));}
+    .stat-card:hover{box-shadow:0 8px 24px rgba(26,143,209,0.1);transform:translateY(-2px);}
+    .stat-icon{font-size:22px;margin-bottom:10px;}
+    .stat-value{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:var(--navy);line-height:1;}
+    .stat-label{font-size:12px;color:var(--gray);margin-top:4px;}
 
-    /* ── CARDS ── */
-    .card { background:white; border-radius:14px; border:1px solid rgba(26,143,209,0.08); padding:1.5rem; margin-bottom:1rem; position:relative; overflow:hidden; }
-    .card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--blue),var(--blue-light)); }
-    .card-title { font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:600; color:var(--navy); margin-bottom:1.25rem; display:flex; align-items:center; gap:10px; }
+    /* CARDS */
+    .card{background:white;border-radius:14px;border:1px solid rgba(26,143,209,0.08);padding:1.5rem;margin-bottom:1rem;position:relative;overflow:hidden;}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--blue-light));}
+    .card-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);margin-bottom:1.25rem;display:flex;align-items:center;gap:10px;}
 
-    /* ── FORM ── */
-    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
-    .field { display:flex; flex-direction:column; gap:5px; }
-    .field.full { grid-column:1/-1; }
-    .field label { font-size:11px; font-weight:600; color:var(--gray); text-transform:uppercase; letter-spacing:0.8px; }
-    .field input, .field select, .field textarea { padding:10px 14px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; font-family:'DM Sans',sans-serif; outline:none; transition:border-color 0.2s; background:white; color:var(--navy); }
-    .field input:focus, .field select:focus, .field textarea:focus { border-color:var(--blue); }
-    .field textarea { resize:vertical; min-height:80px; }
-    .field .hint { font-size:11px; color:var(--gray); margin-top:2px; }
+    /* FORM */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    .field{display:flex;flex-direction:column;gap:5px;}
+    .field.full{grid-column:1/-1;}
+    .field label{font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.8px;}
+    .field input,.field select,.field textarea{padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s;background:white;color:var(--navy);}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);}
+    .field textarea{resize:vertical;min-height:80px;}
+    .field .hint{font-size:11px;color:var(--gray);margin-top:2px;}
 
-    /* ── BUTTONS ── */
-    .btn { padding:10px 20px; border-radius:8px; border:none; cursor:pointer; font-size:13px; font-weight:500; font-family:'DM Sans',sans-serif; transition:all 0.2s; display:inline-flex; align-items:center; gap:8px; }
-    .btn-primary { background:var(--navy); color:white; }
-    .btn-primary:hover { background:#1a3a5c; transform:translateY(-1px); }
-    .btn-blue { background:var(--blue); color:white; }
-    .btn-blue:hover { background:var(--blue-light); transform:translateY(-1px); box-shadow:0 4px 12px rgba(26,143,209,0.3); }
-    .btn-success { background:var(--teal); color:white; }
-    .btn-success:hover { background:#16a085; }
-    .btn-secondary { background:white; color:var(--gray); border:1.5px solid var(--border); }
-    .btn-secondary:hover { border-color:var(--blue); color:var(--blue); }
-    .btn-danger { background:white; color:var(--red); border:1.5px solid var(--light-red); }
-    .btn-danger:hover { background:var(--light-red); }
-    .btn-sm { padding:6px 14px; font-size:12px; }
-    .btn-group { display:flex; gap:8px; flex-wrap:wrap; margin-top:1.25rem; }
+    /* BUTTONS */
+    .btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;}
+    .btn-primary{background:var(--navy);color:white;}
+    .btn-primary:hover{background:#1a3a5c;}
+    .btn-blue{background:var(--blue);color:white;}
+    .btn-blue:hover{background:var(--blue-light);transform:translateY(-1px);box-shadow:0 4px 12px rgba(26,143,209,0.3);}
+    .btn-success{background:var(--teal);color:white;}
+    .btn-success:hover{background:#16a085;}
+    .btn-secondary{background:white;color:var(--gray);border:1.5px solid var(--border);}
+    .btn-secondary:hover{border-color:var(--blue);color:var(--blue);}
+    .btn-danger{background:white;color:var(--red);border:1.5px solid var(--light-red);}
+    .btn-danger:hover{background:var(--light-red);}
+    .btn-warning{background:white;color:#E67E22;border:1.5px solid var(--light-orange);}
+    .btn-warning:hover{background:var(--light-orange);}
+    .btn-sm{padding:6px 14px;font-size:12px;}
+    .btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:1.25rem;}
+    .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none !important;}
 
-    /* ── BADGES ── */
-    .badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; letter-spacing:0.3px; }
-    .badge-attente { background:var(--yellow); color:#7d6608; }
-    .badge-envoye { background:#D6E4F7; color:#2E4A7A; }
-    .badge-selection { background:var(--light-orange); color:#9C5700; }
-    .badge-paye { background:var(--light-green); color:var(--green); }
-    .badge-livre { background:#d5f5ee; color:#085041; }
-    .badge-expire { background:#e8e8e8; color:#666; }
+    /* BADGES */
+    .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+    .badge-attente{background:var(--yellow);color:#7d6608;}
+    .badge-envoye{background:#D6E4F7;color:#2E4A7A;}
+    .badge-selection{background:var(--light-orange);color:#9C5700;}
+    .badge-paye{background:var(--light-green);color:var(--green);}
+    .badge-livre{background:#d5f5ee;color:#085041;}
+    .badge-expire{background:#e8e8e8;color:#666;}
 
-    /* ── TABLE ── */
-    .table-wrap { overflow-x:auto; }
-    table { width:100%; border-collapse:collapse; font-size:13px; }
-    th { background:var(--offwhite); padding:10px 14px; text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:0.8px; color:var(--gray); font-weight:600; border-bottom:1px solid var(--border); }
-    td { padding:13px 14px; border-bottom:1px solid var(--border); }
-    tr:last-child td { border-bottom:none; }
-    tr:hover td { background:var(--offwhite); }
+    /* TABLE */
+    .table-wrap{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;font-size:13px;}
+    th{background:var(--offwhite);padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray);font-weight:600;border-bottom:1px solid var(--border);}
+    td{padding:13px 14px;border-bottom:1px solid var(--border);}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:var(--offwhite);}
 
-    /* ── ALERTS ── */
-    .alert { padding:12px 16px; border-radius:8px; font-size:13px; margin-bottom:1rem; }
-    .alert-success { background:var(--light-green); color:var(--green); }
-    .alert-error { background:var(--light-red); color:var(--red); }
-    .alert-info { background:#D6E4F7; color:#2E4A7A; }
+    /* ALERTS */
+    .alert{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:1rem;}
+    .alert-success{background:var(--light-green);color:var(--green);}
+    .alert-error{background:var(--light-red);color:var(--red);}
+    .alert-info{background:#D6E4F7;color:#2E4A7A;}
+    .alert-warning{background:var(--light-orange);color:#9C5700;}
 
-    /* ── UPLOAD ZONE ── */
-    .upload-zone { border:2px dashed var(--border); border-radius:12px; padding:3rem; text-align:center; cursor:pointer; transition:all 0.2s; background:var(--offwhite); }
-    .upload-zone:hover, .upload-zone.dragover { border-color:var(--blue); background:#EBF4FB; }
-    .upload-zone .upload-icon { font-size:48px; margin-bottom:12px; }
-    .upload-zone p { color:var(--gray); font-size:14px; }
-    .upload-zone strong { color:var(--navy); }
+    /* UPLOAD ZONE */
+    .upload-zone{border:2px dashed var(--border);border-radius:12px;padding:3rem;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--offwhite);}
+    .upload-zone:hover,.upload-zone.dragover{border-color:var(--blue);background:#EBF4FB;}
 
-    /* ── GALERIE PREVIEW ── */
-    .galerie-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; margin-top:1rem; }
-    .galerie-item { position:relative; border-radius:10px; overflow:hidden; border:1px solid var(--border); background:white; }
-    .galerie-item img { width:100%; height:110px; object-fit:cover; display:block; }
-    .galerie-item .video-thumb { width:100%; height:110px; background:var(--navy); display:flex; align-items:center; justify-content:center; font-size:32px; }
-    .galerie-item .remove-btn { position:absolute; top:5px; right:5px; background:rgba(192,0,0,0.85); color:white; border:none; border-radius:50%; width:22px; height:22px; cursor:pointer; font-size:12px; display:flex; align-items:center; justify-content:center; }
-    .galerie-item .media-name { padding:6px 8px; font-size:10px; color:var(--gray); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    /* GALERIE PREVIEW */
+    .galerie-grid-admin{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:1rem;}
+    .galerie-item{position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:white;}
+    .galerie-item .media-thumb{width:100%;height:110px;background:var(--offwhite);display:flex;align-items:center;justify-content:center;font-size:32px;}
+    .galerie-item .remove-btn{position:absolute;top:5px;right:5px;background:rgba(192,0,0,0.85);color:white;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;}
+    .galerie-item .media-name{padding:6px 8px;font-size:10px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-    /* ── LIEN GALERIE ── */
-    .galerie-link-box { background:var(--offwhite); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--navy); word-break:break-all; font-family:'DM Sans',sans-serif; }
+    /* PRIX PREVIEW */
+    .prix-preview{background:var(--offwhite);border-radius:10px;padding:1rem;font-size:13px;}
+    .prix-row{display:flex;justify-content:space-between;padding:4px 0;color:var(--gray);}
+    .prix-row.total{font-weight:600;color:var(--navy);border-top:1px solid var(--border);margin-top:6px;padding-top:8px;font-size:15px;}
 
-    /* ── PRIX PREVIEW ── */
-    .prix-preview { background:var(--offwhite); border-radius:10px; padding:1rem; font-size:13px; }
-    .prix-row { display:flex; justify-content:space-between; padding:4px 0; color:var(--gray); }
-    .prix-row.total { font-weight:600; color:var(--navy); border-top:1px solid var(--border); margin-top:6px; padding-top:8px; font-size:15px; }
+    /* MODAL */
+    .modal-overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);align-items:center;justify-content:center;}
+    .modal-overlay.open{display:flex;}
+    .modal{background:white;border-radius:16px;padding:2rem;width:100%;max-width:580px;margin:1rem;max-height:90vh;overflow-y:auto;}
+    .modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--navy);margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;}
+    .modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray);}
 
-    /* ── MODAL ── */
-    .modal-overlay { display:none; position:fixed; inset:0; z-index:999; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); align-items:center; justify-content:center; }
-    .modal-overlay.open { display:flex; }
-    .modal { background:white; border-radius:16px; padding:2rem; width:100%; max-width:580px; margin:1rem; max-height:90vh; overflow-y:auto; }
-    .modal-title { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:600; color:var(--navy); margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; }
-    .modal-close { background:none; border:none; font-size:20px; cursor:pointer; color:var(--gray); }
+    /* CONFIRM MODAL */
+    .confirm-modal{max-width:440px;}
+    .confirm-icon{font-size:48px;text-align:center;margin-bottom:1rem;}
+    .confirm-text{text-align:center;color:var(--gray);font-size:14px;line-height:1.6;margin-bottom:1.5rem;}
 
-    /* ── STRIPE LINK ── */
-    .stripe-link-box { background:var(--light-green); border-radius:8px; padding:12px 16px; font-size:13px; word-break:break-all; margin-top:8px; }
+    /* DETAIL INFO GRID */
+    .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+    .info-cell label{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:0.8px;display:block;margin-bottom:4px;}
+    .info-cell .val{font-size:14px;font-weight:500;color:var(--navy);}
 
-    /* ── RESPONSIVE ── */
-    @media (max-width:900px) {
-      .sidebar { width:100%; position:relative; height:auto; }
-      .main { margin-left:0; padding:1rem; }
-      .stats-grid { grid-template-columns:repeat(2,1fr); }
-      .form-grid { grid-template-columns:1fr; }
+    /* ACCESS RESTRICTION */
+    .restricted{opacity:0.4;pointer-events:none;position:relative;}
+    .restricted::after{content:'🔒';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:24px;}
+
+    @media(max-width:900px){
+      .sidebar{width:100%;position:relative;height:auto;}
+      .main{margin-left:0;padding:1rem;}
+      .stats-grid{grid-template-columns:repeat(2,1fr);}
+      .form-grid{grid-template-columns:1fr;}
+      .info-grid{grid-template-columns:1fr 1fr;}
     }
   </style>
 </head>
 <body>
 
-<!-- ══════════════════════ SIDEBAR ══════════════════════ -->
+<!-- ══════════════ SIDEBAR ══════════════ -->
 <div class="sidebar">
   <div class="sidebar-logo">
     <div class="sidebar-logo-inner">
@@ -186,25 +191,26 @@
 
   <div class="nav-section">Liens rapides</div>
   <a class="nav-item" href="carnet.html">📋 Carnet de vol</a>
-  <a class="nav-item" href="https://dashboard.stripe.com" target="_blank">💳 Stripe Dashboard</a>
+  <a class="nav-item" href="https://dashboard.stripe.com" target="_blank">💳 Stripe</a>
   <a class="nav-item" href="https://dash.cloudflare.com" target="_blank">☁️ Cloudflare</a>
 
   <div class="sidebar-footer">
     <div class="sidebar-user">
       <div class="sidebar-avatar" id="sb-avatar">M</div>
-      <div class="sidebar-user-info">
+      <div>
         <div class="sidebar-user-name" id="sb-name">Mohand</div>
-        <div class="sidebar-user-role" id="sb-role">Superadmin</div>
+        <div class="sidebar-user-role" id="sb-role-text">—</div>
+        <div class="role-badge" id="sb-role-badge">—</div>
       </div>
     </div>
     <button class="btn-logout" onclick="logout()">🔓 Déconnexion</button>
   </div>
 </div>
 
-<!-- ══════════════════════ MAIN ══════════════════════ -->
+<!-- ══════════════ MAIN ══════════════ -->
 <div class="main">
 
-  <!-- ── DASHBOARD ── -->
+  <!-- DASHBOARD -->
   <div class="page active" id="page-dashboard">
     <div class="page-header">
       <div class="page-header-left">
@@ -225,7 +231,7 @@
     </div>
   </div>
 
-  <!-- ── PROJETS ── -->
+  <!-- PROJETS -->
   <div class="page" id="page-projets">
     <div class="page-header">
       <div class="page-header-left"><h1>Tous les projets</h1><p>Gérer vos galeries clients</p></div>
@@ -235,14 +241,14 @@
     <div class="card" style="padding:0;overflow:hidden;">
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Projet</th><th>Client</th><th>N° Soumission</th><th>Service</th><th>Prix</th><th>Statut</th><th>Date</th><th>Actions</th></tr></thead>
-          <tbody id="projets-tbody"><tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--gray);">Chargement...</td></tr></tbody>
+          <thead><tr><th>Projet</th><th>Client</th><th>N° Soumission</th><th>Prix</th><th>Statut</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="projets-tbody"><tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--gray);">Chargement...</td></tr></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- ── NOUVEAU PROJET ── -->
+  <!-- NOUVEAU PROJET -->
   <div class="page" id="page-nouveau">
     <div class="page-header">
       <div class="page-header-left"><h1>Nouveau projet</h1><p>Créer une galerie privée pour un client</p></div>
@@ -251,30 +257,13 @@
     <div class="card">
       <div class="card-title">👤 Informations client</div>
       <div class="form-grid">
-        <div class="field">
-          <label>Nom du client *</label>
-          <input type="text" id="n-client-nom" placeholder="Jean Tremblay">
-        </div>
-        <div class="field">
-          <label>Email du client *</label>
-          <input type="email" id="n-client-email" placeholder="jean@exemple.com">
-        </div>
-        <div class="field">
-          <label>Nom du projet</label>
-          <input type="text" id="n-nom" placeholder="Maison Tremblay — Lavaltrie">
-        </div>
-        <div class="field">
-          <label>N° Soumission Excel</label>
-          <input type="text" id="n-soumission" placeholder="CA-2026-001">
-          <span class="hint">Lien avec ton registre Excel</span>
-        </div>
-        <div class="field full">
-          <label>Note interne (non visible client)</label>
-          <textarea id="n-note" placeholder="Notes internes sur ce projet..."></textarea>
-        </div>
+        <div class="field"><label>Nom du client *</label><input type="text" id="n-client-nom" placeholder="Jean Tremblay"></div>
+        <div class="field"><label>Email du client *</label><input type="email" id="n-client-email" placeholder="jean@exemple.com"></div>
+        <div class="field"><label>Nom du projet</label><input type="text" id="n-nom" placeholder="Maison Tremblay — Lavaltrie"></div>
+        <div class="field"><label>N° Soumission Excel</label><input type="text" id="n-soumission" placeholder="CA-2026-001"><span class="hint">Lien avec ton registre Excel</span></div>
+        <div class="field full"><label>Note interne (non visible client)</label><textarea id="n-note" placeholder="Notes internes..."></textarea></div>
       </div>
     </div>
-
     <div class="card">
       <div class="card-title">💰 Service & Tarification</div>
       <div class="form-grid">
@@ -282,18 +271,18 @@
           <label>Type de service</label>
           <select id="n-service" onchange="autoFillPrix()">
             <option value="">Sélectionner...</option>
-            <option value="Photographie aérienne" data-prix="249" data-inclus="10 photos retouchées">Photographie aérienne — 249$</option>
-            <option value="Vidéo aérienne" data-prix="349" data-inclus="1 capsule 30-60 sec">Vidéo aérienne — 349$</option>
-            <option value="Photo + Vidéo" data-prix="499" data-inclus="Photos + capsule vidéo">Photo + Vidéo — 499$</option>
-            <option value="Cartographie / ortophoto" data-prix="799" data-inclus="Orthophoto + rapport">Cartographie / Orthophoto — 799$</option>
-            <option value="Inspection de toiture" data-prix="279" data-inclus="Constat visuel + photos">Inspection de toiture — 279$</option>
-            <option value="Inspection de structure" data-prix="449" data-inclus="Photos + analyse visuelle">Inspection de structure — 449$</option>
-            <option value="Inspection de lignes / pylônes" data-prix="599" data-inclus="Vol linéaire + rapport">Inspection lignes/pylônes — 599$</option>
-            <option value="Immobilier premium" data-prix="599" data-inclus="Photos + vidéo + vertical">Immobilier premium — 599$</option>
-            <option value="Événement" data-prix="699" data-inclus="Captation sur place">Événement — 699$</option>
-            <option value="Industriel / Construction" data-prix="549" data-inclus="Photos + vidéo chantier">Industriel / Construction — 549$</option>
-            <option value="Nature / Tourisme" data-prix="399" data-inclus="Photos + vidéo panoramique">Nature / Tourisme — 399$</option>
-            <option value="Autre" data-prix="0" data-inclus="À définir">Autre / Sur mesure</option>
+            <option value="Photographie aérienne" data-prix="249">Photographie aérienne — 249$</option>
+            <option value="Vidéo aérienne" data-prix="349">Vidéo aérienne — 349$</option>
+            <option value="Photo + Vidéo" data-prix="499">Photo + Vidéo — 499$</option>
+            <option value="Cartographie / ortophoto" data-prix="799">Cartographie / Orthophoto — 799$</option>
+            <option value="Inspection de toiture" data-prix="279">Inspection de toiture — 279$</option>
+            <option value="Inspection de structure" data-prix="449">Inspection de structure — 449$</option>
+            <option value="Inspection de lignes / pylônes" data-prix="599">Inspection lignes/pylônes — 599$</option>
+            <option value="Immobilier premium" data-prix="599">Immobilier premium — 599$</option>
+            <option value="Événement" data-prix="699">Événement — 699$</option>
+            <option value="Industriel / Construction" data-prix="549">Industriel / Construction — 549$</option>
+            <option value="Nature / Tourisme" data-prix="399">Nature / Tourisme — 399$</option>
+            <option value="Autre" data-prix="0">Autre / Sur mesure</option>
           </select>
         </div>
         <div class="field">
@@ -304,47 +293,38 @@
             <option value="FORFAIT_EXTRAS">Forfait + extras</option>
           </select>
         </div>
-        <div class="field">
-          <label>Prix de base ($)</label>
-          <input type="number" id="n-prix-base" placeholder="349.00" step="0.01" oninput="updatePrixPreview()">
-        </div>
-        <div class="field" id="field-nb-photos" style="display:none;">
-          <label>Photos incluses dans le forfait</label>
-          <input type="number" id="n-nb-photos" placeholder="10" oninput="updatePrixPreview()">
-        </div>
-        <div class="field" id="field-prix-photo" style="display:none;">
-          <label>Prix / photo supplémentaire ($)</label>
-          <input type="number" id="n-prix-photo" placeholder="15.00" step="0.01" oninput="updatePrixPreview()">
-        </div>
-        <div class="field" id="field-prix-video" style="display:none;">
-          <label>Prix / vidéo ($)</label>
-          <input type="number" id="n-prix-video" placeholder="75.00" step="0.01" oninput="updatePrixPreview()">
-        </div>
+        <div class="field"><label>Prix de base ($)</label><input type="number" id="n-prix-base" placeholder="349.00" step="0.01" oninput="updatePrixPreview()"></div>
+        <div class="field" id="field-nb-photos" style="display:none;"><label>Photos incluses</label><input type="number" id="n-nb-photos" placeholder="10" oninput="updatePrixPreview()"></div>
+        <div class="field" id="field-prix-photo" style="display:none;"><label>Prix / photo supp. ($)</label><input type="number" id="n-prix-photo" placeholder="15.00" step="0.01" oninput="updatePrixPreview()"></div>
+        <div class="field" id="field-prix-video" style="display:none;"><label>Prix / vidéo ($)</label><input type="number" id="n-prix-video" placeholder="75.00" step="0.01" oninput="updatePrixPreview()"></div>
       </div>
-      <!-- Aperçu prix avec taxes -->
       <div class="prix-preview" id="prix-preview" style="margin-top:1rem;display:none;">
-        <div style="font-size:12px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Aperçu du prix (taxes incluses)</div>
+        <div style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Aperçu prix avec taxes</div>
         <div class="prix-row"><span>Sous-total</span><span id="prev-base">0.00 $</span></div>
         <div class="prix-row"><span>TPS (5%)</span><span id="prev-tps">0.00 $</span></div>
         <div class="prix-row"><span>TVQ (9.975%)</span><span id="prev-tvq">0.00 $</span></div>
         <div class="prix-row total"><span>Total client</span><span id="prev-total">0.00 $</span></div>
       </div>
     </div>
-
     <div class="btn-group">
       <button class="btn btn-blue" onclick="createProjet()">✅ Créer le projet</button>
       <button class="btn btn-secondary" onclick="resetForm()">Effacer</button>
     </div>
   </div>
 
-  <!-- ── DÉTAIL PROJET ── -->
+  <!-- DÉTAIL PROJET -->
   <div class="page" id="page-detail">
     <div class="page-header">
       <div class="page-header-left">
         <h1 id="detail-titre">Projet</h1>
         <p id="detail-sous-titre"></p>
       </div>
-      <button class="btn btn-secondary" onclick="showPage('projets',null)">← Retour</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="showPage('projets',null)">← Retour</button>
+        <button class="btn btn-warning" onclick="dupliquerProjet()" title="Dupliquer ce projet">📋 Dupliquer</button>
+        <button class="btn btn-secondary" onclick="ouvrirModalModifier()" id="btn-modifier" title="Modifier les infos">✏️ Modifier</button>
+        <button class="btn btn-danger" onclick="confirmerSuppression()" id="btn-supprimer" title="Supprimer le projet">🗑️ Supprimer</button>
+      </div>
     </div>
     <div id="detail-alert"></div>
 
@@ -358,21 +338,21 @@
     <div class="card">
       <div class="card-title">📸 Photos & Vidéos</div>
       <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
-        <div class="upload-icon">📸</div>
+        <div style="font-size:48px;margin-bottom:12px;">📸</div>
         <p><strong>Glisser-déposer</strong> vos photos et vidéos ici</p>
         <p style="font-size:12px;margin-top:6px;color:var(--gray);">JPG, PNG, MP4 · Qualité originale</p>
       </div>
       <input type="file" id="file-input" multiple accept="image/*,video/*" style="display:none" onchange="uploadFiles(event)">
       <div id="upload-progress" style="margin-top:1rem;"></div>
-      <div class="galerie-grid" id="galerie-preview"></div>
+      <div class="galerie-grid-admin" id="galerie-preview"></div>
     </div>
 
     <!-- Envoi & Paiement -->
     <div class="card">
       <div class="card-title">🔗 Lien galerie & Paiement Stripe</div>
       <div style="margin-bottom:1rem;">
-        <div style="font-size:12px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Lien galerie client</div>
-        <div class="galerie-link-box" id="galerie-link-box">—</div>
+        <div style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Lien galerie client</div>
+        <div style="background:var(--offwhite);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--navy);word-break:break-all;" id="galerie-link-box">—</div>
         <button class="btn btn-sm btn-secondary" style="margin-top:8px;" onclick="copierLien()">📋 Copier le lien</button>
       </div>
       <div class="form-grid" style="margin-top:1rem;">
@@ -392,20 +372,113 @@
 
 </div>
 
+<!-- ══════════════ MODAL MODIFIER ══════════════ -->
+<div class="modal-overlay" id="modal-modifier">
+  <div class="modal">
+    <div class="modal-title">
+      <span>✏️ Modifier le projet</span>
+      <button class="modal-close" onclick="fermerModal('modal-modifier')">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Nom du client</label><input type="text" id="m-client-nom"></div>
+      <div class="field"><label>Email du client</label><input type="email" id="m-client-email"></div>
+      <div class="field"><label>Nom du projet</label><input type="text" id="m-nom"></div>
+      <div class="field"><label>N° Soumission Excel</label><input type="text" id="m-soumission"></div>
+      <div class="field">
+        <label>Type de service</label>
+        <select id="m-service" onchange="autoFillPrixModifier()">
+          <option value="">Sélectionner...</option>
+          <option value="Photographie aérienne" data-prix="249">Photographie aérienne — 249$</option>
+          <option value="Vidéo aérienne" data-prix="349">Vidéo aérienne — 349$</option>
+          <option value="Photo + Vidéo" data-prix="499">Photo + Vidéo — 499$</option>
+          <option value="Cartographie / ortophoto" data-prix="799">Cartographie / Orthophoto — 799$</option>
+          <option value="Inspection de toiture" data-prix="279">Inspection de toiture — 279$</option>
+          <option value="Inspection de structure" data-prix="449">Inspection de structure — 449$</option>
+          <option value="Inspection de lignes / pylônes" data-prix="599">Inspection lignes/pylônes — 599$</option>
+          <option value="Immobilier premium" data-prix="599">Immobilier premium — 599$</option>
+          <option value="Événement" data-prix="699">Événement — 699$</option>
+          <option value="Industriel / Construction" data-prix="549">Industriel / Construction — 549$</option>
+          <option value="Nature / Tourisme" data-prix="399">Nature / Tourisme — 399$</option>
+          <option value="Autre" data-prix="0">Autre / Sur mesure</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Modèle de prix</label>
+        <select id="m-modele">
+          <option value="FORFAIT">Forfait fixe</option>
+          <option value="CARTE">À la carte</option>
+          <option value="FORFAIT_EXTRAS">Forfait + extras</option>
+        </select>
+      </div>
+      <div class="field"><label>Prix de base ($)</label><input type="number" id="m-prix-base" step="0.01"></div>
+      <div class="field">
+        <label>Statut</label>
+        <select id="m-statut">
+          <option value="EN_ATTENTE">EN_ATTENTE</option>
+          <option value="ENVOYE">ENVOYE</option>
+          <option value="SELECTION">SELECTION</option>
+          <option value="PAYE">PAYE</option>
+          <option value="LIVRE">LIVRE</option>
+          <option value="EXPIRE">EXPIRE</option>
+        </select>
+      </div>
+      <div class="field full"><label>Note interne</label><textarea id="m-note"></textarea></div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-blue" onclick="sauvegarderModification()">💾 Sauvegarder</button>
+      <button class="btn btn-secondary" onclick="fermerModal('modal-modifier')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ MODAL CONFIRMER SUPPRESSION ══════════════ -->
+<div class="modal-overlay" id="modal-supprimer">
+  <div class="modal confirm-modal">
+    <div class="confirm-icon">⚠️</div>
+    <div class="modal-title" style="justify-content:center;">Supprimer ce projet ?</div>
+    <p class="confirm-text">Cette action est <strong>irréversible</strong>. Toutes les photos, vidéos et données associées seront supprimées définitivement.</p>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-danger" style="flex:1;" onclick="supprimerProjet()">🗑️ Supprimer définitivement</button>
+      <button class="btn btn-secondary" onclick="fermerModal('modal-supprimer')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ MODAL DUPLIQUER ══════════════ -->
+<div class="modal-overlay" id="modal-dupliquer">
+  <div class="modal confirm-modal">
+    <div class="confirm-icon">📋</div>
+    <div class="modal-title" style="justify-content:center;">Dupliquer ce projet ?</div>
+    <p class="confirm-text">Une copie du projet sera créée avec un nouveau token galerie et un nouveau lien d'accès. Le client devra recevoir le nouveau lien.</p>
+    <div class="field" style="margin-bottom:1rem;">
+      <label>Nom du client (copie)</label>
+      <input type="text" id="dup-client-nom" placeholder="Même client ou nouveau client">
+    </div>
+    <div class="field" style="margin-bottom:1rem;">
+      <label>Email du client (copie)</label>
+      <input type="email" id="dup-client-email" placeholder="email@exemple.com">
+    </div>
+    <div class="field" style="margin-bottom:1.5rem;">
+      <label>N° Soumission (optionnel)</label>
+      <input type="text" id="dup-soumission" placeholder="CA-2026-XXX">
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-blue" style="flex:1;" onclick="executerDuplication()">📋 Dupliquer</button>
+      <button class="btn btn-secondary" onclick="fermerModal('modal-dupliquer')">Annuler</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
 let TOKEN = null;
+let USER_ROLE = 'utilisateur'; // utilisateur | admin | superadmin
 let currentProjetId = null;
 let currentProjets = [];
 let currentProjet = null;
 
-// ── AUTH ──────────────────────────────────────────────────────────────
-// Cherche le token dans localStorage avec les deux clés possibles
-function getToken() {
-  return localStorage.getItem('carnet_token') || localStorage.getItem('token') || null;
-}
-
-TOKEN = getToken();
+// ── AUTH & RÔLES ──────────────────────────────────────────────────────
+TOKEN = localStorage.getItem('carnet_token') || localStorage.getItem('token') || null;
 
 if (!TOKEN) {
   window.location.href = 'carnet.html';
@@ -417,17 +490,50 @@ if (!TOKEN) {
       localStorage.removeItem('token');
       window.location.href = 'carnet.html';
     }
-    if (payload.role !== 'admin' && payload.role !== 'superadmin') {
+    // Vérifier le rôle — admin ET superadmin ont accès
+    if (!['admin','superadmin'].includes(payload.role)) {
+      // Pour les pilotes : accès utilisateur limité (ajout seulement)
+      // On pourrait leur donner accès avec rôle 'utilisateur'
+      // Pour l'instant on redirige
       alert('Accès réservé aux administrateurs CapturAir.');
       window.location.href = 'carnet.html';
     }
-    // Mettre à jour sidebar
+
+    USER_ROLE = payload.role; // 'admin' ou 'superadmin'
+
+    // Sidebar user info
     const nom = payload.email?.split('@')[0] || 'Admin';
     document.getElementById('sb-name').textContent = nom.charAt(0).toUpperCase() + nom.slice(1);
-    document.getElementById('sb-role').textContent = payload.role === 'superadmin' ? 'Super Administrateur' : 'Administrateur';
+
+    const roleLabels = {
+      'superadmin': { text: 'Super Administrateur', badge: '👑 Superadmin' },
+      'admin':      { text: 'Administrateur',        badge: '🛡️ Admin' },
+      'utilisateur':{ text: 'Utilisateur',            badge: '👤 Utilisateur' },
+    };
+    const rl = roleLabels[USER_ROLE] || roleLabels['utilisateur'];
+    document.getElementById('sb-role-text').textContent = rl.text;
+    document.getElementById('sb-role-badge').textContent = rl.badge;
     document.getElementById('sb-avatar').textContent = nom.charAt(0).toUpperCase();
+
+    // Appliquer restrictions selon rôle
+    appliquerRestrictionsRole();
   } catch(e) {
     window.location.href = 'carnet.html';
+  }
+}
+
+function appliquerRestrictionsRole() {
+  const btnSupprimer = document.getElementById('btn-supprimer');
+  const btnModifier = document.getElementById('btn-modifier');
+
+  // Seul superadmin peut supprimer
+  if (USER_ROLE !== 'superadmin') {
+    if (btnSupprimer) { btnSupprimer.disabled = true; btnSupprimer.title = '🔒 Réservé au superadmin'; btnSupprimer.style.opacity = '0.3'; }
+  }
+  // Admin et superadmin peuvent modifier
+  // Utilisateur ne peut qu'ajouter et dupliquer
+  if (USER_ROLE === 'utilisateur') {
+    if (btnModifier) { btnModifier.disabled = true; btnModifier.style.opacity = '0.3'; }
   }
 }
 
@@ -441,7 +547,8 @@ function logout() {
 function showPage(name, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + name)?.classList.add('active');
+  const page = document.getElementById('page-' + name);
+  if (page) page.classList.add('active');
   if (el) el.classList.add('active');
   if (name === 'dashboard') loadDashboard();
   if (name === 'projets') loadProjets();
@@ -460,39 +567,31 @@ async function api(path, method = 'GET', body = null) {
 async function loadDashboard() {
   document.getElementById('dash-date').textContent =
     new Date().toLocaleDateString('fr-CA', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-
   try {
-    const stats = await api('/api/portail/stats');
+    const [stats, data] = await Promise.all([api('/api/portail/stats'), api('/api/portail/projets')]);
     document.getElementById('s-total').textContent = stats.total_projets ?? 0;
     document.getElementById('s-revenus').textContent = '$' + (stats.revenus_total ?? 0).toFixed(2);
     document.getElementById('s-payes').textContent = stats.projets_payes ?? 0;
     document.getElementById('s-attente').textContent = stats.projets_en_attente ?? 0;
-
-    const data = await api('/api/portail/projets');
     currentProjets = data.projets || [];
-    const projets = currentProjets.slice(0, 8);
 
-    if (!projets.length) {
+    if (!currentProjets.length) {
       document.getElementById('recent-projets').innerHTML =
         '<div style="text-align:center;padding:3rem;color:var(--gray);"><div style="font-size:48px;margin-bottom:1rem;">📁</div><p>Aucun projet — <a href="#" onclick="showPage(\'nouveau\',null)" style="color:var(--blue);">Créer le premier</a></p></div>';
       return;
     }
-
-    document.getElementById('recent-projets').innerHTML = projets.map(p => `
+    document.getElementById('recent-projets').innerHTML = currentProjets.slice(0,8).map(p => `
       <div style="display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="ouvrirDetail('${p.id}')">
-        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--blue),#0D5C8A);display:flex;align-items:center;justify-content:center;color:white;font-size:18px;flex-shrink:0;">📸</div>
+        <div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--blue),#0D5C8A);display:flex;align-items:center;justify-content:center;color:white;font-size:16px;flex-shrink:0;">📸</div>
         <div style="flex:1;min-width:0;">
           <div style="font-size:14px;font-weight:500;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.nom}</div>
-          <div style="font-size:12px;color:var(--gray);">${p.client_nom} · ${p.client_email}${p.num_soumission ? ' · ' + p.num_soumission : ''}</div>
+          <div style="font-size:12px;color:var(--gray);">${p.client_nom} · ${p.client_email}${p.num_soumission?' · '+p.num_soumission:''}</div>
         </div>
         ${getBadge(p.statut)}
-        <div style="font-size:13px;color:var(--gray);flex-shrink:0;">${p.prix_base ? '$' + p.prix_base : '—'}</div>
+        <div style="font-size:13px;color:var(--gray);flex-shrink:0;">${p.prix_base?'$'+p.prix_base:'—'}</div>
         <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();ouvrirDetail('${p.id}')">Ouvrir</button>
-      </div>
-    `).join('');
-  } catch(e) {
-    console.error(e);
-  }
+      </div>`).join('');
+  } catch(e) { console.error(e); }
 }
 
 // ── PROJETS ───────────────────────────────────────────────────────────
@@ -500,222 +599,303 @@ async function loadProjets() {
   try {
     const data = await api('/api/portail/projets');
     currentProjets = data.projets || [];
-
     if (!currentProjets.length) {
-      document.getElementById('projets-tbody').innerHTML =
-        '<tr><td colspan="8" style="text-align:center;padding:3rem;color:var(--gray);">Aucun projet</td></tr>';
+      document.getElementById('projets-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--gray);">Aucun projet</td></tr>';
       return;
     }
-
     document.getElementById('projets-tbody').innerHTML = currentProjets.map(p => `
-      <tr style="cursor:pointer;" onclick="ouvrirDetail('${p.id}')">
-        <td style="font-weight:500;">${p.nom}</td>
+      <tr>
+        <td style="font-weight:500;cursor:pointer;" onclick="ouvrirDetail('${p.id}')">${p.nom}</td>
         <td>${p.client_nom}<br><span style="font-size:11px;color:var(--gray);">${p.client_email}</span></td>
-        <td style="font-size:12px;color:var(--gray);">${p.num_soumission || '—'}</td>
-        <td style="font-size:12px;">${p.modele_prix || '—'}</td>
-        <td>${p.prix_base ? '$' + p.prix_base : '—'}</td>
+        <td style="font-size:12px;color:var(--gray);">${p.num_soumission||'—'}</td>
+        <td>${p.prix_base?'$'+p.prix_base:'—'}</td>
         <td>${getBadge(p.statut)}</td>
-        <td style="font-size:12px;color:var(--gray);">${p.created_at?.split('T')[0] || '—'}</td>
-        <td><button class="btn btn-sm btn-blue" onclick="event.stopPropagation();ouvrirDetail('${p.id}')">Ouvrir</button></td>
-      </tr>
-    `).join('');
-  } catch(e) {
-    console.error(e);
-  }
+        <td style="font-size:12px;color:var(--gray);">${p.created_at?.split('T')[0]||'—'}</td>
+        <td>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-sm btn-blue" onclick="ouvrirDetail('${p.id}')">Ouvrir</button>
+            <button class="btn btn-sm btn-warning" onclick="ouvrirDuplication('${p.id}')" title="Dupliquer">📋</button>
+            ${USER_ROLE==='superadmin'?`<button class="btn btn-sm btn-danger" onclick="currentProjetId='${p.id}';confirmerSuppression()" title="Supprimer">🗑️</button>`:''}
+          </div>
+        </td>
+      </tr>`).join('');
+  } catch(e) { console.error(e); }
 }
 
 function getBadge(statut) {
-  const map = { 'EN_ATTENTE':'badge-attente','ENVOYE':'badge-envoye','SELECTION':'badge-selection','PAYE':'badge-paye','LIVRE':'badge-livre','EXPIRE':'badge-expire' };
+  const map = {'EN_ATTENTE':'badge-attente','ENVOYE':'badge-envoye','SELECTION':'badge-selection','PAYE':'badge-paye','LIVRE':'badge-livre','EXPIRE':'badge-expire'};
   return `<span class="badge ${map[statut]||'badge-attente'}">${statut}</span>`;
 }
 
 // ── NOUVEAU PROJET ────────────────────────────────────────────────────
 function autoFillPrix() {
   const sel = document.getElementById('n-service');
-  const opt = sel.options[sel.selectedIndex];
-  if (opt.dataset.prix) {
-    document.getElementById('n-prix-base').value = opt.dataset.prix;
-    updatePrixPreview();
-  }
+  const prix = sel.options[sel.selectedIndex]?.dataset.prix;
+  if (prix) { document.getElementById('n-prix-base').value = prix; updatePrixPreview(); }
 }
 
 function updatePrixFields() {
   const modele = document.getElementById('n-modele').value;
-  document.getElementById('field-prix-photo').style.display = modele !== 'FORFAIT' ? 'flex' : 'none';
-  document.getElementById('field-prix-video').style.display = modele !== 'FORFAIT' ? 'flex' : 'none';
-  document.getElementById('field-nb-photos').style.display = modele === 'FORFAIT_EXTRAS' ? 'flex' : 'none';
+  document.getElementById('field-prix-photo').style.display = modele!=='FORFAIT'?'flex':'none';
+  document.getElementById('field-prix-video').style.display = modele!=='FORFAIT'?'flex':'none';
+  document.getElementById('field-nb-photos').style.display = modele==='FORFAIT_EXTRAS'?'flex':'none';
   updatePrixPreview();
 }
 
 function updatePrixPreview() {
-  const base = parseFloat(document.getElementById('n-prix-base').value) || 0;
-  if (base <= 0) { document.getElementById('prix-preview').style.display = 'none'; return; }
-  const tps = base * 0.05, tvq = base * 0.09975, total = base + tps + tvq;
-  document.getElementById('prev-base').textContent = base.toFixed(2) + ' $';
-  document.getElementById('prev-tps').textContent = tps.toFixed(2) + ' $';
-  document.getElementById('prev-tvq').textContent = tvq.toFixed(2) + ' $';
-  document.getElementById('prev-total').textContent = total.toFixed(2) + ' $';
-  document.getElementById('prix-preview').style.display = 'block';
+  const base = parseFloat(document.getElementById('n-prix-base').value)||0;
+  if (base<=0){document.getElementById('prix-preview').style.display='none';return;}
+  const tps=base*0.05,tvq=base*0.09975,total=base+tps+tvq;
+  document.getElementById('prev-base').textContent=base.toFixed(2)+' $';
+  document.getElementById('prev-tps').textContent=tps.toFixed(2)+' $';
+  document.getElementById('prev-tvq').textContent=tvq.toFixed(2)+' $';
+  document.getElementById('prev-total').textContent=total.toFixed(2)+' $';
+  document.getElementById('prix-preview').style.display='block';
 }
 
 async function createProjet() {
   const nom = document.getElementById('n-client-nom').value.trim();
   const email = document.getElementById('n-client-email').value.trim();
-  if (!nom || !email) { showAlert('nouveau-alert', 'Nom et email du client requis', 'error'); return; }
-
+  if (!nom||!email){showAlert('nouveau-alert','Nom et email du client requis','error');return;}
   const body = {
-    client_nom: nom,
-    client_email: email,
-    nom: document.getElementById('n-nom').value || `Projet ${nom}`,
-    num_soumission: document.getElementById('n-soumission').value,
-    note_admin: document.getElementById('n-note').value,
-    modele_prix: document.getElementById('n-modele').value,
-    prix_base: parseFloat(document.getElementById('n-prix-base').value) || 0,
-    prix_par_photo: parseFloat(document.getElementById('n-prix-photo')?.value) || 0,
-    prix_par_video: parseFloat(document.getElementById('n-prix-video')?.value) || 0,
-    nb_photos_incluses: parseInt(document.getElementById('n-nb-photos')?.value) || 0,
+    client_nom:nom, client_email:email,
+    nom:document.getElementById('n-nom').value||`Projet ${nom}`,
+    num_soumission:document.getElementById('n-soumission').value,
+    note_admin:document.getElementById('n-note').value,
+    modele_prix:document.getElementById('n-modele').value,
+    prix_base:parseFloat(document.getElementById('n-prix-base').value)||0,
+    prix_par_photo:parseFloat(document.getElementById('n-prix-photo')?.value)||0,
+    prix_par_video:parseFloat(document.getElementById('n-prix-video')?.value)||0,
+    nb_photos_incluses:parseInt(document.getElementById('n-nb-photos')?.value)||0,
   };
-
   try {
-    const res = await api('/api/portail/projets', 'POST', body);
-    if (res.success) {
-      showAlert('nouveau-alert', '✅ Projet créé avec succès !', 'success');
+    const res = await api('/api/portail/projets','POST',body);
+    if (res.success){
+      showAlert('nouveau-alert','✅ Projet créé avec succès !','success');
       resetForm();
-      setTimeout(() => ouvrirDetail(res.id), 1200);
+      setTimeout(()=>ouvrirDetail(res.id),1200);
     } else {
-      showAlert('nouveau-alert', '❌ ' + (res.error || 'Erreur'), 'error');
+      showAlert('nouveau-alert','❌ '+(res.error||'Erreur'),'error');
     }
-  } catch(e) {
-    showAlert('nouveau-alert', '❌ Erreur de connexion', 'error');
-  }
+  } catch(e){showAlert('nouveau-alert','❌ Erreur de connexion','error');}
 }
 
 function resetForm() {
-  ['n-client-nom','n-client-email','n-nom','n-soumission','n-note','n-prix-base','n-prix-photo','n-prix-video','n-nb-photos'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.value = '';
+  ['n-client-nom','n-client-email','n-nom','n-soumission','n-note','n-prix-base','n-prix-photo','n-prix-video','n-nb-photos'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
   });
-  document.getElementById('n-service').value = '';
-  document.getElementById('prix-preview').style.display = 'none';
+  document.getElementById('n-service').value='';
+  document.getElementById('prix-preview').style.display='none';
 }
 
 // ── DÉTAIL PROJET ─────────────────────────────────────────────────────
 async function ouvrirDetail(id) {
-  currentProjetId = id;
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  currentProjetId=id;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-detail').classList.add('active');
+  appliquerRestrictionsRole();
   await loadDetail(id);
 }
 
 async function loadDetail(id) {
   try {
-    const data = await api('/api/portail/projets/' + id);
+    const data = await api('/api/portail/projets/'+id);
     if (!data.projet) return;
     currentProjet = data.projet;
     const p = data.projet;
+    const base = p.prix_base||0;
+    const total = base*1.14975;
 
     document.getElementById('detail-titre').textContent = p.nom;
-    document.getElementById('detail-sous-titre').textContent = `${p.client_nom} · ${p.client_email}`;
-
-    const base = p.prix_base || 0;
-    const total = base * 1.14975;
+    document.getElementById('detail-sous-titre').textContent = `${p.client_nom} · ${p.client_email} · ${p.statut}`;
 
     document.getElementById('detail-infos').innerHTML = `
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
-        <div><div style="font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Client</div><div style="font-weight:500;">${p.client_nom}</div></div>
-        <div><div style="font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Email</div><div style="font-weight:500;">${p.client_email}</div></div>
-        <div><div style="font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">N° Soumission</div><div style="font-weight:500;">${p.num_soumission || '—'}</div></div>
-        <div><div style="font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Modèle prix</div><div style="font-weight:500;">${p.modele_prix}</div></div>
-        <div><div style="font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Prix de base</div><div style="font-weight:500;">$${base.toFixed(2)}</div></div>
-        <div><div style="font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Statut</div>${getBadge(p.statut)}</div>
-        <div><div style="font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Expiration galerie</div><div style="font-weight:500;">${p.token_expires ? new Date(p.token_expires).toLocaleDateString('fr-CA') : '—'}</div></div>
-        <div><div style="font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Payé le</div><div style="font-weight:500;">${p.paid_at ? new Date(p.paid_at).toLocaleDateString('fr-CA') : '—'}</div></div>
-        <div><div style="font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Total avec taxes</div><div style="font-weight:500;color:var(--blue);">$${total.toFixed(2)}</div></div>
+      <div class="info-grid">
+        <div class="info-cell"><label>Client</label><div class="val">${p.client_nom}</div></div>
+        <div class="info-cell"><label>Email</label><div class="val">${p.client_email}</div></div>
+        <div class="info-cell"><label>N° Soumission</label><div class="val">${p.num_soumission||'—'}</div></div>
+        <div class="info-cell"><label>Modèle de prix</label><div class="val">${p.modele_prix}</div></div>
+        <div class="info-cell"><label>Prix de base</label><div class="val">$${base.toFixed(2)}</div></div>
+        <div class="info-cell"><label>Total avec taxes</label><div class="val" style="color:var(--blue);font-weight:600;">$${total.toFixed(2)}</div></div>
+        <div class="info-cell"><label>Statut</label><div class="val">${getBadge(p.statut)}</div></div>
+        <div class="info-cell"><label>Expiration galerie</label><div class="val">${p.token_expires?new Date(p.token_expires).toLocaleDateString('fr-CA'):'—'}</div></div>
+        <div class="info-cell"><label>Payé le</label><div class="val">${p.paid_at?new Date(p.paid_at).toLocaleDateString('fr-CA'):'—'}</div></div>
       </div>
-      ${p.note_admin ? `<div style="margin-top:1rem;padding:10px 14px;background:var(--offwhite);border-radius:8px;font-size:13px;color:var(--gray);">📝 ${p.note_admin}</div>` : ''}
-    `;
+      ${p.note_admin?`<div style="margin-top:1rem;padding:10px 14px;background:var(--offwhite);border-radius:8px;font-size:13px;color:var(--gray);">📝 ${p.note_admin}</div>`:''}`;
 
-    // Lien galerie
     const galerieUrl = `https://capturair.com/client.html?token=${p.token_acces}`;
     document.getElementById('galerie-link-box').textContent = galerieUrl;
-
-    // Pré-remplir montant Stripe
     document.getElementById('stripe-montant').value = total.toFixed(2);
     document.getElementById('stripe-montant-hint').textContent = `Base ${base}$ + TPS + TVQ = ${total.toFixed(2)}$`;
 
-    // Lien Stripe existant
     if (p.stripe_payment_link) {
       document.getElementById('stripe-link-result').innerHTML = `
-        <div class="stripe-link-box">
-          ✅ Lien Stripe : <a href="${p.stripe_payment_link}" target="_blank" style="color:var(--green);">${p.stripe_payment_link.substring(0, 70)}...</a>
-          <button class="btn btn-sm btn-secondary" style="margin-left:8px;" onclick="navigator.clipboard.writeText('${p.stripe_payment_link}');showAlert('detail-alert','✅ Lien copié !','success')">📋</button>
+        <div style="background:var(--light-green);border-radius:8px;padding:12px 16px;font-size:13px;word-break:break-all;">
+          ✅ Lien Stripe : <a href="${p.stripe_payment_link}" target="_blank" style="color:var(--green);">${p.stripe_payment_link.substring(0,70)}...</a>
+          <button class="btn btn-sm btn-secondary" style="margin-left:8px;" onclick="navigator.clipboard.writeText('${p.stripe_payment_link}');showAlert('detail-alert','✅ Copié !','success')">📋</button>
         </div>`;
+    } else {
+      document.getElementById('stripe-link-result').innerHTML = '';
     }
-
-    // Charger médias
     await loadMedias(id);
-  } catch(e) {
-    console.error(e);
-  }
+  } catch(e){console.error(e);}
 }
 
 async function loadMedias(projetId) {
   try {
-    const data = await api('/api/portail/projets/' + projetId);
-    const medias = data.medias || [];
+    const data = await api('/api/portail/projets/'+projetId);
+    const medias = data.medias||[];
     const grid = document.getElementById('galerie-preview');
-
-    if (!medias.length) {
-      grid.innerHTML = '<p style="color:var(--gray);font-size:13px;margin-top:1rem;text-align:center;">Aucun média uploadé pour l\'instant</p>';
-      return;
-    }
-
-    grid.innerHTML = medias.map(m => `
+    if (!medias.length){grid.innerHTML='<p style="color:var(--gray);font-size:13px;margin-top:1rem;text-align:center;">Aucun média uploadé</p>';return;}
+    grid.innerHTML = medias.map(m=>`
       <div class="galerie-item">
-        ${m.type === 'VIDEO'
-          ? `<div class="video-thumb">🎬</div>`
-          : `<div style="width:100%;height:110px;background:var(--offwhite);display:flex;align-items:center;justify-content:center;font-size:32px;">📸</div>`}
+        <div class="media-thumb">${m.type==='VIDEO'?'🎬':'📸'}</div>
         <button class="remove-btn" onclick="deleteMedia('${m.id}')">✕</button>
         <div class="media-name">${m.nom_fichier}</div>
-      </div>
-    `).join('');
-  } catch(e) {}
+      </div>`).join('');
+  } catch(e){}
+}
+
+// ── MODIFIER ──────────────────────────────────────────────────────────
+function ouvrirModalModifier() {
+  if (!currentProjet) return;
+  if (USER_ROLE==='utilisateur'){showAlert('detail-alert','🔒 Accès refusé — modification réservée aux admins','error');return;}
+  const p = currentProjet;
+  document.getElementById('m-client-nom').value = p.client_nom||'';
+  document.getElementById('m-client-email').value = p.client_email||'';
+  document.getElementById('m-nom').value = p.nom||'';
+  document.getElementById('m-soumission').value = p.num_soumission||'';
+  document.getElementById('m-modele').value = p.modele_prix||'FORFAIT';
+  document.getElementById('m-prix-base').value = p.prix_base||0;
+  document.getElementById('m-statut').value = p.statut||'EN_ATTENTE';
+  document.getElementById('m-note').value = p.note_admin||'';
+  document.getElementById('m-service').value = p.nom||'';
+  document.getElementById('modal-modifier').classList.add('open');
+}
+
+function autoFillPrixModifier() {
+  const sel = document.getElementById('m-service');
+  const prix = sel.options[sel.selectedIndex]?.dataset.prix;
+  if (prix) document.getElementById('m-prix-base').value = prix;
+}
+
+async function sauvegarderModification() {
+  if (!currentProjetId) return;
+  const body = {
+    client_nom: document.getElementById('m-client-nom').value,
+    client_email: document.getElementById('m-client-email').value,
+    nom: document.getElementById('m-nom').value,
+    num_soumission: document.getElementById('m-soumission').value,
+    modele_prix: document.getElementById('m-modele').value,
+    prix_base: parseFloat(document.getElementById('m-prix-base').value)||0,
+    statut: document.getElementById('m-statut').value,
+    note_admin: document.getElementById('m-note').value,
+    prix_par_photo: currentProjet?.prix_par_photo||0,
+    prix_par_video: currentProjet?.prix_par_video||0,
+    nb_photos_incluses: currentProjet?.nb_photos_incluses||0,
+  };
+  try {
+    const res = await api('/api/portail/projets/'+currentProjetId,'PUT',body);
+    if (res.success||res.error===undefined) {
+      fermerModal('modal-modifier');
+      showAlert('detail-alert','✅ Projet modifié avec succès !','success');
+      await loadDetail(currentProjetId);
+    } else {
+      showAlert('detail-alert','❌ '+(res.error||'Erreur'),'error');
+    }
+  } catch(e){showAlert('detail-alert','❌ Erreur de connexion','error');}
+}
+
+// ── SUPPRIMER ─────────────────────────────────────────────────────────
+function confirmerSuppression() {
+  if (USER_ROLE!=='superadmin'){showAlert('detail-alert','🔒 Suppression réservée au superadmin','error');return;}
+  document.getElementById('modal-supprimer').classList.add('open');
+}
+
+async function supprimerProjet() {
+  if (!currentProjetId) return;
+  try {
+    await api('/api/portail/projets/'+currentProjetId,'DELETE');
+    fermerModal('modal-supprimer');
+    showAlert('projets-alert','✅ Projet supprimé','success');
+    currentProjetId = null;
+    showPage('projets',null);
+  } catch(e){showAlert('detail-alert','❌ Erreur suppression','error');}
+}
+
+// ── DUPLIQUER ─────────────────────────────────────────────────────────
+function dupliquerProjet() {
+  if (!currentProjet) return;
+  document.getElementById('dup-client-nom').value = currentProjet.client_nom||'';
+  document.getElementById('dup-client-email').value = currentProjet.client_email||'';
+  document.getElementById('dup-soumission').value = '';
+  document.getElementById('modal-dupliquer').classList.add('open');
+}
+
+function ouvrirDuplication(id) {
+  currentProjetId = id;
+  const p = currentProjets.find(p=>p.id===id);
+  if (p) {
+    currentProjet = p;
+    dupliquerProjet();
+  }
+}
+
+async function executerDuplication() {
+  if (!currentProjet) return;
+  const p = currentProjet;
+  const body = {
+    client_nom: document.getElementById('dup-client-nom').value || p.client_nom,
+    client_email: document.getElementById('dup-client-email').value || p.client_email,
+    nom: p.nom + ' (copie)',
+    num_soumission: document.getElementById('dup-soumission').value,
+    note_admin: p.note_admin || '',
+    modele_prix: p.modele_prix,
+    prix_base: p.prix_base||0,
+    prix_par_photo: p.prix_par_photo||0,
+    prix_par_video: p.prix_par_video||0,
+    nb_photos_incluses: p.nb_photos_incluses||0,
+  };
+  try {
+    const res = await api('/api/portail/projets','POST',body);
+    if (res.success) {
+      fermerModal('modal-dupliquer');
+      showAlert('detail-alert','✅ Projet dupliqué avec succès !','success');
+      setTimeout(()=>ouvrirDetail(res.id),1200);
+    } else {
+      showAlert('detail-alert','❌ '+(res.error||'Erreur duplication'),'error');
+    }
+  } catch(e){showAlert('detail-alert','❌ Erreur de connexion','error');}
 }
 
 // ── UPLOAD ────────────────────────────────────────────────────────────
-function onDragOver(e) { e.preventDefault(); document.getElementById('upload-zone').classList.add('dragover'); }
-function onDragLeave() { document.getElementById('upload-zone').classList.remove('dragover'); }
-function onDrop(e) { e.preventDefault(); document.getElementById('upload-zone').classList.remove('dragover'); processFiles(Array.from(e.dataTransfer.files)); }
-function uploadFiles(e) { processFiles(Array.from(e.target.files)); }
+function onDragOver(e){e.preventDefault();document.getElementById('upload-zone').classList.add('dragover');}
+function onDragLeave(){document.getElementById('upload-zone').classList.remove('dragover');}
+function onDrop(e){e.preventDefault();document.getElementById('upload-zone').classList.remove('dragover');processFiles(Array.from(e.dataTransfer.files));}
+function uploadFiles(e){processFiles(Array.from(e.target.files));}
 
 async function processFiles(files) {
   if (!currentProjetId) return;
   const progress = document.getElementById('upload-progress');
   for (const file of files) {
-    progress.innerHTML = `<div class="alert alert-info">⏳ Upload de <strong>${file.name}</strong>...</div>`;
+    progress.innerHTML=`<div class="alert alert-info">⏳ Upload de <strong>${file.name}</strong>...</div>`;
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file',file);
     try {
-      const res = await fetch(`${API}/api/portail/projets/${currentProjetId}/medias`, {
-        method:'POST', headers:{'Authorization':'Bearer ' + TOKEN}, body: formData
-      });
+      const res = await fetch(`${API}/api/portail/projets/${currentProjetId}/medias`,{method:'POST',headers:{'Authorization':'Bearer '+TOKEN},body:formData});
       const data = await res.json();
-      if (data.success) {
-        progress.innerHTML = `<div class="alert alert-success">✅ ${file.name} uploadé !</div>`;
-      } else {
-        progress.innerHTML = `<div class="alert alert-error">❌ Erreur : ${data.error}</div>`;
-      }
-    } catch(e) {
-      progress.innerHTML = `<div class="alert alert-error">❌ Erreur upload</div>`;
-    }
+      if (data.success){progress.innerHTML=`<div class="alert alert-success">✅ ${file.name} uploadé !</div>`;}
+      else{progress.innerHTML=`<div class="alert alert-error">❌ ${data.error}</div>`;}
+    } catch(e){progress.innerHTML=`<div class="alert alert-error">❌ Erreur upload</div>`;}
   }
-  setTimeout(() => { progress.innerHTML = ''; }, 3000);
+  setTimeout(()=>{progress.innerHTML='';},3000);
   await loadMedias(currentProjetId);
-  document.getElementById('file-input').value = '';
+  document.getElementById('file-input').value='';
 }
 
 async function deleteMedia(mediaId) {
   if (!confirm('Supprimer ce média ?')) return;
-  await api('/api/portail/medias/' + mediaId, 'DELETE');
+  await api('/api/portail/medias/'+mediaId,'DELETE');
   await loadMedias(currentProjetId);
 }
 
@@ -723,7 +903,7 @@ async function deleteMedia(mediaId) {
 function copierLien() {
   const lien = document.getElementById('galerie-link-box').textContent;
   navigator.clipboard.writeText(lien);
-  showAlert('detail-alert', '✅ Lien galerie copié dans le presse-papier !', 'success');
+  showAlert('detail-alert','✅ Lien galerie copié !','success');
 }
 
 // ── ENVOYER GALERIE ───────────────────────────────────────────────────
@@ -731,52 +911,45 @@ async function envoyerGalerie() {
   if (!currentProjetId) return;
   if (!confirm('Envoyer le lien galerie par email au client ?')) return;
   try {
-    const res = await api('/api/portail/projets/' + currentProjetId + '/envoyer', 'POST');
-    if (res.success) {
-      showAlert('detail-alert', '✅ Email envoyé au client avec succès !', 'success');
-      await loadDetail(currentProjetId);
-    } else {
-      showAlert('detail-alert', '❌ ' + (res.error || 'Erreur'), 'error');
-    }
-  } catch(e) {
-    showAlert('detail-alert', '❌ Erreur de connexion', 'error');
-  }
+    const res = await api('/api/portail/projets/'+currentProjetId+'/envoyer','POST');
+    if (res.success){showAlert('detail-alert','✅ Email envoyé au client !','success');await loadDetail(currentProjetId);}
+    else{showAlert('detail-alert','❌ '+(res.error||'Erreur'),'error');}
+  } catch(e){showAlert('detail-alert','❌ Erreur de connexion','error');}
 }
 
-// ── STRIPE LINK ───────────────────────────────────────────────────────
+// ── STRIPE ────────────────────────────────────────────────────────────
 async function genererStripeLink() {
   if (!currentProjetId) return;
   const montant = parseFloat(document.getElementById('stripe-montant').value);
-  if (!montant || montant < 0.5) { showAlert('detail-alert', 'Entre un montant valide (minimum 0.50$)', 'error'); return; }
-
-  const montantCents = Math.round(montant * 100);
+  if (!montant||montant<0.5){showAlert('detail-alert','Entre un montant valide (min 0.50$)','error');return;}
   try {
-    const res = await api('/api/portail/projets/' + currentProjetId + '/stripe-link', 'POST', { montant: montantCents });
+    const res = await api('/api/portail/projets/'+currentProjetId+'/stripe-link','POST',{montant:Math.round(montant*100)});
     if (res.success) {
-      document.getElementById('stripe-link-result').innerHTML = `
-        <div class="stripe-link-box">
+      document.getElementById('stripe-link-result').innerHTML=`
+        <div style="background:var(--light-green);border-radius:8px;padding:12px 16px;font-size:13px;">
           ✅ Lien Stripe généré !<br>
           <a href="${res.payment_url}" target="_blank" style="color:var(--green);word-break:break-all;">${res.payment_url}</a>
           <div style="margin-top:8px;display:flex;gap:8px;">
-            <button class="btn btn-sm btn-secondary" onclick="navigator.clipboard.writeText('${res.payment_url}');showAlert('detail-alert','✅ Lien Stripe copié !','success')">📋 Copier</button>
+            <button class="btn btn-sm btn-secondary" onclick="navigator.clipboard.writeText('${res.payment_url}');showAlert('detail-alert','✅ Copié !','success')">📋 Copier</button>
             <a href="${res.payment_url}" target="_blank" class="btn btn-sm btn-blue">🔗 Ouvrir</a>
           </div>
         </div>`;
-      showAlert('detail-alert', '✅ Lien de paiement Stripe généré !', 'success');
+      showAlert('detail-alert','✅ Lien Stripe généré !','success');
     } else {
-      showAlert('detail-alert', '❌ ' + (res.error || 'Erreur Stripe'), 'error');
+      showAlert('detail-alert','❌ '+(res.error||'Erreur Stripe'),'error');
     }
-  } catch(e) {
-    showAlert('detail-alert', '❌ Erreur de connexion', 'error');
-  }
+  } catch(e){showAlert('detail-alert','❌ Erreur de connexion','error');}
 }
+
+// ── MODALS ────────────────────────────────────────────────────────────
+function fermerModal(id) { document.getElementById(id).classList.remove('open'); }
 
 // ── HELPERS ───────────────────────────────────────────────────────────
 function showAlert(id, msg, type) {
   const el = document.getElementById(id);
   if (!el) return;
   el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
-  setTimeout(() => { el.innerHTML = ''; }, 4000);
+  setTimeout(()=>{el.innerHTML='';},4000);
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────
