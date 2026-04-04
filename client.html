@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Votre galerie — CapturAir</title>
+
+  <!-- Favicon inline SVG (pastille dans le navigateur) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='url(%23g)'/%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%231A8FD1'/%3E%3Cstop offset='100%25' stop-color='%230D5C8A'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='30' y='44' width='40' height='12' rx='3' fill='white' opacity='.9'/%3E%3Ccircle cx='50' cy='50' r='4' fill='%231A8FD1' stroke='white' stroke-width='1.5'/%3E%3Cline x1='34' y1='46' x2='21' y2='34' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='66' y1='46' x2='79' y2='34' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='34' y1='54' x2='21' y2='66' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='66' y1='54' x2='79' y2='66' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3Cellipse cx='21' cy='34' rx='11' ry='3' fill='white' opacity='.8' transform='rotate(-30 21 34)'/%3E%3Cellipse cx='79' cy='34' rx='11' ry='3' fill='white' opacity='.8' transform='rotate(30 79 34)'/%3E%3Cellipse cx='21' cy='66' rx='11' ry='3' fill='white' opacity='.8' transform='rotate(30 21 66)'/%3E%3Cellipse cx='79' cy='66' rx='11' ry='3' fill='white' opacity='.8' transform='rotate(-30 79 66)'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+
+  <!-- Mêmes polices que capturair.com -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --navy: #0B1F3A;
+      --blue: #1A8FD1;
+      --blue-light: #3AABEF;
+      --offwhite: #F4F7FA;
+      --white: #FFFFFF;
+      --gray: #6B7C93;
+      --dark: #0D1520;
+      --teal: #1ABC9C;
+      --border: #DEE4EF;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; font-weight: 300; color: var(--navy); background: var(--offwhite); overflow-x: hidden; }
+
+    /* ── NAV (identique à capturair.com) ── */
+    nav {
+      position: sticky; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 72px;
+      background: rgba(11,31,58,0.96); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(200,216,232,0.1);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .nav-logo-text { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--white); letter-spacing: 0.5px; }
+    .nav-logo-text span { color: var(--blue-light); }
+    .nav-center { flex: 1; text-align: center; }
+    .nav-projet { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 400; color: rgba(255,255,255,0.6); letter-spacing: 0.5px; }
+    .nav-projet strong { color: var(--blue-light); font-weight: 600; }
+    .weather-widget {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(200,216,232,0.12);
+      border-radius: 10px; padding: 6px 14px; flex-shrink: 0;
+    }
+    .weather-widget-icon { font-size: 18px; }
+    .weather-widget-info { display: flex; flex-direction: column; line-height: 1.3; }
+    .weather-widget-city { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(200,216,232,0.45); }
+    .weather-widget-temp { font-size: 13px; font-weight: 500; color: var(--white); }
+
+    /* ── HERO BANNER (style page d'accueil) ── */
+    .hero-banner {
+      background: linear-gradient(160deg, rgba(13,21,32,0.92) 0%, rgba(11,31,58,0.85) 50%, rgba(13,21,32,0.95) 100%),
+                  url('https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=1800&q=80') center/cover no-repeat;
+      padding: 60px 60px 50px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-grid-bg {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(26,143,209,0.04) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(26,143,209,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+    .hero-inner { position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 2rem; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(26,143,209,0.15); border: 1px solid rgba(26,143,209,0.3);
+      color: var(--blue-light); font-size: 11px; font-weight: 500;
+      letter-spacing: 2px; text-transform: uppercase;
+      padding: 5px 14px; border-radius: 100px; margin-bottom: 16px;
+    }
+    .hero-badge::before { content: ''; width: 6px; height: 6px; background: var(--blue-light); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+    .hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 4vw, 52px); font-weight: 300; color: var(--white); line-height: 1.15; }
+    .hero-title strong { font-weight: 600; color: var(--blue-light); display: block; }
+    .hero-client { font-size: 14px; color: rgba(200,216,232,0.6); margin-top: 8px; }
+    .hero-expiry { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; font-size: 12px; color: rgba(200,216,232,0.45); background: rgba(255,255,255,0.04); border: 1px solid rgba(200,216,232,0.1); padding: 6px 14px; border-radius: 8px; }
+    .hero-right { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+    .counter-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(200,216,232,0.12); border-radius: 14px; padding: 18px 28px; text-align: center; min-width: 160px; }
+    .counter-value { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 600; color: var(--blue-light); line-height: 1; }
+    .counter-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(200,216,232,0.4); margin-top: 4px; }
+    .prix-card { background: rgba(26,143,209,0.15); border: 1px solid rgba(26,143,209,0.3); border-radius: 14px; padding: 14px 28px; text-align: center; min-width: 160px; }
+    .prix-value { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: var(--white); }
+    .prix-label { font-size: 10px; color: rgba(200,216,232,0.4); margin-top: 2px; }
+
+    /* ── STEPS BAR ── */
+    .steps-bar { background: var(--navy); border-bottom: 1px solid rgba(200,216,232,0.07); padding: 14px 60px; }
+    .steps-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; flex-wrap: wrap; gap: 0; }
+    .step-item { display: flex; align-items: center; gap: 10px; padding: 6px 16px; }
+    .step-num { width: 24px; height: 24px; border-radius: 50%; background: rgba(26,143,209,0.2); border: 1px solid rgba(26,143,209,0.35); color: var(--blue-light); font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .step-text { font-size: 12px; color: rgba(200,216,232,0.55); }
+    .step-sep { color: rgba(200,216,232,0.15); font-size: 16px; padding: 0 4px; }
+
+    /* ── MAIN ── */
+    .main { max-width: 1200px; margin: 0 auto; padding: 2.5rem 60px 140px; }
+    .section-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 8px; }
+    .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(24px, 3vw, 38px); font-weight: 300; color: var(--navy); }
+    .section-title strong { font-weight: 600; }
+    .galerie-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .btn-tout { background: transparent; border: 1px solid var(--border); color: var(--gray); padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 13px; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+    .btn-tout:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* ── GALERIE GRID (comme la galerie de l'index) ── */
+    .galerie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+
+    /* ── PHOTO CARD (style service-card de l'index) ── */
+    .photo-card {
+      background: var(--white); border-radius: 16px; overflow: hidden;
+      border: 1px solid rgba(26,143,209,0.1);
+      transition: all 0.3s; position: relative; cursor: pointer;
+    }
+    .photo-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--blue), var(--blue-light));
+      transform: scaleX(0); transform-origin: left; transition: transform 0.3s; z-index: 1;
+    }
+    .photo-card:hover { box-shadow: 0 16px 48px rgba(26,143,209,0.12); transform: translateY(-4px); }
+    .photo-card:hover::before { transform: scaleX(1); }
+    .photo-card.selected { border-color: rgba(26,143,209,0.4); box-shadow: 0 0 0 3px rgba(26,143,209,0.12); }
+    .photo-card.selected::before { transform: scaleX(1); }
+
+    .photo-img-wrap { position: relative; overflow: hidden; height: 210px; }
+    .photo-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; background: var(--offwhite); }
+    .photo-card:hover .photo-img { transform: scale(1.05); }
+    .video-thumb { width: 100%; height: 100%; background: var(--navy); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; }
+    .video-thumb span { font-size: 48px; }
+    .video-thumb p { color: rgba(200,216,232,0.5); font-size: 12px; }
+    .selected-check { position: absolute; top: 10px; left: 10px; z-index: 2; width: 30px; height: 30px; border-radius: 50%; background: var(--blue); color: white; display: none; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; box-shadow: 0 2px 8px rgba(26,143,209,0.4); }
+    .photo-card.selected .selected-check { display: flex; }
+    .watermark-tag { position: absolute; bottom: 8px; right: 8px; z-index: 2; background: rgba(11,31,58,0.65); color: rgba(255,255,255,0.65); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; backdrop-filter: blur(4px); }
+    .galerie-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(11,31,58,0.65), transparent 50%); opacity: 0; transition: opacity 0.3s; display: flex; align-items: flex-end; padding: 12px; }
+    .photo-card:hover .galerie-overlay { opacity: 1; }
+    .galerie-label { color: rgba(255,255,255,0.9); font-size: 12px; letter-spacing: 0.5px; }
+    .photo-footer { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(26,143,209,0.06); }
+    .photo-name { font-size: 13px; color: var(--gray); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+    .select-btn { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; border: 1.5px solid var(--border); background: white; cursor: pointer; font-size: 17px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; color: var(--gray); }
+    .select-btn:hover { border-color: var(--blue); color: var(--blue); transform: scale(1.1); }
+    .select-btn.active { background: var(--blue); border-color: var(--blue); color: white; }
+    .comment-zone { padding: 0 16px 14px; }
+    .comment-zone textarea { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 12px; font-family: 'DM Sans', sans-serif; resize: none; height: 54px; color: var(--gray); outline: none; transition: border-color 0.2s; }
+    .comment-zone textarea:focus { border-color: var(--blue); }
+
+    /* ── BARRE PAIEMENT FIXE ── */
+    .payment-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
+      background: rgba(11,31,58,0.97); backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(26,143,209,0.2);
+      padding: 1rem 60px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+      transform: translateY(100%); transition: transform 0.35s ease;
+    }
+    .payment-bar.visible { transform: translateY(0); }
+    .payment-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--white); }
+    .payment-detail { font-size: 13px; color: rgba(200,216,232,0.45); margin-top: 2px; }
+    .payment-total { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; color: var(--blue-light); }
+    .btn-payer { display: inline-flex; align-items: center; gap: 10px; background: var(--blue); color: var(--white); border: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+    .btn-payer:hover { background: var(--blue-light); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(26,143,209,0.35); }
+    .btn-payer:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* ── LIGHTBOX ── */
+    .lightbox { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(11,31,58,0.97); backdrop-filter: blur(10px); align-items: center; justify-content: center; flex-direction: column; }
+    .lightbox.open { display: flex; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .lightbox-img { max-width: 88vw; max-height: 74vh; object-fit: contain; border-radius: 12px; }
+    .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,255,255,0.12); width: 50px; height: 50px; border-radius: 50%; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .lightbox-nav:hover { background: rgba(26,143,209,0.25); border-color: rgba(26,143,209,0.4); }
+    .lightbox-prev { left: 1.5rem; }
+    .lightbox-next { right: 1.5rem; }
+    .lightbox-close { position: absolute; top: 1.5rem; right: 1.5rem; background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,255,255,0.12); width: 40px; height: 40px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .lightbox-info { color: rgba(200,216,232,0.5); margin-top: 16px; font-size: 13px; text-align: center; letter-spacing: 0.5px; }
+    .lightbox-select { display: inline-flex; align-items: center; gap: 8px; background: var(--blue); color: white; border: none; padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 12px; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+    .lightbox-select:hover { background: var(--blue-light); }
+
+    /* ── MODAL ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
+    .modal-box { background: var(--navy); border: 1px solid rgba(26,143,209,0.3); border-radius: 24px; padding: 48px; max-width: 520px; width: 90%; max-height: 90vh; overflow-y: auto; }
+    .modal-icon { width: 64px; height: 64px; background: rgba(26,143,209,0.12); border: 2px solid rgba(26,143,209,0.25); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
+    .modal-title { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; color: var(--white); text-align: center; margin-bottom: 6px; }
+    .modal-subtitle { font-size: 14px; color: rgba(200,216,232,0.4); text-align: center; margin-bottom: 24px; }
+    .recap-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(200,216,232,0.07); }
+    .recap-icon { font-size: 20px; flex-shrink: 0; }
+    .recap-name { flex: 1; font-size: 14px; color: rgba(200,216,232,0.75); }
+    .recap-prix { font-size: 13px; color: rgba(200,216,232,0.35); }
+    .recap-tax-line { display: flex; justify-content: space-between; font-size: 13px; color: rgba(200,216,232,0.35); padding: 4px 0; }
+    .recap-total-line { display: flex; justify-content: space-between; align-items: center; padding: 16px 0 0; }
+    .recap-total-label { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--white); }
+    .recap-total-val { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; color: var(--blue-light); }
+    .btn-confirmer { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: var(--blue); color: white; border: none; padding: 16px; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; margin-top: 20px; transition: all 0.2s; }
+    .btn-confirmer:hover { background: var(--blue-light); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(26,143,209,0.35); }
+    .btn-retour { width: 100%; background: none; border: none; color: rgba(200,216,232,0.35); cursor: pointer; font-size: 13px; margin-top: 10px; font-family: 'DM Sans', sans-serif; }
+
+    /* ── ÉTATS ── */
+    .state-center { text-align: center; padding: 5rem 2rem; }
+    .loading-spinner { width: 44px; height: 44px; border: 3px solid rgba(26,143,209,0.12); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 1.5rem; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .state-icon { font-size: 56px; margin-bottom: 1rem; }
+    .state-title { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; color: var(--navy); margin-bottom: 8px; }
+    .state-text { font-size: 15px; color: var(--gray); line-height: 1.7; }
+
+    /* ── FOOTER (identique à capturair.com) ── */
+    footer { background: #060E18; padding: 32px 60px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(200,216,232,0.06); flex-wrap: wrap; gap: 1rem; }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: rgba(255,255,255,0.45); }
+    .footer-logo span { color: var(--blue-light); }
+    .footer-copy { font-size: 12px; color: rgba(200,216,232,0.22); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { text-decoration: none; font-size: 12px; color: rgba(200,216,232,0.28); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--blue-light); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 0 16px; }
+      .nav-projet { display: none; }
+      .hero-banner { padding: 36px 20px 32px; }
+      .steps-bar { padding: 10px 20px; }
+      .step-sep { display: none; }
+      .main { padding: 1.5rem 20px 140px; }
+      .galerie-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .payment-bar { padding: 1rem 20px; }
+      footer { padding: 24px 20px; flex-direction: column; text-align: center; }
+      .hero-right { align-items: flex-start; }
+    }
+    @media (max-width: 480px) {
+      .galerie-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .photo-img-wrap { height: 140px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     NAV — identique à capturair.com
+══════════════════════════════════════════ -->
+<nav>
+  <a href="https://capturair.com" class="nav-logo">
+    <div style="width:34px;height:34px;background:linear-gradient(135deg,#1A8FD1,#0D5C8A);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round">
+        <rect x="9" y="10" width="6" height="4" rx="1"/>
+        <line x1="9" y1="11" x2="4" y2="6"/><line x1="15" y1="11" x2="20" y2="6"/>
+        <line x1="9" y1="13" x2="4" y2="18"/><line x1="15" y1="13" x2="20" y2="18"/>
+        <circle cx="4" cy="6" r="2"/><circle cx="20" cy="6" r="2"/>
+        <circle cx="4" cy="18" r="2"/><circle cx="20" cy="18" r="2"/>
+      </svg>
+    </div>
+    <span class="nav-logo-text">Captur<span>Air</span></span>
+  </a>
+  <div class="nav-center">
+    <div class="nav-projet" id="nav-projet">Galerie privée</div>
+  </div>
+  <div class="weather-widget">
+    <span class="weather-widget-icon" id="w-icon">⏳</span>
+    <div class="weather-widget-info">
+      <span class="weather-widget-city">Lavaltrie</span>
+      <span class="weather-widget-temp" id="w-temp">--°C</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     HERO BANNER
+══════════════════════════════════════════ -->
+<div class="hero-banner" id="hero-banner" style="display:none;">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-badge">Galerie Privée · CapturAir</div>
+      <h1 class="hero-title" id="hero-title">
+        Votre galerie<br><strong>est prête</strong>
+      </h1>
+      <p class="hero-client" id="hero-client"></p>
+      <div class="hero-expiry" id="hero-expiry">⏰ —</div>
+    </div>
+    <div class="hero-right">
+      <div class="counter-card">
+        <div class="counter-value" id="counter-val">0</div>
+        <div class="counter-label">Sélectionné(s)</div>
+      </div>
+      <div class="prix-card" id="prix-card" style="display:none;">
+        <div class="prix-value" id="prix-val">0.00 $</div>
+        <div class="prix-label">taxes incluses</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     STEPS BAR
+══════════════════════════════════════════ -->
+<div class="steps-bar" id="steps-bar" style="display:none;">
+  <div class="steps-inner">
+    <div class="step-item"><div class="step-num">1</div><div class="step-text">Parcourez vos photos</div></div>
+    <div class="step-sep">›</div>
+    <div class="step-item"><div class="step-num">2</div><div class="step-text">Cliquez ♡ pour sélectionner</div></div>
+    <div class="step-sep">›</div>
+    <div class="step-item"><div class="step-num">3</div><div class="step-text">Vérifiez le récapitulatif</div></div>
+    <div class="step-sep">›</div>
+    <div class="step-item"><div class="step-num">4</div><div class="step-text">Payez en ligne par carte</div></div>
+    <div class="step-sep">›</div>
+    <div class="step-item"><div class="step-num">5</div><div class="step-text">Téléchargez en HD</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MAIN
+══════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- Chargement -->
+  <div id="loading-state" class="state-center">
+    <div class="loading-spinner"></div>
+    <p style="color:var(--gray);font-size:14px;">Chargement de votre galerie privée...</p>
+  </div>
+
+  <!-- Erreur -->
+  <div id="error-state" class="state-center" style="display:none;">
+    <div class="state-icon">🔒</div>
+    <div class="state-title">Galerie introuvable</div>
+    <p class="state-text" id="error-msg">Ce lien est expiré ou invalide.<br>Contactez CapturAir pour un nouveau lien.</p>
+    <a href="mailto:info@capturair.com" style="display:inline-flex;align-items:center;gap:8px;margin-top:1.5rem;color:var(--blue);font-size:14px;text-decoration:none;">✉️ info@capturair.com</a>
+  </div>
+
+  <!-- Galerie -->
+  <div id="galerie-content" style="display:none;">
+    <div class="galerie-header">
+      <div>
+        <div class="section-tag">Votre galerie privée</div>
+        <h2 class="section-title" id="galerie-count">Photos <strong>disponibles</strong></h2>
+      </div>
+      <button class="btn-tout" onclick="toutSelectionner()">Tout sélectionner / désélectionner</button>
+    </div>
+    <div class="galerie-grid" id="galerie-grid"></div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     BARRE PAIEMENT FIXE
+══════════════════════════════════════════ -->
+<div class="payment-bar" id="payment-bar">
+  <div>
+    <div class="payment-title" id="pay-titre">Votre sélection</div>
+    <div class="payment-detail" id="pay-detail"></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+    <div class="payment-total" id="pay-total"></div>
+    <button class="btn-payer" onclick="ouvrirRecap()">💳 Procéder au paiement</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     LIGHTBOX
+══════════════════════════════════════════ -->
+<div class="lightbox" id="lightbox" onclick="closeLightboxOutside(event)">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <button class="lightbox-nav lightbox-prev" onclick="event.stopPropagation();lightboxNav(-1)">‹</button>
+  <img class="lightbox-img" id="lightbox-img" src="" alt="">
+  <button class="lightbox-nav lightbox-next" onclick="event.stopPropagation();lightboxNav(1)">›</button>
+  <div class="lightbox-info" id="lightbox-info"></div>
+  <button class="lightbox-select" id="lightbox-select-btn" onclick="event.stopPropagation();toggleFromLightbox()">♡ Sélectionner cette photo</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODAL RÉCAPITULATIF
+══════════════════════════════════════════ -->
+<div class="modal-overlay" id="recap-modal">
+  <div class="modal-box">
+    <div class="modal-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="modal-title">Récapitulatif</div>
+    <div class="modal-subtitle">Vérifiez votre sélection avant de payer</div>
+    <div id="recap-list"></div>
+    <div style="padding:12px 0;border-bottom:1px solid rgba(200,216,232,0.07);" id="recap-taxes"></div>
+    <div class="recap-total-line">
+      <span class="recap-total-label">Total</span>
+      <span class="recap-total-val" id="recap-total-val"></span>
+    </div>
+    <p style="font-size:11px;color:rgba(200,216,232,0.25);text-align:center;margin-top:14px;letter-spacing:0.5px;">PAIEMENT SÉCURISÉ STRIPE · VISA · MASTERCARD · APPLE PAY</p>
+    <button class="btn-confirmer" id="btn-payer-stripe" onclick="procederPaiement()">💳 Confirmer et payer en ligne</button>
+    <button class="btn-retour" onclick="fermerRecap()">← Modifier ma sélection</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     FOOTER — identique à capturair.com
+══════════════════════════════════════════ -->
+<footer>
+  <div class="footer-logo">Captur<span>Air</span></div>
+  <div class="footer-copy">© 2026 CapturAir · Tous droits réservés · Lavaltrie, QC</div>
+  <div class="footer-links">
+    <a href="mailto:info@capturair.com">info@capturair.com</a>
+    <a href="tel:+15144466078">514 446-6078</a>
+    <a href="https://capturair.com">capturair.com</a>
+  </div>
+</footer>
+
+<script>
+const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
+let token = '', projet = null, medias = [], selections = new Set(), commentaires = {}, lightboxIndex = 0;
+
+// ── MÉTÉO (même que l'index) ──────────────────────────────────────────
+fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FToronto')
+  .then(r => r.json()).then(d => {
+    const icons = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',61:'🌧️',71:'🌨️',80:'🌦️',95:'⛈️'};
+    document.getElementById('w-icon').textContent = icons[d.current.weather_code] || '🌡️';
+    const c = Math.round(d.current.temperature_2m), f = Math.round(c * 9/5 + 32);
+    document.getElementById('w-temp').textContent = `${c}°C · ${f}°F`;
+  }).catch(() => {});
+
+// ── NAV SCROLL (même que l'index) ────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.querySelector('nav').style.background =
+    window.scrollY > 20 ? 'rgba(11,31,58,0.99)' : 'rgba(11,31,58,0.96)';
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────
+(async () => {
+  const params = new URLSearchParams(window.location.search);
+  token = params.get('token') || '';
+  if (!token) { showError('Aucun lien valide fourni. Utilisez le lien reçu par email.'); return; }
+  if (params.get('cancelled')) showNotif('Paiement annulé — vous pouvez modifier votre sélection.');
+
+  try {
+    const res = await fetch(`${API}/api/portail/galerie/${token}`);
+    const data = await res.json();
+    if (!res.ok || data.error) { showError(data.error || 'Galerie introuvable ou expirée.'); return; }
+
+    projet = data.projet;
+    document.title = `${projet.nom} — CapturAir`;
+    document.getElementById('nav-projet').innerHTML = `<strong>${projet.nom}</strong>`;
+    document.getElementById('hero-title').innerHTML = `Bonjour ${projet.client_nom} !<br><strong>Votre galerie est prête</strong>`;
+    document.getElementById('hero-client').textContent = projet.nom;
+    document.getElementById('hero-expiry').innerHTML = `⏰ Disponible jusqu'au ${new Date(projet.token_expires).toLocaleDateString('fr-CA', {day:'numeric',month:'long',year:'numeric'})}`;
+    document.getElementById('hero-banner').style.display = 'block';
+    document.getElementById('steps-bar').style.display = 'block';
+
+    const [mediaRes, selRes] = await Promise.all([
+      fetch(`${API}/api/portail/galerie/${token}/medias`),
+      fetch(`${API}/api/portail/galerie/${token}/selection`)
+    ]);
+    medias = (await mediaRes.json()).medias || [];
+    ((await selRes.json()).selections || []).forEach(s => {
+      selections.add(s.media_id);
+      if (s.commentaire_client) commentaires[s.media_id] = s.commentaire_client;
+    });
+
+    document.getElementById('galerie-count').innerHTML =
+      `${medias.length} photo${medias.length > 1 ? 's' : ''} <strong>disponible${medias.length > 1 ? 's' : ''}</strong>`;
+
+    renderGalerie();
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('galerie-content').style.display = 'block';
+    updateCounter();
+  } catch(e) {
+    showError('Erreur de chargement. Vérifiez votre connexion internet.');
+  }
+})();
+
+// ── RENDU ─────────────────────────────────────────────────────────────
+function renderGalerie() {
+  document.getElementById('galerie-grid').innerHTML = medias.map((m, i) => `
+    <div class="photo-card ${selections.has(m.id) ? 'selected' : ''}" id="card-${m.id}">
+      <div class="selected-check">✓</div>
+      <div class="photo-img-wrap" onclick="openLightbox(${i})">
+        ${m.type === 'VIDEO'
+          ? `<div class="video-thumb"><span>🎬</span><p>${m.nom_fichier}</p></div>`
+          : `<img class="photo-img" src="${m.preview_url || ''}" alt="${m.nom_fichier}" loading="lazy" onerror="this.style.opacity=0.2">`}
+        <div class="watermark-tag">PREVIEW</div>
+        <div class="galerie-overlay"><span class="galerie-label">Cliquer pour agrandir</span></div>
+      </div>
+      <div class="photo-footer">
+        <span class="photo-name">${m.nom_fichier}</span>
+        <button class="select-btn ${selections.has(m.id) ? 'active' : ''}" onclick="toggleSelection('${m.id}',event)" title="Sélectionner">
+          ${selections.has(m.id) ? '✓' : '♡'}
+        </button>
+      </div>
+      <div class="comment-zone" id="comment-${m.id}" style="${selections.has(m.id) ? '' : 'display:none'}">
+        <textarea placeholder="Commentaire (optionnel)..." onchange="commentaires['${m.id}']=this.value;sauvegarderSelection()">${commentaires[m.id] || ''}</textarea>
+      </div>
+    </div>`).join('');
+}
+
+// ── SÉLECTION ─────────────────────────────────────────────────────────
+function toggleSelection(id, e) {
+  if (e) e.stopPropagation();
+  selections.has(id) ? selections.delete(id) : selections.add(id);
+  const card = document.getElementById('card-'+id);
+  const btn = card.querySelector('.select-btn');
+  const comment = document.getElementById('comment-'+id);
+  const sel = selections.has(id);
+  card.classList.toggle('selected', sel);
+  btn.classList.toggle('active', sel);
+  btn.textContent = sel ? '✓' : '♡';
+  if (comment) comment.style.display = sel ? 'block' : 'none';
+  updateCounter(); updateLightboxBtn(); sauvegarderSelection();
+}
+
+function toutSelectionner() {
+  const tous = medias.every(m => selections.has(m.id));
+  if (tous) selections.clear(); else medias.forEach(m => selections.add(m.id));
+  renderGalerie(); updateCounter(); sauvegarderSelection();
+}
+
+let saveTO = null;
+function sauvegarderSelection() {
+  clearTimeout(saveTO);
+  saveTO = setTimeout(() => {
+    fetch(`${API}/api/portail/galerie/${token}/selection`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ media_ids: Array.from(selections), commentaires })
+    }).catch(()=>{});
+  }, 800);
+}
+
+// ── PRIX ──────────────────────────────────────────────────────────────
+function calculerPrix() {
+  if (!projet) return {base:0,tps:0,tvq:0,total:0};
+  let base = 0;
+  if (projet.modele_prix === 'FORFAIT') {
+    base = projet.prix_base || 0;
+  } else {
+    const nbP = Array.from(selections).filter(id => medias.find(m=>m.id===id)?.type==='PHOTO').length;
+    const nbV = Array.from(selections).filter(id => medias.find(m=>m.id===id)?.type==='VIDEO').length;
+    const extras = Math.max(0, nbP - (projet.nb_photos_incluses||0));
+    base = (projet.prix_base||0) + extras*(projet.prix_par_photo||0) + nbV*(projet.prix_par_video||0);
+  }
+  const tps = base*0.05, tvq = base*0.09975;
+  return {base, tps, tvq, total: base+tps+tvq};
+}
+
+function updateCounter() {
+  const nb = selections.size, prix = calculerPrix();
+  document.getElementById('counter-val').textContent = nb;
+  const prixCard = document.getElementById('prix-card');
+  prixCard.style.display = nb > 0 ? 'block' : 'none';
+  if (nb > 0) document.getElementById('prix-val').textContent = `${prix.total.toFixed(2)} $`;
+  const bar = document.getElementById('payment-bar');
+  if (nb > 0) {
+    bar.classList.add('visible');
+    document.getElementById('pay-titre').textContent = `${nb} photo${nb>1?'s':''} sélectionnée${nb>1?'s':''}`;
+    document.getElementById('pay-detail').textContent = `${prix.base.toFixed(2)}$ + TPS ${prix.tps.toFixed(2)}$ + TVQ ${prix.tvq.toFixed(2)}$`;
+    document.getElementById('pay-total').textContent = `${prix.total.toFixed(2)} $`;
+  } else {
+    bar.classList.remove('visible');
+  }
+}
+
+// ── RÉCAP ─────────────────────────────────────────────────────────────
+function ouvrirRecap() {
+  if (!selections.size) return;
+  const prix = calculerPrix();
+  const sel = medias.filter(m => selections.has(m.id));
+  document.getElementById('recap-list').innerHTML = sel.map(m => `
+    <div class="recap-item">
+      <span class="recap-icon">${m.type==='VIDEO'?'🎬':'📸'}</span>
+      <span class="recap-name">${m.nom_fichier}</span>
+      <span class="recap-prix">${m.type==='VIDEO'?(projet.prix_par_video||0):(projet.prix_par_photo||0)} $</span>
+    </div>`).join('');
+  document.getElementById('recap-taxes').innerHTML = `
+    <div class="recap-tax-line"><span>Sous-total</span><span>${prix.base.toFixed(2)} $</span></div>
+    <div class="recap-tax-line"><span>TPS (5%)</span><span>${prix.tps.toFixed(2)} $</span></div>
+    <div class="recap-tax-line"><span>TVQ (9.975%)</span><span>${prix.tvq.toFixed(2)} $</span></div>`;
+  document.getElementById('recap-total-val').textContent = `${prix.total.toFixed(2)} $`;
+  document.getElementById('recap-modal').classList.add('active');
+}
+
+function fermerRecap() { document.getElementById('recap-modal').classList.remove('active'); }
+
+async function procederPaiement() {
+  const btn = document.getElementById('btn-payer-stripe');
+  btn.disabled = true;
+  btn.innerHTML = '<div style="width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.6s linear infinite;"></div>&nbsp;Génération du paiement...';
+  try {
+    const res = await fetch(`${API}/api/portail/galerie/${token}/checkout`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ media_ids: Array.from(selections) })
+    });
+    const data = await res.json();
+    if (data.payment_url) { window.location.href = data.payment_url; }
+    else { alert('Erreur : ' + (data.error || 'Impossible de créer le paiement')); btn.disabled=false; btn.innerHTML='💳 Confirmer et payer en ligne'; }
+  } catch(e) {
+    alert('Erreur de connexion.'); btn.disabled=false; btn.innerHTML='💳 Confirmer et payer en ligne';
+  }
+}
+
+// ── LIGHTBOX ──────────────────────────────────────────────────────────
+function openLightbox(i) { lightboxIndex=i; updateLightbox(); document.getElementById('lightbox').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); document.body.style.overflow=''; }
+function closeLightboxOutside(e) { if (e.target===document.getElementById('lightbox')) closeLightbox(); }
+function lightboxNav(dir) { lightboxIndex=(lightboxIndex+dir+medias.length)%medias.length; updateLightbox(); }
+function updateLightbox() {
+  const m = medias[lightboxIndex]; if (!m) return;
+  const img = document.getElementById('lightbox-img');
+  img.src = m.preview_url||''; img.style.display = m.type==='VIDEO'?'none':'block';
+  document.getElementById('lightbox-info').textContent = `${lightboxIndex+1} / ${medias.length} — ${m.nom_fichier}`;
+  updateLightboxBtn();
+}
+function updateLightboxBtn() {
+  const m = medias[lightboxIndex]; if (!m) return;
+  const btn = document.getElementById('lightbox-select-btn'), sel = selections.has(m.id);
+  btn.textContent = sel ? '✓ Sélectionnée' : '♡ Sélectionner cette photo';
+  btn.style.background = sel ? '#1ABC9C' : 'var(--blue)';
+}
+function toggleFromLightbox() { const m=medias[lightboxIndex]; if(m) toggleSelection(m.id); }
+
+// ── HELPERS ───────────────────────────────────────────────────────────
+function showError(msg) {
+  document.getElementById('loading-state').style.display='none';
+  document.getElementById('error-msg').innerHTML = msg;
+  document.getElementById('error-state').style.display='block';
+}
+function showNotif(msg) {
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(26,143,209,0.9);color:white;padding:12px 24px;border-radius:10px;font-size:13px;z-index:300;backdrop-filter:blur(8px);font-family:DM Sans,sans-serif;';
+  el.textContent = msg; document.body.appendChild(el); setTimeout(()=>el.remove(),5000);
+}
+
+// Clavier
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key==='ArrowLeft') lightboxNav(-1);
+  else if (e.key==='ArrowRight') lightboxNav(1);
+  else if (e.key==='Escape') closeLightbox();
+  else if (e.key===' ') { e.preventDefault(); toggleFromLightbox(); }
+});
+</script>
+</body>
+</html>
