@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portail — CapturAir</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #1B2A47; --blue: #2E4A7A; --teal: #1ABC9C;
+      --light-blue: #D6E4F7; --grey: #F5F7FA; --border: #DEE4EF;
+      --text: #1B2A47; --muted: #6B7A99; --red: #C00000;
+      --green: #006400; --light-green: #C6EFCE; --light-red: #FFC7CE;
+      --orange: #E67E22; --light-orange: #FCE4D6; --yellow: #FFF2CC;
+    }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--grey); color: var(--text); }
+
+    /* SIDEBAR */
+    .sidebar { position: fixed; left:0; top:0; bottom:0; width:240px; background:var(--navy); padding:1.5rem 0; z-index:100; overflow-y:auto; }
+    .sidebar-logo { padding:0 1.5rem 1.5rem; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:1rem; text-align:center; }
+    .sidebar-logo h2 { color:white; font-size:20px; font-weight:700; }
+    .sidebar-logo p { color:rgba(255,255,255,0.5); font-size:12px; margin-top:2px; }
+    .nav-item { display:flex; align-items:center; gap:10px; padding:11px 1.5rem; color:rgba(255,255,255,0.6); cursor:pointer; font-size:14px; transition:all 0.15s; border-left:3px solid transparent; }
+    .nav-item:hover { color:white; background:rgba(255,255,255,0.05); }
+    .nav-item.active { color:white; background:rgba(255,255,255,0.1); border-left-color:var(--teal); }
+    .nav-section { padding:1rem 1.5rem 0.4rem; font-size:10px; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,0.3); font-weight:600; }
+    .sidebar-bottom { position:absolute; bottom:1rem; left:0; right:0; padding:0 1.5rem; }
+    .btn-logout { width:100%; padding:10px; background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.15); border-radius:8px; cursor:pointer; font-size:13px; }
+
+    /* MAIN */
+    .main { margin-left:240px; padding:2rem; min-height:100vh; }
+    .page { display:none; }
+    .page.active { display:block; }
+    .page-header { margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; }
+    .page-header h1 { font-size:24px; font-weight:700; color:var(--navy); }
+    .page-header p { color:var(--muted); font-size:14px; margin-top:4px; }
+
+    /* STATS */
+    .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
+    .stat-card { background:white; border-radius:12px; padding:1.25rem; border:1px solid var(--border); }
+    .stat-icon { font-size:24px; margin-bottom:8px; }
+    .stat-value { font-size:28px; font-weight:700; color:var(--navy); }
+    .stat-label { font-size:13px; color:var(--muted); margin-top:2px; }
+
+    /* CARDS */
+    .card { background:white; border-radius:12px; border:1px solid var(--border); padding:1.5rem; margin-bottom:1rem; }
+    .card-title { font-size:16px; font-weight:600; color:var(--navy); margin-bottom:1rem; display:flex; align-items:center; gap:8px; }
+
+    /* FORM */
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .field { display:flex; flex-direction:column; gap:5px; }
+    .field.full { grid-column:1/-1; }
+    .field label { font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.4px; }
+    .field input, .field select, .field textarea { padding:10px 14px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; font-family:inherit; outline:none; transition:border-color 0.2s; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color:#4472C4; }
+    .field textarea { resize:vertical; min-height:80px; }
+
+    /* BUTTONS */
+    .btn { padding:10px 20px; border-radius:8px; border:none; cursor:pointer; font-size:14px; font-weight:600; transition:all 0.15s; }
+    .btn-primary { background:var(--navy); color:white; }
+    .btn-primary:hover { background:var(--blue); }
+    .btn-success { background:var(--teal); color:white; }
+    .btn-danger { background:white; color:var(--red); border:1.5px solid var(--light-red); }
+    .btn-danger:hover { background:var(--light-red); }
+    .btn-secondary { background:white; color:var(--muted); border:1.5px solid var(--border); }
+    .btn-sm { padding:6px 12px; font-size:12px; }
+    .btn-group { display:flex; gap:8px; flex-wrap:wrap; margin-top:1rem; }
+
+    /* BADGES */
+    .badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+    .badge-attente { background:var(--yellow); color:#7d6608; }
+    .badge-envoye { background:var(--light-blue); color:var(--blue); }
+    .badge-selection { background:var(--light-orange); color:var(--orange); }
+    .badge-paye { background:var(--light-green); color:var(--green); }
+    .badge-livre { background:#d5f5ee; color:#085041; }
+    .badge-expire { background:#e8e8e8; color:#666; }
+
+    /* TABLE */
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th { background:var(--grey); padding:10px 12px; text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); font-weight:600; border-bottom:1px solid var(--border); }
+    td { padding:12px; border-bottom:1px solid var(--border); }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--grey); }
+
+    /* ALERTS */
+    .alert { padding:12px 16px; border-radius:8px; font-size:13px; margin-bottom:1rem; }
+    .alert-success { background:var(--light-green); color:var(--green); }
+    .alert-error { background:var(--light-red); color:var(--red); }
+    .alert-info { background:var(--light-blue); color:var(--blue); }
+
+    /* UPLOAD ZONE */
+    .upload-zone { border:2px dashed var(--border); border-radius:12px; padding:3rem; text-align:center; cursor:pointer; transition:all 0.2s; }
+    .upload-zone:hover, .upload-zone.dragover { border-color:#4472C4; background:var(--light-blue); }
+    .upload-zone p { color:var(--muted); margin-top:8px; font-size:14px; }
+
+    /* GALERIE PREVIEW */
+    .galerie-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; margin-top:1rem; }
+    .galerie-item { position:relative; border-radius:10px; overflow:hidden; border:1px solid var(--border); }
+    .galerie-item img { width:100%; height:120px; object-fit:cover; display:block; }
+    .galerie-item .remove-btn { position:absolute; top:6px; right:6px; background:rgba(192,0,0,0.8); color:white; border:none; border-radius:50%; width:24px; height:24px; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; }
+    .galerie-item .media-name { padding:6px 8px; font-size:11px; color:var(--muted); background:white; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    /* MODAL */
+    .modal-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:999; align-items:center; justify-content:center; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:white; border-radius:16px; padding:2rem; width:100%; max-width:600px; margin:1rem; max-height:90vh; overflow-y:auto; }
+    .modal-title { font-size:18px; font-weight:700; color:var(--navy); margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; }
+    .modal-close { background:none; border:none; font-size:20px; cursor:pointer; color:var(--muted); }
+
+    /* SPINNER */
+    .spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,0.3); border-top-color:white; border-radius:50%; animation:spin 0.6s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* LIEN GALERIE */
+    .galerie-link { background:var(--light-blue); border-radius:8px; padding:10px 14px; font-size:13px; color:var(--blue); word-break:break-all; margin-top:8px; }
+
+    @media (max-width:768px) {
+      .sidebar { width:100%; position:relative; }
+      .main { margin-left:0; padding:1rem; }
+      .stats-grid { grid-template-columns:repeat(2,1fr); }
+      .form-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <h2>🚁 CapturAir</h2>
+    <p>Portail Admin</p>
+  </div>
+  <div class="nav-section">Principal</div>
+  <div class="nav-item active" onclick="showPage('dashboard')">📊 Tableau de bord</div>
+  <div class="nav-item" onclick="showPage('projets')">📁 Projets</div>
+  <div class="nav-item" onclick="showPage('nouveau')">➕ Nouveau projet</div>
+  <div class="nav-section">Liens</div>
+  <div class="nav-item" onclick="window.open('https://capturair.com/carnet.html')">📋 Carnet de vol</div>
+  <div class="nav-item" onclick="window.open('https://dashboard.stripe.com')">💳 Stripe Dashboard</div>
+  <div class="sidebar-bottom">
+    <button class="btn-logout" onclick="logout()">🔓 Déconnexion</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- TABLEAU DE BORD -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-header">
+      <div>
+        <h1>📊 Tableau de bord</h1>
+        <p id="dash-date"></p>
+      </div>
+      <button class="btn btn-primary" onclick="showPage('nouveau')">➕ Nouveau projet</button>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">📁</div><div class="stat-value" id="s-total">—</div><div class="stat-label">Projets totaux</div></div>
+      <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-value" id="s-revenus">—</div><div class="stat-label">Revenus totaux</div></div>
+      <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="s-payes">—</div><div class="stat-label">Projets payés</div></div>
+      <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-value" id="s-attente">—</div><div class="stat-label">En attente</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📁 Projets récents</div>
+      <div id="recent-projets"><div style="text-align:center;padding:2rem;color:var(--muted);">Chargement...</div></div>
+    </div>
+  </div>
+
+  <!-- LISTE PROJETS -->
+  <div class="page" id="page-projets">
+    <div class="page-header">
+      <div><h1>📁 Tous les projets</h1><p>Gérer vos projets clients</p></div>
+      <button class="btn btn-primary" onclick="showPage('nouveau')">➕ Nouveau projet</button>
+    </div>
+    <div id="projets-alert"></div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Projet</th><th>Client</th><th>Soumission</th><th>Prix</th><th>Statut</th><th>Créé le</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="projets-tbody">
+            <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted);">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOUVEAU PROJET -->
+  <div class="page" id="page-nouveau">
+    <div class="page-header">
+      <div><h1>➕ Nouveau projet</h1><p>Créer un espace galerie pour un client</p></div>
+    </div>
+    <div id="nouveau-alert"></div>
+    <div class="card">
+      <div class="card-title">👤 Informations client</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Nom du client *</label>
+          <input type="text" id="n-client-nom" placeholder="Jean Tremblay">
+        </div>
+        <div class="field">
+          <label>Email du client *</label>
+          <input type="email" id="n-client-email" placeholder="jean@exemple.com">
+        </div>
+        <div class="field">
+          <label>Nom du projet</label>
+          <input type="text" id="n-nom" placeholder="Maison Tremblay — Lavaltrie">
+        </div>
+        <div class="field">
+          <label>N° soumission Excel</label>
+          <input type="text" id="n-soumission" placeholder="CA-2026-001">
+        </div>
+        <div class="field full">
+          <label>Note interne (non visible client)</label>
+          <textarea id="n-note" placeholder="Notes internes sur ce projet..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">💰 Tarification</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Modèle de prix</label>
+          <select id="n-modele" onchange="updatePrixFields()">
+            <option value="FORFAIT">Forfait fixe</option>
+            <option value="CARTE">À la carte</option>
+            <option value="FORFAIT_EXTRAS">Forfait + extras</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Prix de base ($)</label>
+          <input type="number" id="n-prix-base" placeholder="349.00" step="0.01">
+        </div>
+        <div class="field" id="field-prix-photo" style="display:none;">
+          <label>Prix par photo supplémentaire ($)</label>
+          <input type="number" id="n-prix-photo" placeholder="15.00" step="0.01">
+        </div>
+        <div class="field" id="field-prix-video" style="display:none;">
+          <label>Prix par vidéo ($)</label>
+          <input type="number" id="n-prix-video" placeholder="75.00" step="0.01">
+        </div>
+        <div class="field" id="field-nb-photos" style="display:none;">
+          <label>Nombre de photos incluses dans le forfait</label>
+          <input type="number" id="n-nb-photos" placeholder="10">
+        </div>
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="createProjet()">✅ Créer le projet</button>
+      <button class="btn btn-secondary" onclick="resetNouveauForm()">Effacer</button>
+    </div>
+  </div>
+
+  <!-- DÉTAIL PROJET -->
+  <div class="page" id="page-detail">
+    <div class="page-header">
+      <div>
+        <h1 id="detail-titre">Projet</h1>
+        <p id="detail-sous-titre"></p>
+      </div>
+      <button class="btn btn-secondary" onclick="showPage('projets')">← Retour</button>
+    </div>
+    <div id="detail-alert"></div>
+
+    <!-- Infos projet -->
+    <div class="card">
+      <div class="card-title">📋 Informations</div>
+      <div id="detail-infos"></div>
+    </div>
+
+    <!-- Upload médias -->
+    <div class="card">
+      <div class="card-title">📸 Photos & Vidéos</div>
+      <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+        <div style="font-size:48px;">📸</div>
+        <p><strong>Glisser-déposer</strong> tes photos et vidéos ici</p>
+        <p>ou cliquer pour sélectionner</p>
+        <p style="font-size:12px;margin-top:8px;">JPG, PNG, MP4 acceptés</p>
+      </div>
+      <input type="file" id="file-input" multiple accept="image/*,video/*" style="display:none" onchange="uploadFiles(event)">
+      <div id="upload-progress" style="margin-top:1rem;"></div>
+      <div class="galerie-grid" id="galerie-preview"></div>
+    </div>
+
+    <!-- Lien galerie + Stripe -->
+    <div class="card">
+      <div class="card-title">🔗 Envoi & Paiement</div>
+      <div id="galerie-link-box" style="margin-bottom:1rem;"></div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Montant à facturer ($) — TPS+TVQ incluses</label>
+          <input type="number" id="stripe-montant" placeholder="417.36" step="0.01">
+        </div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-success" onclick="envoyerGalerie()">📧 Envoyer galerie au client</button>
+        <button class="btn btn-primary" onclick="genererStripeLink()">💳 Générer lien Stripe</button>
+      </div>
+      <div id="stripe-link-box" style="margin-top:1rem;"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL CONFIRMATION -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modal-titre">Confirmation</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <p id="modal-message" style="color:var(--muted);margin-bottom:1.5rem;"></p>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-primary" style="flex:1;" id="modal-confirm-btn">Confirmer</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
+const CARNET_API = 'https://capturair-carnet.tumarchessurlatete.workers.dev';
+let TOKEN = localStorage.getItem('carnet_token') || null;
+let currentProjetId = null;
+let currentProjets = [];
+
+// ── AUTH ──────────────────────────────────────────────────────────────
+if (!TOKEN) {
+  window.location.href = 'carnet.html';
+}
+
+// Vérifier que le token est valide
+try {
+  const payload = JSON.parse(atob(TOKEN));
+  if (payload.exp < Date.now()) {
+    localStorage.removeItem('carnet_token');
+    window.location.href = 'carnet.html';
+  }
+  if (payload.role !== 'admin' && payload.role !== 'superadmin') {
+    alert('Accès réservé aux administrateurs');
+    window.location.href = 'carnet.html';
+  }
+} catch(e) {
+  window.location.href = 'carnet.html';
+}
+
+function logout() {
+  localStorage.removeItem('carnet_token');
+  window.location.href = 'carnet.html';
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event?.currentTarget?.classList.add('active');
+
+  if (name === 'dashboard') loadDashboard();
+  if (name === 'projets') loadProjets();
+  if (name === 'detail' && currentProjetId) loadDetail(currentProjetId);
+}
+
+// ── API ───────────────────────────────────────────────────────────────
+async function api(path, method = 'GET', body = null) {
+  const opts = { method, headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  return res.json();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────
+async function loadDashboard() {
+  document.getElementById('dash-date').textContent = new Date().toLocaleDateString('fr-CA', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  const stats = await api('/api/portail/stats');
+  document.getElementById('s-total').textContent = stats.total_projets || 0;
+  document.getElementById('s-revenus').textContent = '$' + (stats.revenus_total || 0).toFixed(2);
+  document.getElementById('s-payes').textContent = stats.projets_payes || 0;
+  document.getElementById('s-attente').textContent = stats.projets_en_attente || 0;
+
+  const data = await api('/api/portail/projets');
+  const projets = (data.projets || []).slice(0, 8);
+  currentProjets = data.projets || [];
+
+  if (!projets.length) {
+    document.getElementById('recent-projets').innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);">Aucun projet — <a href="#" onclick="showPage(\'nouveau\')">Créer le premier</a></div>';
+    return;
+  }
+
+  document.getElementById('recent-projets').innerHTML = projets.map(p => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="ouvrirDetail('${p.id}')">
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;color:var(--navy);">${p.nom}</div>
+        <div style="font-size:12px;color:var(--muted);">${p.client_nom} · ${p.client_email} ${p.num_soumission ? '· ' + p.num_soumission : ''}</div>
+      </div>
+      ${getBadge(p.statut)}
+      <div style="font-size:13px;color:var(--muted);">${p.prix_base ? '$' + p.prix_base : '—'}</div>
+    </div>
+  `).join('');
+}
+
+// ── PROJETS ───────────────────────────────────────────────────────────
+async function loadProjets() {
+  const data = await api('/api/portail/projets');
+  currentProjets = data.projets || [];
+
+  if (!currentProjets.length) {
+    document.getElementById('projets-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted);">Aucun projet</td></tr>';
+    return;
+  }
+
+  document.getElementById('projets-tbody').innerHTML = currentProjets.map(p => `
+    <tr style="cursor:pointer;" onclick="ouvrirDetail('${p.id}')">
+      <td style="font-weight:600;">${p.nom}</td>
+      <td>${p.client_nom}<br><span style="font-size:11px;color:var(--muted);">${p.client_email}</span></td>
+      <td style="font-size:12px;">${p.num_soumission || '—'}</td>
+      <td>${p.prix_base ? '$' + p.prix_base : '—'}</td>
+      <td>${getBadge(p.statut)}</td>
+      <td style="font-size:12px;">${p.created_at ? p.created_at.split('T')[0] : '—'}</td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();ouvrirDetail('${p.id}')">Ouvrir</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function getBadge(statut) {
+  const map = {
+    'EN_ATTENTE': 'badge-attente', 'ENVOYE': 'badge-envoye',
+    'SELECTION': 'badge-selection', 'PAYE': 'badge-paye',
+    'LIVRE': 'badge-livre', 'EXPIRE': 'badge-expire'
+  };
+  return `<span class="badge ${map[statut] || 'badge-attente'}">${statut}</span>`;
+}
+
+// ── NOUVEAU PROJET ────────────────────────────────────────────────────
+function updatePrixFields() {
+  const modele = document.getElementById('n-modele').value;
+  document.getElementById('field-prix-photo').style.display = modele !== 'FORFAIT' ? 'flex' : 'none';
+  document.getElementById('field-prix-video').style.display = modele !== 'FORFAIT' ? 'flex' : 'none';
+  document.getElementById('field-nb-photos').style.display = modele === 'FORFAIT_EXTRAS' ? 'flex' : 'none';
+}
+
+async function createProjet() {
+  const nom = document.getElementById('n-client-nom').value.trim();
+  const email = document.getElementById('n-client-email').value.trim();
+  if (!nom || !email) { showAlert('nouveau-alert', 'Nom et email client requis', 'error'); return; }
+
+  const body = {
+    client_nom: nom,
+    client_email: email,
+    nom: document.getElementById('n-nom').value || `Projet ${nom}`,
+    num_soumission: document.getElementById('n-soumission').value,
+    note_admin: document.getElementById('n-note').value,
+    modele_prix: document.getElementById('n-modele').value,
+    prix_base: parseFloat(document.getElementById('n-prix-base').value) || 0,
+    prix_par_photo: parseFloat(document.getElementById('n-prix-photo').value) || 0,
+    prix_par_video: parseFloat(document.getElementById('n-prix-video').value) || 0,
+    nb_photos_incluses: parseInt(document.getElementById('n-nb-photos').value) || 0,
+  };
+
+  const res = await api('/api/portail/projets', 'POST', body);
+  if (res.success) {
+    showAlert('nouveau-alert', '✅ Projet créé ! Ouverture...', 'success');
+    resetNouveauForm();
+    setTimeout(() => ouvrirDetail(res.id), 1000);
+  } else {
+    showAlert('nouveau-alert', '❌ ' + (res.error || 'Erreur'), 'error');
+  }
+}
+
+function resetNouveauForm() {
+  ['n-client-nom','n-client-email','n-nom','n-soumission','n-note','n-prix-base','n-prix-photo','n-prix-video','n-nb-photos'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+}
+
+// ── DÉTAIL PROJET ─────────────────────────────────────────────────────
+async function ouvrirDetail(id) {
+  currentProjetId = id;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-detail').classList.add('active');
+  await loadDetail(id);
+}
+
+async function loadDetail(id) {
+  const data = await api('/api/portail/projets/' + id);
+  if (!data.projet) return;
+
+  const p = data.projet;
+  const galerieUrl = `https://capturair.com/client.html?token=${p.token_acces}`;
+
+  document.getElementById('detail-titre').textContent = p.nom;
+  document.getElementById('detail-sous-titre').textContent = `${p.client_nom} · ${p.client_email} · ${getBadge(p.statut).replace(/<[^>]+>/g, '')}`;
+
+  document.getElementById('detail-infos').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div><strong>Client :</strong> ${p.client_nom}</div>
+      <div><strong>Email :</strong> ${p.client_email}</div>
+      <div><strong>N° Soumission :</strong> ${p.num_soumission || '—'}</div>
+      <div><strong>Statut :</strong> ${getBadge(p.statut)}</div>
+      <div><strong>Modèle de prix :</strong> ${p.modele_prix}</div>
+      <div><strong>Prix de base :</strong> $${p.prix_base || 0}</div>
+      <div><strong>Expiration galerie :</strong> ${p.token_expires ? new Date(p.token_expires).toLocaleDateString('fr-CA') : '—'}</div>
+      <div><strong>Payé le :</strong> ${p.paid_at ? new Date(p.paid_at).toLocaleDateString('fr-CA') : '—'}</div>
+    </div>
+    ${p.note_admin ? `<div style="margin-top:1rem;padding:10px;background:var(--grey);border-radius:8px;font-size:13px;color:var(--muted);">📝 ${p.note_admin}</div>` : ''}
+  `;
+
+  // Lien galerie
+  document.getElementById('galerie-link-box').innerHTML = `
+    <div style="font-size:13px;font-weight:600;margin-bottom:4px;">🔗 Lien galerie client :</div>
+    <div class="galerie-link">${galerieUrl}</div>
+    <button class="btn btn-sm btn-secondary" style="margin-top:8px;" onclick="navigator.clipboard.writeText('${galerieUrl}');showAlert('detail-alert','✅ Lien copié !','success')">📋 Copier</button>
+  `;
+
+  // Lien Stripe existant
+  if (p.stripe_payment_link) {
+    document.getElementById('stripe-link-box').innerHTML = `
+      <div class="alert alert-info">
+        💳 Lien Stripe existant : <a href="${p.stripe_payment_link}" target="_blank">${p.stripe_payment_link.substring(0, 60)}...</a>
+        <button class="btn btn-sm btn-secondary" style="margin-left:8px;" onclick="navigator.clipboard.writeText('${p.stripe_payment_link}')">📋</button>
+      </div>
+    `;
+  }
+
+  // Pré-remplir le montant Stripe
+  if (p.prix_base) {
+    const montantAvecTaxes = p.prix_base * 1.14975;
+    document.getElementById('stripe-montant').value = montantAvecTaxes.toFixed(2);
+  }
+
+  // Charger les médias
+  await loadMedias(id);
+}
+
+async function loadMedias(projetId) {
+  const data = await api('/api/portail/galerie/' + getTokenForProjet(projetId));
+
+  // Charger depuis l'API admin
+  const detail = await api('/api/portail/projets/' + projetId);
+  const medias = detail.medias || [];
+
+  const grid = document.getElementById('galerie-preview');
+  if (!medias.length) {
+    grid.innerHTML = '<p style="color:var(--muted);font-size:13px;margin-top:1rem;">Aucun média uploadé</p>';
+    return;
+  }
+
+  grid.innerHTML = medias.map(m => `
+    <div class="galerie-item">
+      ${m.type === 'VIDEO'
+        ? `<div style="height:120px;background:#1B2A47;display:flex;align-items:center;justify-content:center;color:white;font-size:32px;">🎬</div>`
+        : `<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23F5F7FA' width='100' height='100'/%3E%3Ctext y='50' x='50' text-anchor='middle' dy='.3em' font-size='40'%3E📸%3C/text%3E%3C/svg%3E" style="width:100%;height:120px;object-fit:cover;">`
+      }
+      <button class="remove-btn" onclick="deleteMedia('${m.id}')">✕</button>
+      <div class="media-name">${m.nom_fichier}</div>
+    </div>
+  `).join('');
+}
+
+function getTokenForProjet(projetId) {
+  const p = currentProjets.find(p => p.id === projetId);
+  return p?.token_acces || '';
+}
+
+// ── UPLOAD ────────────────────────────────────────────────────────────
+function onDragOver(e) { e.preventDefault(); document.getElementById('upload-zone').classList.add('dragover'); }
+function onDragLeave(e) { document.getElementById('upload-zone').classList.remove('dragover'); }
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('dragover');
+  const files = Array.from(e.dataTransfer.files);
+  processFiles(files);
+}
+function uploadFiles(e) { processFiles(Array.from(e.target.files)); }
+
+async function processFiles(files) {
+  if (!currentProjetId) return;
+  const progress = document.getElementById('upload-progress');
+
+  for (const file of files) {
+    progress.innerHTML = `<div class="alert alert-info">⏳ Upload de ${file.name}...</div>`;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch(`${API}/api/portail/projets/${currentProjetId}/medias`, {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + TOKEN },
+        body: formData
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        progress.innerHTML = `<div class="alert alert-success">✅ ${file.name} uploadé !</div>`;
+      } else {
+        progress.innerHTML = `<div class="alert alert-error">❌ Erreur : ${data.error}</div>`;
+      }
+    } catch(e) {
+      progress.innerHTML = `<div class="alert alert-error">❌ Erreur upload</div>`;
+    }
+  }
+
+  setTimeout(() => { progress.innerHTML = ''; }, 3000);
+  await loadDetail(currentProjetId);
+  document.getElementById('file-input').value = '';
+}
+
+async function deleteMedia(mediaId) {
+  if (!confirm('Supprimer ce média ?')) return;
+  await api('/api/portail/medias/' + mediaId, 'DELETE');
+  await loadDetail(currentProjetId);
+}
+
+// ── ENVOYER GALERIE ───────────────────────────────────────────────────
+async function envoyerGalerie() {
+  if (!currentProjetId) return;
+  if (!confirm('Envoyer la galerie par email au client ?')) return;
+
+  const res = await api('/api/portail/projets/' + currentProjetId + '/envoyer', 'POST');
+  if (res.success) {
+    showAlert('detail-alert', '✅ Email envoyé au client avec succès !', 'success');
+    await loadDetail(currentProjetId);
+  } else {
+    showAlert('detail-alert', '❌ ' + (res.error || 'Erreur'), 'error');
+  }
+}
+
+// ── STRIPE LINK ───────────────────────────────────────────────────────
+async function genererStripeLink() {
+  if (!currentProjetId) return;
+  const montant = parseFloat(document.getElementById('stripe-montant').value);
+  if (!montant || montant < 0.5) { showAlert('detail-alert', 'Entre un montant valide', 'error'); return; }
+
+  const montantCents = Math.round(montant * 100);
+  const res = await api('/api/portail/projets/' + currentProjetId + '/stripe-link', 'POST', { montant: montantCents });
+
+  if (res.success) {
+    document.getElementById('stripe-link-box').innerHTML = `
+      <div class="alert alert-success">
+        ✅ Lien Stripe généré !<br>
+        <a href="${res.payment_url}" target="_blank" style="color:var(--green);">${res.payment_url}</a>
+        <button class="btn btn-sm btn-secondary" style="margin-left:8px;" onclick="navigator.clipboard.writeText('${res.payment_url}');showAlert('detail-alert','✅ Lien copié !','success')">📋 Copier</button>
+      </div>
+    `;
+    showAlert('detail-alert', '✅ Lien de paiement Stripe généré !', 'success');
+  } else {
+    showAlert('detail-alert', '❌ ' + (res.error || 'Erreur Stripe'), 'error');
+  }
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────
+function showAlert(id, msg, type) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+  setTimeout(() => { el.innerHTML = ''; }, 4000);
+}
+
+function closeModal() { document.getElementById('confirm-modal').classList.remove('open'); }
+
+// ── INIT ──────────────────────────────────────────────────────────────
+loadDashboard();
+</script>
+</body>
+</html>
