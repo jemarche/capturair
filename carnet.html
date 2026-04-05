@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Carnet de vol — CapturAir</title>
+  <!-- Favicon — identique à capturair.com -->
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <!-- Favicon — identique à capturair.com -->
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -836,8 +844,10 @@
           <div class="field">
             <label>Rôle</label>
             <select id="new-role">
-              <option value="pilote">Pilote</option>
-              <option value="admin">Administrateur</option>
+              <option value="pilote">🚁 Pilote (Carnet de vol)</option>
+              <option value="admin_pilote">✈️ Admin Pilote (Carnet + supervision)</option>
+              <option value="admin_client">🎧 Admin Service Clientèle (Portail client)</option>
+              <option value="utilisateur">👤 Utilisateur (Portail client — ajout seulement)</option>
             </select>
           </div>
           <div class="field">
@@ -981,7 +991,7 @@ async function verifyOTP() {
     document.getElementById('user-name').textContent = data.nom || currentEmail.split('@')[0];
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    if (data.role === 'admin' || data.role === 'superadmin') document.getElementById('nav-admin').style.display = 'flex';
+    if (['admin','superadmin','admin_pilote'].includes(data.role)) document.getElementById('nav-admin').style.display = 'flex';
     initApp();
 
   } catch(e) {
@@ -1032,7 +1042,7 @@ if (TOKEN) {
   document.getElementById('app').style.display = 'block';
   const payload = JSON.parse(atob(TOKEN));
   document.getElementById('user-name').textContent = payload.email.split('@')[0];
-  if (payload.role === 'admin' || payload.role === 'superadmin') document.getElementById('nav-admin').style.display = 'flex';
+  if (['admin','superadmin','admin_pilote'].includes(payload.role)) document.getElementById('nav-admin').style.display = 'flex';
   initApp();
 }
 
@@ -1327,7 +1337,7 @@ async function getMeteo() {
 async function fetchMeteo(lat, lon, nom) {
   document.getElementById('meteo-container').innerHTML = '<div class="empty"><div class="spinner" style="width:32px;height:32px;border-width:3px;border-color:rgba(0,0,0,0.1);border-top-color:var(--navy);"></div></div>';
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_gusts_10m,surface_pressure,visibility,weather_code,precipitation&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,wind_gusts_10m_max,precipitation_sum,weather_code&wind_speed_unit=kmh&timezone=America/Toronto&forecast_days=14`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_gusts_10m,surface_pressure,visibility,weather_code,precipitation&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,wind_gusts_10m_max,precipitation_sum,weather_code&wind_speed_unit=kmh&timezone=America/Toronto`;
     const res = await fetch(url);
     const data = await res.json();
     const c = data.current;
@@ -1457,7 +1467,7 @@ function initMap() {
   if (map) return;
   if (!window.google) {
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBa_29f6i2nUKqTPepHFLYE_pEff8VfogY&callback=initMapCallback&libraries=places`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=VOTRE_CLE_API&callback=initMapCallback&libraries=places`;
     script.async = true;
     document.head.appendChild(script);
   } else {
@@ -1676,6 +1686,14 @@ async function exportPDF() {
 
   const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
   <title>Carnet de vol — CapturAir</title>
+  <!-- Favicon — identique à capturair.com -->
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <!-- Favicon — identique à capturair.com -->
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
   <style>
     body { font-family: Arial, sans-serif; font-size: 10px; margin: 20px; color: #1B2A47; }
     h1 { font-size: 20px; color: #1B2A47; }
@@ -1717,6 +1735,19 @@ async function exportPDF() {
 }
 
 // ── HELPER ────────────────────────────────────────────────────────
+function getRoleBadge(role) {
+  const roles = {
+    'superadmin':   { label: '👑 Superadmin',      cls: 'badge-incident' },
+    'admin_pilote': { label: '✈️ Admin Pilote',     cls: 'badge-commercial' },
+    'admin_client': { label: '🎧 Admin Clientèle',  cls: 'badge-warning' },
+    'utilisateur':  { label: '👤 Utilisateur',      cls: 'badge-loisir' },
+    'pilote':       { label: '🚁 Pilote',           cls: 'badge-ok' },
+    'admin':        { label: '🛡️ Admin',           cls: 'badge-commercial' },
+  };
+  const r = roles[role] || { label: role, cls: 'badge-loisir' };
+  return `<span class="badge ${r.cls}">${r.label}</span>`;
+}
+
 function showAlert(containerId, msg, type) {
   document.getElementById(containerId).innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
   setTimeout(() => { document.getElementById(containerId).innerHTML = ''; }, 4000);
@@ -1745,7 +1776,7 @@ async function loadUsers() {
             <tr>
               <td>${u.email}</td>
               <td>${u.nom || '—'}</td>
-              <td><span class="badge ${u.role === 'admin' ? 'badge-commercial' : 'badge-loisir'}">${u.role}</span></td>
+              <td>${getRoleBadge(u.role)}</td>
               <td style="font-size:12px;">${u.created_at ? u.created_at.split('T')[0] : '—'}</td>
               <td>${u.email !== 'mohand.aidi@mohand.ca' ? `<button class="btn btn-danger btn-sm" onclick="demanderOTPPourAction('supprimer','${u.id}','${u.email}')">Supprimer</button>` : '<span style="font-size:11px;color:var(--text-muted);">Admin principal</span>'}</td>
             </tr>
@@ -1770,6 +1801,12 @@ async function demanderOTPPourAction(action, userId = '', userEmail = '') {
     const nom = document.getElementById('new-nom').value.trim();
     if (!email || !pin || !nom) { showAlert('admin-alert', 'Remplis tous les champs', 'error'); return; }
     if (pin.length < 4) { showAlert('admin-alert', 'PIN minimum 4 chiffres', 'error'); return; }
+    // Validation domaine email
+    const domain = email.split('@')[1]?.toLowerCase();
+    if (!['capturair.com', 'mohand.ca'].includes(domain)) {
+      showAlert('admin-alert', '❌ Adresse email non autorisée. Les comptes CapturAir sont réservés aux domaines CapturAir uniquement. Contactez l'administrateur si vous pensez qu'il s'agit d'une erreur.', 'error');
+      return;
+    }
   }
 
   if (action === 'pin') {
