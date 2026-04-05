@@ -325,7 +325,7 @@
     <div class="state-icon">🔒</div>
     <div class="state-title">Galerie introuvable</div>
     <p class="state-text" id="error-msg">Ce lien est expiré ou invalide.<br>Contactez CapturAir pour un nouveau lien.</p>
-    <a href="/cdn-cgi/l/email-protection#355c5b535a75565445414047545c471b565a58" style="display:inline-flex;align-items:center;gap:8px;margin-top:1.5rem;color:var(--blue);font-size:14px;text-decoration:none;">✉️ <span class="__cf_email__" data-cfemail="fa93949c95ba999b8a8e8f889b9388d4999597">[email&#160;protected]</span></a>
+    <a href="https://capturair.com/#contact" style="display:inline-flex;align-items:center;gap:8px;margin-top:1.5rem;color:var(--blue);font-size:14px;text-decoration:none;">✉️ Nous contacter</a>
   </div>
 
   <!-- Galerie -->
@@ -626,3 +626,15 @@ function showNotif(msg) {
   el.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(26,143,209,0.9);color:white;padding:12px 24px;border-radius:10px;font-size:13px;z-index:300;backdrop-filter:blur(8px);font-family:DM Sans,sans-serif;';
   el.textContent = msg; document.body.appendChild(el); setTimeout(()=>el.remove(),5000);
 }
+
+// Clavier
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key==='ArrowLeft') lightboxNav(-1);
+  else if (e.key==='ArrowRight') lightboxNav(1);
+  else if (e.key==='Escape') closeLightbox();
+  else if (e.key===' ') { e.preventDefault(); toggleFromLightbox(); }
+});
+</script>
+</body>
+</html>
