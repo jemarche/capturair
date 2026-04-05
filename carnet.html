@@ -1688,9 +1688,9 @@ function initChecklist() {
       var checked = saved[key] || false;
       total++; if (checked) done++;
       html += '<div class="checklist-item">';
-      html += '<input type="checkbox" class="checklist-cb" id="cb-' + key + '" ';
+      html += '<input type="checkbox" class="checklist-cb" id="cb-' + key + '" data-key="' + key + '" ';
       if (checked) html += 'checked ';
-      html += 'onchange="saveChecklist(&#39;' + key + '&#39;, this.checked)">';
+      html += 'onchange="saveChecklist(this.dataset.key, this.checked)">';
       html += '<label for="cb-' + key + '" class="checklist-label' + (checked ? ' checked' : '') + '">' + item + '</label>';
       html += '</div>';
     });
