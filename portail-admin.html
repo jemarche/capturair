@@ -533,10 +533,21 @@ function appliquerRestrictionsRole() {
   if (USER_ROLE !== 'superadmin') {
     if (btnSupprimer) { btnSupprimer.disabled = true; btnSupprimer.title = '🔒 Réservé au superadmin'; btnSupprimer.style.opacity = '0.3'; }
   }
-  // Admin et superadmin peuvent modifier
-  // Utilisateur ne peut qu'ajouter et dupliquer
+  // Utilisateur ne peut qu'ajouter et dupliquer — pas modifier, pas les prix
   if (USER_ROLE === 'utilisateur') {
     if (btnModifier) { btnModifier.disabled = true; btnModifier.style.opacity = '0.3'; }
+    // Désactiver les champs de prix
+    ['n-prix-base','n-prix-photo','n-prix-video','n-nb-photos','n-modele'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.disabled = true;
+        el.style.opacity = '0.4';
+        el.title = '🔒 Modification des prix réservée aux administrateurs';
+      }
+    });
+    // Masquer l'aperçu prix
+    const prev = document.getElementById('prix-preview');
+    if (prev) prev.style.display = 'none';
   }
 }
 
