@@ -1083,7 +1083,8 @@ if (TOKEN) {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   const payload = JSON.parse(atob(TOKEN));
-  document.getElementById('user-name').textContent = payload.email.split('@')[0];
+  const roleLbls = {'superadmin':'👑 Superadmin','admin_pilote':'✈️ Admin Pilote','admin_client':'🎧 Admin Clientèle','utilisateur':'👤 Utilisateur','pilote':'🚁 Pilote','admin':'🛡️ Admin'};
+  document.getElementById('user-name').textContent = payload.email.split('@')[0] + ' · ' + (roleLbls[payload.role] || payload.role);
   if (['admin','superadmin','admin_pilote'].includes(payload.role)) document.getElementById('nav-admin').style.display = 'flex';
   initApp();
 }
@@ -1688,8 +1689,9 @@ function initChecklist() {
       total++; if (checked) done++;
       html += '<div class="checklist-item">';
       html += '<input type="checkbox" class="checklist-cb" id="cb-' + key + '" ';
-      html += (checked ? 'checked' : '') + ' onchange="saveChecklist(\'' + key + '\', this.checked)">';
-      html += '<label for="cb-' + key + '" class="checklist-label ' + (checked ? 'checked' : '') + '">' + item + '</label>';
+      if (checked) html += 'checked ';
+      html += 'onchange="saveChecklist(&#39;' + key + '&#39;, this.checked)">';
+      html += '<label for="cb-' + key + '" class="checklist-label' + (checked ? ' checked' : '') + '">' + item + '</label>';
       html += '</div>';
     });
     el.innerHTML = html;
