@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Carnet de vol — CapturAir</title>
-  <!-- Favicon — identique à capturair.com -->
   <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
@@ -227,6 +226,8 @@
 
     .vol-num { font-family: monospace; font-size: 12px; background: var(--grey); padding: 2px 8px; border-radius: 4px; color: var(--text-muted); }
   </style>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 </head>
 <body>
 
@@ -474,10 +475,17 @@
             <input type="text" id="f-lon" placeholder="-73.2849">
           </div>
           <div class="field full">
-            <button type="button" class="btn btn-secondary" onclick="capturerGPS()" style="width:auto;">
-              📍 Capturer ma position GPS automatiquement
-            </button>
-            <div id="gps-status" style="font-size:12px;color:var(--text-muted);margin-top:4px;"></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+              <input type="text" id="f-adresse-geo" placeholder="Entrer une adresse pour obtenir les coordonnées GPS..." style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;outline:none;min-width:200px;">
+              <button type="button" class="btn btn-secondary" onclick="geocoderAdresse()" style="white-space:nowrap;">🔍 Obtenir coordonnées</button>
+              <button type="button" class="btn btn-secondary" onclick="capturerGPS()" style="white-space:nowrap;">📍 GPS automatique</button>
+            </div>
+            <div id="gps-status" style="font-size:12px;color:var(--text-muted);margin-top:6px;"></div>
+            <div id="gps-coords-preview" style="display:none;margin-top:8px;padding:10px 14px;background:var(--light-green);border-radius:8px;font-size:13px;color:var(--green);">
+              <strong>📍 Coordonnées trouvées :</strong>
+              <span id="gps-coords-text"></span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="utiliserCoordsGeo()" style="margin-left:8px;">✅ Utiliser ces coordonnées</button>
+            </div>
           </div>
         </div>
         <div class="form-grid">
@@ -521,6 +529,8 @@
           </button>
           <div id="meteo-vol-status" style="font-size:12px;color:var(--text-muted);margin-top:4px;"></div>
         </div>
+        <!-- Indicateur visuel conditions de vol -->
+        <div id="vol-conditions-indicator" style="display:none;margin-bottom:1rem;"></div>
         <div class="meteo-grid" style="margin-bottom:1rem;" id="meteo-btns">
           <button class="meteo-btn selected" onclick="selMeteo(this,'Ensoleillé')">☀️ Ensoleillé</button>
           <button class="meteo-btn" onclick="selMeteo(this,'Partiellement nuageux')">⛅ Part. nuageux</button>
@@ -674,25 +684,48 @@
 
     <!-- ── CHECKLIST ── -->
     <div class="page" id="page-checklist">
-      <div class="page-header">
-        <h1>✅ Checklist pré-vol</h1>
-        <p>À compléter avant chaque vol</p>
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <h1>✅ Checklist pré-vol</h1>
+          <p>Conforme Transport Canada — RPAS Opérations de base et avancées</p>
+        </div>
+        <div id="checklist-progress" style="font-size:14px;font-weight:600;color:var(--navy);">0 / 0 complété</div>
       </div>
       <div class="card">
-        <div class="card-title">🚁 Drone & Équipement</div>
+        <div class="card-title">📋 Documentation & Enregistrement</div>
+        <div id="checklist-docs"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🚁 Inspection du drone (pré-vol)</div>
         <div id="checklist-drone"></div>
       </div>
       <div class="card">
-        <div class="card-title">📋 Réglementation & Sécurité</div>
-        <div id="checklist-regle"></div>
+        <div class="card-title">🔋 Batteries & Équipement</div>
+        <div id="checklist-batteries"></div>
       </div>
       <div class="card">
-        <div class="card-title">🌤️ Météo & Environnement</div>
+        <div class="card-title">🌤️ Météo & Espace aérien</div>
         <div id="checklist-meteo"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📍 Site de vol & Environnement</div>
+        <div id="checklist-site"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">👁️ Opération VLOS & Sécurité</div>
+        <div id="checklist-vlos"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🔒 Urgences & Procédures</div>
+        <div id="checklist-urgences"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📝 Post-vol</div>
+        <div id="checklist-postvol"></div>
       </div>
       <div class="btn-group">
         <button class="btn btn-success" onclick="resetChecklist()">🔄 Réinitialiser la checklist</button>
-        <button class="btn btn-primary" onclick="exportChecklist()">📄 Exporter</button>
+        <button class="btn btn-primary" onclick="exportChecklist()">📄 Exporter PDF</button>
       </div>
     </div>
 
@@ -749,8 +782,20 @@
         </div>
       </div>
       <div class="card">
-        <div class="card-title">📋 Historique des incidents</div>
+        <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <span>📋 Historique des incidents</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select id="filtre-gravite" onchange="loadIncidents()" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;">
+              <option value="">Toutes gravités</option>
+              <option value="Faible">Faible</option>
+              <option value="Modérée">Modérée</option>
+              <option value="Élevée">Élevée</option>
+              <option value="Critique">Critique</option>
+            </select>
+          </div>
+        </div>
         <div id="incidents-list"><div class="empty"><div class="empty-icon">✅</div><p>Aucun incident déclaré</p></div></div>
+        <div id="incidents-pagination" style="display:flex;gap:8px;justify-content:center;margin-top:1rem;flex-wrap:wrap;"></div>
       </div>
     </div>
 
@@ -984,13 +1029,8 @@ async function verifyOTP() {
     // Connexion réussie !
     TOKEN = data.token;
     localStorage.setItem('carnet_token', TOKEN);
-    const roleLabels = {
-      'superadmin':'👑 Superadmin','admin_pilote':'✈️ Admin Pilote',
-      'admin_client':'🎧 Admin Clientèle','utilisateur':'👤 Utilisateur',
-      'pilote':'🚁 Pilote','admin':'🛡️ Admin'
-    };
-    const roleLabel = roleLabels[data.role] || data.role;
-    document.getElementById('user-name').textContent = (data.nom || currentEmail.split('@')[0]) + ' · ' + roleLabel;
+    const roleLabels = {'superadmin':'👑 Superadmin','admin_pilote':'✈️ Admin Pilote','admin_client':'🎧 Admin Clientèle','utilisateur':'👤 Utilisateur','pilote':'🚁 Pilote','admin':'🛡️ Admin'};
+    document.getElementById('user-name').textContent = (data.nom || currentEmail.split('@')[0]) + ' · ' + (roleLabels[data.role] || data.role);
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     if (['admin','superadmin','admin_pilote'].includes(data.role)) document.getElementById('nav-admin').style.display = 'flex';
@@ -1043,12 +1083,7 @@ if (TOKEN) {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   const payload = JSON.parse(atob(TOKEN));
-  const roleLbls = {
-    'superadmin':'👑 Superadmin','admin_pilote':'✈️ Admin Pilote',
-    'admin_client':'🎧 Admin Clientèle','utilisateur':'👤 Utilisateur',
-    'pilote':'🚁 Pilote','admin':'🛡️ Admin'
-  };
-  document.getElementById('user-name').textContent = payload.email.split('@')[0] + ' · ' + (roleLbls[payload.role] || payload.role);
+  document.getElementById('user-name').textContent = payload.email.split('@')[0];
   if (['admin','superadmin','admin_pilote'].includes(payload.role)) document.getElementById('nav-admin').style.display = 'flex';
   initApp();
 }
@@ -1194,6 +1229,39 @@ function resetForm() {
   meteoSelected = 'Ensoleillé';
 }
 
+// ── GÉOCODAGE ADRESSE ────────────────────────────────────────────
+let _geoCoords = null;
+
+async function geocoderAdresse() {
+  const adresse = document.getElementById('f-adresse-geo').value.trim();
+  const status = document.getElementById('gps-status');
+  const preview = document.getElementById('gps-coords-preview');
+  const coordsText = document.getElementById('gps-coords-text');
+  if (!adresse) { status.textContent = '❌ Entre une adresse'; status.style.color = 'var(--red)'; return; }
+  status.textContent = '📡 Recherche de l'adresse...';
+  status.style.color = 'var(--text-muted)';
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(adresse)}&format=json&limit=1`);
+    const data = await res.json();
+    if (!data.length) { status.textContent = '❌ Adresse non trouvée'; status.style.color = 'var(--red)'; return; }
+    _geoCoords = { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon), nom: data[0].display_name.split(',').slice(0,2).join(', ') };
+    coordsText.textContent = ` Lat: ${_geoCoords.lat.toFixed(6)} · Lon: ${_geoCoords.lon.toFixed(6)} (${_geoCoords.nom})`;
+    preview.style.display = 'block';
+    status.textContent = '✅ Coordonnées trouvées !';
+    status.style.color = 'var(--green)';
+  } catch(e) { status.textContent = '❌ Erreur de géocodage'; status.style.color = 'var(--red)'; }
+}
+
+function utiliserCoordsGeo() {
+  if (!_geoCoords) return;
+  document.getElementById('f-lat').value = _geoCoords.lat.toFixed(6);
+  document.getElementById('f-lon').value = _geoCoords.lon.toFixed(6);
+  if (!document.getElementById('f-lieu').value) document.getElementById('f-lieu').value = _geoCoords.nom;
+  document.getElementById('gps-coords-preview').style.display = 'none';
+  document.getElementById('gps-status').textContent = '✅ Coordonnées appliquées aux champs GPS !';
+  document.getElementById('gps-status').style.color = 'var(--green)';
+}
+
 // ── GPS AUTOMATIQUE ───────────────────────────────────────────────
 function capturerGPS() {
   const status = document.getElementById('gps-status');
@@ -1264,6 +1332,7 @@ async function chargerMeteoVol() {
       document.getElementById('f-press').value = Math.round(c.surface_pressure);
       document.getElementById('f-hum').value = c.relative_humidity_2m;
       status.textContent = `✅ Météo actuelle chargée — ${Math.round(c.temperature_2m)}°C, vent ${Math.round(c.wind_speed_10m)} km/h`;
+      afficherIndicateurConditions(Math.round(c.wind_speed_10m), Math.round(c.visibility/1000), c.precipitation, c.wind_gusts_10m, Math.round(c.temperature_2m));
     } else {
       const d = data.daily;
       if (!d || !d.temperature_2m_max || !d.temperature_2m_max[0]) {
@@ -1275,6 +1344,7 @@ async function chargerMeteoVol() {
       document.getElementById('f-vent').value = Math.round(d.wind_speed_10m_max[0]);
       document.getElementById('f-temp').value = tempMoy;
       status.textContent = `✅ Prévisions chargées pour le ${date} — ${tempMoy}°C, vent max ${Math.round(d.wind_speed_10m_max[0])} km/h`;
+      afficherIndicateurConditions(Math.round(d.wind_speed_10m_max[0]), 10, d.precipitation_sum?.[0]||0, d.wind_gusts_10m_max?.[0]||0, tempMoy);
     }
     status.style.color = 'var(--green)';
   } catch(e) {
@@ -1469,105 +1539,164 @@ function getMeteoDesc(code) {
   return 'Conditions variables';
 }
 
-// ── CARTE ─────────────────────────────────────────────────────────
+// ── CARTE LEAFLET ────────────────────────────────────────────────
+let leafletMap = null;
+
 function initMap() {
-  if (map) return;
-  if (!window.google) {
+  if (leafletMap) return;
+  if (!window.L) {
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBa_29f6i2nUKqTPepHFLYE_pEff8VfogY&callback=initMapCallback&libraries=places`;
-    script.async = true;
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+    script.onload = () => initLeafletMap();
     document.head.appendChild(script);
   } else {
-    initMapCallback();
+    initLeafletMap();
   }
 }
 
-window.initMapCallback = function() {
-  map = new google.maps.Map(document.getElementById('map'), {
-    center: { lat: 45.878, lng: -73.284 },
-    zoom: 10,
-    mapTypeId: 'hybrid',
-  });
-  directionsService = new google.maps.DirectionsService();
-  directionsRenderer = new google.maps.DirectionsRenderer();
-  directionsRenderer.setMap(map);
-};
+function initLeafletMap() {
+  if (leafletMap) return;
+  leafletMap = L.map('map').setView([45.878, -73.284], 11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors', maxZoom: 19
+  }).addTo(leafletMap);
+}
 
 async function calcTrajet() {
-  if (!map) { alert('Carte pas encore chargée'); return; }
-  const dep = document.getElementById('carte-depart').value;
-  const dest = document.getElementById('carte-dest').value;
+  const dep = document.getElementById('carte-depart').value.trim();
+  const dest = document.getElementById('carte-dest').value.trim();
   if (!dep || !dest) { alert('Remplis les deux adresses'); return; }
+  if (!leafletMap) initLeafletMap();
 
-  directionsService.route({
-    origin: dep,
-    destination: dest,
-    travelMode: google.maps.TravelMode.DRIVING,
-  }, (result, status) => {
-    if (status === 'OK') {
-      directionsRenderer.setDirections(result);
-      const leg = result.routes[0].legs[0];
-      document.getElementById('trajet-info').innerHTML = `
-        <div class="alert alert-info">
-          🚗 Distance : <strong>${leg.distance.text}</strong> &nbsp;|&nbsp;
-          ⏱️ Durée estimée : <strong>${leg.duration.text}</strong>
-        </div>
-      `;
-    } else {
-      alert('Impossible de calculer le trajet');
+  document.getElementById('trajet-info').innerHTML = '<div class="alert alert-info">📡 Calcul en cours...</div>';
+  try {
+    const [gD, gA] = await Promise.all([
+      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(dep)}&format=json&limit=1`).then(r=>r.json()),
+      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(dest)}&format=json&limit=1`).then(r=>r.json()),
+    ]);
+    if (!gD.length) { document.getElementById('trajet-info').innerHTML = '<div class="alert alert-error">❌ Départ introuvable</div>'; return; }
+    if (!gA.length) { document.getElementById('trajet-info').innerHTML = '<div class="alert alert-error">❌ Destination introuvable</div>'; return; }
+
+    const latD=parseFloat(gD[0].lat), lonD=parseFloat(gD[0].lon);
+    const latA=parseFloat(gA[0].lat), lonA=parseFloat(gA[0].lon);
+
+    leafletMap.eachLayer(layer => { if (layer instanceof L.Marker || layer instanceof L.Polyline) leafletMap.removeLayer(layer); });
+    L.marker([latD,lonD]).addTo(leafletMap).bindPopup('🏠 ' + dep).openPopup();
+    L.marker([latA,lonA]).addTo(leafletMap).bindPopup('🎯 ' + dest);
+
+    const osrm = await fetch(`https://router.project-osrm.org/route/v1/driving/${lonD},${latD};${lonA},${latA}?overview=full&geometries=geojson`).then(r=>r.json());
+    if (osrm.routes && osrm.routes.length) {
+      const r = osrm.routes[0];
+      const dist = (r.distance/1000).toFixed(1);
+      const mins = Math.round(r.duration/60);
+      const h = Math.floor(mins/60), m = mins%60;
+      const coords = r.geometry.coordinates.map(c=>[c[1],c[0]]);
+      L.polyline(coords, {color:'#1A8FD1',weight:5,opacity:0.8}).addTo(leafletMap);
+      leafletMap.fitBounds(L.polyline(coords).getBounds(), {padding:[40,40]});
+      document.getElementById('trajet-info').innerHTML = `<div class="alert alert-info">🚗 Distance : <strong>${dist} km</strong> &nbsp;|&nbsp; ⏱️ Durée : <strong>${h>0?h+'h '+m+'min':m+' min'}</strong></div>`;
     }
-  });
+  } catch(e) {
+    document.getElementById('trajet-info').innerHTML = '<div class="alert alert-error">❌ Erreur trajet</div>';
+  }
 }
+
 
 // ── CHECKLIST ─────────────────────────────────────────────────────
 const CHECKLIST = {
-  drone: [
-    'Vérifier l\'état physique du drone (hélices, cardan, corps)',
-    'Inspecter les hélices (fissures, déformations)',
-    'Vérifier le cardan et la caméra',
-    'Batteries chargées à 100% (vérifier les cycles)',
-    'Télécommande chargée',
-    'Carte mémoire formatée et espace suffisant',
-    'Mise à jour firmware vérifiée',
-    'Calibration boussole effectuée si nécessaire',
-    'Test des moteurs avant décollage',
+  docs: [
+    'Certificat de pilote de SATP valide et disponible',
+    'Drone enregistré auprès de Transport Canada (étiquette visible)',
+    'Assurance responsabilité civile valide (minimum recommandé : 100 000 $)',
+    'Autorisation RPAS obtenue si zone contrôlée (via NAV CANADA)',
+    'NOTAMs consultés pour la zone et la période de vol',
+    'Plan de vol préparé (optionnel mais recommandé)',
   ],
-  regle: [
-    'Vérification des zones de vol Nav Canada (Drone Site Canada)',
-    'NOTAMs vérifiés pour la zone de vol',
-    'Altitude maximale : 120m (400pi) respectée',
-    'Distance des aéroports / héliports vérifiée',
-    'Assurance drone valide',
-    'Enregistrement Transport Canada à bord',
-    'Certificat pilote à jour et disponible',
-    'Autorisation obtenue si zone contrôlée',
-    'Vol de jour uniquement (sauf autorisation)',
-    'Drone toujours en vue directe (VLOS)',
+  drone: [
+    'Inspection visuelle générale du drone (fuselage, bras, pieds)',
+    'Hélices inspectées (fissures, éclats, déformations)',
+    'Cardan et caméra vérifiés (aucun jeu, pas de corps étrangers)',
+    'Connecteurs moteurs et câbles vérifiés',
+    'Calibration IMU effectuée si déplacé de plus de 50 km',
+    'Calibration boussole effectuée (surtout si nouveau site)',
+    'Mise à jour firmware vérifiée (DJI Fly ou assistant)',
+    'Test de démarrage moteurs effectué (sans décoller)',
+    'Signal télécommande vérifié',
+    'Carte SD formatée dans le drone, espace suffisant',
+  ],
+  batteries: [
+    'Batterie principale chargée (minimum 75% recommandé)',
+    'Niveau de dégradation batterie vérifié (cycles, gonflement)',
+    'Batteries stockées à température ambiante (15-25°C)',
+    'Batterie télécommande chargée',
+    'Batteries de rechange disponibles',
+    'Protection anti-froid activée si température < 10°C',
   ],
   meteo: [
-    'Vérifier la météo (vent < 40 km/h)',
-    'Vérifier les rafales (< 50 km/h)',
-    'Visibilité suffisante (> 5 km)',
-    'Pas de pluie, neige ou brouillard prévu',
-    'Température acceptable pour les batteries',
-    'Pas d\'orage dans un rayon de 10 km',
-  ]
+    'Vitesse du vent < 40 km/h (limite DJI Air 3S)',
+    'Rafales vérifiées < 50 km/h',
+    'Visibilité ≥ 5 km (exigence réglementaire)',
+    'Aucune pluie, neige ou brouillard prévu',
+    'Température entre -10°C et 40°C (limites DJI Air 3S)',
+    'Aucun orage dans un rayon de 10 km',
+    'Prévisions météo consultées (Environnement Canada)',
+    'Espace aérien consulté (Drone Site Canada)',
+  ],
+  site: [
+    'Site de vol inspecté visuellement (obstacles, fils, arbres)',
+    'Personnes non participantes identifiées et distances respectées',
+    'Zone de décollage/atterrissage sécurisée et dégagée',
+    'Zones d'exclusion vérifiées (aéroports, zones protégées, parcs nationaux)',
+    'Autorisation du propriétaire foncier obtenue si terrain privé',
+    'Coordonnées GPS du site notées',
+  ],
+  vlos: [
+    'Drone toujours maintenu en vue directe (VLOS) sans aide optique',
+    'Plan de vol maintenu sous 120m (400 pieds) AGL',
+    'Vol de jour uniquement (entre lever et coucher du soleil)',
+    'Pas de vol au-dessus des personnes non participantes',
+    'Pas de vol à moins de 3 km d'un aéroport sans autorisation',
+    'Priorité de passage aux aéronefs habités',
+  ],
+  urgences: [
+    'Procédure RTH (Return to Home) configurée et testée',
+    'Altitude RTH définie au-dessus des obstacles les plus hauts',
+    'Numéro Nav Canada connu : 1-800-876-4693',
+    'Procédure d'urgence connue en cas de perte de contrôle',
+    'Contact d'urgence notifié de l'heure et lieu du vol',
+  ],
+  postvol: [
+    'Drone inspecté après le vol (chocs, surchauffe)',
+    'Batterie retirée et stockée correctement',
+    'Journal de vol mis à jour (date, lieu, durée)',
+    'Incidents ou anomalies documentés',
+    'Médias transférés et sauvegardés',
+    'Matériel rangé et protégé',
+  ],
 };
 
 function initChecklist() {
-  const saved = JSON.parse(localStorage.getItem('checklist_state') || '{}');
-  ['drone','regle','meteo'].forEach(cat => {
-    document.getElementById('checklist-' + cat).innerHTML = CHECKLIST[cat].map((item, i) => {
-      const key = cat + '-' + i;
-      const checked = saved[key] || false;
-      return `
-        <div class="checklist-item">
-          <input type="checkbox" class="checklist-cb" id="cb-${key}" ${checked ? 'checked' : ''} onchange="saveChecklist('${key}', this.checked)">
-          <label for="cb-${key}" class="checklist-label ${checked ? 'checked' : ''}">${item}</label>
-        </div>
-      `;
+  var saved = JSON.parse(localStorage.getItem('checklist_state') || '{}');
+  var cats = ['docs','drone','batteries','meteo','site','vlos','urgences','postvol'];
+  var total = 0, done = 0;
+  cats.forEach(function(cat) {
+    var el = document.getElementById('checklist-' + cat);
+    if (!el || !CHECKLIST[cat]) return;
+    el.innerHTML = CHECKLIST[cat].map(function(item, i) {
+      var key = cat + '-' + i;
+      var checked = saved[key] || false;
+      total++; if (checked) done++;
+      return '<div class="checklist-item">' +
+        '<input type="checkbox" class="checklist-cb" id="cb-' + key + '" ' + (checked ? 'checked' : '') + ' onchange="saveChecklist('' + key + '', this.checked)">' +
+        '<label for="cb-' + key + '" class="checklist-label ' + (checked ? 'checked' : '') + '">' + item + '</label>' +
+        '</div>';
     }).join('');
   });
+  var prog = document.getElementById('checklist-progress');
+  if (prog) {
+    var pct = total > 0 ? Math.round(done/total*100) : 0;
+    var color = pct === 100 ? 'var(--green)' : pct >= 75 ? 'var(--orange)' : 'var(--red)';
+    prog.innerHTML = '<span style="color:' + color + ';">' + done + ' / ' + total + ' complété (' + pct + '%)</span>';
+  }
 }
 
 function saveChecklist(key, val) {
@@ -1576,6 +1705,16 @@ function saveChecklist(key, val) {
   localStorage.setItem('checklist_state', JSON.stringify(saved));
   const label = document.querySelector(`label[for="cb-${key}"]`);
   if (label) label.classList.toggle('checked', val);
+  // Recalculer le progress
+  const cats = ['docs','drone','batteries','meteo','site','vlos','urgences','postvol'];
+  let total = 0, done = 0;
+  cats.forEach(cat => { if (CHECKLIST[cat]) CHECKLIST[cat].forEach((_, i) => { total++; if (saved[cat+'-'+i]) done++; }); });
+  const prog = document.getElementById('checklist-progress');
+  if (prog) {
+    const pct = total > 0 ? Math.round(done/total*100) : 0;
+    const color = pct === 100 ? 'var(--green)' : pct >= 75 ? 'var(--orange)' : 'var(--red)';
+    prog.innerHTML = `<span style="color:${color};">${done} / ${total} complété (${pct}%)</span>`;
+  }
 }
 
 function resetChecklist() {
@@ -1604,22 +1743,56 @@ function exportChecklist() {
 }
 
 // ── INCIDENTS ─────────────────────────────────────────────────────
+let incidentsPage = 1;
+const INCIDENTS_PAR_PAGE = 5;
+
 async function loadIncidents() {
   const data = await api('/api/carnet/incidents');
-  const incidents = data.incidents || [];
-  if (!incidents.length) return;
-  document.getElementById('incidents-list').innerHTML = incidents.map(inc => `
+  let incidents = data.incidents || [];
+
+  // Filtre gravité
+  const filtreGravite = document.getElementById('filtre-gravite')?.value;
+  if (filtreGravite) incidents = incidents.filter(i => i.gravite === filtreGravite);
+
+  if (!incidents.length) {
+    document.getElementById('incidents-list').innerHTML = '<div class="empty"><div class="empty-icon">✅</div><p>Aucun incident déclaré</p></div>';
+    document.getElementById('incidents-pagination').innerHTML = '';
+    return;
+  }
+
+  const totalPages = Math.ceil(incidents.length / INCIDENTS_PAR_PAGE);
+  if (incidentsPage > totalPages) incidentsPage = 1;
+  const debut = (incidentsPage - 1) * INCIDENTS_PAR_PAGE;
+  const page = incidents.slice(debut, debut + INCIDENTS_PAR_PAGE);
+
+  document.getElementById('incidents-list').innerHTML = page.map(inc => `
     <div style="padding:1rem;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-        <span class="badge ${inc.gravite === 'Critique' ? 'badge-incident' : inc.gravite === 'Élevée' ? 'badge-incident' : inc.gravite === 'Modérée' ? 'badge-warning' : 'badge-ok'}">${inc.gravite}</span>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+        <span class="badge ${inc.gravite === 'Critique' || inc.gravite === 'Élevée' ? 'badge-incident' : inc.gravite === 'Modérée' ? 'badge-warning' : 'badge-ok'}">${inc.gravite}</span>
         <strong>${inc.type_incident}</strong>
         <span style="font-size:12px;color:var(--text-muted);">${inc.date}</span>
         ${inc.vol_id ? `<span class="vol-num">${inc.vol_id}</span>` : ''}
+        ${inc.modified_at ? `<span style="font-size:11px;color:var(--text-muted);">✏️ Modifié le ${inc.modified_at.split('T')[0]}</span>` : ''}
       </div>
       <p style="font-size:13px;color:var(--text);">${inc.description}</p>
       ${inc.actions ? `<p style="font-size:12px;color:var(--text-muted);margin-top:4px;">✅ Actions : ${inc.actions}</p>` : ''}
+      <div style="margin-top:8px;font-size:11px;color:var(--text-muted);">👤 Déclaré par : ${(inc.pilote||'').split('@')[0] || '—'}</div>
     </div>
   `).join('');
+
+  // Pagination
+  let pagHtml = '';
+  if (totalPages > 1) {
+    if (incidentsPage > 1) pagHtml += `<button class="btn btn-secondary btn-sm" onclick="changerPageIncidents(${incidentsPage-1})">← Préc.</button>`;
+    pagHtml += `<span style="font-size:13px;padding:6px 12px;color:var(--text-muted);">Page ${incidentsPage} / ${totalPages} (${incidents.length} incidents)</span>`;
+    if (incidentsPage < totalPages) pagHtml += `<button class="btn btn-secondary btn-sm" onclick="changerPageIncidents(${incidentsPage+1})">Suiv. →</button>`;
+  }
+  document.getElementById('incidents-pagination').innerHTML = pagHtml;
+}
+
+function changerPageIncidents(page) {
+  incidentsPage = page;
+  loadIncidents();
 }
 
 async function saveIncident() {
@@ -1693,7 +1866,6 @@ async function exportPDF() {
 
   const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
   <title>Carnet de vol — CapturAir</title>
-  <!-- Favicon — identique à capturair.com -->
   <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
@@ -1737,20 +1909,53 @@ async function exportPDF() {
   w.document.close();
 }
 
-// ── HELPER ────────────────────────────────────────────────────────
-function getRoleBadge(role) {
-  const roles = {
-    'superadmin':   { label: '👑 Superadmin',      cls: 'badge-incident' },
-    'admin_pilote': { label: '✈️ Admin Pilote',     cls: 'badge-commercial' },
-    'admin_client': { label: '🎧 Admin Clientèle',  cls: 'badge-warning' },
-    'utilisateur':  { label: '👤 Utilisateur',      cls: 'badge-loisir' },
-    'pilote':       { label: '🚁 Pilote',           cls: 'badge-ok' },
-    'admin':        { label: '🛡️ Admin',           cls: 'badge-commercial' },
-  };
-  const r = roles[role] || { label: role, cls: 'badge-loisir' };
-  return `<span class="badge ${r.cls}">${r.label}</span>`;
+// ── INDICATEUR VISUEL CONDITIONS DE VOL ──────────────────────────
+function afficherIndicateurConditions(vent, vis, pluie, rafales, temp) {
+  const indicateur = document.getElementById('vol-conditions-indicator');
+  if (!indicateur) return;
+  const checks = [
+    { label: 'Vent', val: vent + ' km/h', ok: vent <= 25, warn: vent <= 40, icon: '💨' },
+    { label: 'Rafales', val: Math.round(rafales||0) + ' km/h', ok: (rafales||0) <= 30, warn: (rafales||0) <= 50, icon: '🌬️' },
+    { label: 'Visibilité', val: vis + ' km', ok: vis >= 8, warn: vis >= 5, icon: '👁️' },
+    { label: 'Pluie', val: pluie > 0 ? pluie + ' mm' : 'Aucune', ok: pluie === 0, warn: false, icon: '🌧️' },
+    { label: 'Temp.', val: temp + '°C', ok: temp >= 0 && temp <= 35, warn: temp >= -10 && temp <= 40, icon: '🌡️' },
+  ];
+  const allOk = checks.every(c => c.ok);
+  const anyBad = checks.some(c => !c.ok && !c.warn);
+  const verdict = allOk
+    ? { text: '🟢 VOL OK — Conditions favorables', bg: '#C6EFCE', color: '#006400' }
+    : anyBad ? { text: '🔴 VOL DÉCONSEILLÉ — Conditions dangereuses', bg: '#FFC7CE', color: '#C00000' }
+    : { text: '🟡 VOL PRUDENT — Conditions limites', bg: '#FFF2CC', color: '#856404' };
+  indicateur.style.display = 'block';
+  indicateur.innerHTML = '<div style="background:' + verdict.bg + ';border-radius:12px;padding:1rem 1.25rem;border:1.5px solid ' + verdict.color + '30;">' +
+    '<div style="font-size:15px;font-weight:700;color:' + verdict.color + ';margin-bottom:12px;text-align:center;">' + verdict.text + '</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">' +
+    checks.map(function(c) {
+      const col = c.ok ? '#006400' : (!c.ok && !c.warn) ? '#C00000' : '#856404';
+      const bg2 = c.ok ? '#C6EFCE' : (!c.ok && !c.warn) ? '#FFC7CE' : '#FFF2CC';
+      const ico = c.ok ? '✅' : (!c.ok && !c.warn) ? '❌' : '⚠️';
+      return '<div style="background:' + bg2 + ';border-radius:8px;padding:8px;text-align:center;">' +
+        '<div style="font-size:18px;">' + c.icon + '</div>' +
+        '<div style="font-size:10px;font-weight:600;color:' + col + ';text-transform:uppercase;margin:2px 0;">' + c.label + '</div>' +
+        '<div style="font-size:12px;font-weight:700;color:' + col + ';">' + c.val + '</div>' +
+        '<div style="font-size:14px;">' + ico + '</div></div>';
+    }).join('') +
+    '</div></div>';
 }
 
+function getRoleBadge(role) {
+  var r = {
+    superadmin: { label: 'Superadmin', cls: 'badge-incident' },
+    admin_pilote: { label: 'Admin Pilote', cls: 'badge-commercial' },
+    admin_client: { label: 'Admin Clientele', cls: 'badge-warning' },
+    utilisateur: { label: 'Utilisateur', cls: 'badge-loisir' },
+    pilote: { label: 'Pilote', cls: 'badge-ok' },
+    admin: { label: 'Admin', cls: 'badge-commercial' },
+  }[role] || { label: role, cls: 'badge-loisir' };
+  return '<span class="badge ' + r.cls + '">' + r.label + '</span>';
+}
+
+// ── HELPER ────────────────────────────────────────────────────────
 function showAlert(containerId, msg, type) {
   document.getElementById(containerId).innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
   setTimeout(() => { document.getElementById(containerId).innerHTML = ''; }, 4000);
@@ -1804,10 +2009,9 @@ async function demanderOTPPourAction(action, userId = '', userEmail = '') {
     const nom = document.getElementById('new-nom').value.trim();
     if (!email || !pin || !nom) { showAlert('admin-alert', 'Remplis tous les champs', 'error'); return; }
     if (pin.length < 4) { showAlert('admin-alert', 'PIN minimum 4 chiffres', 'error'); return; }
-    // Validation domaine email
     const domain = email.split('@')[1]?.toLowerCase();
-    if (!['capturair.com', 'mohand.ca'].includes(domain)) {
-      showAlert('admin-alert', `❌ Adresse email non autorisée. Les comptes CapturAir sont réservés aux domaines CapturAir uniquement. Contactez l'administrateur si vous pensez qu'il s'agit d'une erreur.`, 'error');
+    if (!['capturair.com', 'mohand.ca'].includes(domain) && email.toLowerCase() !== 'aidimohand@gmail.com') {
+      showAlert('admin-alert', `❌ Adresse email non autorisée. Domaines acceptés : @capturair.com et @mohand.ca.`, 'error');
       return;
     }
   }
