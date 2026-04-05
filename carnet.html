@@ -1238,7 +1238,7 @@ async function geocoderAdresse() {
   const preview = document.getElementById('gps-coords-preview');
   const coordsText = document.getElementById('gps-coords-text');
   if (!adresse) { status.textContent = '❌ Entre une adresse'; status.style.color = 'var(--red)'; return; }
-  status.textContent = '📡 Recherche de l'adresse...';
+  status.textContent = `📡 Recherche de l'adresse...`;
   status.style.color = 'var(--text-muted)';
   try {
     const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(adresse)}&format=json&limit=1`);
@@ -1681,15 +1681,18 @@ function initChecklist() {
   cats.forEach(function(cat) {
     var el = document.getElementById('checklist-' + cat);
     if (!el || !CHECKLIST[cat]) return;
-    el.innerHTML = CHECKLIST[cat].map(function(item, i) {
+    var html = '';
+    CHECKLIST[cat].forEach(function(item, i) {
       var key = cat + '-' + i;
       var checked = saved[key] || false;
       total++; if (checked) done++;
-      return '<div class="checklist-item">' +
-        '<input type="checkbox" class="checklist-cb" id="cb-' + key + '" ' + (checked ? 'checked' : '') + ' onchange="saveChecklist('' + key + '', this.checked)">' +
-        '<label for="cb-' + key + '" class="checklist-label ' + (checked ? 'checked' : '') + '">' + item + '</label>' +
-        '</div>';
-    }).join('');
+      html += '<div class="checklist-item">';
+      html += '<input type="checkbox" class="checklist-cb" id="cb-' + key + '" ';
+      html += (checked ? 'checked' : '') + ' onchange="saveChecklist(\'' + key + '\', this.checked)">';
+      html += '<label for="cb-' + key + '" class="checklist-label ' + (checked ? 'checked' : '') + '">' + item + '</label>';
+      html += '</div>';
+    });
+    el.innerHTML = html;
   });
   var prog = document.getElementById('checklist-progress');
   if (prog) {
@@ -1698,6 +1701,7 @@ function initChecklist() {
     prog.innerHTML = '<span style="color:' + color + ';">' + done + ' / ' + total + ' complété (' + pct + '%)</span>';
   }
 }
+
 
 function saveChecklist(key, val) {
   const saved = JSON.parse(localStorage.getItem('checklist_state') || '{}');
@@ -1727,9 +1731,10 @@ function exportChecklist() {
   let text = 'CHECKLIST PRÉ-VOL — CAPTURAIR\n';
   text += '================================\n';
   text += new Date().toLocaleDateString('fr-CA') + '\n\n';
-  ['drone','regle','meteo'].forEach(cat => {
-    text += cat.toUpperCase() + '\n';
-    CHECKLIST[cat].forEach((item, i) => {
+  ['docs','drone','batteries','meteo','site','vlos','urgences','postvol'].forEach(cat => {
+    const titres = {docs:'Documentation',drone:'Drone',batteries:'Batteries',meteo:'Météo',site:'Site de vol',vlos:'VLOS & Sécurité',urgences:'Urgences',postvol:'Post-vol'};
+    text += (titres[cat] || cat).toUpperCase() + '\n';
+    (CHECKLIST[cat]||[]).forEach((item, i) => {
       const key = cat + '-' + i;
       text += (saved[key] ? '✅' : '☐') + ' ' + item + '\n';
     });
