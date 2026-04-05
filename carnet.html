@@ -1804,7 +1804,7 @@ async function demanderOTPPourAction(action, userId = '', userEmail = '') {
     // Validation domaine email
     const domain = email.split('@')[1]?.toLowerCase();
     if (!['capturair.com', 'mohand.ca'].includes(domain)) {
-      showAlert('admin-alert', '❌ Adresse email non autorisée. Les comptes CapturAir sont réservés aux domaines CapturAir uniquement. Contactez l'administrateur si vous pensez qu'il s'agit d'une erreur.', 'error');
+      showAlert('admin-alert', `❌ Adresse email non autorisée. Les comptes CapturAir sont réservés aux domaines CapturAir uniquement. Contactez l'administrateur si vous pensez qu'il s'agit d'une erreur.`, 'error');
       return;
     }
   }
