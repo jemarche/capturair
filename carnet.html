@@ -8,10 +8,6 @@
   <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
-  <!-- Favicon — identique à capturair.com -->
-  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
-  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -988,7 +984,13 @@ async function verifyOTP() {
     // Connexion réussie !
     TOKEN = data.token;
     localStorage.setItem('carnet_token', TOKEN);
-    document.getElementById('user-name').textContent = data.nom || currentEmail.split('@')[0];
+    const roleLabels = {
+      'superadmin':'👑 Superadmin','admin_pilote':'✈️ Admin Pilote',
+      'admin_client':'🎧 Admin Clientèle','utilisateur':'👤 Utilisateur',
+      'pilote':'🚁 Pilote','admin':'🛡️ Admin'
+    };
+    const roleLabel = roleLabels[data.role] || data.role;
+    document.getElementById('user-name').textContent = (data.nom || currentEmail.split('@')[0]) + ' · ' + roleLabel;
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     if (['admin','superadmin','admin_pilote'].includes(data.role)) document.getElementById('nav-admin').style.display = 'flex';
@@ -1041,7 +1043,12 @@ if (TOKEN) {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   const payload = JSON.parse(atob(TOKEN));
-  document.getElementById('user-name').textContent = payload.email.split('@')[0];
+  const roleLbls = {
+    'superadmin':'👑 Superadmin','admin_pilote':'✈️ Admin Pilote',
+    'admin_client':'🎧 Admin Clientèle','utilisateur':'👤 Utilisateur',
+    'pilote':'🚁 Pilote','admin':'🛡️ Admin'
+  };
+  document.getElementById('user-name').textContent = payload.email.split('@')[0] + ' · ' + (roleLbls[payload.role] || payload.role);
   if (['admin','superadmin','admin_pilote'].includes(payload.role)) document.getElementById('nav-admin').style.display = 'flex';
   initApp();
 }
@@ -1337,7 +1344,7 @@ async function getMeteo() {
 async function fetchMeteo(lat, lon, nom) {
   document.getElementById('meteo-container').innerHTML = '<div class="empty"><div class="spinner" style="width:32px;height:32px;border-width:3px;border-color:rgba(0,0,0,0.1);border-top-color:var(--navy);"></div></div>';
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_gusts_10m,surface_pressure,visibility,weather_code,precipitation&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,wind_gusts_10m_max,precipitation_sum,weather_code&wind_speed_unit=kmh&timezone=America/Toronto`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_gusts_10m,surface_pressure,visibility,weather_code,precipitation&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,wind_gusts_10m_max,precipitation_sum,weather_code&wind_speed_unit=kmh&timezone=America/Toronto&forecast_days=14`;
     const res = await fetch(url);
     const data = await res.json();
     const c = data.current;
@@ -1467,7 +1474,7 @@ function initMap() {
   if (map) return;
   if (!window.google) {
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=VOTRE_CLE_API&callback=initMapCallback&libraries=places`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBa_29f6i2nUKqTPepHFLYE_pEff8VfogY&callback=initMapCallback&libraries=places`;
     script.async = true;
     document.head.appendChild(script);
   } else {
@@ -1686,10 +1693,6 @@ async function exportPDF() {
 
   const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
   <title>Carnet de vol — CapturAir</title>
-  <!-- Favicon — identique à capturair.com -->
-  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
-  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
   <!-- Favicon — identique à capturair.com -->
   <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
