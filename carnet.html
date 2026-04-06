@@ -1217,11 +1217,12 @@ function initApp() {
   const today = new Date();
   document.getElementById('dash-date').textContent = today.toLocaleDateString('fr-CA', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
   loadDashboard();
-  initChecklist();
   loadDrone();
   const todayStr = today.toISOString().split('T')[0];
   document.getElementById('f-date').value = todayStr;
   document.getElementById('i-date').value = todayStr;
+  // initChecklist appelée après chargement complet
+  setTimeout(function() { if (typeof CHECKLIST !== 'undefined') initChecklist(); }, 100);
 }
 
 // ── API HELPER ────────────────────────────────────────────────────
