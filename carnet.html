@@ -401,6 +401,9 @@
     <div class="nav-item" onclick="showPage('drone')">
       <span class="nav-icon">🔧</span> Mon drone
     </div>
+    <div class="nav-item" id="nav-drones" style="display:none;" onclick="showPage('drones')">
+      <span class="nav-icon">🚁</span> Flotte de drones
+    </div>
     <div class="nav-item" onclick="exportPDF()">
       <span class="nav-icon">📄</span> Exporter PDF
     </div>
@@ -853,6 +856,106 @@
       </div>
     </div>
 
+    <!-- ── FLOTTE DE DRONES ── -->
+    <div class="page" id="page-drones">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <h1>🚁 Flotte de drones</h1>
+          <p>Gestion et affectation des drones aux pilotes</p>
+        </div>
+        <button class="btn btn-primary" onclick="showModalDrone()">➕ Ajouter un drone</button>
+      </div>
+      <div id="drones-alert"></div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Modèle</th>
+                <th>N° TC</th>
+                <th>N° Série</th>
+                <th>Pilote assigné</th>
+                <th>Statut</th>
+                <th>Assurance exp.</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="drones-tbody">
+              <tr><td colspan="8"><div class="empty"><div class="empty-icon">🚁</div><p>Aucun drone enregistré</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Drone -->
+    <div id="drone-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center;overflow-y:auto;">
+      <div style="background:white;border-radius:16px;padding:2rem;width:100%;max-width:600px;margin:1rem auto;">
+        <h3 style="color:var(--navy);margin-bottom:1.5rem;" id="drone-modal-title">🚁 Ajouter un drone</h3>
+        <div class="form-grid">
+          <div class="field">
+            <label>Nom / Surnom</label>
+            <input type="text" id="dm-nom" placeholder="Ex: DJI Air 3S Principal">
+          </div>
+          <div class="field">
+            <label>Marque</label>
+            <input type="text" id="dm-marque" value="DJI" placeholder="DJI">
+          </div>
+          <div class="field">
+            <label>Modèle</label>
+            <input type="text" id="dm-modele" placeholder="Air 3S">
+          </div>
+          <div class="field">
+            <label>N° enregistrement TC</label>
+            <input type="text" id="dm-tc" placeholder="TC-XXXXXX">
+          </div>
+          <div class="field">
+            <label>N° de série</label>
+            <input type="text" id="dm-serie" placeholder="DJI-XXXXXXXXXXXX">
+          </div>
+          <div class="field">
+            <label>Date d'achat</label>
+            <input type="date" id="dm-achat">
+          </div>
+          <div class="field">
+            <label>Expiration assurance</label>
+            <input type="date" id="dm-assur">
+          </div>
+          <div class="field">
+            <label>N° certificat pilote</label>
+            <input type="text" id="dm-cert" placeholder="N° certificat">
+          </div>
+          <div class="field">
+            <label>Expiration certificat</label>
+            <input type="date" id="dm-certexp">
+          </div>
+          <div class="field">
+            <label>Pilote assigné</label>
+            <select id="dm-pilote">
+              <option value="">— Aucun pilote assigné —</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Statut</label>
+            <select id="dm-statut">
+              <option value="ACTIF">✅ Actif</option>
+              <option value="MAINTENANCE">🔧 En maintenance</option>
+              <option value="INACTIF">❌ Inactif</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label>Notes / Historique</label>
+            <textarea id="dm-notes" placeholder="Entretien, réparations, modifications..."></textarea>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:1.5rem;">
+          <button class="btn btn-primary" style="flex:1;" onclick="saveDroneModal()">💾 Sauvegarder</button>
+          <button class="btn btn-secondary" onclick="closeDroneModal()">Annuler</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ── ADMINISTRATION ── -->
     <div class="page" id="page-admin">
       <div class="page-header">
@@ -1034,6 +1137,7 @@ async function verifyOTP() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     if (['admin','superadmin','admin_pilote'].includes(data.role)) document.getElementById('nav-admin').style.display = 'flex';
+    if (['superadmin','admin_pilote'].includes(data.role)) document.getElementById('nav-drones').style.display = 'flex';
     initApp();
 
   } catch(e) {
@@ -1086,6 +1190,7 @@ if (TOKEN) {
   const roleLbls = {'superadmin':'👑 Superadmin','admin_pilote':'✈️ Admin Pilote','admin_client':'🎧 Admin Clientèle','utilisateur':'👤 Utilisateur','pilote':'🚁 Pilote','admin':'🛡️ Admin'};
   document.getElementById('user-name').textContent = payload.email.split('@')[0] + ' · ' + (roleLbls[payload.role] || payload.role);
   if (['admin','superadmin','admin_pilote'].includes(payload.role)) document.getElementById('nav-admin').style.display = 'flex';
+  if (['superadmin','admin_pilote'].includes(payload.role)) document.getElementById('nav-drones').style.display = 'flex';
   initApp();
 }
 
@@ -1104,6 +1209,7 @@ function showPage(name) {
   if (name === 'carte') initMap();
   if (name === 'nouveau-vol') initNewVol();
   if (name === 'admin') loadUsers();
+  if (name === 'drones') loadDrones();
 }
 
 // ── INIT ──────────────────────────────────────────────────────────
@@ -1993,7 +2099,12 @@ async function loadUsers() {
               <td>${u.nom || '—'}</td>
               <td>${getRoleBadge(u.role)}</td>
               <td style="font-size:12px;">${u.created_at ? u.created_at.split('T')[0] : '—'}</td>
-              <td>${u.email !== 'mohand.aidi@mohand.ca' ? `<button class="btn btn-danger btn-sm" onclick="demanderOTPPourAction('supprimer','${u.id}','${u.email}')">Supprimer</button>` : '<span style="font-size:11px;color:var(--text-muted);">Admin principal</span>'}</td>
+              <td style="display:flex;gap:4px;flex-wrap:wrap;">
+                ${u.email !== 'mohand.aidi@mohand.ca' ? `
+                  <button class="btn btn-secondary btn-sm" onclick="resetPinUser('${u.id}','${u.email}','${u.nom||u.email}')">🔑 Reset PIN</button>
+                  <button class="btn btn-danger btn-sm" onclick="demanderOTPPourAction('supprimer','${u.id}','${u.email}')">Supprimer</button>
+                ` : '<span style="font-size:11px;color:var(--text-muted);">Admin principal</span>'}
+              </td>
             </tr>
           `).join('')}
         </tbody>
@@ -2107,6 +2218,139 @@ async function confirmerAction() {
 
 function fermerModal() {
   document.getElementById('otp-modal').style.display = 'none';
+}
+
+// ── FLOTTE DE DRONES ──────────────────────────────────────────────────
+let droneEnEdition = null;
+
+async function loadDrones() {
+  try {
+    const data = await api('/api/carnet/drones');
+    const drones = data.drones || [];
+    if (!drones.length) {
+      document.getElementById('drones-tbody').innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">🚁</div><p>Aucun drone enregistré</p></div></td></tr>';
+      return;
+    }
+    const statutBadge = { ACTIF: 'badge-ok', MAINTENANCE: 'badge-warning', INACTIF: 'badge-incident' };
+    const statutLabel = { ACTIF: '✅ Actif', MAINTENANCE: '🔧 Maintenance', INACTIF: '❌ Inactif' };
+    document.getElementById('drones-tbody').innerHTML = drones.map(d => `
+      <tr>
+        <td><strong>${d.nom || d.modele || '—'}</strong></td>
+        <td>${d.marque || '—'} ${d.modele || ''}</td>
+        <td style="font-family:monospace;font-size:12px;">${d.numero_tc || '—'}</td>
+        <td style="font-family:monospace;font-size:12px;">${d.numero_serie || '—'}</td>
+        <td>${d.pilote_nom ? `<span style="font-size:13px;">🚁 ${d.pilote_nom}</span>` : '<span style="color:var(--text-muted);font-size:12px;">Non assigné</span>'}</td>
+        <td><span class="badge ${statutBadge[d.statut] || 'badge-loisir'}">${statutLabel[d.statut] || d.statut}</span></td>
+        <td style="font-size:12px;color:${d.assurance_exp && new Date(d.assurance_exp) < new Date() ? 'var(--red)' : 'var(--text)'};">
+          ${d.assurance_exp || '—'}
+          ${d.assurance_exp && new Date(d.assurance_exp) < new Date() ? ' ⚠️' : ''}
+        </td>
+        <td style="display:flex;gap:4px;">
+          <button class="btn btn-secondary btn-sm" onclick="editDrone('${d.id}')">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="supprimerDrone('${d.id}','${d.nom || d.modele}')">🗑️</button>
+        </td>
+      </tr>
+    `).join('');
+  } catch(e) {
+    document.getElementById('drones-tbody').innerHTML = '<tr><td colspan="8"><div class="alert alert-error">Erreur de chargement</div></td></tr>';
+  }
+}
+
+async function showModalDrone() {
+  droneEnEdition = null;
+  document.getElementById('drone-modal-title').textContent = '🚁 Ajouter un drone';
+  ['dm-nom','dm-marque','dm-modele','dm-tc','dm-serie','dm-cert','dm-notes'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = id === 'dm-marque' ? 'DJI' : '';
+  });
+  ['dm-achat','dm-assur','dm-certexp'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('dm-statut').value = 'ACTIF';
+  await chargerPilotesDansSelect();
+  document.getElementById('drone-modal').style.display = 'flex';
+}
+
+async function editDrone(id) {
+  const data = await api('/api/carnet/drones');
+  const drone = (data.drones || []).find(d => d.id === id);
+  if (!drone) return;
+  droneEnEdition = id;
+  document.getElementById('drone-modal-title').textContent = '✏️ Modifier le drone';
+  document.getElementById('dm-nom').value = drone.nom || '';
+  document.getElementById('dm-marque').value = drone.marque || 'DJI';
+  document.getElementById('dm-modele').value = drone.modele || '';
+  document.getElementById('dm-tc').value = drone.numero_tc || '';
+  document.getElementById('dm-serie').value = drone.numero_serie || '';
+  document.getElementById('dm-achat').value = drone.date_achat || '';
+  document.getElementById('dm-assur').value = drone.assurance_exp || '';
+  document.getElementById('dm-cert').value = drone.certificat || '';
+  document.getElementById('dm-certexp').value = drone.certificat_exp || '';
+  document.getElementById('dm-statut').value = drone.statut || 'ACTIF';
+  document.getElementById('dm-notes').value = drone.notes || '';
+  await chargerPilotesDansSelect();
+  document.getElementById('dm-pilote').value = drone.pilote_id || '';
+  document.getElementById('drone-modal').style.display = 'flex';
+}
+
+async function chargerPilotesDansSelect() {
+  const data = await api('/api/carnet/admin/users');
+  const pilotes = (data.users || []).filter(u => ['pilote','admin_pilote','superadmin'].includes(u.role));
+  const sel = document.getElementById('dm-pilote');
+  sel.innerHTML = '<option value="">— Aucun pilote assigné —</option>' +
+    pilotes.map(p => `<option value="${p.id}">${p.nom || p.email} (${p.role})</option>`).join('');
+}
+
+async function saveDroneModal() {
+  const body = {
+    nom: document.getElementById('dm-nom').value,
+    marque: document.getElementById('dm-marque').value,
+    modele: document.getElementById('dm-modele').value,
+    numero_tc: document.getElementById('dm-tc').value,
+    numero_serie: document.getElementById('dm-serie').value,
+    date_achat: document.getElementById('dm-achat').value,
+    assurance_exp: document.getElementById('dm-assur').value,
+    certificat: document.getElementById('dm-cert').value,
+    certificat_exp: document.getElementById('dm-certexp').value,
+    statut: document.getElementById('dm-statut').value,
+    notes: document.getElementById('dm-notes').value,
+    pilote_id: document.getElementById('dm-pilote').value || null,
+  };
+  if (!body.nom && !body.modele) { alert('Entre un nom ou modèle pour le drone'); return; }
+
+  const method = droneEnEdition ? 'PUT' : 'POST';
+  const path = droneEnEdition ? '/api/carnet/drones/' + droneEnEdition : '/api/carnet/drones';
+  const res = await api(path, method, body);
+  if (res.success) {
+    closeDroneModal();
+    loadDrones();
+    showAlert('drones-alert', droneEnEdition ? '✅ Drone mis à jour !' : '✅ Drone ajouté !', 'success');
+  } else {
+    alert('Erreur : ' + (res.error || 'Inconnue'));
+  }
+}
+
+async function supprimerDrone(id, nom) {
+  if (!confirm('Supprimer le drone "' + nom + '" ? Cette action est irréversible.')) return;
+  const res = await api('/api/carnet/drones/' + id, 'DELETE');
+  if (res.success) { loadDrones(); showAlert('drones-alert', '✅ Drone supprimé', 'success'); }
+  else alert('Erreur : ' + (res.error || 'Inconnue'));
+}
+
+function closeDroneModal() {
+  document.getElementById('drone-modal').style.display = 'none';
+  droneEnEdition = null;
+}
+
+// ── RESET PIN USER ────────────────────────────────────────────────────
+async function resetPinUser(userId, userEmail, userName) {
+  if (!confirm('Réinitialiser le PIN de ' + userName + ' (' + userEmail + ') ?
+
+Un nouveau PIN temporaire sera envoyé par email à l'utilisateur.')) return;
+  const res = await api('/api/carnet/admin/users/' + userId + '/reset-pin', 'POST', {});
+  if (res.success) {
+    showAlert('admin-alert', '✅ PIN réinitialisé ! Un email a été envoyé à ' + userEmail, 'success');
+  } else {
+    showAlert('admin-alert', '❌ ' + (res.error || 'Erreur'), 'error');
+  }
 }
 </script>
 
