@@ -368,6 +368,7 @@
       <div class="btn-group">
         <button class="btn btn-success" onclick="envoyerGalerie()">📧 Envoyer galerie au client</button>
         <button class="btn btn-blue" onclick="genererStripeLink()">💳 Générer lien Stripe</button>
+        <button class="btn btn-secondary" onclick="envoyerSansPaiement()" title="Client déjà payé — envoyer galerie avec téléchargement direct">✅ Envoyer sans paiement</button>
       </div>
       <div id="stripe-link-result" style="margin-top:1rem;"></div>
     </div>
@@ -420,6 +421,7 @@
           <option value="EN_ATTENTE">EN_ATTENTE</option>
           <option value="ENVOYE">ENVOYE</option>
           <option value="SELECTION">SELECTION</option>
+          <option value="DEJA_PAYE">DEJA_PAYE — Déjà payé (sans Stripe)</option>
           <option value="PAYE">PAYE</option>
           <option value="LIVRE">LIVRE</option>
           <option value="EXPIRE">EXPIRE</option>
@@ -637,7 +639,7 @@ async function loadProjets() {
 }
 
 function getBadge(statut) {
-  const map = {'EN_ATTENTE':'badge-attente','ENVOYE':'badge-envoye','SELECTION':'badge-selection','PAYE':'badge-paye','LIVRE':'badge-livre','EXPIRE':'badge-expire'};
+  const map = {'EN_ATTENTE':'badge-attente','ENVOYE':'badge-envoye','SELECTION':'badge-selection','DEJA_PAYE':'badge-paye','PAYE':'badge-paye','LIVRE':'badge-livre','EXPIRE':'badge-expire'};
   return `<span class="badge ${map[statut]||'badge-attente'}">${statut}</span>`;
 }
 
@@ -918,6 +920,32 @@ function copierLien() {
   const lien = document.getElementById('galerie-link-box').textContent;
   navigator.clipboard.writeText(lien);
   showAlert('detail-alert','✅ Lien galerie copié !','success');
+}
+
+// ── ENVOYER SANS PAIEMENT ────────────────────────────────────────────
+async function envoyerSansPaiement() {
+  if (!currentProjetId) return;
+  if (!confirm('Envoyer la galerie avec accès direct aux téléchargements ? (client déjà payé)')) return;
+  try {
+    // 1. Mettre le statut à DEJA_PAYE
+    const p = currentProjet;
+    await api('/api/portail/projets/'+currentProjetId,'PUT',{
+      client_nom: p.client_nom, client_email: p.client_email,
+      nom: p.nom, num_soumission: p.num_soumission||'',
+      modele_prix: p.modele_prix, prix_base: p.prix_base||0,
+      prix_par_photo: p.prix_par_photo||0, prix_par_video: p.prix_par_video||0,
+      nb_photos_incluses: p.nb_photos_incluses||0,
+      statut: 'DEJA_PAYE', note_admin: p.note_admin||'',
+    });
+    // 2. Envoyer l'email galerie
+    const res = await api('/api/portail/projets/'+currentProjetId+'/envoyer','POST',{deja_paye: true});
+    if (res.success) {
+      showAlert('detail-alert','✅ Galerie envoyée — le client peut télécharger directement !','success');
+      await loadDetail(currentProjetId);
+    } else {
+      showAlert('detail-alert','❌ '+(res.error||'Erreur'),'error');
+    }
+  } catch(e) { showAlert('detail-alert','❌ Erreur de connexion','error'); }
 }
 
 // ── ENVOYER GALERIE ───────────────────────────────────────────────────
