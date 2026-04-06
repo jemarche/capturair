@@ -2342,9 +2342,7 @@ function closeDroneModal() {
 
 // ── RESET PIN USER ────────────────────────────────────────────────────
 async function resetPinUser(userId, userEmail, userName) {
-  if (!confirm('Réinitialiser le PIN de ' + userName + ' (' + userEmail + ') ?
-
-Un nouveau PIN temporaire sera envoyé par email à l'utilisateur.')) return;
+  if (!confirm('Réinitialiser le PIN de ' + userName + ' (' + userEmail + ') ?\n\nUn nouveau PIN temporaire sera envoyé par email.')) return;
   const res = await api('/api/carnet/admin/users/' + userId + '/reset-pin', 'POST', {});
   if (res.success) {
     showAlert('admin-alert', '✅ PIN réinitialisé ! Un email a été envoyé à ' + userEmail, 'success');
