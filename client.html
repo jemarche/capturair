@@ -352,7 +352,7 @@
   </div>
   <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
     <div class="payment-total" id="pay-total"></div>
-    <button class="btn-payer" onclick="ouvrirRecap()">💳 Procéder au paiement</button>
+    <button class="btn-payer" id="btn-payer-bar" onclick="ouvrirRecap()">💳 Procéder au paiement</button>
   </div>
 </div>
 
@@ -544,22 +544,71 @@ function updateCounter() {
   const nb = selections.size, prix = calculerPrix();
   document.getElementById('counter-val').textContent = nb;
   const prixCard = document.getElementById('prix-card');
+  const bar = document.getElementById('payment-bar');
+
+  // Mode DEJA_PAYE — téléchargement direct sans paiement
+  if (projet && projet.statut === 'DEJA_PAYE') {
+    prixCard.style.display = 'none';
+    if (nb > 0) {
+      bar.classList.add('visible');
+      document.getElementById('pay-titre').textContent = `${nb} photo${nb>1?'s':''} sélectionnée${nb>1?'s':''}`;
+      document.getElementById('pay-detail').textContent = 'Déjà payé — téléchargement direct disponible';
+      document.getElementById('pay-total').textContent = '✅ Payé';
+      document.getElementById('btn-payer-bar').textContent = '📥 Télécharger ma sélection';
+      document.getElementById('btn-payer-bar').onclick = telechargerSelection;
+    } else {
+      bar.classList.remove('visible');
+    }
+    return;
+  }
+
+  // Mode normal avec paiement Stripe
   prixCard.style.display = nb > 0 ? 'block' : 'none';
   if (nb > 0) document.getElementById('prix-val').textContent = `${prix.total.toFixed(2)} $`;
-  const bar = document.getElementById('payment-bar');
   if (nb > 0) {
     bar.classList.add('visible');
     document.getElementById('pay-titre').textContent = `${nb} photo${nb>1?'s':''} sélectionnée${nb>1?'s':''}`;
     document.getElementById('pay-detail').textContent = `${prix.base.toFixed(2)}$ + TPS ${prix.tps.toFixed(2)}$ + TVQ ${prix.tvq.toFixed(2)}$`;
     document.getElementById('pay-total').textContent = `${prix.total.toFixed(2)} $`;
+    document.getElementById('btn-payer-bar').textContent = '💳 Procéder au paiement';
+    document.getElementById('btn-payer-bar').onclick = ouvrirRecap;
   } else {
     bar.classList.remove('visible');
   }
 }
 
+async function telechargerSelection() {
+  if (!selections.size) return;
+  const btn = document.getElementById('btn-payer-bar');
+  btn.disabled = true;
+  btn.textContent = '⏳ Génération des liens...';
+  try {
+    const res = await fetch(`${API}/api/portail/galerie/${token}/telecharger-direct`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ media_ids: Array.from(selections) })
+    });
+    const data = await res.json();
+    if (data.liens && data.liens.length) {
+      // Ouvrir chaque lien de téléchargement
+      data.liens.forEach((lien, i) => {
+        setTimeout(() => { window.open(lien.url, '_blank'); }, i * 500);
+      });
+      showNotif(`✅ ${data.liens.length} fichier(s) en cours de téléchargement !`);
+    } else {
+      alert('Erreur : ' + (data.error || 'Impossible de générer les liens'));
+    }
+  } catch(e) {
+    alert('Erreur de connexion.');
+  }
+  btn.disabled = false;
+  btn.textContent = '📥 Télécharger ma sélection';
+}
+
 // ── RÉCAP ─────────────────────────────────────────────────────────────
 function ouvrirRecap() {
   if (!selections.size) return;
+  if (projet && projet.statut === 'DEJA_PAYE') { telechargerSelection(); return; }
   const prix = calculerPrix();
   const sel = medias.filter(m => selections.has(m.id));
   document.getElementById('recap-list').innerHTML = sel.map(m => `
