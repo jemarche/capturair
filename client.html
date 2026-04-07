@@ -462,6 +462,7 @@ window.addEventListener('scroll', () => {
     renderGalerie();
     document.getElementById('loading-state').style.display = 'none';
     document.getElementById('galerie-content').style.display = 'block';
+    initBoutonPaiement();
     updateCounter();
   } catch(e) {
     showError('Erreur de chargement. Vérifiez votre connexion internet.');
@@ -540,6 +541,18 @@ function calculerPrix() {
   return {base, tps, tvq, total: base+tps+tvq};
 }
 
+function initBoutonPaiement() {
+  // Initialiser le bouton une seule fois selon le statut
+  const btn = document.getElementById('btn-payer-bar');
+  if (projet && projet.statut === 'DEJA_PAYE') {
+    btn.textContent = '📥 Télécharger ma sélection';
+    btn.onclick = telechargerSelection;
+  } else {
+    btn.textContent = '💳 Procéder au paiement';
+    btn.onclick = ouvrirRecap;
+  }
+}
+
 function updateCounter() {
   const nb = selections.size, prix = calculerPrix();
   document.getElementById('counter-val').textContent = nb;
@@ -554,8 +567,6 @@ function updateCounter() {
       document.getElementById('pay-titre').textContent = `${nb} photo${nb>1?'s':''} sélectionnée${nb>1?'s':''}`;
       document.getElementById('pay-detail').textContent = 'Déjà payé — téléchargement direct disponible';
       document.getElementById('pay-total').textContent = '✅ Payé';
-      document.getElementById('btn-payer-bar').textContent = '📥 Télécharger ma sélection';
-      document.getElementById('btn-payer-bar').onclick = telechargerSelection;
     } else {
       bar.classList.remove('visible');
     }
@@ -570,8 +581,6 @@ function updateCounter() {
     document.getElementById('pay-titre').textContent = `${nb} photo${nb>1?'s':''} sélectionnée${nb>1?'s':''}`;
     document.getElementById('pay-detail').textContent = `${prix.base.toFixed(2)}$ + TPS ${prix.tps.toFixed(2)}$ + TVQ ${prix.tvq.toFixed(2)}$`;
     document.getElementById('pay-total').textContent = `${prix.total.toFixed(2)} $`;
-    document.getElementById('btn-payer-bar').textContent = '💳 Procéder au paiement';
-    document.getElementById('btn-payer-bar').onclick = ouvrirRecap;
   } else {
     bar.classList.remove('visible');
   }
