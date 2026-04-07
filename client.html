@@ -590,11 +590,19 @@ async function telechargerSelection() {
     });
     const data = await res.json();
     if (data.liens && data.liens.length) {
-      // Ouvrir chaque lien de téléchargement
-      data.liens.forEach((lien, i) => {
-        setTimeout(() => { window.open(lien.url, '_blank'); }, i * 500);
-      });
-      showNotif(`✅ ${data.liens.length} fichier(s) en cours de téléchargement !`);
+      // Télécharger via <a download> — pas bloqué par le navigateur
+      for (const lien of data.liens) {
+        const a = document.createElement('a');
+        a.href = lien.url;
+        a.download = lien.nom || 'photo';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        // Délai entre chaque téléchargement pour éviter les conflits
+        await new Promise(r => setTimeout(r, 800));
+      }
+      showNotif(`✅ ${data.liens.length} fichier(s) téléchargé(s) avec succès !`);
     } else {
       alert('Erreur : ' + (data.error || 'Impossible de générer les liens'));
     }
