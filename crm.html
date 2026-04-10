@@ -1007,7 +1007,7 @@ async function login() {
   err.style.display = 'none';
 
   try {
-    const res = await fetch(`${API}/api/carnet/auth/login`, {
+    const res = await fetch('https://capturair-carnet.tumarchessurlatete.workers.dev/api/carnet/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, pin })
