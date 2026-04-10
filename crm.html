@@ -447,6 +447,20 @@
             <div class="form-group"><label class="form-label">Entreprise</label><input type="text" class="form-input" id="soum-entreprise" oninput="marquerModifSoum()"></div>
             <div class="form-group"><label class="form-label">Personne-contact</label><input type="text" class="form-input" id="soum-contact" oninput="marquerModifSoum()"></div>
             <div class="form-group"><label class="form-label">Nom du projet</label><input type="text" class="form-input" id="soum-nom-projet" placeholder="Villa Jolie" oninput="marquerModifSoum()"></div>
+            <div class="form-group form-full">
+              <label class="form-label">Adresse du projet (lieu d'intervention)</label>
+              <input type="text" class="form-input" id="soum-adresse-projet" placeholder="123 rue des Érables, Lavaltrie, QC J5T 1A1" oninput="marquerModifSoum();syncAdresseFact()">
+            </div>
+            <div class="form-group form-full" id="soum-adresse-fact-group">
+              <label class="form-label" style="display:flex;align-items:center;gap:10px;">
+                Adresse de facturation
+                <label style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:400;color:var(--gray);cursor:pointer;">
+                  <input type="checkbox" id="soum-meme-adresse" checked onchange="toggleAdresseFact()" style="width:14px;height:14px;accent-color:var(--blue);">
+                  Même adresse que le projet
+                </label>
+              </label>
+              <input type="text" class="form-input" id="soum-adresse-facturation" placeholder="Adresse de facturation si différente..." oninput="marquerModifSoum()" style="display:none;">
+            </div>
             <div class="form-group"><label class="form-label">Statut</label>
               <select class="form-input form-select" id="soum-statut-doc" oninput="marquerModifSoum()">
                 <option value="BROUILLON">📝 Brouillon</option><option value="ENVOYE">📧 Envoyée</option>
@@ -1126,6 +1140,13 @@ async function chargerSoumissionDossier(){
   document.getElementById('soum-stripe').value=currentSoumission.stripe_acompte_url||'';
   document.getElementById('soum-notes').value=currentSoumission.notes||'';
   document.getElementById('soum-entreprise').value=currentSoumission.entreprise||'';
+  document.getElementById('soum-adresse-projet').value=currentSoumission.adresse_projet||'';
+  const adresseFact=currentSoumission.adresse_facturation||'';
+  const adresseProjet=currentSoumission.adresse_projet||'';
+  const memeAdresse=!adresseFact||adresseFact===adresseProjet;
+  document.getElementById('soum-meme-adresse').checked=memeAdresse;
+  document.getElementById('soum-adresse-facturation').value=adresseFact;
+  document.getElementById('soum-adresse-facturation').style.display=memeAdresse?'none':'block';
   document.getElementById('soum-contact').value=currentSoumission.personne_contact||'';
   document.getElementById('soum-nom-projet').value=currentSoumission.nom_projet||'';
   document.getElementById('soum-statut-doc').value=currentSoumission.statut||'BROUILLON';
@@ -1176,7 +1197,9 @@ function setSatDisplay(v){document.querySelectorAll('#stars-sat .star').forEach(
 
 async function sauverSoumissionManuel(silencieux=false){
   if(!currentSoumission)return;
-  const body={frais_deplacement:parseFloat(document.getElementById('soum-deplacement').value)||0,frais_postprod:parseFloat(document.getElementById('soum-postprod').value)||0,montant_acompte:parseFloat(document.getElementById('soum-acompte').value)||0,stripe_acompte_url:document.getElementById('soum-stripe').value,notes:document.getElementById('soum-notes').value,statut:document.getElementById('soum-statut-doc').value||'BROUILLON',entreprise:document.getElementById('soum-entreprise').value,personne_contact:document.getElementById('soum-contact').value,nom_projet:document.getElementById('soum-nom-projet').value,date_souhaitee:document.getElementById('soum-date-souhaitee').value,date_confirmee:document.getElementById('soum-date-confirmee').value,heure_intervention:document.getElementById('soum-heure').value,duree_estimee:document.getElementById('soum-duree').value,mode_paiement:document.getElementById('soum-mode-paiement').value,statut_paiement:document.getElementById('soum-statut-paiement').value,statut_pdf_soumission:document.getElementById('soum-statut-pdf-soum').value,statut_pdf_facture:document.getElementById('soum-statut-pdf-fact').value,date_livraison:document.getElementById('soum-date-livraison').value,date_relance:document.getElementById('soum-date-relance').value,satisfaction:currentSatisfaction||null,projet_id:currentLead.id};
+  const body={frais_deplacement:parseFloat(document.getElementById('soum-deplacement').value)||0,frais_postprod:parseFloat(document.getElementById('soum-postprod').value)||0,montant_acompte:parseFloat(document.getElementById('soum-acompte').value)||0,stripe_acompte_url:document.getElementById('soum-stripe').value,notes:document.getElementById('soum-notes').value,statut:document.getElementById('soum-statut-doc').value||'BROUILLON',entreprise:document.getElementById('soum-entreprise').value,personne_contact:document.getElementById('soum-contact').value,nom_projet:document.getElementById('soum-nom-projet').value,date_souhaitee:document.getElementById('soum-date-souhaitee').value,date_confirmee:document.getElementById('soum-date-confirmee').value,heure_intervention:document.getElementById('soum-heure').value,duree_estimee:document.getElementById('soum-duree').value,mode_paiement:document.getElementById('soum-mode-paiement').value,statut_paiement:document.getElementById('soum-statut-paiement').value,statut_pdf_soumission:document.getElementById('soum-statut-pdf-soum').value,statut_pdf_facture:document.getElementById('soum-statut-pdf-fact').value,date_livraison:document.getElementById('soum-date-livraison').value,date_relance:document.getElementById('soum-date-relance').value,satisfaction:currentSatisfaction||null,projet_id:currentLead.id,
+    adresse_projet:document.getElementById('soum-adresse-projet').value,
+    adresse_facturation:document.getElementById('soum-meme-adresse').checked?document.getElementById('soum-adresse-projet').value:document.getElementById('soum-adresse-facturation').value};
   await apiPut(`/api/crm/soumissions/${currentSoumission.id}`,body);
   Object.assign(currentSoumission,body);
   clearUnsaved();
@@ -1527,6 +1550,28 @@ async function supprimerUtilisateur(id){if(!confirm('Supprimer ?'))return;const 
 
 function closeModal(id){document.getElementById(id).classList.remove('active');}
 document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('active');}));
+
+// ══ ADRESSE HELPERS ══════════════════════════════════════════════════
+function syncAdresseFact() {
+  const meme = document.getElementById('soum-meme-adresse')?.checked;
+  if (meme) {
+    const adresseProjet = document.getElementById('soum-adresse-projet').value;
+    document.getElementById('soum-adresse-facturation').value = adresseProjet;
+  }
+}
+
+function toggleAdresseFact() {
+  const meme = document.getElementById('soum-meme-adresse').checked;
+  const factInput = document.getElementById('soum-adresse-facturation');
+  if (meme) {
+    factInput.style.display = 'none';
+    factInput.value = document.getElementById('soum-adresse-projet').value;
+  } else {
+    factInput.style.display = 'block';
+    factInput.focus();
+  }
+  marquerModifSoum();
+}
 
 // ══ VALIDATION ════════════════════════════════════════════════════════
 const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
