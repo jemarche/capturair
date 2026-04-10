@@ -995,42 +995,76 @@ let pendingEnvoi = null; // {type: 'soumission'|'facture'}
 
 // ══ AUTH ══════════════════════════════════════════════════════════════
 
+let loginStep = 1; // 1=email+pin, 2=otp
+let loginEmail = '', loginPin = '';
+
 async function login() {
-  const email = document.getElementById('login-email').value.trim();
-  const pin = document.getElementById('login-pin').value.trim();
   const btn = document.getElementById('login-btn-text');
   const err = document.getElementById('login-error');
-
-  if (!email || !pin) { showLoginError('Veuillez remplir tous les champs.'); return; }
-
-  btn.innerHTML = '<span class="spinner"></span>';
   err.style.display = 'none';
 
-  try {
-    const res = await fetch('https://capturair-carnet.tumarchessurlatete.workers.dev/api/carnet/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, pin })
-    });
-    const data = await res.json();
+  if (loginStep === 1) {
+    loginEmail = document.getElementById('login-email').value.trim();
+    loginPin = document.getElementById('login-pin').value.trim();
+    if (!loginEmail || !loginPin) { showLoginError('Veuillez remplir tous les champs.'); return; }
 
-    if (!res.ok || !data.token) {
-      showLoginError('Email ou PIN incorrect.');
+    btn.innerHTML = '<span class="spinner"></span>';
+    try {
+      const res = await fetch('https://capturair-carnet.tumarchessurlatete.workers.dev/api/carnet/auth/init', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: loginEmail, pin: loginPin })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        showLoginError('Email ou PIN incorrect.');
+        btn.textContent = 'Connexion →';
+        return;
+      }
+      // Passer à l'étape OTP
+      loginStep = 2;
+      document.getElementById('login-pin').placeholder = 'Code reçu par email';
+      document.getElementById('login-pin').value = '';
+      document.getElementById('login-pin').maxLength = 6;
+      document.querySelector('[for="login-pin"], .login-field label:last-of-type') && null;
+      document.querySelectorAll('.login-field label')[1].textContent = 'Code OTP (reçu par email)';
+      document.getElementById('login-email').disabled = true;
+      btn.textContent = 'Valider le code →';
+    } catch(e) {
+      showLoginError('Erreur de connexion. Réessayez.');
       btn.textContent = 'Connexion →';
-      return;
     }
 
-    authToken = data.token;
-    currentUser = data.utilisateur || { email, role: 'utilisateur' };
-    sessionStorage.setItem('crm_token', authToken);
-    sessionStorage.setItem('crm_user', JSON.stringify(currentUser));
+  } else {
+    // Étape 2 — vérifier OTP
+    const otp = document.getElementById('login-pin').value.trim();
+    if (!otp) { showLoginError('Entrez le code reçu par email.'); return; }
 
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').classList.add('visible');
-    initApp();
-  } catch(e) {
-    showLoginError('Erreur de connexion. Réessayez.');
-    btn.textContent = 'Connexion →';
+    btn.innerHTML = '<span class="spinner"></span>';
+    try {
+      const res = await fetch('https://capturair-carnet.tumarchessurlatete.workers.dev/api/carnet/auth/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: loginEmail, pin: loginPin, otp })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.token) {
+        showLoginError('Code OTP incorrect ou expiré.');
+        btn.textContent = 'Valider le code →';
+        return;
+      }
+      authToken = data.token;
+      currentUser = data.utilisateur || { email: loginEmail, role: 'superadmin' };
+      sessionStorage.setItem('crm_token', authToken);
+      sessionStorage.setItem('crm_user', JSON.stringify(currentUser));
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').classList.add('visible');
+      loginStep = 1;
+      initApp();
+    } catch(e) {
+      showLoginError('Erreur de connexion. Réessayez.');
+      btn.textContent = 'Valider le code →';
+    }
   }
 }
 
