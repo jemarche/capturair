@@ -1042,10 +1042,10 @@ async function login() {
 
     btn.innerHTML = '<span class="spinner"></span>';
     try {
-      const res = await fetch('https://capturair-carnet.tumarchessurlatete.workers.dev/api/carnet/auth/verify', {
+      const res = await fetch('https://capturair-carnet.tumarchessurlatete.workers.dev/api/carnet/auth/otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: loginEmail, pin: loginPin, otp })
+        body: JSON.stringify({ email: loginEmail, otp })
       });
       const data = await res.json();
       if (!res.ok || !data.token) {
@@ -1054,7 +1054,7 @@ async function login() {
         return;
       }
       authToken = data.token;
-      currentUser = data.utilisateur || { email: loginEmail, role: 'superadmin' };
+      currentUser = { email: loginEmail, role: data.role || 'superadmin', nom: data.nom || '' };
       sessionStorage.setItem('crm_token', authToken);
       sessionStorage.setItem('crm_user', JSON.stringify(currentUser));
       document.getElementById('login-screen').style.display = 'none';
