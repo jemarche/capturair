@@ -3,462 +3,258 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CapturAir CRM</title>
+  <title>CapturAir CRM v2</title>
   <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-
   <style>
-    :root {
-      --navy: #0B1F3A;
-      --navy2: #0D2B50;
-      --blue: #1A8FD1;
-      --blue-light: #3AABEF;
-      --teal: #1ABC9C;
-      --orange: #E67E22;
-      --red: #E74C3C;
-      --green: #27AE60;
-      --offwhite: #F4F7FA;
-      --white: #FFFFFF;
-      --gray: #6B7C93;
-      --border: #DEE4EF;
-      --sidebar-w: 240px;
-
-      /* Statuts */
-      --s-nouveau: #3AABEF;
-      --s-contacte: #9B59B6;
-      --s-soumis: #E67E22;
-      --s-acompte: #27AE60;
-      --s-prod: #1ABC9C;
-      --s-livre: #1A8FD1;
-      --s-paye: #27AE60;
-      --s-ferme: #95A5A6;
-    }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'DM Sans', sans-serif; font-weight: 300; background: var(--offwhite); color: var(--navy); overflow-x: hidden; }
-
-    /* ══ LOGIN ══════════════════════════════════════════════════════ */
-    .login-screen {
-      min-height: 100vh; display: flex; align-items: center; justify-content: center;
-      background: linear-gradient(160deg, #060E18 0%, #0B1F3A 50%, #0D2B50 100%);
-      position: relative; overflow: hidden;
-    }
-    .login-grid {
-      position: absolute; inset: 0;
-      background-image: linear-gradient(rgba(26,143,209,0.05) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(26,143,209,0.05) 1px, transparent 1px);
-      background-size: 50px 50px;
-    }
-    .login-box {
-      background: rgba(255,255,255,0.04); backdrop-filter: blur(20px);
-      border: 1px solid rgba(200,216,232,0.12); border-radius: 24px;
-      padding: 48px; width: 420px; position: relative; z-index: 2;
-    }
-    .login-logo { text-align: center; margin-bottom: 32px; }
-    .login-logo img { width: 80px; height: 80px; border-radius: 16px; margin-bottom: 12px; }
-    .login-logo h1 { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: white; }
-    .login-logo p { color: var(--blue-light); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
-    .login-field { margin-bottom: 16px; }
-    .login-field label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(200,216,232,0.5); margin-bottom: 8px; }
-    .login-field input {
-      width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(200,216,232,0.15);
-      border-radius: 10px; padding: 13px 16px; color: white; font-size: 14px;
-      font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s;
-    }
-    .login-field input:focus { border-color: var(--blue); }
-    .login-field input::placeholder { color: rgba(200,216,232,0.25); }
-    .btn-login {
-      width: 100%; background: linear-gradient(135deg, var(--blue), #0D5C8A);
-      color: white; border: none; padding: 14px; border-radius: 10px;
-      font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px;
-      font-family: 'Syne', sans-serif; letter-spacing: 0.5px;
-      transition: all 0.2s;
-    }
-    .btn-login:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(26,143,209,0.4); }
-    .login-error { color: #E74C3C; font-size: 13px; text-align: center; margin-top: 12px; display: none; }
-
-    /* ══ LAYOUT PRINCIPAL ════════════════════════════════════════════ */
-    .app { display: none; min-height: 100vh; }
-    .app.visible { display: flex; }
-
-    /* Sidebar */
-    .sidebar {
-      width: var(--sidebar-w); background: var(--navy); position: fixed;
-      top: 0; left: 0; bottom: 0; z-index: 100;
-      display: flex; flex-direction: column; overflow-y: auto;
-    }
-    .sidebar-logo {
-      padding: 24px 20px; border-bottom: 1px solid rgba(200,216,232,0.07);
-      display: flex; align-items: center; gap: 12px;
-    }
-    .sidebar-logo img { width: 36px; height: 36px; border-radius: 8px; }
-    .sidebar-logo-text { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: white; }
-    .sidebar-logo-text span { color: var(--blue-light); }
-    .sidebar-nav { flex: 1; padding: 16px 12px; }
-    .nav-section { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(200,216,232,0.3); padding: 12px 8px 6px; }
-    .nav-item {
-      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
-      border-radius: 10px; cursor: pointer; color: rgba(200,216,232,0.55);
-      font-size: 13px; font-weight: 400; transition: all 0.2s; margin-bottom: 2px;
-      text-decoration: none;
-    }
-    .nav-item:hover { background: rgba(255,255,255,0.06); color: white; }
-    .nav-item.active { background: rgba(26,143,209,0.18); color: var(--blue-light); }
-    .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
-    .nav-badge { margin-left: auto; background: var(--blue); color: white; font-size: 10px; padding: 2px 7px; border-radius: 100px; font-weight: 600; }
-    .sidebar-footer { padding: 16px; border-top: 1px solid rgba(200,216,232,0.07); }
-    .sidebar-user { display: flex; align-items: center; gap: 10px; }
-    .sidebar-avatar { width: 34px; height: 34px; background: linear-gradient(135deg, var(--blue), #0D5C8A); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-    .sidebar-user-info { flex: 1; min-width: 0; }
-    .sidebar-user-name { font-size: 13px; color: white; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .sidebar-user-role { font-size: 10px; color: var(--blue-light); text-transform: uppercase; letter-spacing: 0.5px; }
-    .btn-logout { background: none; border: none; color: rgba(200,216,232,0.3); cursor: pointer; font-size: 16px; padding: 4px; transition: color 0.2s; }
-    .btn-logout:hover { color: var(--red); }
-
-    /* Main content */
-    .main-content { margin-left: var(--sidebar-w); flex: 1; min-width: 0; }
-
-    /* Top bar */
-    .topbar {
-      background: white; border-bottom: 1px solid var(--border);
-      padding: 0 32px; height: 64px; display: flex; align-items: center;
-      justify-content: space-between; position: sticky; top: 0; z-index: 50;
-    }
-    .topbar-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--navy); }
-    .topbar-actions { display: flex; align-items: center; gap: 12px; }
-    .btn-primary {
-      background: var(--blue); color: white; border: none; padding: 9px 18px;
-      border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer;
-      font-family: 'DM Sans', sans-serif; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
-    }
-    .btn-primary:hover { background: var(--blue-light); transform: translateY(-1px); }
-    .btn-secondary {
-      background: var(--offwhite); color: var(--navy); border: 1px solid var(--border);
-      padding: 9px 18px; border-radius: 8px; font-size: 13px; cursor: pointer;
-      font-family: 'DM Sans', sans-serif; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
-    }
-    .btn-secondary:hover { border-color: var(--blue); color: var(--blue); }
-
-    /* Pages */
-    .page { display: none; padding: 28px 32px; }
-    .page.active { display: block; }
-
-    /* ══ DASHBOARD ════════════════════════════════════════════════════ */
-    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
-    .stat-card {
-      background: white; border-radius: 14px; padding: 20px 22px;
-      border: 1px solid var(--border); position: relative; overflow: hidden;
-    }
-    .stat-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, var(--blue), var(--blue-light));
-    }
-    .stat-icon { font-size: 24px; margin-bottom: 10px; }
-    .stat-value { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 700; color: var(--navy); line-height: 1; }
-    .stat-label { font-size: 12px; color: var(--gray); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .stat-delta { font-size: 11px; color: var(--green); margin-top: 6px; }
-
-    /* Pipeline kanban */
-    .pipeline-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 16px; }
-    .pipeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; overflow-x: auto; padding-bottom: 8px; }
-    .pipeline-col { background: var(--offwhite); border-radius: 12px; padding: 12px; min-width: 180px; }
-    .pipeline-col-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    .pipeline-col-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-    .pipeline-count { background: rgba(0,0,0,0.1); color: inherit; font-size: 11px; padding: 2px 8px; border-radius: 100px; font-weight: 600; }
-    .pipeline-card {
-      background: white; border-radius: 10px; padding: 12px 14px;
-      border: 1px solid var(--border); margin-bottom: 8px; cursor: pointer;
-      transition: all 0.2s;
-    }
-    .pipeline-card:hover { box-shadow: 0 4px 16px rgba(26,143,209,0.12); transform: translateY(-2px); border-color: var(--blue-light); }
-    .pipeline-card-name { font-size: 13px; font-weight: 500; color: var(--navy); margin-bottom: 4px; }
-    .pipeline-card-service { font-size: 11px; color: var(--gray); }
-    .pipeline-card-montant { font-size: 12px; color: var(--blue); font-weight: 600; margin-top: 6px; }
-
-    /* ══ LISTE LEADS ══════════════════════════════════════════════════ */
-    .filters-bar {
-      display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    .search-input {
-      flex: 1; min-width: 200px; background: white; border: 1px solid var(--border);
-      border-radius: 8px; padding: 9px 14px; font-size: 13px; outline: none;
-      font-family: 'DM Sans', sans-serif; transition: border-color 0.2s;
-    }
-    .search-input:focus { border-color: var(--blue); }
-    .filter-select {
-      background: white; border: 1px solid var(--border); border-radius: 8px;
-      padding: 9px 14px; font-size: 13px; font-family: 'DM Sans', sans-serif;
-      outline: none; cursor: pointer; color: var(--navy);
-    }
-
-    .table-wrap { background: white; border-radius: 14px; border: 1px solid var(--border); overflow: hidden; }
-    .data-table { width: 100%; border-collapse: collapse; }
-    .data-table th {
-      background: var(--offwhite); padding: 11px 16px; text-align: left;
-      font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;
-      color: var(--gray); border-bottom: 1px solid var(--border);
-    }
-    .data-table td { padding: 13px 16px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--navy); }
-    .data-table tr:last-child td { border-bottom: none; }
-    .data-table tr:hover td { background: var(--offwhite); }
-    .data-table tr { cursor: pointer; transition: background 0.15s; }
-
-    /* Badges statut */
-    .badge {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;
-    }
-    .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-    .badge-nouveau { background: rgba(58,171,239,0.15); color: var(--s-nouveau); }
-    .badge-contacte { background: rgba(155,89,182,0.15); color: var(--s-contacte); }
-    .badge-soumis { background: rgba(230,126,34,0.15); color: var(--s-soumis); }
-    .badge-acompte { background: rgba(39,174,96,0.15); color: var(--s-acompte); }
-    .badge-prod { background: rgba(26,188,156,0.15); color: var(--s-prod); }
-    .badge-livre { background: rgba(26,143,209,0.15); color: var(--s-livre); }
-    .badge-paye { background: rgba(39,174,96,0.15); color: var(--s-paye); }
-    .badge-ferme { background: rgba(149,165,166,0.15); color: var(--s-ferme); }
-    .badge-brouillon { background: rgba(149,165,166,0.15); color: var(--s-ferme); }
-    .badge-envoye { background: rgba(230,126,34,0.15); color: var(--s-soumis); }
-
-    /* ══ FICHE DOSSIER ════════════════════════════════════════════════ */
-    .dossier-header {
-      background: white; border-radius: 14px; border: 1px solid var(--border);
-      padding: 24px 28px; margin-bottom: 20px; display: flex; align-items: center; gap: 20px;
-    }
-    .dossier-avatar {
-      width: 56px; height: 56px; border-radius: 14px; flex-shrink: 0;
-      background: linear-gradient(135deg, var(--blue), #0D5C8A);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; color: white;
-    }
-    .dossier-info { flex: 1; }
-    .dossier-nom { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; color: var(--navy); }
-    .dossier-meta { font-size: 13px; color: var(--gray); margin-top: 4px; }
-    .dossier-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-
-    /* Tabs */
-    .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 24px; }
-    .tab {
-      padding: 12px 20px; font-size: 13px; font-weight: 500; cursor: pointer;
-      color: var(--gray); border-bottom: 2px solid transparent; margin-bottom: -2px;
-      transition: all 0.2s;
-    }
-    .tab:hover { color: var(--navy); }
-    .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
-
-    /* Form */
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-    .form-full { grid-column: 1 / -1; }
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--gray); font-weight: 600; }
-    .form-input {
-      background: var(--offwhite); border: 1px solid var(--border); border-radius: 8px;
-      padding: 10px 13px; font-size: 13px; font-family: 'DM Sans', sans-serif;
-      color: var(--navy); outline: none; transition: all 0.2s;
-    }
-    .form-input:focus { border-color: var(--blue); background: white; box-shadow: 0 0 0 3px rgba(26,143,209,0.08); }
-    .form-select { appearance: none; cursor: pointer; }
-    .form-textarea { resize: vertical; min-height: 80px; }
-    .form-hint { font-size: 11px; color: var(--gray); }
-
-    /* Section card */
-    .section-card {
-      background: white; border-radius: 14px; border: 1px solid var(--border);
-      padding: 24px 28px; margin-bottom: 20px;
-    }
-    .section-card-title {
-      font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
-      color: var(--navy); margin-bottom: 20px; padding-bottom: 12px;
-      border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px;
-    }
-
-    /* Acompte buttons */
-    .acompte-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-    .acompte-btn {
-      background: var(--offwhite); border: 1px solid var(--border); border-radius: 8px;
-      padding: 8px 14px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif;
-      transition: all 0.2s; color: var(--navy);
-    }
-    .acompte-btn:hover, .acompte-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
-
-    /* Résumé financier */
-    .fin-table { width: 100%; border-collapse: collapse; }
-    .fin-table td { padding: 9px 12px; font-size: 13px; border-bottom: 1px solid var(--border); }
-    .fin-table td:last-child { text-align: right; font-weight: 600; }
-    .fin-total td { background: var(--navy); color: white; font-size: 15px; font-weight: 700; }
-    .fin-solde td { background: var(--blue); color: white; font-weight: 700; }
-
-    /* Timeline statut */
-    .timeline { display: flex; align-items: center; gap: 0; margin-bottom: 24px; overflow-x: auto; padding-bottom: 4px; }
-    .timeline-step {
-      display: flex; flex-direction: column; align-items: center; gap: 6px;
-      min-width: 90px; position: relative;
-    }
-    .timeline-step:not(:last-child)::after {
-      content: ''; position: absolute; top: 14px; left: calc(50% + 14px);
-      width: calc(100% - 28px); height: 2px; background: var(--border);
-    }
-    .timeline-step.done:not(:last-child)::after { background: var(--blue); }
-    .timeline-dot {
-      width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border);
-      background: white; display: flex; align-items: center; justify-content: center;
-      font-size: 12px; z-index: 1;
-    }
-    .timeline-step.done .timeline-dot { background: var(--blue); border-color: var(--blue); color: white; }
-    .timeline-step.current .timeline-dot { background: white; border-color: var(--blue); border-width: 3px; }
-    .timeline-label { font-size: 10px; color: var(--gray); text-align: center; }
-    .timeline-step.done .timeline-label { color: var(--blue); }
-    .timeline-step.current .timeline-label { color: var(--navy); font-weight: 600; }
-
-    /* Conditions checkbox */
-    .checkbox-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; }
-    .checkbox-row input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--blue); }
-    .checkbox-row label { font-size: 13px; color: var(--navy); cursor: pointer; }
-
-    /* Warning */
-    .warning-bar {
-      background: rgba(230,126,34,0.1); border: 1px solid rgba(230,126,34,0.3);
-      border-radius: 10px; padding: 12px 16px; font-size: 13px; color: var(--orange);
-      display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
-    }
-
-    /* Modal */
-    .modal-overlay {
-      display: none; position: fixed; inset: 0; z-index: 500;
-      background: rgba(0,0,0,0.6); backdrop-filter: blur(6px);
-      align-items: center; justify-content: center;
-    }
-    .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease; }
-    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-    .modal-box {
-      background: white; border-radius: 20px; padding: 36px; width: 520px;
-      max-width: 94vw; max-height: 90vh; overflow-y: auto;
-    }
-    .modal-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 20px; }
-    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
-
-    /* Notifications */
-    .notif {
-      position: fixed; top: 80px; right: 24px; z-index: 1000;
-      background: var(--navy); color: white; padding: 14px 20px;
-      border-radius: 10px; font-size: 13px; display: flex; align-items: center; gap: 10px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.2); animation: slideIn 0.3s ease;
-      max-width: 360px;
-    }
-    .notif.success { background: var(--green); }
-    .notif.error { background: var(--red); }
-    @keyframes slideIn { from{transform:translateX(20px);opacity:0} to{transform:none;opacity:1} }
-
-    /* Spinner */
-    .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; display: inline-block; }
-    @keyframes spin { to{transform:rotate(360deg)} }
-
-    /* Empty state */
-    .empty-state { text-align: center; padding: 60px 20px; color: var(--gray); }
-    .empty-state-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
-    .empty-state-text { font-size: 15px; }
-
-    /* Loading */
-    .loading-state { text-align: center; padding: 60px 20px; }
-    .loading-spinner { width: 36px; height: 36px; border: 3px solid rgba(26,143,209,0.15); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 12px; }
-
-    /* Autocomplete */
-    .autocomplete-wrap { position: relative; }
-    .autocomplete-list {
-      position: absolute; top: 100%; left: 0; right: 0; z-index: 100;
-      background: white; border: 1px solid var(--border); border-radius: 8px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1); max-height: 200px; overflow-y: auto;
-      display: none;
-    }
-    .autocomplete-list.open { display: block; }
-    .autocomplete-item { padding: 10px 14px; font-size: 13px; cursor: pointer; transition: background 0.15s; }
-    .autocomplete-item:hover { background: var(--offwhite); }
-
-    /* Responsive */
-    @media (max-width: 1024px) {
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .pipeline { grid-template-columns: repeat(3, 1fr); }
-      .form-grid { grid-template-columns: 1fr; }
-      .form-grid-3 { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 768px) {
-      :root { --sidebar-w: 0px; }
-      .sidebar { transform: translateX(-100%); width: 240px; transition: transform 0.3s; }
-      .sidebar.open { transform: none; --sidebar-w: 240px; }
-      .main-content { margin-left: 0; }
-      .page { padding: 16px; }
-      .topbar { padding: 0 16px; }
-      .stats-grid { grid-template-columns: 1fr 1fr; }
-      .pipeline { grid-template-columns: repeat(2, 1fr); }
-    }
+    :root{--navy:#0B1F3A;--blue:#1A8FD1;--blue-light:#3AABEF;--teal:#1ABC9C;--orange:#E67E22;--red:#E74C3C;--green:#27AE60;--purple:#9B59B6;--offwhite:#F4F7FA;--white:#FFFFFF;--gray:#6B7C93;--border:#DEE4EF;--sidebar-w:240px}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--offwhite);color:var(--navy);overflow-x:hidden}
+    /* LOGIN */
+    .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#060E18 0%,#0B1F3A 50%,#0D2B50 100%);position:relative;overflow:hidden}
+    .login-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(26,143,209,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(26,143,209,0.05) 1px,transparent 1px);background-size:50px 50px}
+    .login-box{background:rgba(255,255,255,0.04);backdrop-filter:blur(20px);border:1px solid rgba(200,216,232,0.12);border-radius:24px;padding:48px;width:420px;position:relative;z-index:2}
+    .login-logo{text-align:center;margin-bottom:32px}
+    .login-logo img{width:80px;height:80px;border-radius:16px;margin-bottom:12px}
+    .login-logo h1{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:white}
+    .login-logo p{color:var(--blue-light);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+    .login-field{margin-bottom:16px}
+    .login-field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(200,216,232,0.5);margin-bottom:8px}
+    .login-field input{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(200,216,232,0.15);border-radius:10px;padding:13px 16px;color:white;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+    .login-field input:focus{border-color:var(--blue)}
+    .login-field input::placeholder{color:rgba(200,216,232,0.25)}
+    .btn-login{width:100%;background:linear-gradient(135deg,var(--blue),#0D5C8A);color:white;border:none;padding:14px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;font-family:'Syne',sans-serif;transition:all 0.2s}
+    .btn-login:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(26,143,209,0.4)}
+    .login-error{color:#E74C3C;font-size:13px;text-align:center;margin-top:12px;display:none}
+    /* LAYOUT */
+    .app{display:none;min-height:100vh}
+    .app.visible{display:flex}
+    .sidebar{width:var(--sidebar-w);background:var(--navy);position:fixed;top:0;left:0;bottom:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
+    .sidebar-logo{padding:24px 20px;border-bottom:1px solid rgba(200,216,232,0.07);display:flex;align-items:center;gap:12px}
+    .sidebar-logo img{width:36px;height:36px;border-radius:8px}
+    .sidebar-logo-text{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:white}
+    .sidebar-logo-text span{color:var(--blue-light)}
+    .sidebar-nav{flex:1;padding:16px 12px}
+    .nav-section{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(200,216,232,0.3);padding:12px 8px 6px}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;color:rgba(200,216,232,0.55);font-size:13px;font-weight:400;transition:all 0.2s;margin-bottom:2px;text-decoration:none}
+    .nav-item:hover{background:rgba(255,255,255,0.06);color:white}
+    .nav-item.active{background:rgba(26,143,209,0.18);color:var(--blue-light)}
+    .nav-item .nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+    .nav-badge{margin-left:auto;background:var(--blue);color:white;font-size:10px;padding:2px 7px;border-radius:100px;font-weight:600}
+    .sidebar-footer{padding:16px;border-top:1px solid rgba(200,216,232,0.07)}
+    .sidebar-user{display:flex;align-items:center;gap:10px}
+    .sidebar-avatar{width:34px;height:34px;background:linear-gradient(135deg,var(--blue),#0D5C8A);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:600;flex-shrink:0}
+    .sidebar-user-info{flex:1;min-width:0}
+    .sidebar-user-name{font-size:13px;color:white;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sidebar-user-role{font-size:10px;color:var(--blue-light);text-transform:uppercase;letter-spacing:0.5px}
+    .btn-logout{background:none;border:none;color:rgba(200,216,232,0.3);cursor:pointer;font-size:16px;padding:4px;transition:color 0.2s}
+    .btn-logout:hover{color:var(--red)}
+    .main-content{margin-left:var(--sidebar-w);flex:1;min-width:0}
+    .topbar{background:white;border-bottom:1px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .topbar-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--navy)}
+    .topbar-actions{display:flex;align-items:center;gap:10px}
+    .btn-primary{background:var(--blue);color:white;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
+    .btn-primary:hover{background:var(--blue-light);transform:translateY(-1px)}
+    .btn-secondary{background:var(--offwhite);color:var(--navy);border:1px solid var(--border);padding:9px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
+    .btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
+    .btn-danger{background:rgba(231,76,60,0.1);color:var(--red);border:1px solid rgba(231,76,60,0.3);padding:9px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
+    .btn-danger:hover{background:var(--red);color:white}
+    .btn-stripe{background:linear-gradient(135deg,#635bff,#7a73ff);color:white;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
+    .btn-stripe:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(99,91,255,0.4)}
+    .btn-teal{background:var(--teal);color:white;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
+    .btn-teal:hover{opacity:0.9;transform:translateY(-1px)}
+    .page{display:none;padding:28px 32px}
+    .page.active{display:block}
+    /* STATS */
+    .stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:28px}
+    .stat-card{background:white;border-radius:14px;padding:18px 20px;border:1px solid var(--border);position:relative;overflow:hidden}
+    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--blue-light))}
+    .stat-icon{font-size:22px;margin-bottom:8px}
+    .stat-value{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:var(--navy);line-height:1}
+    .stat-label{font-size:11px;color:var(--gray);margin-top:4px;text-transform:uppercase;letter-spacing:0.5px}
+    /* PIPELINE */
+    .pipeline-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin-bottom:16px}
+    .pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;overflow-x:auto;padding-bottom:8px}
+    .pipeline-col{background:var(--offwhite);border-radius:12px;padding:12px;min-width:160px}
+    .pipeline-col-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .pipeline-col-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+    .pipeline-count{background:rgba(0,0,0,0.1);color:inherit;font-size:11px;padding:2px 8px;border-radius:100px;font-weight:600}
+    .pipeline-card{background:white;border-radius:10px;padding:12px 14px;border:1px solid var(--border);margin-bottom:8px;cursor:pointer;transition:all 0.2s}
+    .pipeline-card:hover{box-shadow:0 4px 16px rgba(26,143,209,0.12);transform:translateY(-2px);border-color:var(--blue-light)}
+    .pipeline-card-name{font-size:13px;font-weight:500;color:var(--navy);margin-bottom:3px}
+    .pipeline-card-service{font-size:11px;color:var(--gray)}
+    .pipeline-card-num{font-size:10px;color:var(--blue);font-weight:600;margin-top:3px}
+    /* TABLE */
+    .filters-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+    .search-input{flex:1;min-width:200px;background:white;border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-size:13px;outline:none;font-family:'DM Sans',sans-serif;transition:border-color 0.2s}
+    .search-input:focus{border-color:var(--blue)}
+    .filter-select{background:white;border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;color:var(--navy)}
+    .table-wrap{background:white;border-radius:14px;border:1px solid var(--border);overflow:hidden}
+    .data-table{width:100%;border-collapse:collapse}
+    .data-table th{background:var(--offwhite);padding:11px 16px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray);border-bottom:1px solid var(--border)}
+    .data-table td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--navy)}
+    .data-table tr:last-child td{border-bottom:none}
+    .data-table tr:hover td{background:var(--offwhite)}
+    .data-table tr{cursor:pointer;transition:background 0.15s}
+    /* BADGES */
+    .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600}
+    .badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+    .badge-nouveau{background:rgba(58,171,239,0.15);color:#3AABEF}
+    .badge-contacte,.badge-attente{background:rgba(155,89,182,0.15);color:#9B59B6}
+    .badge-soumis,.badge-modif{background:rgba(230,126,34,0.15);color:#E67E22}
+    .badge-acompte{background:rgba(39,174,96,0.15);color:#27AE60}
+    .badge-prod{background:rgba(26,188,156,0.15);color:#1ABC9C}
+    .badge-livre{background:rgba(26,143,209,0.15);color:#1A8FD1}
+    .badge-paye{background:rgba(39,174,96,0.15);color:#27AE60}
+    .badge-ferme{background:rgba(149,165,166,0.15);color:#95A5A6}
+    .badge-brouillon{background:rgba(149,165,166,0.15);color:#95A5A6}
+    .badge-envoye{background:rgba(230,126,34,0.15);color:#E67E22}
+    .badge-man{background:rgba(26,143,209,0.12);color:#1A8FD1;font-size:10px;padding:2px 8px}
+    .badge-web{background:rgba(39,174,96,0.12);color:#27AE60;font-size:10px;padding:2px 8px}
+    .age-badge{font-size:11px;padding:2px 8px;border-radius:100px;font-weight:600}
+    .age-fresh{background:rgba(39,174,96,0.15);color:#27AE60}
+    .age-medium{background:rgba(230,126,34,0.15);color:#E67E22}
+    .age-old{background:rgba(231,76,60,0.15);color:#E74C3C}
+    /* FLUX STATUT */
+    .flux-bar{display:flex;align-items:center;gap:0;margin-bottom:24px;overflow-x:auto;padding-bottom:4px;background:white;border-radius:12px;border:1px solid var(--border);padding:16px}
+    .flux-step{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:70px;position:relative}
+    .flux-step:not(:last-child)::after{content:'→';position:absolute;right:-12px;top:10px;font-size:14px;color:var(--border)}
+    .flux-step.done .flux-step::after{color:var(--blue)}
+    .flux-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);background:white;display:flex;align-items:center;justify-content:center;font-size:12px;z-index:1}
+    .flux-step.done .flux-dot{background:var(--blue);border-color:var(--blue);color:white}
+    .flux-step.current .flux-dot{background:white;border-color:var(--blue);border-width:3px}
+    .flux-label{font-size:9px;color:var(--gray);text-align:center;white-space:nowrap}
+    .flux-step.done .flux-label{color:var(--blue)}
+    .flux-step.current .flux-label{color:var(--navy);font-weight:600}
+    /* DOSSIER */
+    .dossier-header{background:white;border-radius:14px;border:1px solid var(--border);padding:20px 24px;margin-bottom:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+    .dossier-avatar{width:52px;height:52px;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,var(--blue),#0D5C8A);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:white}
+    .dossier-info{flex:1}
+    .dossier-nom{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--navy)}
+    .dossier-meta{font-size:12px;color:var(--gray);margin-top:4px}
+    .dossier-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;overflow-x:auto}
+    .tab{padding:11px 18px;font-size:13px;font-weight:500;cursor:pointer;color:var(--gray);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;white-space:nowrap}
+    .tab:hover{color:var(--navy)}
+    .tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+    /* FORM */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+    .form-full{grid-column:1/-1}
+    .form-group{display:flex;flex-direction:column;gap:5px}
+    .form-label{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray);font-weight:600}
+    .form-input{background:var(--offwhite);border:1px solid var(--border);border-radius:8px;padding:10px 13px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--navy);outline:none;transition:all 0.2s}
+    .form-input:focus{border-color:var(--blue);background:white;box-shadow:0 0 0 3px rgba(26,143,209,0.08)}
+    .form-input.is-invalid{border-color:var(--red)!important;background:rgba(231,76,60,0.04)!important}
+    .form-input.is-valid{border-color:var(--green)!important}
+    .form-select{appearance:none;cursor:pointer}
+    .form-textarea{resize:vertical;min-height:80px}
+    .form-hint{font-size:11px;color:var(--gray)}
+    .form-error{font-size:11px;color:var(--red);display:none}
+    .form-error.visible{display:block}
+    .section-card{background:white;border-radius:14px;border:1px solid var(--border);padding:22px 26px;margin-bottom:16px}
+    .section-card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+    /* FINANCIAL */
+    .acompte-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    .acompte-btn{background:var(--offwhite);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;color:var(--navy)}
+    .acompte-btn:hover,.acompte-btn.active{background:var(--blue);color:white;border-color:var(--blue)}
+    .fin-table{width:100%;border-collapse:collapse}
+    .fin-table td{padding:9px 12px;font-size:13px;border-bottom:1px solid var(--border)}
+    .fin-table td:last-child{text-align:right;font-weight:600}
+    .fin-total td{background:var(--navy);color:white;font-size:15px;font-weight:700}
+    .fin-solde td{background:var(--blue);color:white;font-weight:700}
+    /* PROJET MÉDIAS */
+    .media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin-top:16px}
+    .media-item{position:relative;border-radius:10px;overflow:hidden;aspect-ratio:4/3;background:var(--offwhite);border:1px solid var(--border)}
+    .media-item img{width:100%;height:100%;object-fit:cover}
+    .media-item-del{position:absolute;top:6px;right:6px;background:rgba(231,76,60,0.9);color:white;border:none;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer}
+    .drop-zone{border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--offwhite)}
+    .drop-zone:hover,.drop-zone.drag-over{border-color:var(--blue);background:rgba(26,143,209,0.04)}
+    .drop-zone-icon{font-size:32px;margin-bottom:8px}
+    .drop-zone-text{font-size:13px;color:var(--gray)}
+    /* GALERIE LINK */
+    .galerie-link-box{background:linear-gradient(135deg,rgba(26,143,209,0.08),rgba(26,143,209,0.04));border:1px solid rgba(26,143,209,0.2);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:12px}
+    .galerie-link-url{flex:1;font-size:12px;color:var(--blue);word-break:break-all}
+    /* DOUBLON */
+    .doublon-bar{background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.3);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--red);display:none;margin-bottom:12px}
+    .doublon-bar.visible{display:flex;align-items:center;gap:8px}
+    /* MODALS */
+    .modal-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+    .modal-overlay.active{display:flex;animation:fadeIn 0.2s ease}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .modal-box{background:white;border-radius:20px;padding:32px;width:560px;max-width:94vw;max-height:90vh;overflow-y:auto}
+    .modal-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:18px}
+    .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+    /* NOTIF */
+    .notif{position:fixed;top:80px;right:24px;z-index:1000;background:var(--navy);color:white;padding:14px 20px;border-radius:10px;font-size:13px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,0.2);animation:slideIn 0.3s ease;max-width:360px}
+    .notif.success{background:var(--green)}
+    .notif.error{background:var(--red)}
+    .notif.warning{background:var(--orange)}
+    @keyframes slideIn{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+    .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.6s linear infinite;display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .empty-state{text-align:center;padding:60px 20px;color:var(--gray)}
+    .empty-state-icon{font-size:48px;margin-bottom:12px;opacity:0.5}
+    .stars{display:flex;gap:4px}
+    .star{font-size:20px;cursor:pointer;transition:transform 0.1s}
+    .star:hover{transform:scale(1.2)}
+    .unsaved-label{font-size:12px;color:var(--orange);display:none;font-weight:500}
+    .unsaved-label.visible{display:inline}
+    .actions-menu{position:relative;display:inline-block}
+    .actions-btn{background:var(--offwhite);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;color:var(--navy)}
+    .actions-dropdown{position:absolute;right:0;top:calc(100% + 4px);background:white;border:1px solid var(--border);border-radius:12px;padding:6px;min-width:180px;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:200;display:none}
+    .actions-dropdown.open{display:block}
+    .action-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--navy);transition:background 0.15s}
+    .action-item:hover{background:var(--offwhite)}
+    .action-item.danger{color:var(--red)}
+    .action-item.danger:hover{background:rgba(231,76,60,0.08)}
+    .checkbox-row{display:flex;align-items:center;gap:10px;padding:10px 0}
+    .checkbox-row input[type="checkbox"]{width:16px;height:16px;cursor:pointer;accent-color:var(--blue)}
+    .checkbox-row label{font-size:13px;color:var(--navy);cursor:pointer}
+    .warning-bar{background:rgba(230,126,34,0.1);border:1px solid rgba(230,126,34,0.3);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--orange);display:flex;align-items:center;gap:8px;margin-bottom:16px}
+    @media(max-width:1200px){.stats-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:1024px){.stats-grid{grid-template-columns:repeat(2,1fr)}.pipeline{grid-template-columns:repeat(3,1fr)}.form-grid{grid-template-columns:1fr}.form-grid-3{grid-template-columns:1fr 1fr}}
+    @media(max-width:768px){:root{--sidebar-w:0px}.sidebar{transform:translateX(-100%);width:240px;transition:transform 0.3s}.sidebar.open{transform:none}.main-content{margin-left:0}.page{padding:16px}.topbar{padding:0 16px}.stats-grid{grid-template-columns:1fr 1fr}}
   </style>
 </head>
 <body>
 
-<!-- ══ LOGIN ══════════════════════════════════════════════════════════ -->
+<!-- LOGIN -->
 <div class="login-screen" id="login-screen">
   <div class="login-grid"></div>
   <div class="login-box">
     <div class="login-logo">
       <img src="https://raw.githubusercontent.com/jemarche/capturair/main/images/android-chrome-2048x2048.png" alt="CapturAir">
       <h1>Captur<span style="color:var(--blue-light)">Air</span></h1>
-      <p>CRM · Portail de gestion</p>
+      <p>CRM v2 · Hub Commercial</p>
     </div>
-    <div class="login-field">
-      <label>Courriel</label>
-      <input type="email" id="login-email" placeholder="votre@email.com" autocomplete="email">
-    </div>
-    <div class="login-field">
-      <label>PIN</label>
-      <input type="password" id="login-pin" placeholder="••••" maxlength="6" autocomplete="current-password">
-    </div>
-    <button class="btn-login" onclick="login()">
-      <span id="login-btn-text">Connexion →</span>
-    </button>
-    <div class="login-error" id="login-error">Email ou PIN incorrect.</div>
+    <div class="login-field"><label id="lbl-email">Courriel</label><input type="email" id="login-email" placeholder="votre@email.com" autocomplete="email"></div>
+    <div class="login-field"><label id="lbl-pin">PIN</label><input type="password" id="login-pin" placeholder="••••" maxlength="6" autocomplete="current-password"></div>
+    <button class="btn-login" onclick="login()"><span id="login-btn-text">Connexion →</span></button>
+    <div class="login-error" id="login-error"></div>
   </div>
 </div>
 
-<!-- ══ APP ═════════════════════════════════════════════════════════════ -->
+<!-- APP -->
 <div class="app" id="app">
-
-  <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <img src="https://raw.githubusercontent.com/jemarche/capturair/main/images/android-chrome-2048x2048.png" alt="CapturAir">
       <div class="sidebar-logo-text">Captur<span>Air</span></div>
     </div>
-
     <nav class="sidebar-nav">
       <div class="nav-section">Principal</div>
-      <a class="nav-item active" onclick="showPage('dashboard')" href="#">
-        <span class="nav-icon">📊</span> Dashboard
-      </a>
-      <a class="nav-item" onclick="showPage('leads')" href="#">
-        <span class="nav-icon">📁</span> Dossiers
-        <span class="nav-badge" id="badge-leads">0</span>
-      </a>
-
+      <a class="nav-item active" onclick="showPage('dashboard')" href="#"><span class="nav-icon">📊</span> Dashboard</a>
+      <a class="nav-item" onclick="showPage('leads')" href="#"><span class="nav-icon">📁</span> Dossiers <span class="nav-badge" id="badge-leads">0</span></a>
       <div class="nav-section">Documents</div>
-      <a class="nav-item" onclick="showPage('soumissions')" href="#">
-        <span class="nav-icon">📋</span> Soumissions
-        <span class="nav-badge" id="badge-soumissions">0</span>
-      </a>
-      <a class="nav-item" onclick="showPage('factures')" href="#">
-        <span class="nav-icon">📄</span> Factures
-        <span class="nav-badge" id="badge-factures">0</span>
-      </a>
-
+      <a class="nav-item" onclick="showPage('soumissions')" href="#"><span class="nav-icon">📋</span> Soumissions <span class="nav-badge" id="badge-soumissions">0</span></a>
+      <a class="nav-item" onclick="showPage('projets-list')" href="#"><span class="nav-icon">🚁</span> Projets <span class="nav-badge" id="badge-projets">0</span></a>
+      <a class="nav-item" onclick="showPage('factures')" href="#"><span class="nav-icon">📄</span> Factures <span class="nav-badge" id="badge-factures">0</span></a>
       <div class="nav-section" id="nav-admin-section" style="display:none;">Admin</div>
-      <a class="nav-item" id="nav-utilisateurs" style="display:none;" onclick="showPage('utilisateurs')" href="#">
-        <span class="nav-icon">👥</span> Utilisateurs
-      </a>
+      <a class="nav-item" id="nav-utilisateurs" style="display:none;" onclick="showPage('utilisateurs')" href="#"><span class="nav-icon">👥</span> Utilisateurs</a>
     </nav>
-
     <div class="sidebar-footer">
       <div class="sidebar-user">
         <div class="sidebar-avatar" id="sidebar-avatar">M</div>
@@ -471,58 +267,40 @@
     </div>
   </aside>
 
-  <!-- Main -->
   <div class="main-content">
-
-    <!-- Topbar -->
     <div class="topbar">
       <div style="display:flex;align-items:center;gap:16px;">
-        <button onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--navy);display:none;" id="menu-toggle">☰</button>
         <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <span class="unsaved-label" id="unsaved-label">● Non sauvegardé</span>
       </div>
       <div class="topbar-actions">
         <button class="btn-primary" onclick="openModalNouveauLead()">+ Nouveau dossier</button>
       </div>
     </div>
 
-    <!-- ── DASHBOARD ── -->
+    <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
-
-      <div class="stats-grid" id="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">📁</div>
-          <div class="stat-value" id="stat-leads">—</div>
-          <div class="stat-label">Dossiers actifs</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">📋</div>
-          <div class="stat-value" id="stat-soumissions">—</div>
-          <div class="stat-label">Soumissions envoyées</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">💰</div>
-          <div class="stat-value" id="stat-revenus">—</div>
-          <div class="stat-label">Revenus ce mois</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">📄</div>
-          <div class="stat-value" id="stat-factures">—</div>
-          <div class="stat-label">Factures en attente</div>
-        </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon">📁</div><div class="stat-value" id="stat-leads">—</div><div class="stat-label">Dossiers actifs</div></div>
+        <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-value" id="stat-soumissions">—</div><div class="stat-label">Soumissions</div></div>
+        <div class="stat-card"><div class="stat-icon">🚁</div><div class="stat-value" id="stat-projets">—</div><div class="stat-label">Projets actifs</div></div>
+        <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-value" id="stat-revenus">—</div><div class="stat-label">Revenus ce mois</div></div>
+        <div class="stat-card"><div class="stat-icon">📄</div><div class="stat-value" id="stat-factures">—</div><div class="stat-label">Factures en att.</div></div>
       </div>
-
-      <div class="pipeline-title">📊 Pipeline — État des dossiers</div>
+      <div class="pipeline-title">📊 Pipeline commercial — Flux complet</div>
       <div class="pipeline" id="pipeline-kanban"></div>
-
     </div>
 
-    <!-- ── LEADS ── -->
+    <!-- LEADS LIST -->
     <div class="page" id="page-leads">
       <div class="filters-bar">
-        <input type="text" class="search-input" id="search-leads" placeholder="🔍 Rechercher un client, service, ville..." oninput="filtrerLeads()">
+        <input type="text" class="search-input" id="search-leads" placeholder="🔍 Rechercher client, service, ville, numéro..." oninput="filtrerLeads()">
         <select class="filter-select" id="filter-statut" onchange="filtrerLeads()">
-          <option value="">Tous les statuts</option>
+          <option value="">Tous statuts</option>
           <option value="Nouveau">🔵 Nouveau</option>
+          <option value="En attente de CapturAir">🟡 En attente CapturAir</option>
+          <option value="En cours de modifications">🟠 En cours de modif.</option>
+          <option value="En attente du client">🟣 En attente client</option>
           <option value="Contacté">🟣 Contacté</option>
           <option value="Soumission envoyée">🟠 Soumission envoyée</option>
           <option value="Acompte reçu">🟢 Acompte reçu</option>
@@ -531,48 +309,31 @@
           <option value="Payé complet">✅ Payé complet</option>
           <option value="Fermé">⚫ Fermé</option>
         </select>
-        <select class="filter-select" id="filter-service" onchange="filtrerLeads()">
-          <option value="">Tous les services</option>
-          <option>Pack Visibilité Essentielle</option>
-          <option>Capsule Vidéo Impact</option>
-          <option>Pack Visibilité Complète</option>
-          <option>Cartographie Drone Professionnelle</option>
-          <option>Inspection Toiture Visuelle Drone</option>
-          <option>Inspection Structure & Bâtiment</option>
-          <option>Inspection Réseaux & Infrastructures</option>
-          <option>Pack Signature Immobilier Premium</option>
-          <option>Captation Événementielle Drone</option>
-          <option>Suivi de Chantier Drone Pro</option>
-          <option>Pack Promotion Tourisme & Paysage</option>
-          <option>Projet sur mesure</option>
+        <select class="filter-select" id="filter-source" onchange="filtrerLeads()">
+          <option value="">Toutes sources</option>
+          <option value="MAN">📝 Manuel</option>
+          <option value="WEB">🌐 Web/Make</option>
         </select>
       </div>
-
       <div class="table-wrap">
         <table class="data-table">
-          <thead>
-            <tr>
-              <th>Client</th>
-              <th>Service</th>
-              <th>Ville</th>
-              <th>Date souhaitée</th>
-              <th>Statut</th>
-              <th>Assigné à</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+          <thead><tr><th>N° / Source</th><th>Client</th><th>Service</th><th>Ville</th><th>Statut</th><th>Projet</th><th>Âge</th><th>Assigné</th></tr></thead>
           <tbody id="leads-tbody"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- ── DOSSIER DETAIL ── -->
+    <!-- DOSSIER DETAIL -->
     <div class="page" id="page-dossier">
-      <div style="margin-bottom:16px;">
-        <button class="btn-secondary" onclick="showPage('leads')">← Retour aux dossiers</button>
+      <div style="margin-bottom:14px;display:flex;align-items:center;gap:12px;">
+        <button class="btn-secondary" onclick="confirmerRetour()">← Retour</button>
+        <span class="unsaved-label" id="unsaved-label-dos"></span>
       </div>
 
-      <div class="dossier-header" id="dossier-header">
+      <!-- FLUX STATUT -->
+      <div class="flux-bar" id="flux-statut"></div>
+
+      <div class="dossier-header">
         <div class="dossier-avatar" id="dossier-avatar">?</div>
         <div class="dossier-info">
           <div class="dossier-nom" id="dossier-nom">—</div>
@@ -580,345 +341,416 @@
         </div>
         <div class="dossier-actions">
           <button class="btn-secondary" onclick="modifierStatut()">✏️ Statut</button>
-          <button class="btn-primary" onclick="ouvrirOnglet('tab-soumission')">📋 Soumission</button>
-          <button class="btn-primary" onclick="ouvrirOnglet('tab-facture')" style="background:var(--teal)">📄 Facture</button>
+          <button class="btn-primary" onclick="switchTab('soumission')">📋 Soumission</button>
+          <button class="btn-primary" onclick="switchTab('projet')" style="background:var(--purple)">🚁 Projet</button>
+          <button class="btn-teal" onclick="switchTab('facture')">📄 Facture</button>
+          <div class="actions-menu">
+            <button class="actions-btn" onclick="toggleMenu('dos')">⚙️ ▾</button>
+            <div class="actions-dropdown" id="dropdown-dos">
+              <div class="action-item" onclick="dupliquerLead()">📋 Dupliquer</div>
+              <div class="action-item danger" onclick="supprimerLead()">🗑️ Supprimer</div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Timeline -->
-      <div class="timeline" id="dossier-timeline"></div>
-
-      <!-- Tabs -->
       <div class="tabs">
         <div class="tab active" id="tab-infos" onclick="switchTab('infos')">📋 Informations</div>
         <div class="tab" id="tab-soumission" onclick="switchTab('soumission')">📋 Soumission</div>
+        <div class="tab" id="tab-projet" onclick="switchTab('projet')">🚁 Projet galerie</div>
         <div class="tab" id="tab-facture" onclick="switchTab('facture')">📄 Facture</div>
       </div>
 
-      <!-- Tab Infos -->
+      <!-- TAB INFOS -->
       <div id="tab-content-infos">
         <div class="section-card">
-          <div class="section-card-title">👤 Informations client</div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">Prénom</label>
-              <input type="text" class="form-input" id="info-prenom" onchange="sauverLead()">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Nom</label>
-              <input type="text" class="form-input" id="info-nom" onchange="sauverLead()">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Courriel</label>
-              <input type="email" class="form-input" id="info-courriel" onchange="sauverLead()">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Téléphone (514-446-6078)</label>
-              <input type="text" class="form-input" id="info-telephone" placeholder="514-446-6078" onchange="sauverLead()">
-            </div>
+          <div class="section-card-title">👤 Informations client
+            <button class="btn-primary" onclick="sauverLeadManuel()" style="font-size:12px;padding:7px 14px;">💾 Sauvegarder</button>
           </div>
-        </div>
-
-        <div class="section-card">
-          <div class="section-card-title">🚁 Détails du projet</div>
           <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">Service</label>
-              <select class="form-input form-select" id="info-service" onchange="sauverLead()">
+            <div class="form-group"><label class="form-label">Prénom *</label><input type="text" class="form-input" id="info-prenom" oninput="marquerModif()" onblur="formatCap('info-prenom');validerChamp('info-prenom','req')"><div class="form-error" id="err-info-prenom">Requis</div></div>
+            <div class="form-group"><label class="form-label">Nom *</label><input type="text" class="form-input" id="info-nom" oninput="marquerModif()" onblur="formatCap('info-nom');validerChamp('info-nom','req')"><div class="form-error" id="err-info-nom">Requis</div></div>
+            <div class="form-group"><label class="form-label">Courriel *</label><input type="email" class="form-input" id="info-courriel" oninput="marquerModif()" onblur="validerChamp('info-courriel','email');checkDoublon()"><div class="form-error" id="err-info-courriel">Courriel invalide</div></div>
+            <div class="form-group"><label class="form-label">Téléphone (XXX-XXX-XXXX)</label><input type="text" class="form-input" id="info-telephone" placeholder="514-446-6078" oninput="marquerModif()" onblur="formatTel('info-telephone');validerChamp('info-telephone','tel');checkDoublon()"><div class="form-error" id="err-info-telephone">Format: XXX-XXX-XXXX</div></div>
+          </div>
+          <div class="doublon-bar" id="doublon-bar">⚠️ <span id="doublon-msg"></span></div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-title">🚁 Détails du projet
+            <button class="btn-primary" onclick="sauverLeadManuel()" style="font-size:12px;padding:7px 14px;">💾 Sauvegarder</button>
+          </div>
+          <div class="form-grid">
+            <div class="form-group"><label class="form-label">Service *</label>
+              <select class="form-input form-select" id="info-service" oninput="marquerModif()" onblur="validerChamp('info-service','req')">
                 <option value="">— Sélectionner —</option>
-                <option>Pack Visibilité Essentielle</option>
-                <option>Capsule Vidéo Impact</option>
-                <option>Pack Visibilité Complète</option>
-                <option>Cartographie Drone Professionnelle</option>
-                <option>Inspection Toiture Visuelle Drone</option>
-                <option>Inspection Structure &amp; Bâtiment</option>
-                <option>Inspection Réseaux &amp; Infrastructures</option>
-                <option>Pack Signature Immobilier Premium</option>
-                <option>Captation Événementielle Drone</option>
-                <option>Suivi de Chantier Drone Pro</option>
-                <option>Pack Promotion Tourisme &amp; Paysage</option>
-                <option>Projet sur mesure</option>
+                <option>Pack Visibilité Essentielle</option><option>Capsule Vidéo Impact</option><option>Pack Visibilité Complète</option>
+                <option>Cartographie Drone Professionnelle</option><option>Inspection Toiture Visuelle Drone</option>
+                <option>Inspection Structure &amp; Bâtiment</option><option>Inspection Réseaux &amp; Infrastructures</option>
+                <option>Pack Signature Immobilier Premium</option><option>Captation Événementielle Drone</option>
+                <option>Suivi de Chantier Drone Pro</option><option>Pack Promotion Tourisme &amp; Paysage</option><option>Projet sur mesure</option>
+              </select>
+              <div class="form-error" id="err-info-service">Requis</div>
+            </div>
+            <div class="form-group"><label class="form-label">Date souhaitée</label><input type="date" class="form-input" id="info-date" oninput="marquerModif()"></div>
+            <div class="form-group"><label class="form-label">Ville</label>
+              <select class="form-input form-select" id="info-ville" oninput="marquerModif()">
+                <option value="">— Sélectionner —</option>
+                <option>Anjou</option><option>Joliette</option><option>L'Assomption</option><option>Lanoraie</option>
+                <option>Laval</option><option>Lavaltrie</option><option>Longueuil</option><option>Mascouche</option>
+                <option>Mirabel</option><option>Montréal</option><option>Montréal-Est</option><option>Repentigny</option>
+                <option>Saint-Charles-Borromée</option><option>Saint-Eustache</option><option>Saint-Jérôme</option>
+                <option>Saint-Laurent</option><option>Saint-Lin–Laurentides</option><option>Terrebonne</option>
+                <option>Varennes</option><option>Autre</option>
               </select>
             </div>
-            <div class="form-group">
-              <label class="form-label">Date souhaitée</label>
-              <input type="date" class="form-input" id="info-date" onchange="sauverLead()">
+            <div class="form-group"><label class="form-label">Budget *</label>
+              <select class="form-input form-select" id="info-budget" oninput="marquerModif()" onblur="validerChamp('info-budget','req')">
+                <option value="">— Sélectionner —</option>
+                <option>Moins de 300 $</option><option>300 $ – 500 $</option><option>500 $ – 800 $</option><option>800 $ +</option><option>À discuter</option>
+              </select>
+              <div class="form-error" id="err-info-budget">Requis</div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Ville</label>
-              <div class="autocomplete-wrap">
-                <input type="text" class="form-input" id="info-ville" placeholder="Ex: Lavaltrie" oninput="autocompleteVille(this)" onchange="sauverLead()">
-                <div class="autocomplete-list" id="autocomplete-ville"></div>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Budget approximatif</label>
-              <input type="text" class="form-input" id="info-budget" onchange="sauverLead()">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Source</label>
-              <select class="form-input form-select" id="info-source" onchange="sauverLead()">
-                <option>Site Web</option>
-                <option>Référence</option>
-                <option>Google</option>
-                <option>Facebook</option>
-                <option>Instagram</option>
-                <option>Autre</option>
+            <div class="form-group"><label class="form-label">Source</label>
+              <select class="form-input form-select" id="info-source" oninput="marquerModif()">
+                <option>Site Web</option><option>Référence</option><option>Google</option><option>Facebook</option><option>Instagram</option><option>Manuel</option><option>Autre</option>
               </select>
             </div>
-            <div class="form-group">
-              <label class="form-label">Assigné à</label>
-              <input type="text" class="form-input" id="info-assigne" onchange="sauverLead()">
+            <div class="form-group"><label class="form-label">Assigné à</label>
+              <select class="form-input form-select" id="info-assigne" oninput="marquerModif()">
+                <option value="Mohand">👑 Mohand (Superadmin)</option>
+              </select>
             </div>
-            <div class="form-group form-full">
-              <label class="form-label">Description du projet</label>
-              <textarea class="form-input form-textarea" id="info-description" onchange="sauverLead()"></textarea>
-            </div>
-            <div class="form-group form-full">
-              <label class="form-label">Prochaine action</label>
-              <input type="text" class="form-input" id="info-action" onchange="sauverLead()">
-            </div>
+            <div class="form-group form-full"><label class="form-label">Description</label><textarea class="form-input form-textarea" id="info-description" oninput="marquerModif()"></textarea></div>
+            <div class="form-group form-full"><label class="form-label">Prochaine action</label><input type="text" class="form-input" id="info-action" oninput="marquerModif()"></div>
           </div>
         </div>
       </div>
 
-      <!-- Tab Soumission -->
+      <!-- TAB SOUMISSION -->
       <div id="tab-content-soumission" style="display:none;">
-        <div id="soumission-brouillon">
-          <div class="section-card">
-            <div class="section-card-title">📋 Soumission <span id="soum-num" style="color:var(--blue);font-weight:400;font-size:13px;"></span></div>
+        <div class="section-card">
+          <div class="section-card-title">
+            <span>📋 Soumission <span id="soum-num" style="color:var(--blue);font-weight:400;font-size:13px;"></span></span>
+            <div style="display:flex;gap:8px;">
+              <div class="actions-menu">
+                <button class="actions-btn" onclick="toggleMenu('soum')">⚙️ ▾</button>
+                <div class="actions-dropdown" id="dropdown-soum">
+                  <div class="action-item" onclick="dupliquerSoumission()">📋 Dupliquer</div>
+                  <div class="action-item danger" onclick="supprimerSoumission()">🗑️ Supprimer</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
+          <!-- Champs soumission -->
+          <div class="form-grid" style="margin-bottom:20px;">
+            <div class="form-group"><label class="form-label">Entreprise</label><input type="text" class="form-input" id="soum-entreprise" oninput="marquerModifSoum()"></div>
+            <div class="form-group"><label class="form-label">Personne-contact</label><input type="text" class="form-input" id="soum-contact" oninput="marquerModifSoum()"></div>
+            <div class="form-group"><label class="form-label">Nom du projet</label><input type="text" class="form-input" id="soum-nom-projet" placeholder="Villa Jolie" oninput="marquerModifSoum()"></div>
+            <div class="form-group"><label class="form-label">Statut</label>
+              <select class="form-input form-select" id="soum-statut-doc" oninput="marquerModifSoum()">
+                <option value="BROUILLON">📝 Brouillon</option><option value="ENVOYE">📧 Envoyée</option>
+                <option value="ACCEPTE">✅ Acceptée</option><option value="REFUSE">❌ Refusée</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Date souhaitée</label><input type="date" class="form-input" id="soum-date-souhaitee" oninput="marquerModifSoum()"></div>
+            <div class="form-group"><label class="form-label">Date confirmée</label><input type="date" class="form-input" id="soum-date-confirmee" oninput="marquerModifSoum()"></div>
+            <div class="form-group"><label class="form-label">Heure d'intervention</label>
+              <select class="form-input form-select" id="soum-heure" oninput="marquerModifSoum()">
+                <option value="">— Sélectionner —</option>
+                <option>07:00</option><option>07:30</option><option>08:00</option><option>08:30</option><option>09:00</option><option>09:30</option>
+                <option>10:00</option><option>10:30</option><option>11:00</option><option>11:30</option><option>12:00</option><option>12:30</option>
+                <option>13:00</option><option>13:30</option><option>14:00</option><option>14:30</option><option>15:00</option><option>15:30</option>
+                <option>16:00</option><option>16:30</option><option>17:00</option><option>17:30</option><option>18:00</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Durée estimée</label>
+              <select class="form-input form-select" id="soum-duree" oninput="marquerModifSoum()">
+                <option value="">— Sélectionner —</option>
+                <option>30 min</option><option>1 heure</option><option>1h30</option><option>2 heures</option>
+                <option>2h30</option><option>3 heures</option><option>4 heures</option><option>Demi-journée</option><option>Journée complète</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Mode de paiement</label>
+              <select class="form-input form-select" id="soum-mode-paiement" oninput="marquerModifSoum()">
+                <option value="">— Sélectionner —</option>
+                <option>Virement Interac</option><option>Carte de crédit (Stripe)</option><option>Chèque</option><option>Comptant</option><option>À discuter</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Statut paiement</label>
+              <select class="form-input form-select" id="soum-statut-paiement" oninput="marquerModifSoum()">
+                <option value="EN_ATTENTE">⏳ En attente</option><option value="ACOMPTE_RECU">💰 Acompte reçu</option>
+                <option value="PAYE_COMPLET">✅ Payé complet</option><option value="REMBOURSE">↩️ Remboursé</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Statut PDF Soumission</label>
+              <select class="form-input form-select" id="soum-statut-pdf-soum" oninput="marquerModifSoum()">
+                <option value="NON_FAIT">⬜ Non fait</option><option value="FAIT">✅ Fait</option><option value="ENVOYE_CLIENT">📧 Envoyé</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Statut PDF Facture</label>
+              <select class="form-input form-select" id="soum-statut-pdf-fact" oninput="marquerModifSoum()">
+                <option value="NON_FAIT">⬜ Non fait</option><option value="FAIT">✅ Fait</option><option value="ENVOYE_CLIENT">📧 Envoyé</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Date livraison</label><input type="date" class="form-input" id="soum-date-livraison" oninput="marquerModifSoum()"></div>
+            <div class="form-group"><label class="form-label">Date relance</label><input type="date" class="form-input" id="soum-date-relance" oninput="marquerModifSoum()"></div>
+            <div class="form-group"><label class="form-label">Satisfaction client</label>
+              <div class="stars" id="stars-sat">
+                <span class="star" onclick="setSat(1)">☆</span><span class="star" onclick="setSat(2)">☆</span>
+                <span class="star" onclick="setSat(3)">☆</span><span class="star" onclick="setSat(4)">☆</span>
+                <span class="star" onclick="setSat(5)">☆</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Financier -->
+          <div style="border-top:1px solid var(--border);padding-top:18px;margin-bottom:18px;">
+            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:14px;">💰 Données financières</div>
             <div class="form-grid">
-              <div class="form-group">
-                <label class="form-label">Frais de déplacement ($)</label>
-                <input type="number" class="form-input" id="soum-deplacement" placeholder="0.00" min="0" step="0.01" oninput="calculerSoumission()">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Frais de postproduction ($)</label>
-                <input type="number" class="form-input" id="soum-postprod" placeholder="0.00" min="0" step="0.01" oninput="calculerSoumission()">
-              </div>
+              <div class="form-group"><label class="form-label">Frais déplacement ($)</label><input type="number" class="form-input" id="soum-deplacement" placeholder="0.00" min="0" step="0.01" oninput="calculerSoumission()"></div>
+              <div class="form-group"><label class="form-label">Frais postproduction ($)</label><input type="number" class="form-input" id="soum-postprod" placeholder="0.00" min="0" step="0.01" oninput="calculerSoumission()"></div>
               <div class="form-group form-full">
                 <label class="form-label">Montant acompte</label>
-                <div class="acompte-btns" id="acompte-btns">
+                <div class="acompte-btns">
                   <button class="acompte-btn" onclick="setAcompte(0)">0 $</button>
                   <button class="acompte-btn" onclick="setAcompte('25')">25 %</button>
                   <button class="acompte-btn active" onclick="setAcompte('50')">50 % ★</button>
                   <button class="acompte-btn" onclick="setAcompte('100')">100 %</button>
-                  <button class="acompte-btn" onclick="setAcompte('libre')">Montant libre</button>
+                  <button class="acompte-btn" onclick="setAcompte('libre')">Libre</button>
                 </div>
                 <input type="number" class="form-input" id="soum-acompte" placeholder="0.00" min="0" step="0.01" oninput="calculerSoumission()">
               </div>
               <div class="form-group form-full">
-                <label class="form-label">Lien Stripe acompte (optionnel)</label>
-                <input type="url" class="form-input" id="soum-stripe" placeholder="https://buy.stripe.com/...">
-              </div>
-              <div class="form-group form-full">
-                <label class="form-label">Notes</label>
-                <textarea class="form-input form-textarea" id="soum-notes" placeholder="Notes internes..."></textarea>
-              </div>
-            </div>
-
-            <!-- Résumé financier -->
-            <div style="margin-top:20px;">
-              <table class="fin-table" id="soum-fin-table"></table>
-            </div>
-
-            <!-- Conditions -->
-            <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
-              <div class="checkbox-row">
-                <input type="checkbox" id="soum-conditions" checked>
-                <label for="soum-conditions">☑️ Joindre les Conditions Générales CapturAir (PDF)</label>
+                <label class="form-label">Lien Stripe acompte</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="url" class="form-input" id="soum-stripe" placeholder="https://buy.stripe.com/..." style="flex:1;">
+                  <button class="btn-stripe" onclick="genererStripe()">⚡ Générer</button>
+                </div>
               </div>
             </div>
+            <div style="margin-top:14px;"><table class="fin-table" id="soum-fin-table"></table></div>
+          </div>
 
-            <!-- Actions -->
-            <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
-              <button class="btn-secondary" onclick="apercuSoumission()">👁️ Aperçu</button>
-              <button class="btn-primary" onclick="sauverSoumission()">💾 Sauvegarder</button>
-              <button class="btn-primary" onclick="envoyerSoumission()" style="background:var(--teal)">📧 Envoyer au client</button>
-            </div>
+          <div class="form-group"><label class="form-label">Notes internes</label><textarea class="form-input form-textarea" id="soum-notes" oninput="marquerModifSoum()"></textarea></div>
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+            <div class="checkbox-row"><input type="checkbox" id="soum-conditions" checked><label for="soum-conditions">☑️ Joindre les Conditions Générales CapturAir (PDF)</label></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;">
+            <button class="btn-secondary" onclick="apercuSoumission()">👁️ Aperçu</button>
+            <button class="btn-secondary" onclick="imprimerPDF('soumission')">🖨️ PDF</button>
+            <button class="btn-primary" onclick="sauverSoumissionManuel()">💾 Sauvegarder</button>
+            <button class="btn-teal" onclick="envoyerSoumission()">📧 Envoyer</button>
+            <button class="btn-secondary" onclick="envoyerConfirmationVisite()" style="border-color:var(--blue);color:var(--blue);">📅 Confirmer visite</button>
           </div>
         </div>
       </div>
 
-      <!-- Tab Facture -->
+      <!-- TAB PROJET GALERIE -->
+      <div id="tab-content-projet" style="display:none;">
+        <div class="section-card">
+          <div class="section-card-title">
+            <span>🚁 Projet galerie <span id="projet-num" style="color:var(--purple);font-weight:400;font-size:13px;"></span></span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span id="projet-statut-badge"></span>
+            </div>
+          </div>
+
+          <!-- Infos projet -->
+          <div class="form-grid" style="margin-bottom:18px;">
+            <div class="form-group"><label class="form-label">Nom du projet</label><input type="text" class="form-input" id="projet-nom"></div>
+            <div class="form-group"><label class="form-label">Client</label><input type="text" class="form-input" id="projet-client-nom" readonly style="background:var(--offwhite);"></div>
+            <div class="form-group"><label class="form-label">Courriel client</label><input type="email" class="form-input" id="projet-client-email" readonly style="background:var(--offwhite);"></div>
+            <div class="form-group"><label class="form-label">Statut galerie</label>
+              <select class="form-input form-select" id="projet-statut">
+                <option value="EN_ATTENTE">⏳ En attente</option>
+                <option value="ENVOYE">📧 Galerie envoyée</option>
+                <option value="SELECTION">🎨 Sélection faite</option>
+                <option value="DEJA_PAYE">✅ Déjà payé</option>
+                <option value="PAYE">💰 Payé</option>
+                <option value="LIVRE">📦 Livré</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Modèle de prix</label>
+              <select class="form-input form-select" id="projet-modele">
+                <option value="FORFAIT">Forfait (prix fixe)</option>
+                <option value="PAR_PHOTO">Par photo</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Prix base ($)</label><input type="number" class="form-input" id="projet-prix-base" min="0" step="0.01"></div>
+            <div class="form-group form-full"><label class="form-label">Notes admin</label><textarea class="form-input form-textarea" id="projet-notes" style="min-height:60px;"></textarea></div>
+          </div>
+
+          <!-- Lien galerie -->
+          <div id="projet-galerie-section" style="display:none;margin-bottom:18px;">
+            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:10px;">🔗 Lien galerie client</div>
+            <div class="galerie-link-box">
+              <div class="galerie-link-url" id="projet-galerie-url">—</div>
+              <button class="btn-secondary" onclick="copierLienGalerie()" style="padding:7px 12px;font-size:12px;">📋 Copier</button>
+              <button class="btn-secondary" onclick="ouvrirGalerie()" style="padding:7px 12px;font-size:12px;">🔗 Ouvrir</button>
+            </div>
+            <div style="font-size:11px;color:var(--gray);margin-top:6px;">Expiration : <span id="projet-galerie-expiry">—</span></div>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
+            <button class="btn-primary" onclick="sauverProjet()">💾 Sauvegarder</button>
+            <button class="btn-teal" onclick="envoyerGalerie()">📧 Envoyer galerie</button>
+            <button class="btn-teal" onclick="envoyerGalerieDejaPaye()" style="background:#27AE60;">✅ Envoyer (déjà payé)</button>
+            <button class="btn-stripe" onclick="genererStripeProjet()">⚡ Stripe</button>
+          </div>
+
+          <!-- Upload médias -->
+          <div style="border-top:1px solid var(--border);padding-top:18px;">
+            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:14px;">📸 Médias du projet</div>
+            <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFichiers(event)">
+              <div class="drop-zone-icon">📁</div>
+              <div class="drop-zone-text">Glissez vos photos/vidéos ici ou <strong>cliquez pour sélectionner</strong></div>
+              <div style="font-size:11px;color:var(--gray);margin-top:4px;">JPG, PNG, MP4 — Max 50MB/fichier</div>
+            </div>
+            <input type="file" id="file-input" multiple accept="image/*,video/*" style="display:none;" onchange="uploaderFichiers(event)">
+            <div id="upload-progress" style="display:none;margin-top:12px;">
+              <div style="font-size:13px;color:var(--blue);">⏳ Upload en cours... <span id="upload-progress-text"></span></div>
+            </div>
+            <div class="media-grid" id="media-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB FACTURE -->
       <div id="tab-content-facture" style="display:none;">
         <div class="section-card">
-          <div class="section-card-title">📄 Facture <span id="fact-num" style="color:var(--blue);font-weight:400;font-size:13px;"></span></div>
-
+          <div class="section-card-title">
+            <span>📄 Facture <span id="fact-num" style="color:var(--teal);font-weight:400;font-size:13px;"></span></span>
+            <div class="actions-menu">
+              <button class="actions-btn" onclick="toggleMenu('fact')">⚙️ ▾</button>
+              <div class="actions-dropdown" id="dropdown-fact">
+                <div class="action-item" onclick="dupliquerFacture()">📋 Dupliquer</div>
+                <div class="action-item danger" onclick="supprimerFacture()">🗑️ Supprimer</div>
+              </div>
+            </div>
+          </div>
           <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">Frais de déplacement ($)</label>
-              <input type="number" class="form-input" id="fact-deplacement" placeholder="0.00" min="0" step="0.01" oninput="calculerFacture()">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Autres frais ($)</label>
-              <input type="number" class="form-input" id="fact-autres" placeholder="0.00" min="0" step="0.01" oninput="calculerFacture()">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Acompte reçu ($)</label>
-              <input type="number" class="form-input" id="fact-acompte" placeholder="0.00" min="0" step="0.01" oninput="calculerFacture()">
-              <span class="form-hint">Pré-rempli depuis la soumission si payé</span>
-            </div>
-            <div class="form-group form-full">
-              <label class="form-label">Notes / Remarques</label>
-              <textarea class="form-input form-textarea" id="fact-notes" placeholder="Notes sur la facture..."></textarea>
-            </div>
+            <div class="form-group"><label class="form-label">Frais déplacement ($)</label><input type="number" class="form-input" id="fact-deplacement" placeholder="0.00" min="0" step="0.01" oninput="calculerFacture()"></div>
+            <div class="form-group"><label class="form-label">Autres frais ($)</label><input type="number" class="form-input" id="fact-autres" placeholder="0.00" min="0" step="0.01" oninput="calculerFacture()"></div>
+            <div class="form-group"><label class="form-label">Acompte reçu ($)</label><input type="number" class="form-input" id="fact-acompte" placeholder="0.00" min="0" step="0.01" oninput="calculerFacture()"><span class="form-hint">Pré-rempli depuis la soumission</span></div>
+            <div class="form-group form-full"><label class="form-label">Notes</label><textarea class="form-input form-textarea" id="fact-notes"></textarea></div>
           </div>
-
-          <!-- Résumé financier -->
-          <div style="margin-top:20px;">
-            <table class="fin-table" id="fact-fin-table"></table>
+          <div style="margin-top:18px;"><table class="fin-table" id="fact-fin-table"></table></div>
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+            <div class="checkbox-row"><input type="checkbox" id="fact-conditions"><label for="fact-conditions">☑️ Joindre les Conditions Générales CapturAir (PDF)</label></div>
           </div>
-
-          <!-- Conditions -->
-          <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
-            <div class="checkbox-row">
-              <input type="checkbox" id="fact-conditions">
-              <label for="fact-conditions">☑️ Joindre les Conditions Générales CapturAir (PDF)</label>
-            </div>
-          </div>
-
-          <!-- Actions -->
-          <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+          <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;">
             <button class="btn-secondary" onclick="apercuFacture()">👁️ Aperçu</button>
-            <button class="btn-primary" onclick="sauverFacture()">💾 Sauvegarder</button>
-            <button class="btn-primary" onclick="envoyerFacture()" style="background:var(--teal)">📧 Envoyer au client</button>
+            <button class="btn-secondary" onclick="imprimerPDF('facture')">🖨️ PDF</button>
+            <button class="btn-primary" onclick="sauverFactureManuel()">💾 Sauvegarder</button>
+            <button class="btn-teal" onclick="envoyerFacture()">📧 Envoyer</button>
           </div>
         </div>
       </div>
-
     </div>
 
-    <!-- ── SOUMISSIONS LIST ── -->
+    <!-- SOUMISSIONS LIST -->
     <div class="page" id="page-soumissions">
       <div class="table-wrap">
         <table class="data-table">
-          <thead>
-            <tr>
-              <th>N° Soumission</th>
-              <th>Client</th>
-              <th>Service</th>
-              <th>Montant</th>
-              <th>Statut</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+          <thead><tr><th>N°</th><th>Client</th><th>Projet</th><th>Montant</th><th>Statut</th><th>Paiement</th><th>Date</th><th>PDF</th></tr></thead>
           <tbody id="soumissions-tbody"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- ── FACTURES LIST ── -->
+    <!-- PROJETS LIST -->
+    <div class="page" id="page-projets-list">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Projet</th><th>Client</th><th>Soumission</th><th>Statut galerie</th><th>Médias</th><th>Expiration</th><th>Actions</th></tr></thead>
+          <tbody id="projets-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FACTURES LIST -->
     <div class="page" id="page-factures">
       <div class="table-wrap">
         <table class="data-table">
-          <thead>
-            <tr>
-              <th>N° Facture</th>
-              <th>Client</th>
-              <th>Service</th>
-              <th>Total</th>
-              <th>Solde</th>
-              <th>Statut</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+          <thead><tr><th>N°</th><th>Client</th><th>Service</th><th>Total</th><th>Solde</th><th>Statut</th><th>PDF</th></tr></thead>
           <tbody id="factures-tbody"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- ── UTILISATEURS ── -->
+    <!-- UTILISATEURS -->
     <div class="page" id="page-utilisateurs">
-      <div style="margin-bottom:16px;">
-        <button class="btn-primary" onclick="openModalUtilisateur()">+ Nouvel utilisateur</button>
-      </div>
+      <div style="margin-bottom:16px;"><button class="btn-primary" onclick="openModalUtilisateur()">+ Nouvel utilisateur</button></div>
       <div class="table-wrap">
         <table class="data-table">
-          <thead>
-            <tr>
-              <th>Nom</th>
-              <th>Courriel</th>
-              <th>Rôle</th>
-              <th>Statut</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Nom</th><th>Courriel</th><th>Rôle</th><th>Statut</th><th>Actions</th></tr></thead>
           <tbody id="utilisateurs-tbody"></tbody>
         </table>
       </div>
     </div>
+  </div>
+</div>
 
-  </div><!-- /main-content -->
-</div><!-- /app -->
-
-<!-- ══ MODALS ══════════════════════════════════════════════════════════ -->
-
-<!-- Modal nouveau lead -->
+<!-- MODALS -->
 <div class="modal-overlay" id="modal-lead">
   <div class="modal-box">
     <div class="modal-title">📁 Nouveau dossier client</div>
+    <div class="doublon-bar" id="modal-doublon-bar"><span id="modal-doublon-msg"></span></div>
     <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label">Prénom *</label>
-        <input type="text" class="form-input" id="new-prenom" placeholder="Jean">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Nom *</label>
-        <input type="text" class="form-input" id="new-nom" placeholder="Dupont">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Courriel *</label>
-        <input type="email" class="form-input" id="new-courriel" placeholder="jean@email.com">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Téléphone</label>
-        <input type="text" class="form-input" id="new-telephone" placeholder="514-446-6078">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Service</label>
-        <select class="form-input form-select" id="new-service">
+      <div class="form-group"><label class="form-label">Prénom *</label><input type="text" class="form-input" id="new-prenom" placeholder="Jean" onblur="formatCap('new-prenom');validerChamp('new-prenom','req')"><div class="form-error" id="err-new-prenom">Requis</div></div>
+      <div class="form-group"><label class="form-label">Nom *</label><input type="text" class="form-input" id="new-nom" placeholder="Dupont" onblur="formatCap('new-nom');validerChamp('new-nom','req')"><div class="form-error" id="err-new-nom">Requis</div></div>
+      <div class="form-group"><label class="form-label">Courriel *</label><input type="email" class="form-input" id="new-courriel" placeholder="jean@email.com" onblur="validerChamp('new-courriel','email');checkDoublonModal()"><div class="form-error" id="err-new-courriel">Invalide</div></div>
+      <div class="form-group"><label class="form-label">Téléphone</label><input type="text" class="form-input" id="new-telephone" placeholder="514-446-6078" onblur="formatTel('new-telephone');checkDoublonModal()"></div>
+      <div class="form-group"><label class="form-label">Service *</label>
+        <select class="form-input form-select" id="new-service" onblur="validerChamp('new-service','req')">
           <option value="">— Sélectionner —</option>
-          <option>Pack Visibilité Essentielle</option>
-          <option>Capsule Vidéo Impact</option>
-          <option>Pack Visibilité Complète</option>
-          <option>Cartographie Drone Professionnelle</option>
-          <option>Inspection Toiture Visuelle Drone</option>
-          <option>Inspection Structure &amp; Bâtiment</option>
-          <option>Inspection Réseaux &amp; Infrastructures</option>
-          <option>Pack Signature Immobilier Premium</option>
-          <option>Captation Événementielle Drone</option>
-          <option>Suivi de Chantier Drone Pro</option>
-          <option>Pack Promotion Tourisme &amp; Paysage</option>
-          <option>Projet sur mesure</option>
+          <option>Pack Visibilité Essentielle</option><option>Capsule Vidéo Impact</option><option>Pack Visibilité Complète</option>
+          <option>Cartographie Drone Professionnelle</option><option>Inspection Toiture Visuelle Drone</option>
+          <option>Inspection Structure &amp; Bâtiment</option><option>Inspection Réseaux &amp; Infrastructures</option>
+          <option>Pack Signature Immobilier Premium</option><option>Captation Événementielle Drone</option>
+          <option>Suivi de Chantier Drone Pro</option><option>Pack Promotion Tourisme &amp; Paysage</option><option>Projet sur mesure</option>
+        </select>
+        <div class="form-error" id="err-new-service">Requis</div>
+      </div>
+      <div class="form-group"><label class="form-label">Budget *</label>
+        <select class="form-input form-select" id="new-budget" onblur="validerChamp('new-budget','req')">
+          <option value="">— Sélectionner —</option>
+          <option>Moins de 300 $</option><option>300 $ – 500 $</option><option>500 $ – 800 $</option><option>800 $ +</option><option>À discuter</option>
+        </select>
+        <div class="form-error" id="err-new-budget">Requis</div>
+      </div>
+      <div class="form-group"><label class="form-label">Type de projet</label>
+        <select class="form-input form-select" id="new-type">
+          <option value="">— Sélectionner —</option>
+          <option>Immobilier</option><option>Événement</option><option>Industriel / Construction</option><option>Nature / Tourisme</option><option>Autre</option>
         </select>
       </div>
-      <div class="form-group">
-        <label class="form-label">Ville</label>
-        <input type="text" class="form-input" id="new-ville" placeholder="Lavaltrie">
+      <div class="form-group"><label class="form-label">Ville</label>
+        <select class="form-input form-select" id="new-ville">
+          <option value="">— Sélectionner —</option>
+          <option>Anjou</option><option>Joliette</option><option>L'Assomption</option><option>Laval</option>
+          <option>Lavaltrie</option><option>Montréal</option><option>Repentigny</option><option>Terrebonne</option><option>Autre</option>
+        </select>
       </div>
-      <div class="form-group form-full">
-        <label class="form-label">Description</label>
-        <textarea class="form-input form-textarea" id="new-description" rows="2"></textarea>
-      </div>
+      <div class="form-group form-full"><label class="form-label">Description</label><textarea class="form-input form-textarea" id="new-description" rows="2"></textarea></div>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal('modal-lead')">Annuler</button>
-      <button class="btn-primary" onclick="creerLead()">Créer le dossier →</button>
+      <button class="btn-primary" onclick="creerLead()">Créer →</button>
     </div>
   </div>
 </div>
 
-<!-- Modal statut -->
 <div class="modal-overlay" id="modal-statut">
-  <div class="modal-box" style="max-width:360px;">
+  <div class="modal-box" style="max-width:380px;">
     <div class="modal-title">✏️ Modifier le statut</div>
-    <div class="form-group">
-      <label class="form-label">Nouveau statut</label>
+    <div class="form-group"><label class="form-label">Nouveau statut</label>
       <select class="form-input form-select" id="select-statut">
         <option value="Nouveau">🔵 Nouveau</option>
+        <option value="En attente de CapturAir">🟡 En attente de CapturAir</option>
+        <option value="En cours de modifications">🟠 En cours de modifications</option>
+        <option value="En attente du client">🟣 En attente du client avant soumission</option>
         <option value="Contacté">🟣 Contacté</option>
         <option value="Soumission envoyée">🟠 Soumission envoyée</option>
         <option value="Acompte reçu">🟢 Acompte reçu</option>
@@ -935,29 +767,50 @@
   </div>
 </div>
 
-<!-- Modal utilisateur -->
+<div class="modal-overlay" id="modal-confirm-envoi">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-title" id="confirm-envoi-title">📧 Confirmer l'envoi</div>
+    <p style="font-size:14px;color:var(--gray);margin-bottom:16px;" id="confirm-envoi-msg"></p>
+    <div class="warning-bar" id="confirm-envoi-warning" style="display:none;">⚠️ Les conditions générales ne seront pas jointes.</div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-confirm-envoi')">Annuler</button>
+      <button class="btn-primary" id="confirm-envoi-btn" onclick="confirmerEnvoi()">📧 Envoyer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-confirm-save">
+  <div class="modal-box" style="max-width:380px;">
+    <div class="modal-title">💾 Modifications non sauvegardées</div>
+    <p style="font-size:14px;color:var(--gray);margin-bottom:20px;">Voulez-vous sauvegarder vos modifications avant de continuer ?</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="ignorerModifs()">Non, quitter</button>
+      <button class="btn-primary" onclick="sauverEtContinuer()">💾 Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-confirm-delete">
+  <div class="modal-box" style="max-width:380px;">
+    <div class="modal-title" id="delete-title">🗑️ Confirmer</div>
+    <p style="font-size:14px;color:var(--gray);margin-bottom:20px;" id="delete-msg">Cette action est irréversible.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-confirm-delete')">Annuler</button>
+      <button class="btn-danger" onclick="executeDelete()">Supprimer</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-utilisateur">
   <div class="modal-box">
     <div class="modal-title">👥 Nouvel utilisateur</div>
     <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label">Nom</label>
-        <input type="text" class="form-input" id="user-nom" placeholder="Prénom Nom">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Courriel (@mohand.ca ou @capturair.com)</label>
-        <input type="email" class="form-input" id="user-email" placeholder="prenom@capturair.com">
-      </div>
-      <div class="form-group">
-        <label class="form-label">PIN (4 chiffres)</label>
-        <input type="text" class="form-input" id="user-pin" placeholder="1234" maxlength="4">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Rôle</label>
+      <div class="form-group"><label class="form-label">Nom</label><input type="text" class="form-input" id="user-nom" placeholder="Prénom Nom"></div>
+      <div class="form-group"><label class="form-label">Courriel</label><input type="email" class="form-input" id="user-email" placeholder="prenom@capturair.com"></div>
+      <div class="form-group"><label class="form-label">PIN (4 chiffres)</label><input type="text" class="form-input" id="user-pin" placeholder="1234" maxlength="4"></div>
+      <div class="form-group"><label class="form-label">Rôle</label>
         <select class="form-input form-select" id="user-role">
-          <option value="utilisateur">👤 Utilisateur</option>
-          <option value="admin">🔑 Admin</option>
-          <option value="superadmin">👑 Superadmin</option>
+          <option value="utilisateur">👤 Utilisateur</option><option value="admin">🔑 Admin</option><option value="superadmin">👑 Superadmin</option>
         </select>
       </div>
     </div>
@@ -968,902 +821,762 @@
   </div>
 </div>
 
-<!-- Modal confirmation envoi -->
-<div class="modal-overlay" id="modal-confirm-envoi">
-  <div class="modal-box" style="max-width:420px;">
-    <div class="modal-title" id="confirm-envoi-title">📧 Confirmer l'envoi</div>
-    <p style="font-size:14px;color:var(--gray);margin-bottom:16px;" id="confirm-envoi-msg"></p>
-    <div class="warning-bar" id="confirm-envoi-warning" style="display:none;">
-      ⚠️ Les conditions générales ne seront pas jointes. Continuer ?
-    </div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal('modal-confirm-envoi')">Annuler</button>
-      <button class="btn-primary" id="confirm-envoi-btn" onclick="confirmerEnvoi()">📧 Envoyer</button>
-    </div>
-  </div>
-</div>
-
 <script>
 const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
-let authToken = '';
-let currentUser = null;
-let leads = [], soumissions = [], factures = [], utilisateurs = [];
-let currentLead = null;
-let currentSoumission = null;
-let currentFacture = null;
-let pendingEnvoi = null; // {type: 'soumission'|'facture'}
+let authToken='', currentUser=null;
+let leads=[], soumissions=[], factures=[], utilisateurs=[], projets=[];
+let currentLead=null, currentSoumission=null, currentFacture=null, currentProjet=null;
+let pendingEnvoi=null, pendingDelete=null, pendingNavigation=null;
+let hasUnsaved=false, currentSatisfaction=0;
 
-// ══ AUTH ══════════════════════════════════════════════════════════════
+// ══ LOGIN OTP ══════════════════════════════════════════════════════════
+let loginStep=1, loginEmail='', loginPin='';
 
-let loginStep = 1; // 1=email+pin, 2=otp
-let loginEmail = '', loginPin = '';
-
-async function login() {
-  const btn = document.getElementById('login-btn-text');
-  const err = document.getElementById('login-error');
-  err.style.display = 'none';
-
-  if (loginStep === 1) {
-    loginEmail = document.getElementById('login-email').value.trim();
-    loginPin = document.getElementById('login-pin').value.trim();
-    if (!loginEmail || !loginPin) { showLoginError('Veuillez remplir tous les champs.'); return; }
-
-    btn.innerHTML = '<span class="spinner"></span>';
-    try {
-      const res = await fetch('https://capturair-carnet.tumarchessurlatete.workers.dev/api/carnet/auth/init', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: loginEmail, pin: loginPin })
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        showLoginError('Email ou PIN incorrect.');
-        btn.textContent = 'Connexion →';
-        return;
-      }
-      // Passer à l'étape OTP
-      loginStep = 2;
-      document.getElementById('login-pin').placeholder = 'Code reçu par email';
-      document.getElementById('login-pin').value = '';
-      document.getElementById('login-pin').maxLength = 6;
-      document.querySelector('[for="login-pin"], .login-field label:last-of-type') && null;
-      document.querySelectorAll('.login-field label')[1].textContent = 'Code OTP (reçu par email)';
-      document.getElementById('login-email').disabled = true;
-      btn.textContent = 'Valider le code →';
-    } catch(e) {
-      showLoginError('Erreur de connexion. Réessayez.');
-      btn.textContent = 'Connexion →';
-    }
-
-  } else {
-    // Étape 2 — vérifier OTP
-    const otp = document.getElementById('login-pin').value.trim();
-    if (!otp) { showLoginError('Entrez le code reçu par email.'); return; }
-
-    btn.innerHTML = '<span class="spinner"></span>';
-    try {
-      const res = await fetch('https://capturair-carnet.tumarchessurlatete.workers.dev/api/carnet/auth/otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: loginEmail, otp })
-      });
-      const data = await res.json();
-      if (!res.ok || !data.token) {
-        showLoginError('Code OTP incorrect ou expiré.');
-        btn.textContent = 'Valider le code →';
-        return;
-      }
-      authToken = data.token;
-      currentUser = { email: loginEmail, role: data.role || 'superadmin', nom: data.nom || '' };
-      sessionStorage.setItem('crm_token', authToken);
-      sessionStorage.setItem('crm_user', JSON.stringify(currentUser));
-      document.getElementById('login-screen').style.display = 'none';
+async function login(){
+  const btn=document.getElementById('login-btn-text');
+  const err=document.getElementById('login-error');
+  err.style.display='none';
+  if(loginStep===1){
+    loginEmail=document.getElementById('login-email').value.trim();
+    loginPin=document.getElementById('login-pin').value.trim();
+    if(!loginEmail||!loginPin){showLoginErr('Veuillez remplir tous les champs.');return;}
+    btn.innerHTML='<span class="spinner"></span>';
+    try{
+      const r=await fetch('https://capturair-carnet.tumarchessurlatete.workers.dev/api/carnet/auth/init',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:loginEmail,pin:loginPin})});
+      const d=await r.json();
+      if(!r.ok||!d.success){showLoginErr('Email ou PIN incorrect.');btn.textContent='Connexion →';return;}
+      loginStep=2;
+      document.getElementById('login-pin').placeholder='Code reçu par email';
+      document.getElementById('login-pin').value='';
+      document.getElementById('login-pin').type='text';
+      document.getElementById('lbl-pin').textContent='Code OTP (reçu par email)';
+      document.getElementById('login-email').disabled=true;
+      btn.textContent='Valider →';
+    }catch(e){showLoginErr('Erreur de connexion.');btn.textContent='Connexion →';}
+  }else{
+    const otp=document.getElementById('login-pin').value.trim();
+    if(!otp){showLoginErr('Entrez le code reçu.');return;}
+    btn.innerHTML='<span class="spinner"></span>';
+    try{
+      const r=await fetch('https://capturair-carnet.tumarchessurlatete.workers.dev/api/carnet/auth/otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:loginEmail,otp})});
+      const d=await r.json();
+      if(!r.ok||!d.token){showLoginErr('Code OTP incorrect ou expiré.');btn.textContent='Valider →';return;}
+      authToken=d.token;
+      currentUser={email:loginEmail,role:d.role||'superadmin',nom:d.nom||''};
+      sessionStorage.setItem('crm_token',authToken);
+      sessionStorage.setItem('crm_user',JSON.stringify(currentUser));
+      document.getElementById('login-screen').style.display='none';
       document.getElementById('app').classList.add('visible');
-      loginStep = 1;
+      loginStep=1;
       initApp();
-    } catch(e) {
-      showLoginError('Erreur de connexion. Réessayez.');
-      btn.textContent = 'Valider le code →';
-    }
+    }catch(e){showLoginErr('Erreur de connexion.');btn.textContent='Valider →';}
   }
 }
-
-function showLoginError(msg) {
-  const err = document.getElementById('login-error');
-  err.textContent = msg;
-  err.style.display = 'block';
-}
-
-function logout() {
-  sessionStorage.clear();
-  authToken = '';
-  currentUser = null;
-  document.getElementById('app').classList.remove('visible');
-  document.getElementById('login-screen').style.display = 'flex';
-}
-
-document.getElementById('login-pin').addEventListener('keydown', e => {
-  if (e.key === 'Enter') login();
-});
-
-// Restore session
-(function() {
-  const t = sessionStorage.getItem('crm_token');
-  const u = sessionStorage.getItem('crm_user');
-  if (t && u) {
-    authToken = t;
-    currentUser = JSON.parse(u);
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').classList.add('visible');
-    initApp();
-  }
-})();
+function showLoginErr(m){const e=document.getElementById('login-error');e.textContent=m;e.style.display='block';}
+function logout(){sessionStorage.clear();authToken='';currentUser=null;document.getElementById('app').classList.remove('visible');document.getElementById('login-screen').style.display='flex';loginStep=1;document.getElementById('login-email').disabled=false;document.getElementById('login-pin').type='password';document.getElementById('login-btn-text').textContent='Connexion →';}
+document.getElementById('login-pin').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+(function(){const t=sessionStorage.getItem('crm_token'),u=sessionStorage.getItem('crm_user');if(t&&u){authToken=t;currentUser=JSON.parse(u);document.getElementById('login-screen').style.display='none';document.getElementById('app').classList.add('visible');initApp();}})();
 
 // ══ INIT ══════════════════════════════════════════════════════════════
-
-async function initApp() {
-  // Sidebar user info
-  document.getElementById('sidebar-name').textContent = currentUser?.nom || currentUser?.email?.split('@')[0] || 'Utilisateur';
-  document.getElementById('sidebar-role').textContent = currentUser?.role || 'utilisateur';
-  document.getElementById('sidebar-avatar').textContent = (currentUser?.nom || currentUser?.email || 'U')[0].toUpperCase();
-
-  // Afficher sections admin si superadmin
-  const isSuperAdmin = currentUser?.role === 'superadmin' ||
-    currentUser?.email === 'mohand.aidi@mohand.ca' ||
-    currentUser?.email === 'aidimohand@gmail.com';
-
-  if (isSuperAdmin) {
-    document.getElementById('nav-admin-section').style.display = 'block';
-    document.getElementById('nav-utilisateurs').style.display = 'flex';
-  }
-
-  await Promise.all([chargerLeads(), chargerSoumissions(), chargerFactures()]);
+async function initApp(){
+  const nom=currentUser?.nom||currentUser?.email?.split('@')[0]||'Utilisateur';
+  document.getElementById('sidebar-name').textContent=nom;
+  document.getElementById('sidebar-role').textContent=currentUser?.role||'utilisateur';
+  document.getElementById('sidebar-avatar').textContent=nom[0].toUpperCase();
+  const isSuper=currentUser?.role==='superadmin'||currentUser?.email==='mohand.aidi@mohand.ca'||currentUser?.email==='aidimohand@gmail.com';
+  if(isSuper){document.getElementById('nav-admin-section').style.display='block';document.getElementById('nav-utilisateurs').style.display='flex';}
+  await Promise.all([chargerLeads(),chargerSoumissions(),chargerFactures(),chargerProjets(),chargerUtilisateurs()]);
   renderDashboard();
+  peuplerAssignes();
+}
+
+// ══ API ═══════════════════════════════════════════════════════════════
+const hdrs=()=>({'Authorization':`Bearer ${authToken}`,'Content-Type':'application/json'});
+async function apiGet(p){const r=await fetch(`${API}${p}`,{headers:hdrs()});return r.json();}
+async function apiPost(p,b){const r=await fetch(`${API}${p}`,{method:'POST',headers:hdrs(),body:JSON.stringify(b)});return r.json();}
+async function apiPut(p,b){const r=await fetch(`${API}${p}`,{method:'PUT',headers:hdrs(),body:JSON.stringify(b)});return r.json();}
+async function apiDelete(p){const r=await fetch(`${API}${p}`,{method:'DELETE',headers:hdrs()});return r.json();}
+
+async function chargerLeads(){try{const d=await apiGet('/api/crm/leads');leads=d.leads||[];document.getElementById('badge-leads').textContent=leads.filter(l=>l.statut!=='Fermé').length;}catch(e){leads=[];}}
+async function chargerSoumissions(){try{const d=await apiGet('/api/crm/soumissions');soumissions=d.soumissions||[];document.getElementById('badge-soumissions').textContent=soumissions.filter(s=>s.statut==='BROUILLON').length;}catch(e){soumissions=[];}}
+async function chargerFactures(){try{const d=await apiGet('/api/crm/factures');factures=d.factures||[];document.getElementById('badge-factures').textContent=factures.filter(f=>f.statut==='BROUILLON'||f.statut==='ENVOYE').length;}catch(e){factures=[];}}
+async function chargerProjets(){try{const d=await apiGet('/api/crm/projets');projets=d.projets||[];document.getElementById('badge-projets').textContent=projets.filter(p=>p.statut!=='LIVRE').length;document.getElementById('stat-projets').textContent=projets.filter(p=>p.statut!=='LIVRE').length;}catch(e){projets=[];}}
+async function chargerUtilisateurs(){try{const d=await apiGet('/api/crm/utilisateurs');utilisateurs=d.utilisateurs||[];}catch(e){utilisateurs=[];}}
+
+function peuplerAssignes(){
+  const sel=document.getElementById('info-assigne');
+  const v=sel.value;
+  sel.innerHTML='<option value="Mohand">👑 Mohand (Superadmin)</option>';
+  utilisateurs.forEach(u=>{if(u.email!=='mohand.aidi@mohand.ca'&&u.email!=='aidimohand@gmail.com'){const o=document.createElement('option');o.value=u.nom||u.email;o.textContent=`${u.nom||u.email} (${u.role})`;sel.appendChild(o);}});
+  if(v)sel.value=v;
 }
 
 // ══ NAVIGATION ════════════════════════════════════════════════════════
-
-function showPage(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-
+function showPage(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById(`page-${page}`)?.classList.add('active');
   document.querySelector(`[onclick="showPage('${page}')"]`)?.classList.add('active');
-
-  const titles = {
-    dashboard: 'Dashboard', leads: 'Dossiers clients',
-    soumissions: 'Soumissions', factures: 'Factures',
-    utilisateurs: 'Gestion utilisateurs', dossier: 'Fiche dossier'
-  };
-  document.getElementById('topbar-title').textContent = titles[page] || page;
-
-  if (page === 'leads') renderLeads();
-  if (page === 'soumissions') renderSoumissions();
-  if (page === 'factures') renderFactures();
-  if (page === 'utilisateurs') chargerUtilisateurs().then(renderUtilisateurs);
+  const titles={dashboard:'Dashboard',leads:'Dossiers clients',soumissions:'Soumissions','projets-list':'Projets galerie',factures:'Factures',utilisateurs:'Utilisateurs',dossier:'Fiche dossier'};
+  document.getElementById('topbar-title').textContent=titles[page]||page;
+  if(page==='leads')renderLeads();
+  if(page==='soumissions')renderSoumissions();
+  if(page==='projets-list')renderProjetsList();
+  if(page==='factures')renderFactures();
+  if(page==='utilisateurs')renderUtilisateurs();
 }
 
-function ouvrirOnglet(tabId) {
-  switchTab(tabId.replace('tab-', ''));
+function confirmerRetour(){
+  if(hasUnsaved){pendingNavigation=()=>{hasUnsaved=false;showPage('leads');};document.getElementById('modal-confirm-save').classList.add('active');}
+  else showPage('leads');
 }
+function ignorerModifs(){hasUnsaved=false;closeModal('modal-confirm-save');if(pendingNavigation){pendingNavigation();pendingNavigation=null;}}
+async function sauverEtContinuer(){
+  if(hasUnsaved){await sauverLeadManuel(true);await sauverSoumissionManuel(true);}
+  closeModal('modal-confirm-save');
+  if(pendingNavigation){pendingNavigation();pendingNavigation=null;}
+}
+function marquerModif(){hasUnsaved=true;document.getElementById('unsaved-label').classList.add('visible');document.getElementById('unsaved-label-dos').textContent='● Non sauvegardé';document.getElementById('unsaved-label-dos').style.display='inline';}
+function marquerModifSoum(){marquerModif();}
+function clearUnsaved(){hasUnsaved=false;document.getElementById('unsaved-label').classList.remove('visible');document.getElementById('unsaved-label-dos').style.display='none';}
 
-function switchTab(tab) {
-  ['infos', 'soumission', 'facture'].forEach(t => {
-    document.getElementById(`tab-${t}`)?.classList.toggle('active', t === tab);
-    const el = document.getElementById(`tab-content-${t}`);
-    if (el) el.style.display = t === tab ? 'block' : 'none';
+function switchTab(tab){
+  ['infos','soumission','projet','facture'].forEach(t=>{
+    document.getElementById(`tab-${t}`)?.classList.toggle('active',t===tab);
+    const el=document.getElementById(`tab-content-${t}`);
+    if(el)el.style.display=t===tab?'block':'none';
   });
-  if (tab === 'soumission') chargerSoumissionDossier();
-  if (tab === 'facture') chargerFactureDossier();
+  if(tab==='soumission')chargerSoumissionDossier();
+  if(tab==='projet')chargerProjetDossier();
+  if(tab==='facture')chargerFactureDossier();
 }
-
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
+function ouvrirOnglet(t){switchTab(t);}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
+function toggleMenu(id){
+  const dd=document.getElementById(`dropdown-${id}`);
+  document.querySelectorAll('.actions-dropdown').forEach(d=>{if(d!==dd)d.classList.remove('open');});
+  dd.classList.toggle('open');
 }
+document.addEventListener('click',e=>{if(!e.target.closest('.actions-menu'))document.querySelectorAll('.actions-dropdown').forEach(d=>d.classList.remove('open'));});
 
-// ══ CHARGER DONNÉES ════════════════════════════════════════════════════
+// ══ DASHBOARD ═════════════════════════════════════════════════════════
+function renderDashboard(){
+  document.getElementById('stat-leads').textContent=leads.filter(l=>l.statut!=='Fermé').length;
+  document.getElementById('stat-soumissions').textContent=soumissions.filter(s=>s.statut==='ENVOYE').length;
+  document.getElementById('stat-factures').textContent=factures.filter(f=>f.statut!=='BROUILLON').length;
+  const now=new Date();
+  const rev=factures.filter(f=>{const d=new Date(f.created_at||'');return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}).reduce((s,f)=>s+((f.prix_base||0)*1.14975),0);
+  document.getElementById('stat-revenus').textContent=rev>0?`${rev.toFixed(0)}$`:'—';
 
-async function apiGet(path) {
-  const res = await fetch(`${API}${path}`, {
-    headers: { 'Authorization': `Bearer ${authToken}` }
-  });
-  return res.json();
-}
-
-async function apiPost(path, body) {
-  const res = await fetch(`${API}${path}`, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  return res.json();
-}
-
-async function apiPut(path, body) {
-  const res = await fetch(`${API}${path}`, {
-    method: 'PUT',
-    headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  return res.json();
-}
-
-async function chargerLeads() {
-  try {
-    const data = await apiGet('/api/crm/leads');
-    leads = data.leads || [];
-    document.getElementById('badge-leads').textContent = leads.filter(l => l.statut !== 'Fermé').length;
-  } catch(e) { leads = []; }
-}
-
-async function chargerSoumissions() {
-  try {
-    const data = await apiGet('/api/crm/soumissions');
-    soumissions = data.soumissions || [];
-    document.getElementById('badge-soumissions').textContent = soumissions.filter(s => s.statut === 'BROUILLON').length;
-  } catch(e) { soumissions = []; }
-}
-
-async function chargerFactures() {
-  try {
-    const data = await apiGet('/api/crm/factures');
-    factures = data.factures || [];
-    document.getElementById('badge-factures').textContent = factures.filter(f => f.statut === 'BROUILLON' || f.statut === 'ENVOYE').length;
-  } catch(e) { factures = []; }
-}
-
-async function chargerUtilisateurs() {
-  try {
-    const data = await apiGet('/api/crm/utilisateurs');
-    utilisateurs = data.utilisateurs || [];
-  } catch(e) { utilisateurs = []; }
-}
-
-// ══ DASHBOARD ══════════════════════════════════════════════════════════
-
-function renderDashboard() {
-  document.getElementById('stat-leads').textContent = leads.filter(l => l.statut !== 'Fermé').length;
-  document.getElementById('stat-soumissions').textContent = soumissions.filter(s => s.statut === 'ENVOYE').length;
-  document.getElementById('stat-factures').textContent = factures.filter(f => f.statut !== 'BROUILLON').length;
-
-  // Revenus ce mois
-  const maintenant = new Date();
-  const revMois = factures
-    .filter(f => {
-      const d = new Date(f.created_at || '');
-      return d.getMonth() === maintenant.getMonth() && d.getFullYear() === maintenant.getFullYear();
-    })
-    .reduce((sum, f) => sum + ((f.prix_base || 0) * 1.14975), 0);
-  document.getElementById('stat-revenus').textContent = revMois > 0 ? `${revMois.toFixed(0)}$` : '—';
-
-  // Pipeline kanban
-  const STATUTS = [
-    { key: 'Nouveau', label: 'Nouveaux', color: 'var(--s-nouveau)' },
-    { key: 'Contacté', label: 'Contactés', color: 'var(--s-contacte)' },
-    { key: 'Soumission envoyée', label: 'Soumis', color: 'var(--s-soumis)' },
-    { key: 'Acompte reçu', label: 'Acompte reçu', color: 'var(--s-acompte)' },
-    { key: 'En production', label: 'En prod.', color: 'var(--s-prod)' },
+  const STATUTS=[
+    {key:'Nouveau',label:'Nouveaux',color:'#3AABEF'},
+    {key:'En attente de CapturAir',label:'En attente CA',color:'#F1C40F'},
+    {key:'Soumission envoyée',label:'Soumis',color:'#E67E22'},
+    {key:'Acompte reçu',label:'Acompte reçu',color:'#27AE60'},
+    {key:'En production',label:'En prod.',color:'#1ABC9C'},
   ];
-
-  const kanban = document.getElementById('pipeline-kanban');
-  kanban.innerHTML = STATUTS.map(s => {
-    const items = leads.filter(l => l.statut === s.key);
-    return `
-    <div class="pipeline-col">
+  document.getElementById('pipeline-kanban').innerHTML=STATUTS.map(s=>{
+    const items=leads.filter(l=>l.statut===s.key);
+    return `<div class="pipeline-col">
       <div class="pipeline-col-header" style="color:${s.color};">
         <span class="pipeline-col-title">${s.label}</span>
         <span class="pipeline-count">${items.length}</span>
       </div>
-      ${items.length === 0 ? '<div style="font-size:11px;color:var(--gray);text-align:center;padding:12px 0;">Vide</div>' :
-        items.slice(0,4).map(l => `
-        <div class="pipeline-card" onclick="ouvrirDossier('${l.id}')">
+      ${items.length===0?'<div style="font-size:11px;color:var(--gray);text-align:center;padding:12px 0;">Vide</div>':
+        items.slice(0,4).map(l=>`<div class="pipeline-card" onclick="ouvrirDossier('${l.id}')">
           <div class="pipeline-card-name">${l.prenom} ${l.nom}</div>
-          <div class="pipeline-card-service">${l.type_service || '—'}</div>
-          <div class="pipeline-card-montant">${l.ville || ''}</div>
+          <div class="pipeline-card-service">${l.type_service||'—'}</div>
+          <div class="pipeline-card-num">${l.num_soumission||''}</div>
         </div>`).join('')
       }
     </div>`;
   }).join('');
 }
 
-// ══ LEADS ══════════════════════════════════════════════════════════════
-
-function renderLeads(data) {
-  const list = data || leads;
-  const tbody = document.getElementById('leads-tbody');
-  if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">📁</div><div class="empty-state-text">Aucun dossier</div></div></td></tr>`;
-    return;
-  }
-  tbody.innerHTML = list.map(l => `
-    <tr onclick="ouvrirDossier('${l.id}')">
+// ══ LEADS ═════════════════════════════════════════════════════════════
+function renderLeads(data){
+  const list=data||leads;
+  const tbody=document.getElementById('leads-tbody');
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">📁</div><div>Aucun dossier</div></div></td></tr>`;return;}
+  tbody.innerHTML=list.map(l=>{
+    const p=projets.find(pr=>pr.lead_id===l.id||pr.num_soumission===l.num_soumission);
+    const projetBadge=p?`<span style="font-size:10px;background:rgba(155,89,182,0.15);color:#9B59B6;padding:2px 8px;border-radius:100px;">🚁 ${p.statut||'—'}</span>`:'<span style="font-size:10px;color:var(--gray);">—</span>';
+    return `<tr onclick="ouvrirDossier('${l.id}')">
+      <td><div style="font-weight:600;">${l.num_soumission||'—'}</div>
+        <span class="badge ${l.num_soumission?.startsWith('MAN')?'badge-man':'badge-web'}">${l.num_soumission?.startsWith('MAN')?'📝 Manuel':'🌐 Web'}</span></td>
       <td><strong>${l.prenom} ${l.nom}</strong><br><span style="font-size:11px;color:var(--gray);">${l.courriel}</span></td>
-      <td>${l.type_service || '—'}</td>
-      <td>${l.ville || '—'}</td>
-      <td>${l.date_souhaitee ? formatDate(l.date_souhaitee) : '—'}</td>
+      <td style="font-size:12px;">${l.type_service||'—'}</td>
+      <td>${l.ville||'—'}</td>
       <td>${badgeStatut(l.statut)}</td>
-      <td>${l.assigne_a || 'Mohand'}</td>
-      <td>
-        <button class="btn-secondary" style="padding:6px 12px;font-size:12px;" onclick="event.stopPropagation();ouvrirDossier('${l.id}')">Ouvrir →</button>
-      </td>
-    </tr>`).join('');
+      <td>${projetBadge}</td>
+      <td>${ageDossier(l.created_at)}</td>
+      <td style="font-size:12px;">${l.assigne_a||'Mohand'}</td>
+    </tr>`;
+  }).join('');
 }
 
-function filtrerLeads() {
-  const q = document.getElementById('search-leads').value.toLowerCase();
-  const statut = document.getElementById('filter-statut').value;
-  const service = document.getElementById('filter-service').value;
-
-  const filtered = leads.filter(l => {
-    const matchQ = !q || `${l.prenom} ${l.nom} ${l.courriel} ${l.ville} ${l.type_service}`.toLowerCase().includes(q);
-    const matchS = !statut || l.statut === statut;
-    const matchSv = !service || l.type_service === service;
-    return matchQ && matchS && matchSv;
-  });
-  renderLeads(filtered);
+function filtrerLeads(){
+  const q=document.getElementById('search-leads').value.toLowerCase();
+  const s=document.getElementById('filter-statut').value;
+  const src=document.getElementById('filter-source').value;
+  renderLeads(leads.filter(l=>{
+    const mq=!q||`${l.prenom} ${l.nom} ${l.courriel} ${l.ville} ${l.type_service} ${l.num_soumission}`.toLowerCase().includes(q);
+    const ms=!s||l.statut===s;
+    const msrc=!src||l.num_soumission?.startsWith(src);
+    return mq&&ms&&msrc;
+  }));
 }
 
 // ══ DOSSIER ════════════════════════════════════════════════════════════
-
-function ouvrirDossier(id) {
-  currentLead = leads.find(l => l.id === id);
-  if (!currentLead) return;
-
-  // Header
-  const initiales = `${currentLead.prenom[0] || ''}${currentLead.nom[0] || ''}`.toUpperCase();
-  document.getElementById('dossier-avatar').textContent = initiales;
-  document.getElementById('dossier-nom').textContent = `${currentLead.prenom} ${currentLead.nom}`;
-  document.getElementById('dossier-meta').innerHTML = `
-    ${currentLead.courriel} · ${currentLead.telephone || '—'} · ${currentLead.ville || '—'}<br>
-    <span style="font-size:12px;">${badgeStatut(currentLead.statut)}</span>
-  `;
-
-  // Remplir formulaire infos
-  document.getElementById('info-prenom').value = currentLead.prenom || '';
-  document.getElementById('info-nom').value = currentLead.nom || '';
-  document.getElementById('info-courriel').value = currentLead.courriel || '';
-  document.getElementById('info-telephone').value = currentLead.telephone || '';
-  document.getElementById('info-service').value = currentLead.type_service || '';
-  document.getElementById('info-date').value = currentLead.date_souhaitee?.split('T')[0] || '';
-  document.getElementById('info-ville').value = currentLead.ville || '';
-  document.getElementById('info-budget').value = currentLead.budget || '';
-  document.getElementById('info-source').value = currentLead.source || 'Site Web';
-  document.getElementById('info-assigne').value = currentLead.assigne_a || 'Mohand';
-  document.getElementById('info-description').value = currentLead.description || '';
-  document.getElementById('info-action').value = currentLead.prochaine_action || '';
-
-  // Timeline
-  renderTimeline(currentLead.statut);
-
+function ouvrirDossier(id){
+  currentLead=leads.find(l=>l.id===id);
+  if(!currentLead)return;
+  clearUnsaved();
+  const init=`${currentLead.prenom[0]||''}${currentLead.nom[0]||''}`.toUpperCase();
+  document.getElementById('dossier-avatar').textContent=init;
+  document.getElementById('dossier-nom').textContent=`${currentLead.prenom} ${currentLead.nom}`;
+  document.getElementById('dossier-meta').innerHTML=`${currentLead.courriel} · ${currentLead.telephone||'—'} · ${currentLead.ville||'—'}<br>${badgeStatut(currentLead.statut)} <span style="font-size:11px;color:var(--gray);margin-left:8px;">${currentLead.num_soumission||''}</span> ${ageDossier(currentLead.created_at)}`;
+  // Remplir infos
+  ['prenom','nom','courriel','telephone'].forEach(f=>document.getElementById(`info-${f}`).value=currentLead[f]||'');
+  document.getElementById('info-service').value=currentLead.type_service||'';
+  document.getElementById('info-date').value=currentLead.date_souhaitee?.split('T')[0]||'';
+  document.getElementById('info-ville').value=currentLead.ville||'';
+  document.getElementById('info-budget').value=currentLead.budget||'';
+  document.getElementById('info-source').value=currentLead.source||'Site Web';
+  document.getElementById('info-assigne').value=currentLead.assigne_a||'Mohand';
+  document.getElementById('info-description').value=currentLead.description||'';
+  document.getElementById('info-action').value=currentLead.prochaine_action||'';
+  document.getElementById('doublon-bar').classList.remove('visible');
+  renderFluxStatut(currentLead.statut);
   switchTab('infos');
   showPage('dossier');
 }
 
-function renderTimeline(statut) {
-  const steps = ['Nouveau', 'Contacté', 'Soumission envoyée', 'Acompte reçu', 'En production', 'Livré', 'Payé complet'];
-  const currentIdx = steps.indexOf(statut);
-
-  document.getElementById('dossier-timeline').innerHTML = steps.map((s, i) => {
-    const isDone = i < currentIdx;
-    const isCurrent = i === currentIdx;
-    return `
-    <div class="timeline-step ${isDone ? 'done' : ''} ${isCurrent ? 'current' : ''}">
-      <div class="timeline-dot">${isDone ? '✓' : i + 1}</div>
-      <div class="timeline-label">${s}</div>
-    </div>`;
-  }).join('');
+function renderFluxStatut(statut){
+  const steps=[
+    {label:'Lead',icon:'📁'},
+    {label:'Soumission',icon:'📋'},
+    {label:'Projet',icon:'🚁'},
+    {label:'Facture',icon:'📄'},
+    {label:'Galerie',icon:'🖼️'},
+    {label:'Payé',icon:'✅'}
+  ];
+  const stMap={'Nouveau':0,'Contacté':0,'Soumission envoyée':1,'Acompte reçu':2,'En production':2,'Livré':3,'Payé complet':5};
+  const idx=stMap[statut]??0;
+  const soum=soumissions.find(s=>s.projet_id===currentLead?.id);
+  const proj=projets.find(p=>p.lead_id===currentLead?.id||p.num_soumission===currentLead?.num_soumission);
+  const fact=factures.find(f=>f.projet_id===currentLead?.id);
+  const realIdx=soum?Math.max(idx,1):idx;
+  const realIdx2=proj?Math.max(realIdx,2):realIdx;
+  const realIdx3=fact?Math.max(realIdx2,3):realIdx2;
+  document.getElementById('flux-statut').innerHTML=steps.map((s,i)=>`
+    <div class="flux-step ${i<realIdx3?'done':''} ${i===realIdx3?'current':''}">
+      <div class="flux-dot">${i<realIdx3?'✓':s.icon}</div>
+      <div class="flux-label">${s.label}</div>
+    </div>`).join('');
 }
 
-let saveLeadTO = null;
-function sauverLead() {
-  if (!currentLead) return;
-  clearTimeout(saveLeadTO);
-  saveLeadTO = setTimeout(async () => {
-    const body = {
-      prenom: document.getElementById('info-prenom').value,
-      nom: document.getElementById('info-nom').value,
-      courriel: document.getElementById('info-courriel').value,
-      telephone: document.getElementById('info-telephone').value,
-      type_service: document.getElementById('info-service').value,
-      date_souhaitee: document.getElementById('info-date').value,
-      ville: document.getElementById('info-ville').value,
-      budget: document.getElementById('info-budget').value,
-      source: document.getElementById('info-source').value,
-      assigne_a: document.getElementById('info-assigne').value,
-      description: document.getElementById('info-description').value,
-      prochaine_action: document.getElementById('info-action').value,
-      statut: currentLead.statut,
-    };
-    await apiPut(`/api/crm/leads/${currentLead.id}`, body);
-    Object.assign(currentLead, body);
-    showNotif('✅ Sauvegardé', 'success');
-  }, 1000);
+async function sauverLeadManuel(silencieux=false){
+  if(!currentLead)return;
+  const body={prenom:document.getElementById('info-prenom').value,nom:document.getElementById('info-nom').value,courriel:document.getElementById('info-courriel').value,telephone:document.getElementById('info-telephone').value,type_service:document.getElementById('info-service').value,date_souhaitee:document.getElementById('info-date').value,ville:document.getElementById('info-ville').value,budget:document.getElementById('info-budget').value,source:document.getElementById('info-source').value,assigne_a:document.getElementById('info-assigne').value,description:document.getElementById('info-description').value,prochaine_action:document.getElementById('info-action').value,statut:currentLead.statut};
+  await apiPut(`/api/crm/leads/${currentLead.id}`,body);
+  Object.assign(currentLead,body);
+  clearUnsaved();
+  if(!silencieux)showNotif('✅ Dossier sauvegardé','success');
 }
 
-function modifierStatut() {
-  document.getElementById('select-statut').value = currentLead?.statut || 'Nouveau';
-  document.getElementById('modal-statut').classList.add('active');
-}
-
-async function appliquerStatut() {
-  const statut = document.getElementById('select-statut').value;
-  await apiPut(`/api/crm/leads/${currentLead.id}`, { ...currentLead, statut });
-  currentLead.statut = statut;
-  renderTimeline(statut);
-  document.getElementById('dossier-meta').querySelector('.badge') &&
-    document.getElementById('dossier-meta').insertAdjacentHTML('beforeend', badgeStatut(statut));
+function modifierStatut(){document.getElementById('select-statut').value=currentLead?.statut||'Nouveau';document.getElementById('modal-statut').classList.add('active');}
+async function appliquerStatut(){
+  const s=document.getElementById('select-statut').value;
+  await apiPut(`/api/crm/leads/${currentLead.id}`,{...currentLead,statut:s});
+  currentLead.statut=s;
+  renderFluxStatut(s);
+  document.getElementById('dossier-meta').innerHTML=`${currentLead.courriel} · ${currentLead.telephone||'—'} · ${currentLead.ville||'—'}<br>${badgeStatut(s)}`;
   closeModal('modal-statut');
-  showNotif('✅ Statut mis à jour', 'success');
+  showNotif('✅ Statut mis à jour','success');
   await chargerLeads();
 }
 
-// ══ SOUMISSION ═════════════════════════════════════════════════════════
+async function dupliquerLead(){if(!currentLead)return;const d=await apiPost(`/api/crm/leads/${currentLead.id}/dupliquer`,{});if(d.success){showNotif('✅ Dossier dupliqué','success');await chargerLeads();renderDashboard();}else showNotif('❌ '+d.error,'error');}
+function supprimerLead(){pendingDelete={type:'lead',id:currentLead.id};document.getElementById('delete-title').textContent='🗑️ Supprimer le dossier';document.getElementById('delete-msg').textContent=`Supprimer ${currentLead.prenom} ${currentLead.nom} ? Irréversible.`;document.getElementById('modal-confirm-delete').classList.add('active');}
+async function executeDelete(){
+  if(!pendingDelete)return;
+  try{
+    if(pendingDelete.type==='lead'){await apiDelete(`/api/crm/leads/${pendingDelete.id}`);await chargerLeads();showPage('leads');showNotif('✅ Supprimé','success');}
+    else if(pendingDelete.type==='soumission'){await apiDelete(`/api/crm/soumissions/${pendingDelete.id}`);await chargerSoumissions();showNotif('✅ Soumission supprimée','success');chargerSoumissionDossier();}
+    else if(pendingDelete.type==='facture'){await apiDelete(`/api/crm/factures/${pendingDelete.id}`);await chargerFactures();showNotif('✅ Facture supprimée','success');chargerFactureDossier();}
+  }catch(e){showNotif('❌ Erreur','error');}
+  closeModal('modal-confirm-delete');pendingDelete=null;
+}
 
-async function chargerSoumissionDossier() {
-  if (!currentLead) return;
-  // Chercher soumission existante pour ce lead
-  currentSoumission = soumissions.find(s => s.projet_id === currentLead.id) || null;
-
-  if (!currentSoumission) {
-    // Créer auto en brouillon
-    const data = await apiPost('/api/crm/soumissions', { projet_id: currentLead.id });
-    if (data.success) {
-      await chargerSoumissions();
-      currentSoumission = soumissions.find(s => s.id === data.id) || { id: data.id, num_soumission: data.num_soumission, statut: 'BROUILLON', frais_deplacement: 0, frais_postprod: 0, montant_acompte: 0 };
-    }
+// ══ SOUMISSION ════════════════════════════════════════════════════════
+async function chargerSoumissionDossier(){
+  if(!currentLead)return;
+  currentSoumission=soumissions.find(s=>s.projet_id===currentLead.id)||null;
+  if(!currentSoumission){
+    const d=await apiPost('/api/crm/soumissions',{projet_id:currentLead.id,source_lead:'MANUEL'});
+    if(d.success){await chargerSoumissions();currentSoumission=soumissions.find(s=>s.id===d.id)||{id:d.id,num_soumission:d.num_soumission,statut:'BROUILLON'};}
   }
-
-  if (currentSoumission) {
-    document.getElementById('soum-num').textContent = currentSoumission.num_soumission || '';
-    document.getElementById('soum-deplacement').value = currentSoumission.frais_deplacement || '';
-    document.getElementById('soum-postprod').value = currentSoumission.frais_postprod || '';
-    document.getElementById('soum-acompte').value = currentSoumission.montant_acompte || '';
-    document.getElementById('soum-stripe').value = currentSoumission.stripe_acompte_url || '';
-    document.getElementById('soum-notes').value = currentSoumission.notes || '';
-    calculerSoumission();
-  }
+  if(!currentSoumission)return;
+  document.getElementById('soum-num').textContent=currentSoumission.num_soumission||'';
+  const campos=['deplacement','postprod','acompte'];
+  document.getElementById('soum-deplacement').value=currentSoumission.frais_deplacement||'';
+  document.getElementById('soum-postprod').value=currentSoumission.frais_postprod||'';
+  document.getElementById('soum-acompte').value=currentSoumission.montant_acompte||'';
+  document.getElementById('soum-stripe').value=currentSoumission.stripe_acompte_url||'';
+  document.getElementById('soum-notes').value=currentSoumission.notes||'';
+  document.getElementById('soum-entreprise').value=currentSoumission.entreprise||'';
+  document.getElementById('soum-contact').value=currentSoumission.personne_contact||'';
+  document.getElementById('soum-nom-projet').value=currentSoumission.nom_projet||'';
+  document.getElementById('soum-statut-doc').value=currentSoumission.statut||'BROUILLON';
+  document.getElementById('soum-date-souhaitee').value=currentSoumission.date_souhaitee?.split('T')[0]||'';
+  document.getElementById('soum-date-confirmee').value=currentSoumission.date_confirmee?.split('T')[0]||'';
+  document.getElementById('soum-heure').value=currentSoumission.heure_intervention||'';
+  document.getElementById('soum-duree').value=currentSoumission.duree_estimee||'';
+  document.getElementById('soum-mode-paiement').value=currentSoumission.mode_paiement||'';
+  document.getElementById('soum-statut-paiement').value=currentSoumission.statut_paiement||'EN_ATTENTE';
+  document.getElementById('soum-statut-pdf-soum').value=currentSoumission.statut_pdf_soumission||'NON_FAIT';
+  document.getElementById('soum-statut-pdf-fact').value=currentSoumission.statut_pdf_facture||'NON_FAIT';
+  document.getElementById('soum-date-livraison').value=currentSoumission.date_livraison?.split('T')[0]||'';
+  document.getElementById('soum-date-relance').value=currentSoumission.date_relance?.split('T')[0]||'';
+  setSatDisplay(currentSoumission.satisfaction||0);
+  calculerSoumission();
 }
 
-function getPrixBase() {
-  const PACKS = {
-    'Pack Visibilité Essentielle': 249, 'Capsule Vidéo Impact': 349,
-    'Pack Visibilité Complète': 499, 'Cartographie Drone Professionnelle': 799,
-    'Inspection Toiture Visuelle Drone': 279, 'Inspection Structure & Bâtiment': 449,
-    'Inspection Réseaux & Infrastructures': 599, 'Pack Signature Immobilier Premium': 599,
-    'Captation Événementielle Drone': 699, 'Suivi de Chantier Drone Pro': 549,
-    'Pack Promotion Tourisme & Paysage': 399, 'Projet sur mesure': 0,
-  };
-  const service = currentLead?.type_service || '';
-  const key = Object.keys(PACKS).find(k => service.includes(k) || k.includes(service));
-  return key ? PACKS[key] : 0;
+function getPrixBase(){
+  const P={'Pack Visibilité Essentielle':249,'Capsule Vidéo Impact':349,'Pack Visibilité Complète':499,'Cartographie Drone Professionnelle':799,'Inspection Toiture Visuelle Drone':279,'Inspection Structure & Bâtiment':449,'Inspection Réseaux & Infrastructures':599,'Pack Signature Immobilier Premium':599,'Captation Événementielle Drone':699,'Suivi de Chantier Drone Pro':549,'Pack Promotion Tourisme & Paysage':399,'Projet sur mesure':0};
+  const svc=currentLead?.type_service||'';
+  const k=Object.keys(P).find(k=>svc.includes(k)||k.includes(svc));
+  return k?P[k]:0;
 }
-
-function calculerMontants(base, dep, autre) {
-  const sous = base + dep + autre;
-  const tps = sous * 0.05;
-  const tvq = sous * 0.09975;
-  return { sous, tps, tvq, total: sous + tps + tvq };
+function calcMtx(b,d,a){const s=b+d+a;const t=s*0.05;const q=s*0.09975;return{s,t,q,tot:s+t+q};}
+function calculerSoumission(){
+  const b=getPrixBase(),d=parseFloat(document.getElementById('soum-deplacement').value)||0,p=parseFloat(document.getElementById('soum-postprod').value)||0;
+  const{s,t,q,tot}=calcMtx(b,d,p);
+  document.getElementById('soum-fin-table').innerHTML=`
+    <tr><td>Honoraires (${currentLead?.type_service||'—'})</td><td>${fmt(b)}</td></tr>
+    ${d>0?`<tr><td>Frais de déplacement</td><td>${fmt(d)}</td></tr>`:''}
+    ${p>0?`<tr><td>Postproduction</td><td>${fmt(p)}</td></tr>`:''}
+    <tr style="color:var(--gray)"><td>Sous-total</td><td>${fmt(s)}</td></tr>
+    <tr style="color:var(--gray)"><td>TPS (5%) — 782828008RT0002</td><td>${fmt(t)}</td></tr>
+    <tr style="color:var(--gray)"><td>TVQ (9,975%) — 4016921721TQ0001</td><td>${fmt(q)}</td></tr>
+    <tr class="fin-total"><td>💰 TOTAL (taxes incluses)</td><td>${fmt(tot)}</td></tr>`;
 }
-
-function calculerSoumission() {
-  const base = getPrixBase();
-  const dep = parseFloat(document.getElementById('soum-deplacement').value) || 0;
-  const post = parseFloat(document.getElementById('soum-postprod').value) || 0;
-  const { sous, tps, tvq, total } = calculerMontants(base, dep, post);
-
-  const table = document.getElementById('soum-fin-table');
-  table.innerHTML = `
-    <tr><td>Honoraires de captation (${currentLead?.type_service || '—'})</td><td>${fmt(base)}</td></tr>
-    ${dep > 0 ? `<tr><td>Frais de déplacement</td><td>${fmt(dep)}</td></tr>` : ''}
-    ${post > 0 ? `<tr><td>Postproduction</td><td>${fmt(post)}</td></tr>` : ''}
-    <tr style="color:var(--gray)"><td>Sous-total</td><td>${fmt(sous)}</td></tr>
-    <tr style="color:var(--gray)"><td>TPS (5%) — No : 782828008RT0002</td><td>${fmt(tps)}</td></tr>
-    <tr style="color:var(--gray)"><td>TVQ (9,975%) — No : 4016921721TQ0001</td><td>${fmt(tvq)}</td></tr>
-    <tr class="fin-total"><td>💰 TOTAL (taxes incluses)</td><td>${fmt(total)}</td></tr>
-  `;
-}
-
-function setAcompte(val) {
-  document.querySelectorAll('.acompte-btn').forEach(b => b.classList.remove('active'));
+function setAcompte(v){
+  document.querySelectorAll('.acompte-btn').forEach(b=>b.classList.remove('active'));
   event.target.classList.add('active');
+  const b=getPrixBase(),d=parseFloat(document.getElementById('soum-deplacement').value)||0,p=parseFloat(document.getElementById('soum-postprod').value)||0;
+  const{tot}=calcMtx(b,d,p);
+  if(v===0)document.getElementById('soum-acompte').value='0';
+  else if(v==='libre')document.getElementById('soum-acompte').focus();
+  else document.getElementById('soum-acompte').value=(tot*parseInt(v)/100).toFixed(2);
+}
+function setSat(v){currentSatisfaction=v;setSatDisplay(v);marquerModif();}
+function setSatDisplay(v){document.querySelectorAll('#stars-sat .star').forEach((s,i)=>{s.textContent=i<v?'⭐':'☆';});currentSatisfaction=v;}
 
-  const base = getPrixBase();
-  const dep = parseFloat(document.getElementById('soum-deplacement').value) || 0;
-  const post = parseFloat(document.getElementById('soum-postprod').value) || 0;
-  const { total } = calculerMontants(base, dep, post);
-
-  if (val === 0) document.getElementById('soum-acompte').value = '0';
-  else if (val === 'libre') document.getElementById('soum-acompte').focus();
-  else document.getElementById('soum-acompte').value = (total * parseInt(val) / 100).toFixed(2);
+async function sauverSoumissionManuel(silencieux=false){
+  if(!currentSoumission)return;
+  const body={frais_deplacement:parseFloat(document.getElementById('soum-deplacement').value)||0,frais_postprod:parseFloat(document.getElementById('soum-postprod').value)||0,montant_acompte:parseFloat(document.getElementById('soum-acompte').value)||0,stripe_acompte_url:document.getElementById('soum-stripe').value,notes:document.getElementById('soum-notes').value,statut:document.getElementById('soum-statut-doc').value||'BROUILLON',entreprise:document.getElementById('soum-entreprise').value,personne_contact:document.getElementById('soum-contact').value,nom_projet:document.getElementById('soum-nom-projet').value,date_souhaitee:document.getElementById('soum-date-souhaitee').value,date_confirmee:document.getElementById('soum-date-confirmee').value,heure_intervention:document.getElementById('soum-heure').value,duree_estimee:document.getElementById('soum-duree').value,mode_paiement:document.getElementById('soum-mode-paiement').value,statut_paiement:document.getElementById('soum-statut-paiement').value,statut_pdf_soumission:document.getElementById('soum-statut-pdf-soum').value,statut_pdf_facture:document.getElementById('soum-statut-pdf-fact').value,date_livraison:document.getElementById('soum-date-livraison').value,date_relance:document.getElementById('soum-date-relance').value,satisfaction:currentSatisfaction||null,projet_id:currentLead.id};
+  await apiPut(`/api/crm/soumissions/${currentSoumission.id}`,body);
+  Object.assign(currentSoumission,body);
+  clearUnsaved();
+  // Recharger projet (auto-créé)
+  await chargerProjets();
+  renderFluxStatut(currentLead.statut);
+  if(!silencieux)showNotif('✅ Soumission sauvegardée — Projet créé/mis à jour','success');
 }
 
-async function sauverSoumission() {
-  if (!currentSoumission) return;
-  const body = {
-    frais_deplacement: parseFloat(document.getElementById('soum-deplacement').value) || 0,
-    frais_postprod: parseFloat(document.getElementById('soum-postprod').value) || 0,
-    montant_acompte: parseFloat(document.getElementById('soum-acompte').value) || 0,
-    stripe_acompte_url: document.getElementById('soum-stripe').value,
-    notes: document.getElementById('soum-notes').value,
-    statut: 'BROUILLON',
-  };
-  await apiPut(`/api/crm/soumissions/${currentSoumission.id}`, body);
-  Object.assign(currentSoumission, body);
-  showNotif('✅ Soumission sauvegardée', 'success');
+function apercuSoumission(){if(!currentSoumission)return;window.open(`${API}/api/crm/soumissions/${currentSoumission.id}/apercu`,'_blank');}
+function apercuFacture(){if(!currentFacture)return;window.open(`${API}/api/crm/factures/${currentFacture.id}/apercu`,'_blank');}
+function imprimerPDF(t){const u=t==='soumission'?`${API}/api/crm/soumissions/${currentSoumission?.id}/apercu`:`${API}/api/crm/factures/${currentFacture?.id}/apercu`;const w=window.open(u,'_blank');if(w)w.onload=()=>w.print();}
+
+async function genererStripe(){
+  if(!currentSoumission)return;
+  const m=parseFloat(document.getElementById('soum-acompte').value)||0;
+  if(m<=0){showNotif('⚠️ Entrez un montant acompte d\'abord','warning');return;}
+  const btn=event.target;btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
+  const d=await apiPost(`/api/crm/soumissions/${currentSoumission.id}/stripe`,{montant:m});
+  btn.textContent='⚡ Générer';btn.disabled=false;
+  if(d.success&&d.stripe_url){document.getElementById('soum-stripe').value=d.stripe_url;showNotif('✅ Lien Stripe généré !','success');}
+  else showNotif('❌ '+(d.error||'Erreur Stripe'),'error');
 }
 
-function apercuSoumission() {
-  if (!currentSoumission) return;
-  window.open(`${API}/api/crm/soumissions/${currentSoumission.id}/apercu`, '_blank');
+async function envoyerConfirmationVisite(){
+  if(!currentSoumission?.id)return;
+  if(!document.getElementById('soum-date-confirmee').value){showNotif('⚠️ Renseignez d\'abord la date confirmée','warning');return;}
+  await sauverSoumissionManuel(true);
+  const d=await apiPost(`/api/crm/soumissions/${currentSoumission.id}/confirmation-visite`,{});
+  if(d.success)showNotif('✅ Confirmation de visite envoyée !','success');
+  else showNotif('❌ '+(d.error||'Erreur'),'error');
 }
 
-async function envoyerSoumission() {
-  await sauverSoumission();
-  const conditions = document.getElementById('soum-conditions').checked;
-  const msg = `La soumission ${currentSoumission?.num_soumission} sera envoyée à <strong>${currentLead?.courriel}</strong> + copie à duplicata@capturair.com.`;
-  document.getElementById('confirm-envoi-title').textContent = '📧 Envoyer la soumission';
-  document.getElementById('confirm-envoi-msg').innerHTML = msg;
-  document.getElementById('confirm-envoi-warning').style.display = !conditions ? 'flex' : 'none';
-  pendingEnvoi = { type: 'soumission' };
+async function dupliquerSoumission(){if(!currentSoumission)return;const d=await apiPost(`/api/crm/soumissions/${currentSoumission.id}/dupliquer`,{});if(d.success){showNotif('✅ Soumission dupliquée — '+d.num_soumission,'success');await chargerSoumissions();chargerSoumissionDossier();}else showNotif('❌ '+d.error,'error');}
+function supprimerSoumission(){pendingDelete={type:'soumission',id:currentSoumission?.id};document.getElementById('delete-title').textContent='🗑️ Supprimer la soumission';document.getElementById('delete-msg').textContent=`Supprimer ${currentSoumission?.num_soumission} ?`;document.getElementById('modal-confirm-delete').classList.add('active');}
+
+async function envoyerSoumission(){
+  await sauverSoumissionManuel(true);
+  const c=document.getElementById('soum-conditions').checked;
+  document.getElementById('confirm-envoi-title').textContent='📧 Envoyer la soumission';
+  document.getElementById('confirm-envoi-msg').innerHTML=`La soumission <strong>${currentSoumission?.num_soumission}</strong> sera envoyée à <strong>${currentLead?.courriel}</strong> + duplicata@capturair.com.`;
+  document.getElementById('confirm-envoi-warning').style.display=!c?'flex':'none';
+  pendingEnvoi={type:'soumission'};
   document.getElementById('modal-confirm-envoi').classList.add('active');
+}
+
+// ══ PROJET GALERIE ════════════════════════════════════════════════════
+async function chargerProjetDossier(){
+  if(!currentLead)return;
+  // Chercher projet lié via lead_id ou num_soumission
+  currentProjet=projets.find(p=>p.lead_id===currentLead.id||p.num_soumission===currentLead.num_soumission)||null;
+
+  if(!currentProjet){
+    // Projet pas encore créé — attente de sauvegarde soumission
+    document.getElementById('projet-nom').value=`Projet ${currentLead.prenom} ${currentLead.nom}`;
+    document.getElementById('projet-client-nom').value=`${currentLead.prenom} ${currentLead.nom}`;
+    document.getElementById('projet-client-email').value=currentLead.courriel||'';
+    document.getElementById('projet-statut').value='EN_ATTENTE';
+    document.getElementById('projet-num').textContent='— Sauvegardez une soumission pour créer le projet';
+    document.getElementById('projet-galerie-section').style.display='none';
+    document.getElementById('media-grid').innerHTML='';
+    return;
+  }
+
+  // Charger détails complets avec médias
+  const d=await apiGet(`/api/crm/projets/${currentProjet.id}`);
+  currentProjet=d.projet||currentProjet;
+  const medias=d.medias||[];
+
+  document.getElementById('projet-num').textContent=currentProjet.id||'';
+  document.getElementById('projet-nom').value=currentProjet.nom||'';
+  document.getElementById('projet-client-nom').value=currentProjet.client_nom||'';
+  document.getElementById('projet-client-email').value=currentProjet.client_email||'';
+  document.getElementById('projet-statut').value=currentProjet.statut||'EN_ATTENTE';
+  document.getElementById('projet-modele').value=currentProjet.modele_prix||'FORFAIT';
+  document.getElementById('projet-prix-base').value=currentProjet.prix_base||'';
+  document.getElementById('projet-notes').value=currentProjet.note_admin||'';
+
+  // Badge statut
+  const statutColors={'EN_ATTENTE':'var(--gray)','ENVOYE':'var(--blue)','SELECTION':'var(--orange)','DEJA_PAYE':'var(--green)','PAYE':'var(--green)','LIVRE':'#27AE60'};
+  document.getElementById('projet-statut-badge').innerHTML=`<span class="badge" style="background:rgba(0,0,0,0.08);color:${statutColors[currentProjet.statut]||'var(--gray)'};">${currentProjet.statut||'—'}</span>`;
+
+  // Lien galerie
+  if(currentProjet.token_acces){
+    const url=`https://capturair.com/client.html?token=${currentProjet.token_acces}`;
+    document.getElementById('projet-galerie-url').textContent=url;
+    document.getElementById('projet-galerie-section').style.display='block';
+    const exp=currentProjet.token_expires?new Date(currentProjet.token_expires).toLocaleDateString('fr-CA'):'—';
+    document.getElementById('projet-galerie-expiry').textContent=exp;
+  } else {
+    document.getElementById('projet-galerie-section').style.display='none';
+  }
+
+  // Médias
+  renderMedias(medias);
+}
+
+function renderMedias(medias){
+  const grid=document.getElementById('media-grid');
+  if(!medias.length){grid.innerHTML='<div style="font-size:13px;color:var(--gray);padding:12px 0;">Aucun média — uploadez des photos/vidéos ci-dessus</div>';return;}
+  grid.innerHTML=medias.map(m=>`
+    <div class="media-item">
+      ${m.type==='VIDEO'?`<div style="background:#111;display:flex;align-items:center;justify-content:center;height:100%;"><span style="font-size:32px;">🎬</span></div>`:
+        `<img src="${m.preview_url||''}" alt="${m.nom_fichier}" loading="lazy">`}
+      <button class="media-item-del" onclick="supprimerMedia('${m.id}','${m.nom_fichier}')">✕</button>
+      <div style="position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,0.6);color:white;font-size:9px;padding:2px 6px;border-radius:4px;">${m.nom_fichier?.split('.').pop()?.toUpperCase()||''}</div>
+    </div>`).join('');
+}
+
+async function sauverProjet(){
+  if(!currentProjet?.id){showNotif('⚠️ Sauvegardez d\'abord une soumission pour créer le projet','warning');return;}
+  const body={nom:document.getElementById('projet-nom').value,client_nom:document.getElementById('projet-client-nom').value,client_email:document.getElementById('projet-client-email').value,statut:document.getElementById('projet-statut').value,modele_prix:document.getElementById('projet-modele').value,prix_base:parseFloat(document.getElementById('projet-prix-base').value)||0,note_admin:document.getElementById('projet-notes').value};
+  await apiPut(`/api/crm/projets/${currentProjet.id}`,body);
+  Object.assign(currentProjet,body);
+  showNotif('✅ Projet sauvegardé','success');
+  await chargerProjets();
+  renderFluxStatut(currentLead.statut);
+}
+
+async function envoyerGalerie(){
+  if(!currentProjet?.id){showNotif('⚠️ Projet non créé — sauvegardez la soumission d\'abord','warning');return;}
+  const d=await apiPost(`/api/portail/projets/${currentProjet.id}/envoyer`,{deja_paye:false});
+  if(d.success){showNotif('✅ Galerie envoyée au client !','success');await chargerProjets();chargerProjetDossier();}
+  else showNotif('❌ '+(d.error||'Erreur'),'error');
+}
+
+async function envoyerGalerieDejaPaye(){
+  if(!currentProjet?.id){showNotif('⚠️ Projet non créé','warning');return;}
+  const d=await apiPost(`/api/portail/projets/${currentProjet.id}/envoyer`,{deja_paye:true});
+  if(d.success){showNotif('✅ Galerie envoyée (déjà payé) !','success');await chargerProjets();chargerProjetDossier();}
+  else showNotif('❌ '+(d.error||'Erreur'),'error');
+}
+
+async function genererStripeProjet(){
+  if(!currentProjet?.id)return;
+  const prix=parseFloat(document.getElementById('projet-prix-base').value)||0;
+  if(prix<=0){showNotif('⚠️ Entrez un prix base','warning');return;}
+  const d=await apiPost(`/api/portail/projets/${currentProjet.id}/stripe-link`,{montant:Math.round(prix*100)});
+  if(d.success){showNotif('✅ Lien Stripe créé !','success');}
+  else showNotif('❌ '+(d.error||'Erreur'),'error');
+}
+
+function copierLienGalerie(){
+  const url=`https://capturair.com/client.html?token=${currentProjet?.token_acces}`;
+  navigator.clipboard.writeText(url).then(()=>showNotif('✅ Lien copié !','success'));
+}
+function ouvrirGalerie(){window.open(`https://capturair.com/client.html?token=${currentProjet?.token_acces}`,'_blank');}
+
+// Upload médias
+function dragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
+function dragLeave(e){e.currentTarget.classList.remove('drag-over');}
+function dropFichiers(e){e.preventDefault();e.currentTarget.classList.remove('drag-over');uploaderFichiersListe(e.dataTransfer.files);}
+function uploaderFichiers(e){uploaderFichiersListe(e.target.files);}
+
+async function uploaderFichiersListe(files){
+  if(!currentProjet?.id){showNotif('⚠️ Sauvegardez d\'abord une soumission pour créer le projet','warning');return;}
+  const prog=document.getElementById('upload-progress');
+  const txt=document.getElementById('upload-progress-text');
+  prog.style.display='block';
+  const total=files.length;
+  let done=0;
+  for(const file of files){
+    txt.textContent=`${done+1}/${total} — ${file.name}`;
+    const fd=new FormData();fd.append('file',file);
+    try{
+      await fetch(`${API}/api/crm/projets/${currentProjet.id}/medias`,{method:'POST',headers:{'Authorization':`Bearer ${authToken}`},body:fd});
+      done++;
+    }catch(e){console.error(e);}
+  }
+  prog.style.display='none';
+  showNotif(`✅ ${done}/${total} fichier(s) uploadé(s)`,done===total?'success':'warning');
+  chargerProjetDossier();
+}
+
+async function supprimerMedia(id,nom){
+  if(!confirm(`Supprimer ${nom} ?`))return;
+  const d=await apiDelete(`/api/crm/medias/${id}`);
+  if(d.success){showNotif('✅ Média supprimé','success');chargerProjetDossier();}
+  else showNotif('❌ '+d.error,'error');
 }
 
 // ══ FACTURE ════════════════════════════════════════════════════════════
-
-async function chargerFactureDossier() {
-  if (!currentLead) return;
-  currentFacture = factures.find(f => f.projet_id === currentLead.id) || null;
-
-  if (!currentFacture) {
-    const soum = soumissions.find(s => s.projet_id === currentLead.id);
-    const data = await apiPost('/api/crm/factures', {
-      projet_id: currentLead.id,
-      num_soumission: soum?.num_soumission || '',
-      acompte_recu: soum?.montant_acompte || 0,
-    });
-    if (data.success) {
-      await chargerFactures();
-      currentFacture = factures.find(f => f.id === data.id) || { id: data.id, num_facture: data.num_facture, statut: 'BROUILLON' };
-    }
+async function chargerFactureDossier(){
+  if(!currentLead)return;
+  currentFacture=factures.find(f=>f.projet_id===currentLead.id)||null;
+  if(!currentFacture){
+    const s=soumissions.find(s=>s.projet_id===currentLead.id);
+    const d=await apiPost('/api/crm/factures',{projet_id:currentLead.id,num_soumission:s?.num_soumission||'',acompte_recu:s?.montant_acompte||0});
+    if(d.success){await chargerFactures();currentFacture=factures.find(f=>f.id===d.id)||{id:d.id,num_facture:d.num_facture,statut:'BROUILLON'};}
   }
-
-  if (currentFacture) {
-    document.getElementById('fact-num').textContent = currentFacture.num_facture || '';
-    document.getElementById('fact-deplacement').value = currentFacture.frais_deplacement || '';
-    document.getElementById('fact-autres').value = currentFacture.autres_frais || '';
-    document.getElementById('fact-acompte').value = currentFacture.acompte_recu || '';
-    document.getElementById('fact-notes').value = currentFacture.notes || '';
-    calculerFacture();
-  }
+  if(!currentFacture)return;
+  document.getElementById('fact-num').textContent=currentFacture.num_facture||'';
+  document.getElementById('fact-deplacement').value=currentFacture.frais_deplacement||'';
+  document.getElementById('fact-autres').value=currentFacture.autres_frais||'';
+  document.getElementById('fact-acompte').value=currentFacture.acompte_recu||'';
+  document.getElementById('fact-notes').value=currentFacture.notes||'';
+  calculerFacture();
 }
 
-function calculerFacture() {
-  const base = getPrixBase();
-  const dep = parseFloat(document.getElementById('fact-deplacement').value) || 0;
-  const autres = parseFloat(document.getElementById('fact-autres').value) || 0;
-  const acompte = parseFloat(document.getElementById('fact-acompte').value) || 0;
-  const { sous, tps, tvq, total } = calculerMontants(base, dep, autres);
-  const solde = total - acompte;
-
-  const table = document.getElementById('fact-fin-table');
-  table.innerHTML = `
-    <tr><td>${currentLead?.type_service || 'Service'}</td><td>${fmt(base)}</td></tr>
-    ${dep > 0 ? `<tr><td>Frais de déplacement</td><td>${fmt(dep)}</td></tr>` : ''}
-    ${autres > 0 ? `<tr><td>Autres frais</td><td>${fmt(autres)}</td></tr>` : ''}
-    <tr style="color:var(--gray)"><td>Sous-total</td><td>${fmt(sous)}</td></tr>
-    <tr style="color:var(--gray)"><td>TPS (5%) — No : 782828008RT0002</td><td>${fmt(tps)}</td></tr>
-    <tr style="color:var(--gray)"><td>TVQ (9,975%) — No : 4016921721TQ0001</td><td>${fmt(tvq)}</td></tr>
-    <tr class="fin-total"><td>💰 TOTAL (taxes incluses)</td><td>${fmt(total)}</td></tr>
-    ${acompte > 0 ? `<tr style="color:var(--gray)"><td>Acompte reçu</td><td>— ${fmt(acompte)}</td></tr>
-    <tr class="fin-solde"><td>💳 SOLDE À PAYER</td><td>${fmt(solde)}</td></tr>` : ''}
-  `;
+function calculerFacture(){
+  const b=getPrixBase(),d=parseFloat(document.getElementById('fact-deplacement').value)||0,a=parseFloat(document.getElementById('fact-autres').value)||0,ac=parseFloat(document.getElementById('fact-acompte').value)||0;
+  const{s,t,q,tot}=calcMtx(b,d,a);const sol=tot-ac;
+  document.getElementById('fact-fin-table').innerHTML=`
+    <tr><td>${currentLead?.type_service||'Service'}</td><td>${fmt(b)}</td></tr>
+    ${d>0?`<tr><td>Frais de déplacement</td><td>${fmt(d)}</td></tr>`:''}
+    ${a>0?`<tr><td>Autres frais</td><td>${fmt(a)}</td></tr>`:''}
+    <tr style="color:var(--gray)"><td>Sous-total</td><td>${fmt(s)}</td></tr>
+    <tr style="color:var(--gray)"><td>TPS (5%) — 782828008RT0002</td><td>${fmt(t)}</td></tr>
+    <tr style="color:var(--gray)"><td>TVQ (9,975%) — 4016921721TQ0001</td><td>${fmt(q)}</td></tr>
+    <tr class="fin-total"><td>💰 TOTAL (taxes incluses)</td><td>${fmt(tot)}</td></tr>
+    ${ac>0?`<tr style="color:var(--gray)"><td>Acompte reçu</td><td>— ${fmt(ac)}</td></tr><tr class="fin-solde"><td>💳 SOLDE À PAYER</td><td>${fmt(sol)}</td></tr>`:''}`;
 }
 
-async function sauverFacture() {
-  if (!currentFacture) return;
-  const body = {
-    frais_deplacement: parseFloat(document.getElementById('fact-deplacement').value) || 0,
-    autres_frais: parseFloat(document.getElementById('fact-autres').value) || 0,
-    acompte_recu: parseFloat(document.getElementById('fact-acompte').value) || 0,
-    notes: document.getElementById('fact-notes').value,
-    statut: 'BROUILLON',
-  };
-  await apiPut(`/api/crm/factures/${currentFacture.id}`, body);
-  Object.assign(currentFacture, body);
-  showNotif('✅ Facture sauvegardée', 'success');
+async function sauverFactureManuel(silencieux=false){
+  if(!currentFacture)return;
+  const body={frais_deplacement:parseFloat(document.getElementById('fact-deplacement').value)||0,autres_frais:parseFloat(document.getElementById('fact-autres').value)||0,acompte_recu:parseFloat(document.getElementById('fact-acompte').value)||0,notes:document.getElementById('fact-notes').value,statut:'BROUILLON'};
+  await apiPut(`/api/crm/factures/${currentFacture.id}`,body);
+  Object.assign(currentFacture,body);
+  if(!silencieux)showNotif('✅ Facture sauvegardée','success');
 }
+async function dupliquerFacture(){if(!currentFacture)return;const d=await apiPost(`/api/crm/factures/${currentFacture.id}/dupliquer`,{});if(d.success){showNotif('✅ Facture dupliquée — '+d.num_facture,'success');await chargerFactures();chargerFactureDossier();}else showNotif('❌ '+d.error,'error');}
+function supprimerFacture(){pendingDelete={type:'facture',id:currentFacture?.id};document.getElementById('delete-title').textContent='🗑️ Supprimer la facture';document.getElementById('delete-msg').textContent=`Supprimer ${currentFacture?.num_facture} ?`;document.getElementById('modal-confirm-delete').classList.add('active');}
 
-function apercuFacture() {
-  if (!currentFacture) return;
-  window.open(`${API}/api/crm/factures/${currentFacture.id}/apercu`, '_blank');
-}
-
-async function envoyerFacture() {
-  await sauverFacture();
-  const conditions = document.getElementById('fact-conditions').checked;
-  const msg = `La facture ${currentFacture?.num_facture} sera envoyée à <strong>${currentLead?.courriel}</strong> + copie à duplicata@capturair.com.`;
-  document.getElementById('confirm-envoi-title').textContent = '📧 Envoyer la facture';
-  document.getElementById('confirm-envoi-msg').innerHTML = msg;
-  document.getElementById('confirm-envoi-warning').style.display = !conditions ? 'flex' : 'none';
-  pendingEnvoi = { type: 'facture' };
+async function envoyerFacture(){
+  await sauverFactureManuel(true);
+  const c=document.getElementById('fact-conditions').checked;
+  document.getElementById('confirm-envoi-title').textContent='📧 Envoyer la facture';
+  document.getElementById('confirm-envoi-msg').innerHTML=`La facture <strong>${currentFacture?.num_facture}</strong> sera envoyée à <strong>${currentLead?.courriel}</strong>.`;
+  document.getElementById('confirm-envoi-warning').style.display=!c?'flex':'none';
+  pendingEnvoi={type:'facture'};
   document.getElementById('modal-confirm-envoi').classList.add('active');
 }
 
-async function confirmerEnvoi() {
-  if (!pendingEnvoi) return;
-  const btn = document.getElementById('confirm-envoi-btn');
-  btn.innerHTML = '<span class="spinner"></span> Envoi...';
-  btn.disabled = true;
-
-  try {
-    if (pendingEnvoi.type === 'soumission') {
-      const conditions = document.getElementById('soum-conditions').checked;
-      const data = await apiPost(`/api/crm/soumissions/${currentSoumission.id}/envoyer`, { joindre_conditions: conditions });
-      if (data.success) {
-        showNotif('✅ Soumission envoyée !', 'success');
-        currentLead.statut = 'Soumission envoyée';
-        renderTimeline('Soumission envoyée');
-        await apiPut(`/api/crm/leads/${currentLead.id}`, { ...currentLead });
-      } else {
-        showNotif('❌ ' + (data.error || 'Erreur envoi'), 'error');
-      }
-    } else {
-      const conditions = document.getElementById('fact-conditions').checked;
-      const data = await apiPost(`/api/crm/factures/${currentFacture.id}/envoyer`, { joindre_conditions: conditions });
-      if (data.success) {
-        showNotif('✅ Facture envoyée !', 'success');
-      } else {
-        showNotif('❌ ' + (data.error || 'Erreur envoi'), 'error');
-      }
+async function confirmerEnvoi(){
+  if(!pendingEnvoi)return;
+  const btn=document.getElementById('confirm-envoi-btn');
+  btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
+  try{
+    if(pendingEnvoi.type==='soumission'){
+      const c=document.getElementById('soum-conditions').checked;
+      const d=await apiPost(`/api/crm/soumissions/${currentSoumission.id}/envoyer`,{joindre_conditions:c});
+      if(d.success){showNotif('✅ Soumission envoyée !','success');currentLead.statut='Soumission envoyée';renderFluxStatut('Soumission envoyée');await apiPut(`/api/crm/leads/${currentLead.id}`,{...currentLead});}
+      else showNotif('❌ '+(d.error||'Erreur'),'error');
+    }else{
+      const c=document.getElementById('fact-conditions').checked;
+      const d=await apiPost(`/api/crm/factures/${currentFacture.id}/envoyer`,{joindre_conditions:c});
+      if(d.success)showNotif('✅ Facture envoyée !','success');
+      else showNotif('❌ '+(d.error||'Erreur'),'error');
     }
-  } catch(e) {
-    showNotif('❌ Erreur de connexion', 'error');
-  }
-
-  closeModal('modal-confirm-envoi');
-  btn.innerHTML = '📧 Envoyer';
-  btn.disabled = false;
-  pendingEnvoi = null;
+  }catch(e){showNotif('❌ Erreur','error');}
+  closeModal('modal-confirm-envoi');btn.innerHTML='📧 Envoyer';btn.disabled=false;pendingEnvoi=null;
 }
 
-// ══ LISTES ═════════════════════════════════════════════════════════════
+// ══ LISTES ════════════════════════════════════════════════════════════
+function renderSoumissions(){
+  const tbody=document.getElementById('soumissions-tbody');
+  if(!soumissions.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">📋</div><div>Aucune soumission</div></div></td></tr>`;return;}
+  tbody.innerHTML=soumissions.map(s=>{
+    const b=s.prix_base||0;const tot=((b+(s.frais_deplacement||0)+(s.frais_postprod||0))*1.14975).toFixed(2);
+    const cn=s.client_nom||(s.prenom&&s.nom?`${s.prenom} ${s.nom}`:'—');
+    return `<tr onclick="ouvrirDossierDoc('${s.projet_id}','soumission')">
+      <td><strong>${s.num_soumission||'—'}</strong></td>
+      <td>${cn}</td>
+      <td style="font-size:12px;">${s.nom_projet||s.type_service||'—'}</td>
+      <td>${b>0?fmt(parseFloat(tot)):'—'}</td>
+      <td>${badgeDoc(s.statut)}</td>
+      <td style="font-size:11px;">${badgePaiement(s.statut_paiement)}</td>
+      <td style="font-size:11px;">${s.created_at?formatDate(s.created_at):'—'}</td>
+      <td onclick="event.stopPropagation()"><button class="btn-secondary" style="padding:5px 10px;font-size:11px;" onclick="window.open('${API}/api/crm/soumissions/${s.id}/apercu','_blank')">👁️</button></td>
+    </tr>`;
+  }).join('');
+}
 
-function renderSoumissions() {
-  const tbody = document.getElementById('soumissions-tbody');
-  if (!soumissions.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">Aucune soumission</div></div></td></tr>`;
-    return;
-  }
-  tbody.innerHTML = soumissions.map(s => {
-    const base = s.prix_base || 0;
-    const total = ((base + (s.frais_deplacement||0) + (s.frais_postprod||0)) * 1.14975).toFixed(2);
-    return `
-    <tr onclick="ouvrirDossierSoumission('${s.projet_id}')">
-      <td><strong>${s.num_soumission || '—'}</strong></td>
-      <td>${s.client_nom || '—'}</td>
-      <td>${s.type_service || '—'}</td>
-      <td>${base > 0 ? fmt(parseFloat(total)) : '—'}</td>
-      <td>${badgeStatutDoc(s.statut)}</td>
-      <td>${s.created_at ? formatDate(s.created_at) : '—'}</td>
-      <td>
-        <button class="btn-secondary" style="padding:6px 12px;font-size:12px;" onclick="event.stopPropagation();window.open('${API}/api/crm/soumissions/${s.id}/apercu','_blank')">👁️</button>
+function renderProjetsList(){
+  const tbody=document.getElementById('projets-tbody');
+  if(!projets.length){tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">🚁</div><div>Aucun projet — sauvegardez une soumission</div></div></td></tr>`;return;}
+  tbody.innerHTML=projets.map(p=>{
+    const exp=p.token_expires?new Date(p.token_expires).toLocaleDateString('fr-CA'):'—';
+    const lead=leads.find(l=>l.id===p.lead_id||l.num_soumission===p.num_soumission);
+    return `<tr onclick="${lead?`ouvrirDossier('${lead.id}');setTimeout(()=>switchTab('projet'),200)`:''}">
+      <td><strong>${p.nom||'—'}</strong></td>
+      <td>${p.client_nom||'—'}</td>
+      <td style="font-size:12px;">${p.num_soumission||p.lead_num_soumission||'—'}</td>
+      <td>${badgeGalerie(p.statut)}</td>
+      <td style="font-size:12px;">—</td>
+      <td style="font-size:12px;">${exp}</td>
+      <td onclick="event.stopPropagation()">
+        <button class="btn-secondary" style="padding:5px 10px;font-size:11px;" onclick="window.open('https://capturair.com/client.html?token=${p.token_acces}','_blank')">🔗</button>
       </td>
     </tr>`;
   }).join('');
 }
 
-function renderFactures() {
-  const tbody = document.getElementById('factures-tbody');
-  if (!factures.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">📄</div><div class="empty-state-text">Aucune facture</div></div></td></tr>`;
-    return;
-  }
-  tbody.innerHTML = factures.map(f => {
-    const base = f.prix_base || 0;
-    const total = ((base + (f.frais_deplacement||0) + (f.autres_frais||0)) * 1.14975).toFixed(2);
-    const solde = (parseFloat(total) - (f.acompte_recu||0)).toFixed(2);
-    return `
-    <tr onclick="ouvrirDossierSoumission('${f.projet_id}')">
-      <td><strong>${f.num_facture || '—'}</strong></td>
-      <td>${f.client_nom || '—'}</td>
-      <td>${f.type_service || '—'}</td>
-      <td>${base > 0 ? fmt(parseFloat(total)) : '—'}</td>
-      <td style="color:var(--blue);font-weight:600;">${parseFloat(solde) > 0 ? fmt(parseFloat(solde)) : '✅ Soldé'}</td>
-      <td>${badgeStatutDoc(f.statut)}</td>
-      <td>
-        <button class="btn-secondary" style="padding:6px 12px;font-size:12px;" onclick="event.stopPropagation();window.open('${API}/api/crm/factures/${f.id}/apercu','_blank')">👁️</button>
-      </td>
+function renderFactures(){
+  const tbody=document.getElementById('factures-tbody');
+  if(!factures.length){tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">📄</div><div>Aucune facture</div></div></td></tr>`;return;}
+  tbody.innerHTML=factures.map(f=>{
+    const b=f.prix_base||0;const tot=((b+(f.frais_deplacement||0)+(f.autres_frais||0))*1.14975).toFixed(2);const sol=(parseFloat(tot)-(f.acompte_recu||0)).toFixed(2);
+    return `<tr onclick="ouvrirDossierDoc('${f.projet_id}','facture')">
+      <td><strong>${f.num_facture||'—'}</strong></td>
+      <td>${f.client_nom||'—'}</td>
+      <td style="font-size:12px;">${f.type_service||'—'}</td>
+      <td>${b>0?fmt(parseFloat(tot)):'—'}</td>
+      <td style="color:var(--blue);font-weight:600;">${parseFloat(sol)>0?fmt(parseFloat(sol)):'✅ Soldé'}</td>
+      <td>${badgeDoc(f.statut)}</td>
+      <td onclick="event.stopPropagation()"><button class="btn-secondary" style="padding:5px 10px;font-size:11px;" onclick="window.open('${API}/api/crm/factures/${f.id}/apercu','_blank')">👁️</button></td>
     </tr>`;
   }).join('');
 }
 
-function ouvrirDossierSoumission(projetId) {
-  const lead = leads.find(l => l.id === projetId);
-  if (lead) ouvrirDossier(lead.id);
+function ouvrirDossierDoc(projetId,tab){const l=leads.find(l=>l.id===projetId);if(l){ouvrirDossier(l.id);setTimeout(()=>switchTab(tab),100);}}
+
+function renderUtilisateurs(){
+  const tbody=document.getElementById('utilisateurs-tbody');
+  if(!utilisateurs.length){tbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><div>Aucun utilisateur</div></div></td></tr>`;return;}
+  tbody.innerHTML=utilisateurs.map(u=>`<tr>
+    <td><strong>${u.nom||'—'}</strong></td><td>${u.email}</td>
+    <td><span style="color:${u.role==='superadmin'?'#E67E22':u.role==='admin'?'#1A8FD1':'#6B7C93'};font-weight:600;font-size:12px;">${u.role}</span></td>
+    <td>${u.actif?'<span style="color:var(--green);">✅</span>':'<span style="color:var(--red);">❌</span>'}</td>
+    <td><button class="btn-danger" style="padding:5px 10px;font-size:11px;" onclick="supprimerUtilisateur('${u.id}')">Supprimer</button></td>
+  </tr>`).join('');
 }
 
-function renderUtilisateurs() {
-  const tbody = document.getElementById('utilisateurs-tbody');
-  if (!utilisateurs.length) {
-    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-text">Aucun utilisateur</div></div></td></tr>`;
-    return;
-  }
-  tbody.innerHTML = utilisateurs.map(u => `
-    <tr>
-      <td><strong>${u.nom || '—'}</strong></td>
-      <td>${u.email}</td>
-      <td>${badgeRole(u.role)}</td>
-      <td>${u.actif ? '<span style="color:var(--green);">✅ Actif</span>' : '<span style="color:var(--red);">❌ Inactif</span>'}</td>
-      <td>
-        <button class="btn-secondary" style="padding:6px 12px;font-size:12px;color:var(--red);" onclick="supprimerUtilisateur('${u.id}')">Supprimer</button>
-      </td>
-    </tr>`).join('');
-}
-
-// ══ MODALS ═════════════════════════════════════════════════════════════
-
-function openModalNouveauLead() {
-  ['new-prenom','new-nom','new-courriel','new-telephone','new-ville','new-description'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
-  document.getElementById('new-service').value = '';
+// ══ MODALS & CRÉATION ═════════════════════════════════════════════════
+function openModalNouveauLead(){
+  ['new-prenom','new-nom','new-courriel','new-telephone','new-description'].forEach(id=>document.getElementById(id).value='');
+  ['new-service','new-budget','new-ville','new-type'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('modal-doublon-bar').classList.remove('visible');
   document.getElementById('modal-lead').classList.add('active');
 }
 
-async function creerLead() {
-  const prenom = document.getElementById('new-prenom').value.trim();
-  const nom = document.getElementById('new-nom').value.trim();
-  const courriel = document.getElementById('new-courriel').value.trim();
-
-  if (!prenom || !nom || !courriel) { showNotif('⚠️ Prénom, nom et courriel requis', 'error'); return; }
-  if (!courriel.includes('@')) { showNotif('⚠️ Email invalide', 'error'); return; }
-
-  const data = await apiPost('/api/crm/leads', {
-    v_prenom: prenom, v_nom: nom, v_courriel: courriel,
-    v_telephone: document.getElementById('new-telephone').value,
-    v_service: document.getElementById('new-service').value,
-    v_ville: document.getElementById('new-ville').value,
-    v_description: document.getElementById('new-description').value,
-    v_source: 'Manuel', v_statut: 'Nouveau',
-    v_assigne_to_Site: 'Mohand'
-  });
-
-  if (data.success) {
-    showNotif('✅ Dossier créé', 'success');
-    closeModal('modal-lead');
-    await chargerLeads();
-    renderDashboard();
-    ouvrirDossier(data.id);
-  } else {
-    showNotif('❌ ' + (data.error || 'Erreur'), 'error');
-  }
+async function creerLead(){
+  const p=document.getElementById('new-prenom').value.trim(),n=document.getElementById('new-nom').value.trim(),c=document.getElementById('new-courriel').value.trim(),s=document.getElementById('new-service').value,b=document.getElementById('new-budget').value;
+  if(!p||!n||!c||!s||!b){showNotif('⚠️ Remplissez tous les champs requis (*)','error');return;}
+  if(!c.includes('@')){showNotif('⚠️ Courriel invalide','error');return;}
+  const d=await apiPost('/api/crm/leads',{v_prenom:p,v_nom:n,v_courriel:c,v_telephone:document.getElementById('new-telephone').value,v_service:s,v_ville:document.getElementById('new-ville').value,v_description:document.getElementById('new-description').value,v_source:'Manuel',v_statut:'Nouveau',v_budget:b,v_type_projet:document.getElementById('new-type').value,v_assigne_to_Site:'Mohand'});
+  if(d.success){showNotif('✅ Dossier créé','success');closeModal('modal-lead');await chargerLeads();renderDashboard();ouvrirDossier(d.id);}
+  else showNotif('❌ '+(d.error||'Erreur'),'error');
 }
 
-function openModalUtilisateur() {
-  document.getElementById('modal-utilisateur').classList.add('active');
+function openModalUtilisateur(){document.getElementById('modal-utilisateur').classList.add('active');}
+async function creerUtilisateur(){
+  const d=await apiPost('/api/crm/utilisateurs',{nom:document.getElementById('user-nom').value,email:document.getElementById('user-email').value,pin:document.getElementById('user-pin').value,role:document.getElementById('user-role').value});
+  if(d.success){showNotif(`✅ Utilisateur créé — PIN: ${d.pin_temp}`,'success');closeModal('modal-utilisateur');await chargerUtilisateurs();renderUtilisateurs();peuplerAssignes();}
+  else showNotif('❌ '+(d.error||'Erreur'),'error');
+}
+async function supprimerUtilisateur(id){if(!confirm('Supprimer ?'))return;const d=await apiDelete(`/api/crm/utilisateurs/${id}`);if(d.success){showNotif('✅ Supprimé','success');await chargerUtilisateurs();renderUtilisateurs();}else showNotif('❌ '+d.error,'error');}
+
+function closeModal(id){document.getElementById(id).classList.remove('active');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('active');}));
+
+// ══ VALIDATION ════════════════════════════════════════════════════════
+const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const PHONE_RE=/^\d{3}-\d{3}-\d{4}$/;
+
+function formatTel(id){const el=document.getElementById(id);if(!el)return;const d=el.value.replace(/\D/g,'');if(d.length===10)el.value=`${d.slice(0,3)}-${d.slice(3,6)}-${d.slice(6)}`;}
+function formatCap(id){const el=document.getElementById(id);if(!el||!el.value.trim())return;el.value=el.value.trim().toLowerCase().replace(/(?:^|\s|[-'])([a-zàâäéèêëîïôùûüÿæœ])/g,(m,c)=>m.replace(c,c.toUpperCase()));}
+
+function validerChamp(id,type){
+  const el=document.getElementById(id);const errEl=document.getElementById(`err-${id}`);
+  if(!el)return true;const v=el.value.trim();
+  let ok=true;
+  if(type==='req')ok=v!=='';
+  else if(type==='email')ok=v!==''&&EMAIL_RE.test(v);
+  else if(type==='tel')ok=v===''||PHONE_RE.test(v);
+  el.classList.toggle('is-invalid',!ok);el.classList.toggle('is-valid',ok&&v!=='');
+  if(errEl)errEl.classList.toggle('visible',!ok);
+  return ok;
 }
 
-async function creerUtilisateur() {
-  const data = await apiPost('/api/crm/utilisateurs', {
-    nom: document.getElementById('user-nom').value,
-    email: document.getElementById('user-email').value,
-    pin: document.getElementById('user-pin').value,
-    role: document.getElementById('user-role').value,
-  });
-
-  if (data.success) {
-    showNotif(`✅ Utilisateur créé — PIN temp: ${data.pin_temp}`, 'success');
-    closeModal('modal-utilisateur');
-    await chargerUtilisateurs();
-    renderUtilisateurs();
-  } else {
-    showNotif('❌ ' + (data.error || 'Erreur'), 'error');
-  }
+async function checkDoublon(){
+  const c=document.getElementById('info-courriel').value.trim(),t=document.getElementById('info-telephone').value.trim();
+  if(!c&&!t)return;
+  const d=await apiPost('/api/crm/leads/check-doublon',{courriel:c,telephone:t,id_exclude:currentLead?.id});
+  const bar=document.getElementById('doublon-bar');
+  if(d.count>0){const x=d.doublons[0];document.getElementById('doublon-msg').textContent=`Doublon : ${x.prenom} ${x.nom} (${x.courriel})`;bar.classList.add('visible');}
+  else bar.classList.remove('visible');
 }
 
-async function supprimerUtilisateur(id) {
-  if (!confirm('Supprimer cet utilisateur ?')) return;
-  const res = await fetch(`${API}/api/crm/utilisateurs/${id}`, {
-    method: 'DELETE',
-    headers: { 'Authorization': `Bearer ${authToken}` }
-  });
-  const data = await res.json();
-  if (data.success) {
-    showNotif('✅ Utilisateur supprimé', 'success');
-    await chargerUtilisateurs();
-    renderUtilisateurs();
-  } else {
-    showNotif('❌ ' + data.error, 'error');
-  }
+async function checkDoublonModal(){
+  const c=document.getElementById('new-courriel').value.trim(),t=document.getElementById('new-telephone').value.trim();
+  if(!c&&!t)return;
+  const d=await apiPost('/api/crm/leads/check-doublon',{courriel:c,telephone:t});
+  const bar=document.getElementById('modal-doublon-bar');
+  if(d.count>0){const x=d.doublons[0];document.getElementById('modal-doublon-msg').textContent=`⚠️ Doublon possible : ${x.prenom} ${x.nom} (${x.courriel})`;bar.classList.add('visible');}
+  else bar.classList.remove('visible');
 }
-
-function closeModal(id) {
-  document.getElementById(id).classList.remove('active');
-}
-
-document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
-});
-
-// ══ AUTOCOMPLETE NOMINATIM ═════════════════════════════════════════════
-
-let acTO = null;
-async function autocompleteVille(input) {
-  clearTimeout(acTO);
-  const q = input.value.trim();
-  const list = document.getElementById('autocomplete-ville');
-  if (q.length < 2) { list.classList.remove('open'); return; }
-
-  acTO = setTimeout(async () => {
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&countrycodes=ca&format=json&limit=5&addressdetails=1`);
-      const results = await res.json();
-      if (!results.length) { list.classList.remove('open'); return; }
-
-      list.innerHTML = results.map(r => {
-        const city = r.address?.city || r.address?.town || r.address?.village || r.display_name.split(',')[0];
-        const prov = r.address?.state || '';
-        return `<div class="autocomplete-item" onclick="selectVille('${city.replace(/'/g,"\\'")}', '${prov.replace(/'/g,"\\'")}', this)">${city}, ${prov}</div>`;
-      }).join('');
-      list.classList.add('open');
-    } catch(e) {}
-  }, 300);
-}
-
-function selectVille(city, prov, el) {
-  document.getElementById('info-ville').value = city;
-  document.getElementById('autocomplete-ville').classList.remove('open');
-  sauverLead();
-}
-
-document.addEventListener('click', e => {
-  if (!e.target.closest('.autocomplete-wrap')) {
-    document.querySelectorAll('.autocomplete-list').forEach(l => l.classList.remove('open'));
-  }
-});
 
 // ══ HELPERS ════════════════════════════════════════════════════════════
+function fmt(n){return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')+' $';}
+function formatDate(s){if(!s)return'—';const d=new Date(s);if(isNaN(d))return s;const j=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],m=['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];return`${j[d.getDay()]} ${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()}`;}
+function ageDossier(c){if(!c)return'';const j=Math.floor((Date.now()-new Date(c))/(86400000));const cl=j<=7?'age-fresh':j<=30?'age-medium':'age-old';return`<span class="age-badge ${cl}">${j}j</span>`;}
+function badgeStatut(s){const m={'Nouveau':'nouveau','En attente de CapturAir':'soumis','En cours de modifications':'soumis','En attente du client':'contacte','Contacté':'contacte','Soumission envoyée':'soumis','Acompte reçu':'acompte','En production':'prod','Livré':'livre','Payé complet':'paye','Fermé':'ferme'};return`<span class="badge badge-${m[s]||'nouveau'}">${s||'Nouveau'}</span>`;}
+function badgeDoc(s){const m={'BROUILLON':'brouillon','ENVOYE':'envoye','ACCEPTE':'paye','REFUSE':'ferme','PAYE':'paye'};return`<span class="badge badge-${m[s]||'brouillon'}">${s||'—'}</span>`;}
+function badgeGalerie(s){const m={'EN_ATTENTE':'brouillon','ENVOYE':'envoye','SELECTION':'soumis','DEJA_PAYE':'paye','PAYE':'paye','LIVRE':'livre'};return`<span class="badge badge-${m[s]||'brouillon'}">${s||'—'}</span>`;}
+function badgePaiement(s){if(!s)return'—';const m={'EN_ATTENTE':'⏳','ACOMPTE_RECU':'💰','PAYE_COMPLET':'✅','REMBOURSE':'↩️'};return`${m[s]||s}`;}
 
-function fmt(n) {
-  return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' $';
-}
+function showNotif(msg,type=''){const el=document.createElement('div');el.className=`notif ${type}`;el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),4000);}
 
-function formatDate(str) {
-  if (!str) return '—';
-  const d = new Date(str);
-  if (isNaN(d)) return str;
-  const jours = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
-  const mois = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
-  return `${jours[d.getDay()]} ${d.getDate()} ${mois[d.getMonth()]} ${d.getFullYear()}`;
-}
-
-function badgeStatut(statut) {
-  const map = {
-    'Nouveau': 'nouveau', 'Contacté': 'contacte', 'Soumission envoyée': 'soumis',
-    'Acompte reçu': 'acompte', 'En production': 'prod', 'Livré': 'livre',
-    'Payé complet': 'paye', 'Fermé': 'ferme',
-  };
-  const cls = map[statut] || 'nouveau';
-  return `<span class="badge badge-${cls}">${statut}</span>`;
-}
-
-function badgeStatutDoc(statut) {
-  const map = { 'BROUILLON': 'brouillon', 'ENVOYE': 'envoye', 'PAYE': 'paye' };
-  return `<span class="badge badge-${map[statut] || 'brouillon'}">${statut}</span>`;
-}
-
-function badgeRole(role) {
-  const colors = { superadmin: '#E67E22', admin: '#1A8FD1', utilisateur: '#6B7C93' };
-  return `<span style="color:${colors[role]||'#6B7C93'};font-weight:600;font-size:12px;">${role}</span>`;
-}
-
-function showNotif(msg, type = '') {
-  const el = document.createElement('div');
-  el.className = `notif ${type}`;
-  el.textContent = msg;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 4000);
-}
+window.addEventListener('beforeunload',e=>{if(hasUnsaved){e.preventDefault();e.returnValue='';}});
 </script>
 </body>
 </html>
