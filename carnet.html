@@ -513,6 +513,18 @@
               <option>Autre</option>
             </select>
           </div>
+          <div class="field full">
+            <label>N° Soumission CRM <span style="font-size:10px;color:var(--text-muted);font-weight:400;">(optionnel — MAN-2026-001 ou CA-2026-001)</span></label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="text" id="f-num-soumission" placeholder="Ex: MAN-2026-001 ou CA-2026-001" style="flex:1;">
+              <button type="button" class="btn btn-secondary" onclick="lookupSoumission()" style="white-space:nowrap;">🔍 Chercher dossier</button>
+            </div>
+            <div id="soumission-status" style="font-size:12px;color:var(--text-muted);margin-top:4px;"></div>
+          </div>
+          <div class="field">
+            <label>Dossier CRM lié</label>
+            <input type="text" id="f-dossier-crm" readonly placeholder="Auto-rempli après recherche" style="background:var(--grey);color:var(--text-muted);">
+          </div>
           <div class="field">
             <label>Client (si commercial)</label>
             <input type="text" id="f-client" placeholder="Nom du client">
@@ -1182,6 +1194,79 @@ function logout() {
 document.getElementById('login-pin').addEventListener('keypress', e => { if(e.key === 'Enter') login(); });
 document.getElementById('login-otp') && document.getElementById('login-otp').addEventListener('keypress', e => { if(e.key === 'Enter') verifyOTP(); });
 
+var CHECKLIST = {
+  docs: [
+    'Certificat de pilote de SATP valide et disponible',
+    'Drone enregistré auprès de Transport Canada (étiquette visible)',
+    'Assurance responsabilité civile valide (minimum recommandé : 100 000 $)',
+    'Autorisation RPAS obtenue si zone contrôlée (via NAV CANADA)',
+    'NOTAMs consultés pour la zone et la période de vol',
+    'Plan de vol préparé (optionnel mais recommandé)',
+  ],
+  drone: [
+    'Inspection visuelle générale du drone (fuselage, bras, pieds)',
+    'Hélices inspectées (fissures, éclats, déformations)',
+    'Cardan et caméra vérifiés (aucun jeu, pas de corps étrangers)',
+    'Connecteurs moteurs et câbles vérifiés',
+    'Calibration IMU effectuée si déplacé de plus de 50 km',
+    'Calibration boussole effectuée (surtout si nouveau site)',
+    'Mise à jour firmware vérifiée (DJI Fly ou assistant)',
+    'Test de démarrage moteurs effectué (sans décoller)',
+    'Signal télécommande vérifié',
+    'Carte SD formatée dans le drone, espace suffisant',
+  ],
+  batteries: [
+    'Batterie principale chargée (minimum 75% recommandé)',
+    'Niveau de dégradation batterie vérifié (cycles, gonflement)',
+    'Batteries stockées à température ambiante (15-25°C)',
+    'Batterie télécommande chargée',
+    'Batteries de rechange disponibles',
+    'Protection anti-froid activée si température < 10°C',
+  ],
+  meteo: [
+    'Vitesse du vent < 40 km/h (limite DJI Air 3S)',
+    'Rafales vérifiées < 50 km/h',
+    'Visibilité ≥ 5 km (exigence réglementaire)',
+    'Aucune pluie, neige ou brouillard prévu',
+    'Température entre -10°C et 40°C (limites DJI Air 3S)',
+    'Aucun orage dans un rayon de 10 km',
+    'Prévisions météo consultées (Environnement Canada)',
+    'Espace aérien consulté (Drone Site Canada)',
+  ],
+  site: [
+    'Site de vol inspecté visuellement (obstacles, fils, arbres)',
+    'Personnes non participantes identifiées et distances respectées',
+    'Zone de décollage/atterrissage sécurisée et dégagée',
+    'Zones d\'exclusion vérifiées (aéroports, zones protégées, parcs nationaux)',
+    'Autorisation du propriétaire foncier obtenue si terrain privé',
+    'Coordonnées GPS du site notées',
+  ],
+  vlos: [
+    'Drone toujours maintenu en vue directe (VLOS) sans aide optique',
+    'Plan de vol maintenu sous 120m (400 pieds) AGL',
+    'Vol de jour uniquement (entre lever et coucher du soleil)',
+    'Pas de vol au-dessus des personnes non participantes',
+    'Pas de vol à moins de 3 km d\'un aéroport sans autorisation',
+    'Priorité de passage aux aéronefs habités',
+  ],
+  urgences: [
+    'Procédure RTH (Return to Home) configurée et testée',
+    'Altitude RTH définie au-dessus des obstacles les plus hauts',
+    'Numéro Nav Canada connu : 1-800-876-4693',
+    'Procédure d\'urgence connue en cas de perte de contrôle',
+    'Contact d\'urgence notifié de l\'heure et lieu du vol',
+  ],
+  postvol: [
+    'Drone inspecté après le vol (chocs, surchauffe)',
+    'Batterie retirée et stockée correctement',
+    'Journal de vol mis à jour (date, lieu, durée)',
+    'Incidents ou anomalies documentés',
+    'Médias transférés et sauvegardés',
+    'Matériel rangé et protégé',
+  ],
+};
+
+
 // Vérifier si déjà connecté
 if (TOKEN) {
   document.getElementById('login-screen').style.display = 'none';
@@ -1221,8 +1306,6 @@ function initApp() {
   const todayStr = today.toISOString().split('T')[0];
   document.getElementById('f-date').value = todayStr;
   document.getElementById('i-date').value = todayStr;
-  // initChecklist appelée après chargement complet
-  setTimeout(function() { if (typeof CHECKLIST !== 'undefined') initChecklist(); }, 100);
 }
 
 // ── API HELPER ────────────────────────────────────────────────────
@@ -1311,6 +1394,8 @@ async function saveVol() {
     incident: document.getElementById('f-incident').value,
     auth: document.getElementById('f-auth').value,
     notes: document.getElementById('f-notes').value,
+    num_soumission: document.getElementById('f-num-soumission').value || '',
+    adresse_auto: document.getElementById('f-dossier-crm').value || '',
   };
 
   const res = await api('/api/carnet/vols', 'POST', body);
@@ -1330,6 +1415,9 @@ function resetForm() {
   });
   document.getElementById('f-bat').value = '1';
   document.getElementById('f-type').value = 'Commercial';
+  document.getElementById('f-num-soumission').value = '';
+  document.getElementById('f-dossier-crm').value = '';
+  document.getElementById('soumission-status').textContent = '';
   document.getElementById('f-incident').value = 'Aucun';
   document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
   document.querySelectorAll('.meteo-btn').forEach(b => b.classList.remove('selected'));
@@ -1710,77 +1798,6 @@ async function calcTrajet() {
 
 
 // ── CHECKLIST ─────────────────────────────────────────────────────
-var CHECKLIST = {
-  docs: [
-    'Certificat de pilote de SATP valide et disponible',
-    'Drone enregistré auprès de Transport Canada (étiquette visible)',
-    'Assurance responsabilité civile valide (minimum recommandé : 100 000 $)',
-    'Autorisation RPAS obtenue si zone contrôlée (via NAV CANADA)',
-    'NOTAMs consultés pour la zone et la période de vol',
-    'Plan de vol préparé (optionnel mais recommandé)',
-  ],
-  drone: [
-    'Inspection visuelle générale du drone (fuselage, bras, pieds)',
-    'Hélices inspectées (fissures, éclats, déformations)',
-    'Cardan et caméra vérifiés (aucun jeu, pas de corps étrangers)',
-    'Connecteurs moteurs et câbles vérifiés',
-    'Calibration IMU effectuée si déplacé de plus de 50 km',
-    'Calibration boussole effectuée (surtout si nouveau site)',
-    'Mise à jour firmware vérifiée (DJI Fly ou assistant)',
-    'Test de démarrage moteurs effectué (sans décoller)',
-    'Signal télécommande vérifié',
-    'Carte SD formatée dans le drone, espace suffisant',
-  ],
-  batteries: [
-    'Batterie principale chargée (minimum 75% recommandé)',
-    'Niveau de dégradation batterie vérifié (cycles, gonflement)',
-    'Batteries stockées à température ambiante (15-25°C)',
-    'Batterie télécommande chargée',
-    'Batteries de rechange disponibles',
-    'Protection anti-froid activée si température < 10°C',
-  ],
-  meteo: [
-    'Vitesse du vent < 40 km/h (limite DJI Air 3S)',
-    'Rafales vérifiées < 50 km/h',
-    'Visibilité ≥ 5 km (exigence réglementaire)',
-    'Aucune pluie, neige ou brouillard prévu',
-    'Température entre -10°C et 40°C (limites DJI Air 3S)',
-    'Aucun orage dans un rayon de 10 km',
-    'Prévisions météo consultées (Environnement Canada)',
-    'Espace aérien consulté (Drone Site Canada)',
-  ],
-  site: [
-    'Site de vol inspecté visuellement (obstacles, fils, arbres)',
-    'Personnes non participantes identifiées et distances respectées',
-    'Zone de décollage/atterrissage sécurisée et dégagée',
-    'Zones d\'exclusion vérifiées (aéroports, zones protégées, parcs nationaux)',
-    'Autorisation du propriétaire foncier obtenue si terrain privé',
-    'Coordonnées GPS du site notées',
-  ],
-  vlos: [
-    'Drone toujours maintenu en vue directe (VLOS) sans aide optique',
-    'Plan de vol maintenu sous 120m (400 pieds) AGL',
-    'Vol de jour uniquement (entre lever et coucher du soleil)',
-    'Pas de vol au-dessus des personnes non participantes',
-    'Pas de vol à moins de 3 km d\'un aéroport sans autorisation',
-    'Priorité de passage aux aéronefs habités',
-  ],
-  urgences: [
-    'Procédure RTH (Return to Home) configurée et testée',
-    'Altitude RTH définie au-dessus des obstacles les plus hauts',
-    'Numéro Nav Canada connu : 1-800-876-4693',
-    'Procédure d\'urgence connue en cas de perte de contrôle',
-    'Contact d\'urgence notifié de l\'heure et lieu du vol',
-  ],
-  postvol: [
-    'Drone inspecté après le vol (chocs, surchauffe)',
-    'Batterie retirée et stockée correctement',
-    'Journal de vol mis à jour (date, lieu, durée)',
-    'Incidents ou anomalies documentés',
-    'Médias transférés et sauvegardés',
-    'Matériel rangé et protégé',
-  ],
-};
 
 function initChecklist() {
   var saved = JSON.parse(localStorage.getItem('checklist_state') || '{}');
@@ -1958,6 +1975,59 @@ async function saveDrone() {
   };
   const res = await api('/api/carnet/drone', 'POST', body);
   if (res.success) alert('✅ Informations du drone sauvegardées !');
+}
+
+// ── LOOKUP CRM ────────────────────────────────────────────────────
+async function lookupSoumission() {
+  const num = document.getElementById('f-num-soumission').value.trim();
+  const status = document.getElementById('soumission-status');
+  const dossier = document.getElementById('f-dossier-crm');
+
+  if (!num) {
+    status.textContent = '❌ Entre un numéro de soumission (ex: MAN-2026-001)';
+    status.style.color = 'var(--red)';
+    return;
+  }
+
+  status.textContent = '📡 Recherche dans le CRM...';
+  status.style.color = 'var(--text-muted)';
+
+  try {
+    const res = await fetch(
+      'https://capturair-portail.tumarchessurlatete.workers.dev/api/crm/lookup/' + encodeURIComponent(num),
+      { headers: { 'Authorization': 'Bearer ' + TOKEN } }
+    );
+    const data = await res.json();
+
+    if (data.found) {
+      // Auto-remplir lieu si vide
+      if (data.adresse && !document.getElementById('f-lieu').value)
+        document.getElementById('f-lieu').value = data.adresse;
+      // Auto-remplir client si vide
+      if (data.client_nom && !document.getElementById('f-client').value)
+        document.getElementById('f-client').value = data.client_nom;
+
+      const info = [data.client_nom, data.type_service, data.statut ? '[' + data.statut + ']' : ''].filter(Boolean).join(' — ');
+      dossier.value = info;
+      dossier.style.color = 'var(--green)';
+      status.textContent = '✅ Dossier trouvé : ' + info;
+      status.style.color = 'var(--green)';
+
+      // Géocoder l'adresse automatiquement si coordonnées manquantes
+      if (data.adresse && !document.getElementById('f-lat').value) {
+        document.getElementById('f-adresse-geo').value = data.adresse;
+        geocoderAdresse();
+      }
+    } else {
+      status.textContent = '⚠️ Numéro introuvable dans le CRM — vol standalone sans dossier';
+      status.style.color = 'var(--orange)';
+      dossier.value = '';
+      dossier.style.color = 'var(--text-muted)';
+    }
+  } catch(e) {
+    status.textContent = '❌ Erreur de connexion au CRM — réessaie';
+    status.style.color = 'var(--red)';
+  }
 }
 
 // ── EXPORT PDF ────────────────────────────────────────────────────
