@@ -959,6 +959,24 @@ function handleSubmit(e) {
 
   var formData = new FormData(e.target);
 
+  // ── 1. Worker Portail → D1 (nouveau) ──
+  fetch('https://capturair-portail.tumarchessurlatete.workers.dev/api/public/devis', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      first_name: formData.get('prenom'),
+      last_name:  formData.get('nom'),
+      email:      formData.get('email'),
+      phone:      formData.get('telephone'),
+      ville:      formData.get('ville'),
+      service:    formData.get('type_projet'),
+      date:       formData.get('date_souhaitee'),
+      budget:     formData.get('budget'),
+      message:    formData.get('message')
+    })
+  }).catch(function(err) { console.warn('Worker error:', err); });
+
+  // ── 2. Make Webhook (conservé) ──
   var makePayload = {
     fields: {
       "Prénom":                formData.get('prenom'),
@@ -972,13 +990,13 @@ function handleSubmit(e) {
       "Description du projet": formData.get('message')
     }
   };
-
   fetch('https://hook.us2.make.com/sidbtqdypiokmtbdxfpj3te7kkhq5zdv', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(makePayload)
   }).catch(function(err) { console.warn('Make webhook error:', err); });
 
+  // ── 3. Web3Forms (conservé) → accusé réception ──
   fetch('https://api.web3forms.com/submit', {
     method: 'POST',
     body: formData
