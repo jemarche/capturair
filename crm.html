@@ -916,6 +916,7 @@ let leads=[], soumissions=[], factures=[], utilisateurs=[], projets=[];
 let currentLead=null, currentSoumission=null, currentFacture=null, currentProjet=null;
 let pendingEnvoi=null, pendingDelete=null, pendingNavigation=null;
 let hasUnsaved=false, currentSatisfaction=0, pendingReconnect=false;
+const hdrs=()=>({'Authorization':`Bearer ${authToken}`,'Content-Type':'application/json'});  
 
 // ══ LOGIN OTP ══════════════════════════════════════════════════════════
 let loginStep=1, loginEmail='', loginPin='';
@@ -1003,7 +1004,7 @@ async function initApp(){
 }
 
 // ══ API ═══════════════════════════════════════════════════════════════
-const hdrs=()=>({'Authorization':`Bearer ${authToken}`,'Content-Type':'application/json'});
+
 
 function verifierTokenExpire(){
   try{
