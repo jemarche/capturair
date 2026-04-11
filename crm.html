@@ -665,6 +665,17 @@
 
       <!-- TAB FACTURE -->
       <div id="tab-content-facture" style="display:none;">
+        <div id="fact-empty-state" style="display:none;">
+    <div class="section-card">
+      <div class="empty-state">
+        <div class="empty-state-icon">📄</div>
+        <div style="margin-bottom:16px;">Aucune facture pour ce dossier</div>
+        <button class="btn-primary" onclick="creerFacture()">+ Créer la facture</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="fact-form-content">
         <div class="section-card">
           <div class="section-card-title">
             <span>📄 Facture <span id="fact-num" style="color:var(--teal);font-weight:400;font-size:13px;"></span></span>
