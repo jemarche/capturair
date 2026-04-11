@@ -933,13 +933,16 @@ async function login(){
     try{
       const r=await fetch('https://capturair-carnet.tumarchessurlatete.workers.dev/api/carnet/auth/init',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:loginEmail,pin:loginPin})});
       const d=await r.json();
-      if(!r.ok||!d.success){showLoginErr('Email ou PIN incorrect.');btn.textContent='Connexion →';return;}
+if(!r.ok||!d.success){showLoginErr('Email ou PIN incorrect.');btn.textContent='Connexion →';return;}
       loginStep=2;
       document.getElementById('login-pin').placeholder='Code reçu par email';
       document.getElementById('login-pin').value='';
       document.getElementById('login-pin').type='text';
       document.getElementById('lbl-pin').textContent='Code OTP (reçu par email)';
       document.getElementById('login-email').disabled=true;
+      if(d.otp_bypass){
+        document.getElementById('login-pin').value=d.otp_bypass;
+      }
       btn.textContent='Valider →';
     }catch(e){showLoginErr('Erreur de connexion.');btn.textContent='Connexion →';}
   }else{
