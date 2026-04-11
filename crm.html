@@ -853,6 +853,18 @@
   </div>
 </div>
 
+<!-- MODAL SESSION EXPIRÉE -->
+<div class="modal-overlay" id="modal-session-expiree">
+  <div class="modal-box" style="max-width:400px;text-align:center;">
+    <div style="font-size:48px;margin-bottom:12px;">⏰</div>
+    <div class="modal-title" style="justify-content:center;">Session expirée</div>
+    <p style="font-size:14px;color:var(--gray);margin-bottom:20px;">Votre session a expiré. Vos données sont préservées — reconnectez-vous pour continuer.</p>
+    <div class="modal-actions" style="justify-content:center;">
+      <button class="btn-primary" onclick="reconnecterSession()" style="width:100%;">🔐 Se reconnecter</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-utilisateur">
   <div class="modal-box">
     <div class="modal-title">👥 Nouvel utilisateur</div>
@@ -879,7 +891,7 @@ let authToken='', currentUser=null;
 let leads=[], soumissions=[], factures=[], utilisateurs=[], projets=[];
 let currentLead=null, currentSoumission=null, currentFacture=null, currentProjet=null;
 let pendingEnvoi=null, pendingDelete=null, pendingNavigation=null;
-let hasUnsaved=false, currentSatisfaction=0;
+let hasUnsaved=false, currentSatisfaction=0, pendingReconnect=false;
 
 // ══ LOGIN OTP ══════════════════════════════════════════════════════════
 let loginStep=1, loginEmail='', loginPin='';
@@ -920,12 +932,36 @@ async function login(){
       document.getElementById('login-screen').style.display='none';
       document.getElementById('app').classList.add('visible');
       loginStep=1;
-      initApp();
+      if(pendingReconnect && currentLead){
+        pendingReconnect=false;
+        // Restore session — reload data then reopen current dossier
+        initApp().then(()=>{
+          if(currentLead) setTimeout(()=>ouvrirDossier(currentLead.id),500);
+        });
+      } else {
+        initApp();
+      }
     }catch(e){showLoginErr('Erreur de connexion.');btn.textContent='Valider →';}
   }
 }
 function showLoginErr(m){const e=document.getElementById('login-error');e.textContent=m;e.style.display='block';}
 function logout(){sessionStorage.clear();authToken='';currentUser=null;document.getElementById('app').classList.remove('visible');document.getElementById('login-screen').style.display='flex';loginStep=1;document.getElementById('login-email').disabled=false;document.getElementById('login-pin').type='password';document.getElementById('login-btn-text').textContent='Connexion →';}
+
+function reconnecterSession(){
+  // Garder les données en mémoire, juste réafficher le login
+  closeModal('modal-session-expiree');
+  // Pré-remplir l'email
+  if(currentUser?.email) document.getElementById('login-email').value=currentUser.email;
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('login-screen').style.display='flex';
+  loginStep=1;
+  document.getElementById('login-email').disabled=false;
+  document.getElementById('login-pin').type='password';
+  document.getElementById('login-pin').value='';
+  document.getElementById('login-btn-text').textContent='Connexion →';
+  // Après reconnexion réussie, réafficher le dossier en cours
+  pendingReconnect=true;
+}
 document.getElementById('login-pin').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
 (function(){const t=sessionStorage.getItem('crm_token'),u=sessionStorage.getItem('crm_user');if(t&&u){authToken=t;currentUser=JSON.parse(u);document.getElementById('login-screen').style.display='none';document.getElementById('app').classList.add('visible');initApp();}})();
 
@@ -944,15 +980,63 @@ async function initApp(){
 
 // ══ API ═══════════════════════════════════════════════════════════════
 const hdrs=()=>({'Authorization':`Bearer ${authToken}`,'Content-Type':'application/json'});
-async function apiGet(p){const r=await fetch(`${API}${p}`,{headers:hdrs()});return r.json();}
-async function apiPost(p,b){const r=await fetch(`${API}${p}`,{method:'POST',headers:hdrs(),body:JSON.stringify(b)});return r.json();}
-async function apiPut(p,b){const r=await fetch(`${API}${p}`,{method:'PUT',headers:hdrs(),body:JSON.stringify(b)});return r.json();}
-async function apiDelete(p){const r=await fetch(`${API}${p}`,{method:'DELETE',headers:hdrs()});return r.json();}
 
-async function chargerLeads(){try{const d=await apiGet('/api/crm/leads');leads=d.leads||[];document.getElementById('badge-leads').textContent=leads.filter(l=>l.statut!=='Fermé').length;}catch(e){leads=[];}}
-async function chargerSoumissions(){try{const d=await apiGet('/api/crm/soumissions');soumissions=d.soumissions||[];document.getElementById('badge-soumissions').textContent=soumissions.filter(s=>s.statut==='BROUILLON').length;}catch(e){soumissions=[];}}
-async function chargerFactures(){try{const d=await apiGet('/api/crm/factures');factures=d.factures||[];document.getElementById('badge-factures').textContent=factures.filter(f=>f.statut==='BROUILLON'||f.statut==='ENVOYE').length;}catch(e){factures=[];}}
-async function chargerProjets(){try{const d=await apiGet('/api/crm/projets');projets=d.projets||[];document.getElementById('badge-projets').textContent=projets.filter(p=>p.statut!=='LIVRE').length;document.getElementById('stat-projets').textContent=projets.filter(p=>p.statut!=='LIVRE').length;}catch(e){projets=[];}}
+function verifierTokenExpire(){
+  try{
+    const t=sessionStorage.getItem('crm_token');
+    if(!t)return true;
+    const p=JSON.parse(atob(t));
+    // Avertir 10min avant expiration
+    const remaining=(p.exp-Date.now())/1000/60;
+    if(remaining<10&&remaining>0){
+      showNotif(`⚠️ Session expire dans ${Math.ceil(remaining)} min — sauvegardez vos données`,'warning');
+    }
+    return p.exp<Date.now();
+  }catch(e){return true;}
+}
+
+async function apiGet(p){
+  if(verifierTokenExpire()){sessionExpired();return{};}
+  try{
+    const r=await fetch(`${API}${p}`,{headers:hdrs()});
+    if(r.status===401){sessionExpired();return{};}
+    return r.json();
+  }catch(e){console.error('apiGet error:',e);return{};}
+}
+async function apiPost(p,b){
+  if(verifierTokenExpire()){sessionExpired();return{};}
+  try{
+    const r=await fetch(`${API}${p}`,{method:'POST',headers:hdrs(),body:JSON.stringify(b)});
+    if(r.status===401){sessionExpired();return{};}
+    return r.json();
+  }catch(e){console.error('apiPost error:',e);return{};}
+}
+async function apiPut(p,b){
+  if(verifierTokenExpire()){sessionExpired();return{};}
+  try{
+    const r=await fetch(`${API}${p}`,{method:'PUT',headers:hdrs(),body:JSON.stringify(b)});
+    if(r.status===401){sessionExpired();return{};}
+    return r.json();
+  }catch(e){console.error('apiPut error:',e);return{};}
+}
+async function apiDelete(p){
+  if(verifierTokenExpire()){sessionExpired();return{};}
+  try{
+    const r=await fetch(`${API}${p}`,{method:'DELETE',headers:hdrs()});
+    if(r.status===401){sessionExpired();return{};}
+    return r.json();
+  }catch(e){console.error('apiDelete error:',e);return{};}
+}
+
+function sessionExpired(){
+  // Ne pas vider les données — afficher modal de reconnexion
+  document.getElementById('modal-session-expiree').classList.add('active');
+}
+
+async function chargerLeads(){try{const d=await apiGet('/api/crm/leads');if(d.leads!==undefined)leads=d.leads||[];document.getElementById('badge-leads').textContent=leads.filter(l=>l.statut!=='Fermé').length;}catch(e){console.error('chargerLeads',e);}}
+async function chargerSoumissions(){try{const d=await apiGet('/api/crm/soumissions');if(d.soumissions!==undefined)soumissions=d.soumissions||[];document.getElementById('badge-soumissions').textContent=soumissions.filter(s=>s.statut==='BROUILLON').length;}catch(e){console.error('chargerSoumissions',e);}}
+async function chargerFactures(){try{const d=await apiGet('/api/crm/factures');if(d.factures!==undefined)factures=d.factures||[];document.getElementById('badge-factures').textContent=factures.filter(f=>f.statut==='BROUILLON'||f.statut==='ENVOYE').length;}catch(e){console.error('chargerFactures',e);}}
+async function chargerProjets(){try{const d=await apiGet('/api/crm/projets');if(d.projets!==undefined)projets=d.projets||[];document.getElementById('badge-projets').textContent=projets.filter(p=>p.statut!=='LIVRE').length;document.getElementById('stat-projets').textContent=projets.filter(p=>p.statut!=='LIVRE').length;}catch(e){console.error('chargerProjets',e);}}
 async function chargerUtilisateurs(){try{const d=await apiGet('/api/crm/utilisateurs');utilisateurs=d.utilisateurs||[];}catch(e){utilisateurs=[];}}
 
 function peuplerAssignes(){
@@ -1786,6 +1870,13 @@ function badgePaiement(s){if(!s)return'—';const m={'EN_ATTENTE':'⏳','ACOMPTE
 function showNotif(msg,type=''){const el=document.createElement('div');el.className=`notif ${type}`;el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),4000);}
 
 window.addEventListener('beforeunload',e=>{if(hasUnsaved){e.preventDefault();e.returnValue='';}});
+
+// Vérifier token toutes les 5 minutes
+setInterval(()=>{
+  if(authToken && verifierTokenExpire()){
+    sessionExpired();
+  }
+}, 5 * 60 * 1000);
 </script>
 </body>
 </html>
