@@ -1179,8 +1179,14 @@ async function creerSoumission(){
   const d=await apiPost('/api/crm/soumissions',{projet_id:currentLead.id,source_lead:'MANUEL'});
   if(d.success){
     await chargerSoumissions();
+    // Set currentSoumission directly
+    currentSoumission=soumissions.find(s=>s.id===d.id)||{id:d.id,num_soumission:d.num_soumission,statut:'BROUILLON',projet_id:currentLead.id};
     showNotif('✅ Soumission créée — '+d.num_soumission,'success');
-    chargerSoumissionDossier();
+    // Show form, hide empty state
+    document.getElementById('soum-empty-state').style.display='none';
+    document.getElementById('soum-form-content').style.display='block';
+    document.getElementById('soum-num').textContent=d.num_soumission||'';
+    calculerSoumission();
   } else showNotif('❌ '+(d.error||'Erreur'),'error');
 }
 
@@ -1452,7 +1458,7 @@ function copierStripeProjet(){
 }
 
 async function genererStripeFacture(){
-  if(!currentFacture?.id){showNotif("⚠️ Sauvegardez la facture","warning");return;}
+  if(!currentFacture?.id){showNotif("⚠️ Créez la facture d'abord","warning");return;}
   const montant=parseFloat(document.getElementById('fact-stripe-montant').value)||0;
   if(montant<=0){showNotif("⚠️ Entrez un montant","warning");return;}
   const btn=event.target;btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
@@ -1518,8 +1524,14 @@ async function creerFacture(){
   const d=await apiPost('/api/crm/factures',{projet_id:currentLead.id,num_soumission:s?.num_soumission||'',acompte_recu:s?.montant_acompte||0});
   if(d.success){
     await chargerFactures();
+    // Set currentFacture directly from response
+    currentFacture=factures.find(f=>f.id===d.id)||{id:d.id,num_facture:d.num_facture,statut:'BROUILLON',projet_id:currentLead.id,acompte_recu:s?.montant_acompte||0};
     showNotif('✅ Facture créée — '+d.num_facture,'success');
-    chargerFactureDossier();
+    // Show form, hide empty state
+    document.getElementById('fact-empty-state').style.display='none';
+    document.getElementById('fact-form-content').style.display='block';
+    document.getElementById('fact-num').textContent=d.num_facture||'';
+    calculerFacture();
   } else showNotif('❌ '+(d.error||'Erreur'),'error');
 }
 
