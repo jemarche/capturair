@@ -626,8 +626,8 @@
               <div style="font-size:11px;color:#27AE60;font-weight:600;margin-bottom:6px;">✅ Lien Stripe généré</div>
               <div style="display:flex;gap:6px;align-items:center;">
                 <input type="url" class="form-input" id="projet-stripe-url" readonly style="flex:1;font-size:11px;background:white;">
-                <button class="btn-secondary" onclick="copierStripeProjet()" style="padding:7px 10px;font-size:11px;white-space:nowrap;">📋 Copier</button>
-                <button class="btn-teal" onclick="envoyerStripeClient()" style="padding:7px 10px;font-size:11px;white-space:nowrap;">📧 Envoyer</button>
+                <button class="btn-secondary" onclick="copierStripeProjet()" style="padding:7px 10px;font-size:11px;white-space:nowrap;">📋 Copier le lien</button>
+                <a id="projet-stripe-open" href="#" target="_blank" class="btn-secondary" style="padding:7px 10px;font-size:11px;white-space:nowrap;text-decoration:none;">🔗 Ouvrir</a>
               </div>
             </div>
           </div>
@@ -672,6 +672,23 @@
           <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
             <div class="checkbox-row"><input type="checkbox" id="fact-conditions"><label for="fact-conditions">☑️ Joindre les Conditions Générales CapturAir (PDF)</label></div>
           </div>
+          <!-- Section Stripe Facture -->
+          <div style="background:rgba(99,91,255,0.06);border:1px solid rgba(99,91,255,0.2);border-radius:12px;padding:16px 20px;margin-top:16px;">
+            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#635bff;margin-bottom:10px;">⚡ Lien Stripe — Solde à payer</div>
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+              <input type="number" class="form-input" id="fact-stripe-montant" placeholder="Montant solde ($)" step="0.01" min="0" style="flex:1;">
+              <button class="btn-stripe" onclick="genererStripeFacture()">⚡ Générer</button>
+            </div>
+            <div id="fact-stripe-result" style="display:none;background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:8px;padding:10px;">
+              <div style="font-size:11px;color:#27AE60;font-weight:600;margin-bottom:6px;">✅ Lien Stripe généré</div>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <input type="url" class="form-input" id="fact-stripe-url" readonly style="flex:1;font-size:11px;background:white;">
+                <button class="btn-secondary" onclick="copierStripeFacture()" style="padding:7px 10px;font-size:11px;white-space:nowrap;">📋 Copier</button>
+                <a id="fact-stripe-open" href="#" target="_blank" class="btn-secondary" style="padding:7px 10px;font-size:11px;white-space:nowrap;text-decoration:none;">🔗 Ouvrir</a>
+              </div>
+            </div>
+          </div>
+
           <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;">
             <button class="btn-secondary" onclick="apercuFacture()">👁️ Aperçu</button>
             <button class="btn-secondary" onclick="imprimerPDF('facture')">🖨️ PDF</button>
@@ -1384,6 +1401,7 @@ async function genererStripeProjet(){
   if(d.success&&(d.payment_url||d.url)){
     const url=d.payment_url||d.url;
     document.getElementById('projet-stripe-url').value=url;
+    document.getElementById('projet-stripe-open').href=url;
     document.getElementById('projet-stripe-result').style.display='block';
     showNotif('✅ Lien Stripe généré !','success');
   } else showNotif('❌ '+(d.error||'Erreur Stripe'),'error');
@@ -1395,12 +1413,25 @@ function copierStripeProjet(){
   navigator.clipboard.writeText(url).then(()=>showNotif('✅ Lien copié !','success'));
 }
 
-async function envoyerStripeClient(){
-  const url=document.getElementById('projet-stripe-url').value;
-  if(!url){showNotif("⚠️ Générez un lien Stripe","warning");return;}
-  if(!currentLead?.courriel){showNotif('⚠️ Email client manquant','warning');return;}
-  showNotif(`✅ Lien Stripe copié — envoyez-le manuellement à ${currentLead.courriel}`,'success');
-  navigator.clipboard.writeText(url);
+async function genererStripeFacture(){
+  if(!currentFacture?.id){showNotif("⚠️ Sauvegardez la facture d'abord","warning");return;}
+  const montant=parseFloat(document.getElementById('fact-stripe-montant').value)||0;
+  if(montant<=0){showNotif("⚠️ Entrez un montant","warning");return;}
+  const btn=event.target;btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
+  const d=await apiPost(`/api/crm/factures/${currentFacture.id}/stripe`,{montant});
+  btn.textContent='⚡ Générer';btn.disabled=false;
+  if(d.success&&d.stripe_url){
+    document.getElementById('fact-stripe-url').value=d.stripe_url;
+    document.getElementById('fact-stripe-open').href=d.stripe_url;
+    document.getElementById('fact-stripe-result').style.display='block';
+    showNotif('✅ Lien Stripe facture généré !','success');
+  } else showNotif('❌ '+(d.error||'Erreur Stripe'),'error');
+}
+
+function copierStripeFacture(){
+  const url=document.getElementById('fact-stripe-url').value;
+  if(!url)return;
+  navigator.clipboard.writeText(url).then(()=>showNotif('✅ Lien copié !','success'));
 }
 
 function copierLienGalerie(){
@@ -1472,6 +1503,11 @@ function calculerFacture(){
     <tr style="color:var(--gray)"><td>TVQ (9,975%) — 4016921721TQ0001</td><td>${fmt(q)}</td></tr>
     <tr class="fin-total"><td>💰 TOTAL (taxes incluses)</td><td>${fmt(tot)}</td></tr>
     ${ac>0?`<tr style="color:var(--gray)"><td>Acompte reçu</td><td>— ${fmt(ac)}</td></tr><tr class="fin-solde"><td>💳 SOLDE À PAYER</td><td>${fmt(sol)}</td></tr>`:''}`;
+  // Auto-remplir montant Stripe avec le solde
+  const soldeStripe=sol>0?sol:tot;
+  const factStripeInput=document.getElementById('fact-stripe-montant');
+  if(factStripeInput&&soldeStripe>0) factStripeInput.value=soldeStripe.toFixed(2);
+  document.getElementById('fact-stripe-result').style.display='none';
 }
 
 async function sauverFactureManuel(silencieux=false){
