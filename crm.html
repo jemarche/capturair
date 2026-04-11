@@ -1810,8 +1810,6 @@ function renderFactures(){
   }).join('');
 }
 
-function ouvrirDossierDoc(projetId,tab){const l=leads.find(l=>l.id===projetId);if(l){ouvrirDossier(l.id);setTimeout(()=>switchTab(tab),100);}}
-
 function renderUtilisateurs(){
   const tbody=document.getElementById('utilisateurs-tbody');
   if(!utilisateurs.length){tbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><div>Aucun utilisateur</div></div></td></tr>`;return;}
@@ -1819,7 +1817,7 @@ function renderUtilisateurs(){
     <td><strong>${u.nom||'—'}</strong></td><td>${u.email}</td>
     <td><span style="color:${u.role==='superadmin'?'#E67E22':u.role==='admin'?'#1A8FD1':'#6B7C93'};font-weight:600;font-size:12px;">${u.role}</span></td>
     <td>${u.actif?'<span style="color:var(--green);">✅</span>':'<span style="color:var(--red);">❌</span>'}</td>
-    <td><button class="btn-danger" style="padding:5px 10px;font-size:11px;" onclick="supprimerUtilisateur('${u.id}')">Supprimer</button></td>
+    <td>${u.role==='superadmin'?'—':`<button class="btn-danger" style="padding:5px 10px;font-size:11px;" onclick="supprimerUtilisateur('${u.id}')">Supprimer</button>`}</td>
   </tr>`).join('');
 }
 
