@@ -1235,7 +1235,7 @@ function imprimerPDF(t){const u=t==='soumission'?`${API}/api/crm/soumissions/${c
 async function genererStripe(){
   if(!currentSoumission)return;
   const m=parseFloat(document.getElementById('soum-acompte').value)||0;
-  if(m<=0){showNotif('⚠️ Entrez un montant acompte d\'abord','warning');return;}
+  if(m<=0){showNotif("⚠️ Entrez un montant d'acompte d'abord","warning");return;}
   const btn=event.target;btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   const d=await apiPost(`/api/crm/soumissions/${currentSoumission.id}/stripe`,{montant:m});
   btn.textContent='⚡ Générer';btn.disabled=false;
@@ -1245,7 +1245,7 @@ async function genererStripe(){
 
 async function envoyerConfirmationVisite(){
   if(!currentSoumission?.id)return;
-  if(!document.getElementById('soum-date-confirmee').value){showNotif('⚠️ Renseignez d\'abord la date confirmée','warning');return;}
+  if(!document.getElementById("soum-date-confirmee").value){showNotif("⚠️ Renseignez la date confirmée","warning");return;}
   await sauverSoumissionManuel(true);
   const d=await apiPost(`/api/crm/soumissions/${currentSoumission.id}/confirmation-visite`,{});
   if(d.success)showNotif('✅ Confirmation de visite envoyée !','success');
@@ -1341,7 +1341,7 @@ function renderMedias(medias){
 }
 
 async function sauverProjet(){
-  if(!currentProjet?.id){showNotif('⚠️ Sauvegardez d\'abord une soumission pour créer le projet','warning');return;}
+  if(!currentProjet?.id){showNotif("⚠️ Sauvegardez une soumission pour créer le projet","warning");return;}
   const body={nom:document.getElementById('projet-nom').value,client_nom:document.getElementById('projet-client-nom').value,client_email:document.getElementById('projet-client-email').value,statut:document.getElementById('projet-statut').value,modele_prix:document.getElementById('projet-modele').value,prix_base:parseFloat(document.getElementById('projet-prix-base').value)||0,note_admin:document.getElementById('projet-notes').value};
   await apiPut(`/api/crm/projets/${currentProjet.id}`,body);
   Object.assign(currentProjet,body);
@@ -1351,7 +1351,7 @@ async function sauverProjet(){
 }
 
 async function envoyerGalerie(){
-  if(!currentProjet?.id){showNotif('⚠️ Projet non créé — sauvegardez la soumission d\'abord','warning');return;}
+  if(!currentProjet?.id){showNotif("⚠️ Projet non créé — sauvegardez la soumission","warning");return;}
   const d=await apiPost(`/api/portail/projets/${currentProjet.id}/envoyer`,{deja_paye:false});
   if(d.success){showNotif('✅ Galerie envoyée au client !','success');await chargerProjets();chargerProjetDossier();}
   else showNotif('❌ '+(d.error||'Erreur'),'error');
@@ -1375,7 +1375,7 @@ function ouvrirStripeProjet(){
 }
 
 async function genererStripeProjet(){
-  if(!currentProjet?.id){showNotif('⚠️ Projet non créé — sauvegardez la soumission d'abord','warning');return;}
+  if(!currentProjet?.id){showNotif('⚠️ Projet non créé — sauvegardez la soumission','warning');return;}
   const montant=parseFloat(document.getElementById('projet-stripe-montant').value)||0;
   if(montant<=0){showNotif('⚠️ Entrez un montant','warning');return;}
   const btn=event.target;btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
@@ -1397,7 +1397,7 @@ function copierStripeProjet(){
 
 async function envoyerStripeClient(){
   const url=document.getElementById('projet-stripe-url').value;
-  if(!url){showNotif('⚠️ Générez d'abord un lien Stripe','warning');return;}
+  if(!url){showNotif("⚠️ Générez un lien Stripe","warning");return;}
   if(!currentLead?.courriel){showNotif('⚠️ Email client manquant','warning');return;}
   showNotif(`✅ Lien Stripe copié — envoyez-le manuellement à ${currentLead.courriel}`,'success');
   navigator.clipboard.writeText(url);
@@ -1416,7 +1416,7 @@ function dropFichiers(e){e.preventDefault();e.currentTarget.classList.remove('dr
 function uploaderFichiers(e){uploaderFichiersListe(e.target.files);}
 
 async function uploaderFichiersListe(files){
-  if(!currentProjet?.id){showNotif('⚠️ Sauvegardez d\'abord une soumission pour créer le projet','warning');return;}
+  if(!currentProjet?.id){showNotif("⚠️ Sauvegardez une soumission pour créer le projet","warning");return;}
   const prog=document.getElementById('upload-progress');
   const txt=document.getElementById('upload-progress-text');
   prog.style.display='block';
