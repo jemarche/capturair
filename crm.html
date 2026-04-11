@@ -592,6 +592,8 @@
               </select>
             </div>
             <div class="form-group"><label class="form-label">Prix base ($)</label><input type="number" class="form-input" id="projet-prix-base" min="0" step="0.01"></div>
+            <div class="form-group"><label class="form-label">Heure d'intervention</label><input type="text" class="form-input" id="projet-heure-soum" readonly style="background:var(--offwhite);" placeholder="—"></div>
+            <div class="form-group"><label class="form-label">Adresse du projet</label><input type="text" class="form-input" id="projet-adresse-soum" readonly style="background:var(--offwhite);" placeholder="—"></div>
             <div class="form-group form-full"><label class="form-label">Notes admin</label><textarea class="form-input form-textarea" id="projet-notes" style="min-height:60px;"></textarea></div>
           </div>
 
@@ -610,7 +612,24 @@
             <button class="btn-primary" onclick="sauverProjet()">💾 Sauvegarder</button>
             <button class="btn-teal" onclick="envoyerGalerie()">📧 Envoyer galerie</button>
             <button class="btn-teal" onclick="envoyerGalerieDejaPaye()" style="background:#27AE60;">✅ Envoyer (déjà payé)</button>
-            <button class="btn-stripe" onclick="genererStripeProjet()">⚡ Stripe</button>
+            <button class="btn-stripe" onclick="ouvrirStripeProjet()">⚡ Stripe paiement</button>
+          </div>
+
+          <!-- Section Stripe lien paiement -->
+          <div id="projet-stripe-section" style="background:rgba(99,91,255,0.06);border:1px solid rgba(99,91,255,0.2);border-radius:12px;padding:18px 20px;margin-bottom:18px;">
+            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#635bff;margin-bottom:12px;">⚡ Lien Stripe paiement</div>
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+              <input type="number" class="form-input" id="projet-stripe-montant" placeholder="Montant TTC ($)" step="0.01" min="0" style="flex:1;">
+              <button class="btn-stripe" onclick="genererStripeProjet()" style="white-space:nowrap;">⚡ Générer</button>
+            </div>
+            <div id="projet-stripe-result" style="display:none;background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:8px;padding:12px;">
+              <div style="font-size:11px;color:#27AE60;font-weight:600;margin-bottom:6px;">✅ Lien Stripe généré</div>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <input type="url" class="form-input" id="projet-stripe-url" readonly style="flex:1;font-size:11px;background:white;">
+                <button class="btn-secondary" onclick="copierStripeProjet()" style="padding:7px 10px;font-size:11px;white-space:nowrap;">📋 Copier</button>
+                <button class="btn-teal" onclick="envoyerStripeClient()" style="padding:7px 10px;font-size:11px;white-space:nowrap;">📧 Envoyer</button>
+              </div>
+            </div>
           </div>
 
           <!-- Upload médias -->
@@ -1277,6 +1296,18 @@ async function chargerProjetDossier(){
   document.getElementById('projet-modele').value=currentProjet.modele_prix||'FORFAIT';
   document.getElementById('projet-prix-base').value=currentProjet.prix_base||'';
   document.getElementById('projet-notes').value=currentProjet.note_admin||'';
+  // Charger heure + adresse depuis la soumission liée
+  const soumLiee=soumissions.find(s=>s.projet_id===currentLead?.id);
+  if(soumLiee){
+    document.getElementById('projet-heure-soum').value=soumLiee.heure_intervention||'—';
+    document.getElementById('projet-adresse-soum').value=soumLiee.adresse_projet||'—';
+    // Pre-fill stripe montant
+    if(soumLiee.montant_acompte>0){
+      document.getElementById('projet-stripe-montant').value=soumLiee.montant_acompte.toFixed(2);
+    }
+  }
+  // Reset stripe result
+  document.getElementById('projet-stripe-result').style.display='none';
 
   // Badge statut
   const statutColors={'EN_ATTENTE':'var(--gray)','ENVOYE':'var(--blue)','SELECTION':'var(--orange)','DEJA_PAYE':'var(--green)','PAYE':'var(--green)','LIVRE':'#27AE60'};
@@ -1333,13 +1364,43 @@ async function envoyerGalerieDejaPaye(){
   else showNotif('❌ '+(d.error||'Erreur'),'error');
 }
 
+function ouvrirStripeProjet(){
+  const section=document.getElementById('projet-stripe-section');
+  if(section){
+    // Pre-fill montant from projet prix
+    const b=parseFloat(document.getElementById('projet-prix-base').value)||0;
+    if(b>0) document.getElementById('projet-stripe-montant').value=(b*1.14975).toFixed(2);
+    section.scrollIntoView({behavior:'smooth'});
+  }
+}
+
 async function genererStripeProjet(){
-  if(!currentProjet?.id)return;
-  const prix=parseFloat(document.getElementById('projet-prix-base').value)||0;
-  if(prix<=0){showNotif('⚠️ Entrez un prix base','warning');return;}
-  const d=await apiPost(`/api/portail/projets/${currentProjet.id}/stripe-link`,{montant:Math.round(prix*100)});
-  if(d.success){showNotif('✅ Lien Stripe créé !','success');}
-  else showNotif('❌ '+(d.error||'Erreur'),'error');
+  if(!currentProjet?.id){showNotif('⚠️ Projet non créé — sauvegardez la soumission d'abord','warning');return;}
+  const montant=parseFloat(document.getElementById('projet-stripe-montant').value)||0;
+  if(montant<=0){showNotif('⚠️ Entrez un montant','warning');return;}
+  const btn=event.target;btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
+  const d=await apiPost(`/api/portail/projets/${currentProjet.id}/stripe-link`,{montant:Math.round(montant*100)});
+  btn.textContent='⚡ Générer';btn.disabled=false;
+  if(d.success&&(d.payment_url||d.url)){
+    const url=d.payment_url||d.url;
+    document.getElementById('projet-stripe-url').value=url;
+    document.getElementById('projet-stripe-result').style.display='block';
+    showNotif('✅ Lien Stripe généré !','success');
+  } else showNotif('❌ '+(d.error||'Erreur Stripe'),'error');
+}
+
+function copierStripeProjet(){
+  const url=document.getElementById('projet-stripe-url').value;
+  if(!url)return;
+  navigator.clipboard.writeText(url).then(()=>showNotif('✅ Lien copié !','success'));
+}
+
+async function envoyerStripeClient(){
+  const url=document.getElementById('projet-stripe-url').value;
+  if(!url){showNotif('⚠️ Générez d'abord un lien Stripe','warning');return;}
+  if(!currentLead?.courriel){showNotif('⚠️ Email client manquant','warning');return;}
+  showNotif(`✅ Lien Stripe copié — envoyez-le manuellement à ${currentLead.courriel}`,'success');
+  navigator.clipboard.writeText(url);
 }
 
 function copierLienGalerie(){
