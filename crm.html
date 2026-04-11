@@ -1261,7 +1261,11 @@ function setSat(v){currentSatisfaction=v;setSatDisplay(v);marquerModif();}
 function setSatDisplay(v){document.querySelectorAll('#stars-sat .star').forEach((s,i)=>{s.textContent=i<v?'⭐':'☆';});currentSatisfaction=v;}
 
 async function sauverSoumissionManuel(silencieux=false){
-  if(!currentSoumission)return;
+  if(!currentSoumission){
+    // Créer la soumission si elle n'existe pas encore
+    await creerSoumission();
+    return;
+  }
   const body={frais_deplacement:parseFloat(document.getElementById('soum-deplacement').value)||0,frais_postprod:parseFloat(document.getElementById('soum-postprod').value)||0,montant_acompte:parseFloat(document.getElementById('soum-acompte').value)||0,stripe_acompte_url:document.getElementById('soum-stripe').value,notes:document.getElementById('soum-notes').value,statut:document.getElementById('soum-statut-doc').value||'BROUILLON',entreprise:document.getElementById('soum-entreprise').value,personne_contact:document.getElementById('soum-contact').value,nom_projet:document.getElementById('soum-nom-projet').value,date_souhaitee:document.getElementById('soum-date-souhaitee').value,date_confirmee:document.getElementById('soum-date-confirmee').value,heure_intervention:document.getElementById('soum-heure').value,duree_estimee:document.getElementById('soum-duree').value,mode_paiement:document.getElementById('soum-mode-paiement').value,statut_paiement:document.getElementById('soum-statut-paiement').value,statut_pdf_soumission:document.getElementById('soum-statut-pdf-soum').value,statut_pdf_facture:document.getElementById('soum-statut-pdf-fact').value,date_livraison:document.getElementById('soum-date-livraison').value,date_relance:document.getElementById('soum-date-relance').value,satisfaction:currentSatisfaction||null,projet_id:currentLead.id,
     adresse_projet:document.getElementById('soum-adresse-projet').value,
     adresse_facturation:document.getElementById('soum-meme-adresse').checked?document.getElementById('soum-adresse-projet').value:document.getElementById('soum-adresse-facturation').value};
@@ -1274,8 +1278,14 @@ async function sauverSoumissionManuel(silencieux=false){
   if(!silencieux)showNotif('✅ Soumission sauvegardée — Projet créé/mis à jour','success');
 }
 
-function apercuSoumission(){if(!currentSoumission)return;window.open(`${API}/api/crm/soumissions/${currentSoumission.id}/apercu`,'_blank');}
-function apercuFacture(){if(!currentFacture)return;window.open(`${API}/api/crm/factures/${currentFacture.id}/apercu`,'_blank');}
+function apercuSoumission(){
+  if(!currentSoumission){showNotif("⚠️ Créez d'abord la soumission","warning");return;}
+  window.open(`${API}/api/crm/soumissions/${currentSoumission.id}/apercu`,'_blank');
+}
+function apercuFacture(){
+  if(!currentFacture){showNotif("⚠️ Créez d'abord la facture","warning");return;}
+  window.open(`${API}/api/crm/factures/${currentFacture.id}/apercu`,'_blank');
+}
 function imprimerPDF(t){const u=t==='soumission'?`${API}/api/crm/soumissions/${currentSoumission?.id}/apercu`:`${API}/api/crm/factures/${currentFacture?.id}/apercu`;const w=window.open(u,'_blank');if(w)w.onload=()=>w.print();}
 
 async function genererStripe(){
@@ -1553,7 +1563,10 @@ function calculerFacture(){
 }
 
 async function sauverFactureManuel(silencieux=false){
-  if(!currentFacture)return;
+  if(!currentFacture){
+    await creerFacture();
+    return;
+  }
   const body={frais_deplacement:parseFloat(document.getElementById('fact-deplacement').value)||0,autres_frais:parseFloat(document.getElementById('fact-autres').value)||0,acompte_recu:parseFloat(document.getElementById('fact-acompte').value)||0,notes:document.getElementById('fact-notes').value,statut:'BROUILLON'};
   await apiPut(`/api/crm/factures/${currentFacture.id}`,body);
   Object.assign(currentFacture,body);
