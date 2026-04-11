@@ -1647,15 +1647,33 @@ async function chargerFactureDossier(){
   if(!currentLead)return;
   await chargerFactures();
   currentFacture = factures.find(f => 
-  f.projet_id === currentLead.id || 
-  f.num_facture === currentLead.num_soumission
-) || null;
+    f.projet_id === currentLead.id || 
+    f.num_facture === currentLead.num_soumission
+  ) || null;
   if(!currentFacture){
     document.getElementById('fact-num').textContent='';
     document.getElementById('fact-empty-state').style.display='block';
     document.getElementById('fact-form-content').style.display='none';
     return;
   }
+  document.getElementById('fact-empty-state').style.display='none';
+  document.getElementById('fact-form-content').style.display='block';
+  document.getElementById('fact-num').textContent=currentFacture.num_facture||'';
+
+  // Pré-remplir depuis la soumission liée si champs vides
+  const soumLiee = soumissions.find(s => s.projet_id === currentLead.id);
+
+  document.getElementById('fact-deplacement').value = 
+    currentFacture.frais_deplacement || soumLiee?.frais_deplacement || '';
+  document.getElementById('fact-autres').value = 
+    currentFacture.autres_frais || '';
+  document.getElementById('fact-acompte').value = 
+    currentFacture.acompte_recu || soumLiee?.montant_acompte || '';
+  document.getElementById('fact-notes').value = 
+    currentFacture.notes || '';
+
+  calculerFacture();
+}
   document.getElementById('fact-empty-state').style.display='none';
   document.getElementById('fact-form-content').style.display='block';
   document.getElementById('fact-num').textContent=currentFacture.num_facture||'';
