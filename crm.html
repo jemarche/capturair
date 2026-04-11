@@ -1646,7 +1646,10 @@ async function creerFacture(){
 async function chargerFactureDossier(){
   if(!currentLead)return;
   await chargerFactures();
-  currentFacture=factures.find(f=>f.projet_id===currentLead.id)||null;
+  currentFacture = factures.find(f => 
+  f.projet_id === currentLead.id || 
+  f.num_facture === currentLead.num_soumission
+) || null;
   if(!currentFacture){
     document.getElementById('fact-num').textContent='';
     document.getElementById('fact-empty-state').style.display='block';
