@@ -1393,6 +1393,18 @@ async function sauverSoumissionManuel(silencieux=false){
   // Recharger projet (auto-créé)
   await chargerProjets();
   renderFluxStatut(currentLead.statut);
+  // Propagation automatique vers la facture existante
+  if(currentFacture?.id) {
+    const factBody = {
+      frais_deplacement: parseFloat(document.getElementById('soum-deplacement').value)||0,
+      autres_frais: parseFloat(document.getElementById('soum-postprod').value)||0,
+      acompte_recu: parseFloat(document.getElementById('soum-acompte').value)||0,
+      notes: currentFacture.notes||'',
+      statut: currentFacture.statut||'BROUILLON'
+    };
+    await apiPut(`/api/crm/factures/${currentFacture.id}`, factBody);
+    Object.assign(currentFacture, factBody);
+  }
   if(!silencieux)showNotif('✅ Soumission sauvegardée — Projet créé/mis à jour','success');
 }
 
