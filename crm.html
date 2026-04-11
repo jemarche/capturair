@@ -1664,15 +1664,13 @@ async function chargerFactureDossier(){
   // Pré-remplir depuis la soumission liée si champs vides
   const soumLiee = soumissions.find(s => s.projet_id === currentLead.id);
 
-  document.getElementById('fact-deplacement').value = 
-    currentFacture.frais_deplacement || soumLiee?.frais_deplacement || '';
-  document.getElementById('fact-autres').value = 
-    currentFacture.autres_frais || '';
-  document.getElementById('fact-acompte').value = 
-    currentFacture.acompte_recu || soumLiee?.montant_acompte || '';
-  document.getElementById('fact-notes').value = 
-    currentFacture.notes || '';
+  const deplacement = currentFacture.frais_deplacement > 0 ? currentFacture.frais_deplacement : (soumLiee?.frais_deplacement || '');
+const acompte = currentFacture.acompte_recu > 0 ? currentFacture.acompte_recu : (soumLiee?.montant_acompte || '');
 
+document.getElementById('fact-deplacement').value = deplacement;
+document.getElementById('fact-autres').value = currentFacture.autres_frais || '';
+document.getElementById('fact-acompte').value = acompte;
+document.getElementById('fact-notes').value = currentFacture.notes || soumLiee?.notes || '';
   calculerFacture();
 }
 
