@@ -428,6 +428,18 @@
 
       <!-- TAB SOUMISSION -->
       <div id="tab-content-soumission" style="display:none;">
+
+  <div id="soum-empty-state" style="display:none;">
+    <div class="section-card">
+      <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <div style="margin-bottom:16px;">Aucune soumission pour ce dossier</div>
+        <button class="btn-primary" onclick="creerSoumission()">+ Créer la soumission</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="soum-form-content">
         <div class="section-card">
           <div class="section-card-title">
             <span>📋 Soumission <span id="soum-num" style="color:var(--blue);font-weight:400;font-size:13px;"></span></span>
