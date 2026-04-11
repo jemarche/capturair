@@ -1674,15 +1674,7 @@ async function chargerFactureDossier(){
 
   calculerFacture();
 }
-  document.getElementById('fact-empty-state').style.display='none';
-  document.getElementById('fact-form-content').style.display='block';
-  document.getElementById('fact-num').textContent=currentFacture.num_facture||'';
-  document.getElementById('fact-deplacement').value=currentFacture.frais_deplacement||'';
-  document.getElementById('fact-autres').value=currentFacture.autres_frais||'';
-  document.getElementById('fact-acompte').value=currentFacture.acompte_recu||'';
-  document.getElementById('fact-notes').value=currentFacture.notes||'';
-  calculerFacture();
-}
+
 
 function calculerFacture(){
   const b=getPrixBase(),d=parseFloat(document.getElementById('fact-deplacement').value)||0,a=parseFloat(document.getElementById('fact-autres').value)||0,ac=parseFloat(document.getElementById('fact-acompte').value)||0;
