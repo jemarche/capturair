@@ -1668,7 +1668,8 @@ async function chargerFactureDossier(){
 const acompte = currentFacture.acompte_recu > 0 ? currentFacture.acompte_recu : (soumLiee?.montant_acompte || '');
 
 document.getElementById('fact-deplacement').value = deplacement;
-document.getElementById('fact-autres').value = currentFacture.autres_frais || '';
+document.getElementById('fact-autres').value = 
+  currentFacture.autres_frais > 0 ? currentFacture.autres_frais : (soumLiee?.frais_postprod || '');
 document.getElementById('fact-acompte').value = acompte;
 document.getElementById('fact-notes').value = currentFacture.notes || soumLiee?.notes || '';
   calculerFacture();
