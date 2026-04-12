@@ -398,17 +398,10 @@
               </select>
               <div class="form-error" id="err-info-service">Requis</div>
             </div>
-            <div class="form-group"><label class="form-label">Date souhaitée</label><input type="date" class="form-input" id="info-date" oninput="marquerModif()"></div>
-            <div class="form-group"><label class="form-label">Ville</label>
-              <select class="form-input form-select" id="info-ville" oninput="marquerModif()">
-                <option value="">— Sélectionner —</option>
-                <option>Anjou</option><option>Joliette</option><option>L'Assomption</option><option>Lanoraie</option>
-                <option>Laval</option><option>Lavaltrie</option><option>Longueuil</option><option>Mascouche</option>
-                <option>Mirabel</option><option>Montréal</option><option>Montréal-Est</option><option>Repentigny</option>
-                <option>Saint-Charles-Borromée</option><option>Saint-Eustache</option><option>Saint-Jérôme</option>
-                <option>Saint-Laurent</option><option>Saint-Lin–Laurentides</option><option>Terrebonne</option>
-                <option>Varennes</option><option>Autre</option>
-              </select>
+<div class="form-group"><label class="form-label">Date souhaitée</label><input type="date" class="form-input" id="info-date" oninput="marquerModif()"></div>
+            <div class="form-group" style="position:relative;"><label class="form-label">Ville</label>
+              <input type="text" class="form-input" id="info-ville" placeholder="Tapez une ville..." oninput="marquerModif();autocompleteVille('info-ville')" autocomplete="off">
+              <div id="autocomplete-info-ville" class="autocomplete-list" style="display:none;position:absolute;z-index:300;background:white;border:1px solid var(--border);border-radius:8px;max-height:200px;overflow-y:auto;width:100%;box-shadow:0 4px 16px rgba(0,0,0,0.1);"></div>
             </div>
             <div class="form-group"><label class="form-label">Budget *</label>
               <select class="form-input form-select" id="info-budget" oninput="marquerModif()" onblur="validerChamp('info-budget','req')">
