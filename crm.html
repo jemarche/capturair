@@ -1115,7 +1115,7 @@ async function sauverEtContinuer(){
   if(pendingNavigation){pendingNavigation();pendingNavigation=null;}
 }
 function marquerModif(){hasUnsaved=true;document.getElementById('unsaved-label').classList.add('visible');document.getElementById('unsaved-label-dos').textContent='● Non sauvegardé';document.getElementById('unsaved-label-dos').style.display='inline';}
-function marquerModifSoum(){marquerModif();}
+function marquerModifSoum(){marquerModif();const nomProjet=document.getElementById('soum-nom-projet')?.value;if(nomProjet)document.getElementById('projet-nom').value=nomProjet;}
 function clearUnsaved(){hasUnsaved=false;document.getElementById('unsaved-label').classList.remove('visible');document.getElementById('unsaved-label-dos').style.display='none';}
 
 function switchTab(tab){
