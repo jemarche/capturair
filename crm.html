@@ -1145,7 +1145,9 @@ function selectVille(id,ville){
 }
 
 document.addEventListener('click',e=>{
-  document.querySelectorAll('.autocomplete-list').forEach(l=>l.style.display='none');
+  if(!e.target.closest('.autocomplete-list')&&!e.target.id?.includes('ville')){
+    document.querySelectorAll('.autocomplete-list').forEach(l=>l.style.display='none');
+  }
 });
 function switchTab(tab){
   ['infos','soumission','projet','facture'].forEach(t=>{
