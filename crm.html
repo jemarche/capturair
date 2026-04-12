@@ -1478,36 +1478,32 @@ async function chargerProjetDossier(){
   // Chercher projet lié via lead_id ou num_soumission
   currentProjet=projets.find(p=>p.lead_id===currentLead.id||p.num_soumission===currentLead.num_soumission)||null;
 
-  if(!currentProjet){
+if(!currentProjet){
     document.getElementById('projet-num').textContent='';
     document.getElementById('projet-galerie-section').style.display='none';
     document.getElementById('media-grid').innerHTML='';
     document.getElementById('projet-heure-soum').value='—';
     document.getElementById('projet-adresse-soum').value='—';
-    // Show info message
     showNotif('ℹ️ Sauvegardez une soumission avec un nom de projet pour créer le projet automatiquement','');
     return;
   }
-
   // Charger détails complets avec médias
   const d=await apiGet(`/api/crm/projets/${currentProjet.id}`);
   currentProjet=d.projet||currentProjet;
   const medias=d.medias||[];
-
+  // Charger soumission liée AVANT pour pré-remplir
+  const soumLiee=soumissions.find(s=>s.projet_id===currentLead?.id);
   document.getElementById('projet-num').textContent=currentProjet.id||'';
-  document.getElementById('projet-nom').value=currentProjet.nom||'';
+  document.getElementById('projet-nom').value=currentProjet.nom||soumLiee?.nom_projet||'';
   document.getElementById('projet-client-nom').value=currentProjet.client_nom||'';
   document.getElementById('projet-client-email').value=currentProjet.client_email||'';
   document.getElementById('projet-statut').value=currentProjet.statut||'EN_ATTENTE';
   document.getElementById('projet-modele').value=currentProjet.modele_prix||'FORFAIT';
   document.getElementById('projet-prix-base').value=currentProjet.prix_base||'';
   document.getElementById('projet-notes').value=currentProjet.note_admin||'';
-  // Charger heure + adresse depuis la soumission liée
-  const soumLiee=soumissions.find(s=>s.projet_id===currentLead?.id);
   if(soumLiee){
     document.getElementById('projet-heure-soum').value=soumLiee.heure_intervention||'—';
     document.getElementById('projet-adresse-soum').value=soumLiee.adresse_projet||'—';
-    // Pre-fill stripe montant
     if(soumLiee.montant_acompte>0){
       document.getElementById('projet-stripe-montant').value=soumLiee.montant_acompte.toFixed(2);
     }
