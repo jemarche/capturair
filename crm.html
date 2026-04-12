@@ -864,16 +864,7 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-confirm-delete">
-  <div class="modal-box" style="max-width:380px;">
-    <div class="modal-title" id="delete-title">🗑️ Confirmer</div>
-    <p style="font-size:14px;color:var(--gray);margin-bottom:20px;" id="delete-msg">Cette action est irréversible.</p>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal('modal-confirm-delete')">Annuler</button>
-      <button class="btn-danger" onclick="executeDelete()">Supprimer</button>
-    </div>
-  </div>
-</div>
+
 
 <!-- MODAL SESSION EXPIRÉE -->
 <div class="modal-overlay" id="modal-session-expiree">
@@ -906,7 +897,16 @@
     </div>
   </div>
 </div>
-
+<div class="modal-overlay" id="modal-confirm-delete">
+  <div class="modal-box" style="max-width:380px;">
+    <div class="modal-title" id="delete-title">🗑️ Confirmer</div>
+    <p style="font-size:14px;color:var(--gray);margin-bottom:20px;" id="delete-msg">Cette action est irréversible.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-confirm-delete')">Annuler</button>
+      <button class="btn-danger" onclick="executeDelete()">Supprimer</button>
+    </div>
+  </div>
+</div>
 <script>
 const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
 let authToken='', currentUser=null;
