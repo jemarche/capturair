@@ -1493,8 +1493,9 @@ if(!currentProjet){
   const medias=d.medias||[];
   // Charger soumission liée AVANT pour pré-remplir
   const soumLiee=soumissions.find(s=>s.projet_id===currentLead?.id);
+const soumLiee=soumissions.find(s=>s.projet_id===currentLead?.id);
   document.getElementById('projet-num').textContent=currentProjet.id||'';
-  document.getElementById('projet-nom').value=currentProjet.nom||soumLiee?.nom_projet||'';
+  document.getElementById('projet-nom').value=soumLiee?.nom_projet||currentProjet.nom||'';
   document.getElementById('projet-client-nom').value=currentProjet.client_nom||'';
   document.getElementById('projet-client-email').value=currentProjet.client_email||'';
   document.getElementById('projet-statut').value=currentProjet.statut||'EN_ATTENTE';
