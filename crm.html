@@ -1137,10 +1137,17 @@ function renderDashboard(){
 
   const STATUTS=[
     {key:'Nouveau',label:'Nouveaux',color:'#3AABEF'},
-    {key:'En attente de CapturAir',label:'En attente CA',color:'#F1C40F'},
-    {key:'Soumission envoyée',label:'Soumis',color:'#E67E22'},
+    {key:'Contacté',label:'Contacté',color:'#9B59B6'},
+    {key:'Soumission envoyée',label:'Soumission',color:'#E67E22'},
+    {key:'En attente acompte',label:'Att. acompte',color:'#F1C40F'},
     {key:'Acompte reçu',label:'Acompte reçu',color:'#27AE60'},
-    {key:'En production',label:'En prod.',color:'#1ABC9C'},
+    {key:'RDV confirmé',label:'RDV confirmé',color:'#1A8FD1'},
+    {key:'RDV ajourné',label:'RDV ajourné',color:'#E74C3C'},
+    {key:'Sur site',label:'Sur site',color:'#1ABC9C'},
+    {key:'En postproduction',label:'Postprod.',color:'#8E44AD'},
+    {key:'Galerie envoyée',label:'Galerie',color:'#2ECC71'},
+    {key:'Solde en attente',label:'Solde att.',color:'#E67E22'},
+    {key:'Payé complet',label:'Payé',color:'#27AE60'},
   ];
   document.getElementById('pipeline-kanban').innerHTML=STATUTS.map(s=>{
     const items=leads.filter(l=>l.statut===s.key);
