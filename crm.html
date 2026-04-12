@@ -1117,6 +1117,14 @@ async function sauverEtContinuer(){
   if(pendingNavigation){pendingNavigation();pendingNavigation=null;}
 }
 function marquerModif(){hasUnsaved=true;document.getElementById('unsaved-label').classList.add('visible');document.getElementById('unsaved-label-dos').textContent='● Non sauvegardé';document.getElementById('unsaved-label-dos').style.display='inline';}
+async function envoyerRappelVisite(){
+  if(!currentSoumission?.id)return;
+  if(!document.getElementById("soum-date-confirmee").value){showNotif("⚠️ Renseignez la date confirmée","warning");return;}
+  await sauverSoumissionManuel(true);
+  const d=await apiPost(`/api/crm/soumissions/${currentSoumission.id}/confirmation-visite`,{});
+  if(d.success)showNotif('✅ Rappel de visite envoyé !','success');
+  else showNotif('❌ '+(d.error||'Erreur'),'error');
+}
 function ouvrirAgenda(){
   if(!currentLead)return;
   const nom=`${currentLead.prenom} ${currentLead.nom}`;
