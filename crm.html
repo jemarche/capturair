@@ -1487,13 +1487,12 @@ if(!currentProjet){
     showNotif('ℹ️ Sauvegardez une soumission avec un nom de projet pour créer le projet automatiquement','');
     return;
   }
-  // Charger détails complets avec médias
+ // Charger détails complets avec médias
   const d=await apiGet(`/api/crm/projets/${currentProjet.id}`);
   currentProjet=d.projet||currentProjet;
   const medias=d.medias||[];
   // Charger soumission liée AVANT pour pré-remplir
   const soumLiee=soumissions.find(s=>s.projet_id===currentLead?.id);
-const soumLiee=soumissions.find(s=>s.projet_id===currentLead?.id);
   document.getElementById('projet-num').textContent=currentProjet.id||'';
   document.getElementById('projet-nom').value=soumLiee?.nom_projet||currentProjet.nom||'';
   document.getElementById('projet-client-nom').value=currentProjet.client_nom||'';
