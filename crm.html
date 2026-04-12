@@ -1133,7 +1133,7 @@ function ouvrirAgenda(){
   const tel=currentLead.telephone||'';
   const date=document.getElementById('soum-date-souhaitee').value||'';
   const texte=encodeURIComponent(`RDV CapturAir — ${nom}`);
-  const details=encodeURIComponent(`Client: ${nom}\nService: ${service}\nVille: ${ville}\nTél: ${tel}`);
+  const details=encodeURIComponent(`Client: ${nom}\nService: ${service}\nVille: ${ville}\nTél: ${tel}\nDossier: ${currentLead?.num_soumission||''}`);
   let url=`https://calendar.google.com/calendar/r/eventedit?text=${texte}&details=${details}`;
   if(date){
     const d=date.replace(/-/g,'');
