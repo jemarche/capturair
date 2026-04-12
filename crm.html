@@ -848,19 +848,6 @@
     </div>
   </div>
 </div>
-
-<div class="modal-overlay" id="modal-confirm-envoi">
-  <div class="modal-box" style="max-width:420px;">
-    <div class="modal-title" id="confirm-envoi-title">📧 Confirmer l'envoi</div>
-    <p style="font-size:14px;color:var(--gray);margin-bottom:16px;" id="confirm-envoi-msg"></p>
-    <div class="warning-bar" id="confirm-envoi-warning" style="display:none;">⚠️ Les conditions générales ne seront pas jointes.</div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal('modal-confirm-envoi')">Annuler</button>
-      <button class="btn-primary" id="confirm-envoi-btn" onclick="confirmerEnvoi()">📧 Envoyer</button>
-    </div>
-  </div>
-</div>
-
 <div class="modal-overlay" id="modal-confirm-save">
   <div class="modal-box" style="max-width:380px;">
     <div class="modal-title">💾 Modifications non sauvegardées</div>
@@ -916,6 +903,17 @@
   </div>
 </div>
 <script>
+<div class="modal-overlay" id="modal-confirm-envoi">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-title" id="confirm-envoi-title">📧 Confirmer l'envoi</div>
+    <p style="font-size:14px;color:var(--gray);margin-bottom:16px;" id="confirm-envoi-msg"></p>
+    <div class="warning-bar" id="confirm-envoi-warning" style="display:none;">⚠️ Les conditions générales ne seront pas jointes.</div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-confirm-envoi')">Annuler</button>
+      <button class="btn-primary" id="confirm-envoi-btn" onclick="confirmerEnvoi()">📧 Envoyer</button>
+    </div>
+  </div>
+</div>  
 const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
 let authToken='', currentUser=null;
 let leads=[], soumissions=[], factures=[], utilisateurs=[], projets=[];
