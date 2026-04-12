@@ -808,6 +808,14 @@
   <input type="text" class="form-input" id="new-ville" placeholder="Tapez une ville..." oninput="autocompleteVille('new-ville')" autocomplete="off">
   <div id="autocomplete-new-ville" class="autocomplete-list" style="display:none;position:absolute;z-index:300;background:white;border:1px solid var(--border);border-radius:8px;max-height:200px;overflow-y:auto;width:100%;box-shadow:0 4px 16px rgba(0,0,0,0.1);"></div>
 </div>
+      <div class="form-group form-full"><label class="form-label">Description</label><textarea class="form-input form-textarea" id="new-description" rows="2"></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-lead')">Annuler</button>
+      <button class="btn-primary" onclick="creerLead()">Créer →</button>
+    </div>
+  </div>
+</div>
 
 <div class="modal-overlay" id="modal-statut">
   <div class="modal-box" style="max-width:380px;">
