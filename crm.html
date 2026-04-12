@@ -1121,7 +1121,7 @@ async function envoyerRappelVisite(){
   if(!currentSoumission?.id)return;
   if(!document.getElementById("soum-date-confirmee").value){showNotif("⚠️ Renseignez la date confirmée","warning");return;}
   await sauverSoumissionManuel(true);
-  const d=await apiPost(`/api/crm/soumissions/${currentSoumission.id}/confirmation-visite`,{});
+  const d=await apiPost(`/api/crm/soumissions/${currentSoumission.id}/confirmation-visite`,{type:'rappel'});
   if(d.success)showNotif('✅ Rappel de visite envoyé !','success');
   else showNotif('❌ '+(d.error||'Erreur'),'error');
 }
