@@ -1259,7 +1259,7 @@ async function sauverLeadManuel(silencieux=false){
   if(!silencieux)showNotif('✅ Dossier sauvegardé','success');
 }
 
-function modifierStatut(){document.getElementById('select-statut').value=currentLead?.statut||'Nouveau';document.getElementById('modal-statut').classList.add('active');}
+function modifierStatut(){if(!currentLead)return;document.getElementById('select-statut').value=currentLead?.statut||'Nouveau';document.getElementById('modal-statut').classList.add('active');}
 async function appliquerStatut(){
   const s=document.getElementById('select-statut').value;
   await apiPut(`/api/crm/leads/${currentLead.id}`,{...currentLead,statut:s});
