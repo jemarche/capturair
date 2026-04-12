@@ -575,7 +575,8 @@
             <button class="btn-primary" onclick="sauverSoumissionManuel()">💾 Sauvegarder</button>
             <button class="btn-teal" onclick="envoyerSoumission()">📧 Envoyer</button>
             <button class="btn-secondary" onclick="ouvrirAgenda()" style="border-color:#27AE60;color:#27AE60;">📅 Ouvrir agenda</button>
-            <button class="btn-secondary" onclick="envoyerConfirmationVisite()" style="border-color:var(--blue);color:var(--blue);">📅 Confirmer visite</button>
+            <button class="btn-secondary" onclick="ouvrirAgenda()" style="border-color:#27AE60;color:#27AE60;">📅 Ouvrir agenda</button>
+<button class="btn-secondary" onclick="envoyerConfirmationVisite()" style="border-color:var(--blue);color:var(--blue);">📅 Confirmer visite</button>
 </div>
         </div>
       </div>
@@ -1116,6 +1117,22 @@ async function sauverEtContinuer(){
   if(pendingNavigation){pendingNavigation();pendingNavigation=null;}
 }
 function marquerModif(){hasUnsaved=true;document.getElementById('unsaved-label').classList.add('visible');document.getElementById('unsaved-label-dos').textContent='● Non sauvegardé';document.getElementById('unsaved-label-dos').style.display='inline';}
+function ouvrirAgenda(){
+  if(!currentLead)return;
+  const nom=`${currentLead.prenom} ${currentLead.nom}`;
+  const service=currentLead.type_service||'';
+  const ville=currentLead.ville||'';
+  const tel=currentLead.telephone||'';
+  const date=document.getElementById('soum-date-souhaitee').value||'';
+  const texte=encodeURIComponent(`RDV CapturAir — ${nom}`);
+  const details=encodeURIComponent(`Client: ${nom}\nService: ${service}\nVille: ${ville}\nTél: ${tel}`);
+  let url=`https://calendar.google.com/calendar/r/eventedit?text=${texte}&details=${details}`;
+  if(date){
+    const d=date.replace(/-/g,'');
+    url+=`&dates=${d}T090000/${d}T100000`;
+  }
+  window.open(url,'_blank');
+}
 function marquerModifSoum(){marquerModif();const nomProjet=document.getElementById('soum-nom-projet')?.value;if(nomProjet)document.getElementById('projet-nom').value=nomProjet;}
 function clearUnsaved(){hasUnsaved=false;document.getElementById('unsaved-label').classList.remove('visible');document.getElementById('unsaved-label-dos').style.display='none';}
 
