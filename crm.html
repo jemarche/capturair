@@ -902,7 +902,6 @@
     </div>
   </div>
 </div>
-<script>
 <div class="modal-overlay" id="modal-confirm-envoi">
   <div class="modal-box" style="max-width:420px;">
     <div class="modal-title" id="confirm-envoi-title">📧 Confirmer l'envoi</div>
@@ -913,8 +912,9 @@
       <button class="btn-primary" id="confirm-envoi-btn" onclick="confirmerEnvoi()">📧 Envoyer</button>
     </div>
   </div>
-</div>  
-const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
+</div>
+<script>
+const API =
 let authToken='', currentUser=null;
 let leads=[], soumissions=[], factures=[], utilisateurs=[], projets=[];
 let currentLead=null, currentSoumission=null, currentFacture=null, currentProjet=null;
