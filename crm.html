@@ -1125,7 +1125,28 @@ function ouvrirAgenda(){
 }
 function marquerModifSoum(){marquerModif();const nomProjet=document.getElementById('soum-nom-projet')?.value;if(nomProjet)document.getElementById('projet-nom').value=nomProjet;}
 function clearUnsaved(){hasUnsaved=false;document.getElementById('unsaved-label').classList.remove('visible');document.getElementById('unsaved-label-dos').style.display='none';}
+const VILLES_QC=['Acton Vale','Adstock','Albanel','Alma','Amos','Amqui','Anjou','Asbestos','Baie-Comeau','Baie-D\'Urfé','Baie-James','Baie-Saint-Paul','Baie-Trinité','Barkmere','Beaconsfield','Beauceville','Beauharnois','Beaupré','Bedford','Beloeil','Berthierville','Blainville','Boisbriand','Bois-des-Filion','Bonaventure','Boucherville','Bromont','Brossard','Brownsburg-Chatham','Candiac','Carignan','Carleton-sur-Mer','Causapscal','Chambly','Chandler','Chapais','Charlemagne','Châteauguay','Chibougamau','Clermont','Coaticook','Contrecoeur','Cookshire-Eaton','Côte-Saint-Luc','Coteau-du-Lac','Cowansville','Danville','Daveluyville','Delson','Deux-Montagnes','Disraeli','Dolbeau-Mistassini','Dollard-des-Ormeaux','Donnacona','Dorval','Drummondville','East Angus','Farnham','Fermont','Forestville','Gatineau','Gaspé','Gracefield','Granby','Grande-Rivière','Hampstead','Havre-Saint-Pierre','Hudson','Huntingdon','Joliette','Kirkland','L\'Ancienne-Lorette','L\'Assomption','L\'Épiphanie','L\'Île-Perrot','La Malbaie','La Pocatière','La Prairie','La Sarre','La Tuque','Lac-Etchemin','Lac-Mégantic','Lachute','Lacolle','Lasalle','Lanoraie','Laval','Lavaltrie','Lebel-sur-Quévillon','Lévis','Longueuil','Lorraine','Louiseville','Macamic','Magog','Maniwaki','Marieville','Mascouche','Matagami','McMasterville','Mercier','Mirabel','Mont-Joli','Mont-Laurier','Mont-Royal','Mont-Saint-Hilaire','Montmagny','Montréal','Montréal-Est','Montréal-Ouest','Mont-Tremblant','Napierville','New Richmond','Nicolet','Normandin','Notre-Dame-de-l\'Île-Perrot','Otterburn Park','Papineauville','Paspébiac','Percé','Pierrefonds','Pincourt','Plessisville','Pohénégamook','Pointe-Calumet','Pointe-Claire','Pointe-du-Lac','Port-Cartier','Plessisville','Princeville','Québec','Rawdon','Repentigny','Richelieu','Richmond','Rigaud','Rimouski','Rivière-du-Loup','Rivière-Rouge','Roberval','Rosemère','Rouyn-Noranda','Saint-Amable','Saint-Basile-le-Grand','Saint-Bruno-de-Montarville','Saint-Charles-Borromée','Saint-Constant','Saint-Eustache','Saint-Félicien','Saint-Georges','Saint-Hyacinthe','Saint-Jean-sur-Richelieu','Saint-Jérôme','Saint-Joseph-de-Sorel','Saint-Lambert','Saint-Laurent','Saint-Lazare','Saint-Lin–Laurentides','Saint-Pie','Saint-Rémi','Saint-Sauveur','Sainte-Adèle','Sainte-Agathe-des-Monts','Sainte-Anne-de-Bellevue','Sainte-Anne-des-Monts','Sainte-Anne-des-Plaines','Sainte-Catherine','Sainte-Julie','Sainte-Marie','Sainte-Marthe-sur-le-Lac','Sainte-Sophie','Sainte-Thérèse','Salaberry-de-Valleyfield','Senneterre','Sept-Îles','Shawinigan','Sherbrooke','Sorel-Tracy','Sutton','Terrebonne','Thetford Mines','Thurso','Trois-Rivières','Val-d\'Or','Varennes','Vaudreuil-Dorion','Verchères','Victoriaville','Ville-Marie','Waterloo','Westmount','Windsor'];
 
+function autocompleteVille(id){
+  const input=document.getElementById(id);
+  const list=document.getElementById(`autocomplete-${id}`);
+  const val=input.value.trim().toLowerCase();
+  if(!val||val.length<2){list.style.display='none';return;}
+  const matches=VILLES_QC.filter(v=>v.toLowerCase().includes(val)).slice(0,10);
+  if(!matches.length){list.style.display='none';return;}
+  list.innerHTML=matches.map(v=>`<div style="padding:9px 14px;font-size:13px;cursor:pointer;color:var(--navy);" onmousedown="selectVille('${id}','${v.replace(/'/g,"\\'")}')">${v}</div>`).join('');
+  list.style.display='block';
+}
+
+function selectVille(id,ville){
+  document.getElementById(id).value=ville;
+  document.getElementById(`autocomplete-${id}`).style.display='none';
+  if(id==='info-ville')marquerModif();
+}
+
+document.addEventListener('click',e=>{
+  document.querySelectorAll('.autocomplete-list').forEach(l=>l.style.display='none');
+});
 function switchTab(tab){
   ['infos','soumission','projet','facture'].forEach(t=>{
     document.getElementById(`tab-${t}`)?.classList.toggle('active',t===tab);
