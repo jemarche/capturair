@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CapturAir — Portail Financier</title>
+<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0B1F3A;--blue:#1A8FD1;--blue-light:#3AABEF;--teal:#1ABC9C;--orange:#E67E22;--red:#E74C3C;--green:#27AE60;--offwhite:#F4F7FA;--white:#FFFFFF;--gray:#6B7C93;--border:#DEE4EF;--sidebar-w:240px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--offwhite);color:var(--navy);overflow-x:hidden}
+
+/* ── LOGIN ── */
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#060E18 0%,#0B1F3A 50%,#0D2B50 100%);position:relative;overflow:hidden}
+.login-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(26,143,209,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(26,143,209,0.05) 1px,transparent 1px);background-size:50px 50px}
+.login-box{background:rgba(255,255,255,0.04);backdrop-filter:blur(20px);border:1px solid rgba(200,216,232,0.12);border-radius:24px;padding:48px;width:420px;position:relative;z-index:2}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo svg{width:90px;height:90px;border-radius:16px;margin-bottom:12px}
+.login-logo h1{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:white}
+.login-logo p{color:var(--blue-light);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.login-field{margin-bottom:16px}
+.login-field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(200,216,232,0.5);margin-bottom:8px}
+.login-field input{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(200,216,232,0.15);border-radius:10px;padding:13px 16px;color:white;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+.login-field input:focus{border-color:var(--blue)}
+.login-field input::placeholder{color:rgba(200,216,232,0.25)}
+.btn-login{width:100%;background:linear-gradient(135deg,var(--blue),#0D5C8A);color:white;border:none;padding:14px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;font-family:'Syne',sans-serif;transition:all 0.2s}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(26,143,209,0.4)}
+.login-error{color:#E74C3C;font-size:13px;text-align:center;margin-top:12px;display:none}
+
+/* ── APP LAYOUT ── */
+.app{display:none;min-height:100vh}
+.app.visible{display:flex}
+.sidebar{width:var(--sidebar-w);background:var(--navy);position:fixed;top:0;left:0;bottom:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
+.sidebar-logo{padding:20px 16px;border-bottom:1px solid rgba(200,216,232,0.07);display:flex;align-items:center;gap:10px}
+.sidebar-logo svg{width:32px;height:32px;border-radius:7px;flex-shrink:0}
+.sidebar-logo-text{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:white;line-height:1.2}
+.sidebar-logo-text span{color:var(--blue-light)}
+.sidebar-logo-sub{font-size:10px;color:rgba(200,216,232,0.35);text-transform:uppercase;letter-spacing:1px}
+.sidebar-nav{flex:1;padding:12px 10px}
+.nav-section{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(200,216,232,0.3);padding:12px 8px 5px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;cursor:pointer;color:rgba(200,216,232,0.55);font-size:13px;transition:all 0.15s;margin-bottom:1px;text-decoration:none}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:white}
+.nav-item.active{background:rgba(26,143,209,0.18);color:var(--blue-light)}
+.nav-item .nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+.sidebar-footer{padding:14px;border-top:1px solid rgba(200,216,232,0.07)}
+.sidebar-user{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.sidebar-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--blue),#0D5C8A);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:600;flex-shrink:0}
+.sidebar-user-name{font-size:13px;color:white;font-weight:500}
+.sidebar-user-role{font-size:10px;color:var(--blue-light);text-transform:uppercase;letter-spacing:0.5px}
+.btn-logout{background:none;border:none;color:rgba(200,216,232,0.3);cursor:pointer;font-size:16px;padding:4px;transition:color 0.2s;margin-left:auto}
+.btn-logout:hover{color:var(--red)}
+
+/* ── MAIN ── */
+.main-content{margin-left:var(--sidebar-w);flex:1;min-width:0}
+
+/* ── TOPBAR MÉTÉO (copié du site public) ── */
+.topbar-meteo{background:rgba(11,31,58,0.97);border-bottom:1px solid rgba(200,216,232,0.08);padding:0 28px;height:56px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:50}
+.topbar-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:white;flex:1}
+.unsaved-label{font-size:12px;color:var(--orange);display:none;font-weight:500}
+.unsaved-label.visible{display:inline}
+.weather-widget{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(200,216,232,0.12);border-radius:10px;padding:7px 14px;flex-shrink:0}
+.weather-icon{font-size:18px}
+.weather-info{display:flex;flex-direction:column;line-height:1.3}
+.weather-city{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(200,216,232,0.45)}
+.weather-temp{font-size:13px;font-weight:500;color:white;white-space:nowrap}
+.topbar-actions{display:flex;align-items:center;gap:8px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:8px;padding:9px 16px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.btn-primary{background:var(--blue);color:white}
+.btn-primary:hover{background:var(--blue-light);transform:translateY(-1px)}
+.btn-secondary{background:var(--offwhite);color:var(--navy);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
+.btn-danger{background:rgba(231,76,60,0.1);color:var(--red);border:1px solid rgba(231,76,60,0.3)}
+.btn-danger:hover{background:var(--red);color:white}
+.btn-teal{background:var(--teal);color:white}
+.btn-teal:hover{opacity:0.9}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* ── PAGES ── */
+.page{display:none;padding:24px 28px}
+.page.active{display:block}
+.page-header{margin-bottom:20px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.page-header h1{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;color:var(--navy)}
+.page-header p{font-size:13px;color:var(--gray);margin-top:3px}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:white;border-radius:14px;padding:18px 20px;border:1px solid var(--border);position:relative;overflow:hidden;transition:all 0.2s}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.stat-card.blue::before{background:linear-gradient(90deg,var(--blue),var(--blue-light))}
+.stat-card.teal::before{background:linear-gradient(90deg,var(--teal),#2ecc71)}
+.stat-card.orange::before{background:linear-gradient(90deg,var(--orange),#f1c40f)}
+.stat-card.green::before{background:linear-gradient(90deg,var(--green),var(--teal))}
+.stat-card:hover{box-shadow:0 6px 20px rgba(26,143,209,0.1);transform:translateY(-2px)}
+.stat-icon{font-size:22px;margin-bottom:8px}
+.stat-value{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--navy);line-height:1}
+.stat-label{font-size:11px;color:var(--gray);margin-top:4px;text-transform:uppercase;letter-spacing:0.5px}
+
+/* ── CARDS ── */
+.card{background:white;border-radius:14px;border:1px solid var(--border);margin-bottom:16px;overflow:hidden}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card-header h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px}
+.card-body{padding:20px}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:var(--offwhite);padding:10px 14px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.7px;color:var(--gray);border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;cursor:pointer}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover td{background:var(--offwhite)}
+tbody td{padding:11px 14px;color:var(--navy);vertical-align:middle}
+tbody td.muted{color:var(--gray);font-size:12px}
+tfoot td{padding:11px 14px;font-weight:700;color:var(--navy);border-top:2px solid var(--border);background:var(--offwhite);font-size:13px}
+.table-empty{text-align:center;padding:40px;color:var(--gray);font-style:italic}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:600}
+.badge-deductible{background:rgba(39,174,96,0.12);color:#27AE60}
+.badge-personnel{background:rgba(149,165,166,0.15);color:#7F8C8D}
+.badge-actif{background:rgba(26,188,156,0.12);color:var(--teal)}
+.badge-inactif{background:rgba(231,76,60,0.1);color:var(--red)}
+.badge-pro{background:rgba(26,143,209,0.1);color:var(--blue)}
+.badge-oui{background:rgba(39,174,96,0.12);color:#27AE60}
+.badge-non{background:rgba(149,165,166,0.15);color:#7F8C8D}
+
+/* ── FORM ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.form-full{grid-column:1/-1}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray);font-weight:600}
+.form-input{background:var(--offwhite);border:1px solid var(--border);border-radius:8px;padding:10px 13px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--navy);outline:none;transition:all 0.2s;width:100%}
+.form-input:focus{border-color:var(--blue);background:white;box-shadow:0 0 0 3px rgba(26,143,209,0.08)}
+.form-input[readonly]{opacity:0.6;cursor:default}
+.form-hint{font-size:11px;color:var(--gray);margin-top:2px}
+.calc-preview{font-size:12px;color:var(--teal);margin-top:3px;font-weight:500}
+
+/* ── SECTION CARD ── */
+.section-card{background:white;border-radius:14px;border:1px solid var(--border);padding:22px 24px;margin-bottom:16px}
+.section-card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.55);backdrop-filter:blur(5px);align-items:center;justify-content:center}
+.modal-overlay.active{display:flex!important;animation:fadeInM 0.2s ease}
+@keyframes fadeInM{from{opacity:0}to{opacity:1}}
+.modal-box{background:white;border-radius:20px;padding:28px 32px;width:580px;max-width:94vw;max-height:90vh;overflow-y:auto;animation:slideUpM 0.25s ease}
+@keyframes slideUpM{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.modal-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--navy);margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray);padding:2px 6px;border-radius:4px}
+.modal-close:hover{background:var(--offwhite)}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+
+/* ── NOTIF ── */
+.notif{position:fixed;top:72px;right:24px;z-index:10000;background:var(--navy);color:white;padding:13px 18px;border-radius:10px;font-size:13px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,0.2);animation:slideInN 0.3s ease;max-width:340px;pointer-events:none}
+.notif.success{background:var(--green)}
+.notif.error{background:var(--red)}
+.notif.warning{background:var(--orange)}
+@keyframes slideInN{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.6s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── FILTRES ── */
+.filters-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.filter-select{background:white;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:12px;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;color:var(--navy)}
+
+/* ── KM TOTALS ── */
+.km-totals{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.km-total-box{background:white;border:1px solid var(--border);border-radius:12px;padding:14px 18px}
+.km-total-box .label{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.km-total-box .value{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--navy)}
+
+/* ── ABONNEMENTS CARDS ── */
+.abo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:18px}
+.abo-card{background:white;border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.abo-card .abo-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;margin-bottom:5px}
+.abo-card .abo-amount{font-size:20px;font-weight:700;color:var(--blue)}
+.abo-card .abo-meta{font-size:11px;color:var(--gray);margin-top:3px}
+
+/* ── COMPARATEUR ── */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:16px}
+.method-card{background:var(--offwhite);border:2px solid var(--border);border-radius:12px;padding:20px}
+.method-card.recommended{border-color:var(--teal);background:rgba(26,188,156,0.05)}
+.method-card .method-label{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:14px}
+.method-card .method-amount{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.rec-badge{display:inline-block;background:var(--teal);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle}
+.compare-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(222,228,239,0.5);font-size:13px}
+.compare-row:last-child{border-bottom:none}
+
+/* ── CONFIG ── */
+.config-section{background:white;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px}
+.config-section h4{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px}
+
+/* ── TPS TABLE ── */
+.tps-table input[type=number]{background:var(--offwhite);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:12px;font-family:'DM Sans',sans-serif;width:90px;outline:none}
+.tps-table input[type=number]:focus{border-color:var(--blue);background:white}
+.tps-total-row td{background:var(--navy)!important;color:white!important;font-weight:700}
+
+/* ── CRM LINK ── */
+.crm-link{display:flex;align-items:center;gap:8px;background:rgba(26,188,156,0.08);border:1px solid rgba(26,188,156,0.2);border-radius:8px;padding:9px 14px;color:var(--teal);font-size:12px;font-weight:500;text-decoration:none;transition:all 0.2s;margin-top:auto;margin:12px}
+.crm-link:hover{background:rgba(26,188,156,0.15)}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:52px 20px;color:var(--gray)}
+.empty-state-icon{font-size:44px;margin-bottom:12px;opacity:0.5}
+
+@media(max-width:900px){
+  :root{--sidebar-w:0}
+  .sidebar{transform:translateX(-100%);width:240px;transition:transform 0.3s}
+  .main-content{margin-left:0}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+  .compare-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div class="login-screen" id="login-screen">
+  <div class="login-grid"></div>
+  <div class="login-box">
+    <div class="login-logo">
+      <!-- Logo SVG officiel CapturAir -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+        <defs><linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#1A8FD1"/><stop offset="100%" style="stop-color:#0D5C8A"/></linearGradient></defs>
+        <rect x="0" y="0" width="400" height="400" rx="30" fill="url(#sg)"/>
+        <circle cx="200" cy="170" r="110" fill="white" opacity="0.07"/>
+        <circle cx="200" cy="171" r="8" fill="#1A8FD1" stroke="white" stroke-width="2.5"/>
+        <circle cx="200" cy="171" r="3.5" fill="white" opacity="0.9"/>
+        <line x1="163" y1="161" x2="128" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        <line x1="237" y1="161" x2="272" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        <line x1="163" y1="181" x2="128" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        <line x1="237" y1="181" x2="272" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="128" cy="126" r="7" fill="white"/><circle cx="272" cy="126" r="7" fill="white"/>
+        <circle cx="128" cy="216" r="7" fill="white"/><circle cx="272" cy="216" r="7" fill="white"/>
+        <ellipse cx="128" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-35 128 126)"/>
+        <ellipse cx="128" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(55 128 126)"/>
+        <ellipse cx="272" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(35 272 126)"/>
+        <ellipse cx="272" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-55 272 126)"/>
+        <ellipse cx="128" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(35 128 216)"/>
+        <ellipse cx="128" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-55 128 216)"/>
+        <ellipse cx="272" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-35 272 216)"/>
+        <ellipse cx="272" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(55 272 216)"/>
+        <line x1="172" y1="184" x2="167" y2="200" stroke="white" stroke-width="3"/>
+        <line x1="228" y1="184" x2="233" y2="200" stroke="white" stroke-width="3"/>
+        <line x1="162" y1="200" x2="238" y2="200" stroke="white" stroke-width="3"/>
+        <text x="200" y="290" font-family="Arial" font-size="62" font-weight="800" fill="white" text-anchor="middle" letter-spacing="-1">Captur</text>
+        <text x="200" y="342" font-family="Arial" font-size="62" font-weight="300" fill="#D0EEFF" text-anchor="middle" letter-spacing="4">Air</text>
+      </svg>
+      <h1>Captur<span style="color:var(--blue-light)">Air</span></h1>
+      <p>Portail Financier · Gestion fiscale</p>
+    </div>
+    <div class="login-field"><label id="lbl-email">Courriel</label><input type="email" id="login-email" placeholder="votre@email.com" autocomplete="email"></div>
+    <div class="login-field"><label id="lbl-pin">PIN</label><input type="password" id="login-pin" placeholder="••••" maxlength="6" autocomplete="current-password"></div>
+    <button class="btn-login" onclick="login()"><span id="login-btn-text">Connexion →</span></button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div class="app" id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+        <defs><linearGradient id="sg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#1A8FD1"/><stop offset="100%" style="stop-color:#0D5C8A"/></linearGradient></defs>
+        <rect width="400" height="400" rx="60" fill="url(#sg2)"/>
+        <circle cx="200" cy="171" r="8" fill="#1A8FD1" stroke="white" stroke-width="2.5"/>
+        <circle cx="200" cy="171" r="3.5" fill="white" opacity="0.9"/>
+        <line x1="163" y1="161" x2="128" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        <line x1="237" y1="161" x2="272" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        <line x1="163" y1="181" x2="128" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        <line x1="237" y1="181" x2="272" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="128" cy="126" r="7" fill="white"/><circle cx="272" cy="126" r="7" fill="white"/>
+        <circle cx="128" cy="216" r="7" fill="white"/><circle cx="272" cy="216" r="7" fill="white"/>
+        <ellipse cx="128" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-35 128 126)"/>
+        <ellipse cx="272" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(35 272 126)"/>
+        <ellipse cx="128" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(35 128 216)"/>
+        <ellipse cx="272" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-35 272 216)"/>
+        <line x1="172" y1="184" x2="167" y2="200" stroke="white" stroke-width="3"/>
+        <line x1="228" y1="184" x2="233" y2="200" stroke="white" stroke-width="3"/>
+        <line x1="162" y1="200" x2="238" y2="200" stroke="white" stroke-width="3"/>
+      </svg>
+      <div>
+        <div class="sidebar-logo-text">Captur<span>Air</span></div>
+        <div class="sidebar-logo-sub">Portail Financier</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">Aperçu</div>
+      <a class="nav-item active" onclick="showPage('dashboard')" href="#"><span class="nav-icon">📊</span>Tableau de Bord</a>
+      <a class="nav-item" onclick="showPage('registre')" href="#"><span class="nav-icon">📒</span>Registre Global</a>
+
+      <div class="nav-section">Véhicule</div>
+      <a class="nav-item" onclick="showPage('kilometrage')" href="#"><span class="nav-icon">🚗</span>Kilométrage</a>
+      <a class="nav-item" onclick="showPage('vehicule')" href="#"><span class="nav-icon">🚘</span>Comparateur</a>
+      <a class="nav-item" onclick="showPage('essence')" href="#"><span class="nav-icon">⛽</span>Essence</a>
+      <a class="nav-item" onclick="showPage('assurance')" href="#"><span class="nav-icon">🛡️</span>Assurance & Immat.</a>
+      <a class="nav-item" onclick="showPage('entretien')" href="#"><span class="nav-icon">🔧</span>Entretien Véhicule</a>
+      <a class="nav-item" onclick="showPage('stationnement')" href="#"><span class="nav-icon">🅿️</span>Stationnement</a>
+
+      <div class="nav-section">Exploitation</div>
+      <a class="nav-item" onclick="showPage('abonnements')" href="#"><span class="nav-icon">💻</span>Abonnements SaaS</a>
+      <a class="nav-item" onclick="showPage('telephone')" href="#"><span class="nav-icon">📱</span>Téléphone & Internet</a>
+      <a class="nav-item" onclick="showPage('equipements')" href="#"><span class="nav-icon">🛒</span>Équipements</a>
+      <a class="nav-item" onclick="showPage('soustraitants')" href="#"><span class="nav-icon">👷</span>Sous-traitants</a>
+
+      <div class="nav-section">Fiscal</div>
+      <a class="nav-item" onclick="showPage('tpstvq')" href="#"><span class="nav-icon">🧾</span>TPS & TVQ</a>
+      <a class="nav-item" onclick="showPage('config')" href="#"><span class="nav-icon">⚙️</span>Configuration</a>
+    </nav>
+
+    <a class="crm-link" href="crm.html">📁 Retour au CRM</a>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="sidebar-avatar">M</div>
+        <div>
+          <div class="sidebar-user-name" id="sidebar-name">Mohand</div>
+          <div class="sidebar-user-role" id="sidebar-role">superadmin</div>
+        </div>
+        <button class="btn-logout" onclick="logout()" title="Déconnexion">↪</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+
+    <!-- TOPBAR MÉTÉO (identique au site public) -->
+    <div class="topbar-meteo">
+      <div class="topbar-title" id="topbar-title">📊 Tableau de Bord</div>
+      <span class="unsaved-label" id="unsaved-label">● Non sauvegardé</span>
+      <div class="topbar-actions">
+        <select class="filter-select" id="year-select" onchange="chargerPage(currentPage)" style="border:1px solid rgba(200,216,232,0.2);background:rgba(255,255,255,0.08);color:white;border-radius:8px;padding:6px 10px;font-size:12px">
+          <option value="2026">2026</option><option value="2025">2025</option><option value="2024">2024</option>
+        </select>
+        <button class="btn btn-secondary btn-sm" onclick="exportCSV()">⬇ CSV</button>
+        <button class="btn btn-primary btn-sm" id="btn-add" onclick="ouvrirModal()" style="display:none">+ Nouvelle entrée</button>
+      </div>
+      <div class="weather-widget">
+        <span class="weather-icon" id="w-icon">⏳</span>
+        <div class="weather-info">
+          <span class="weather-city">Lavaltrie, QC</span>
+          <span class="weather-temp" id="w-temp">Chargement…</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card blue"><div class="stat-icon">💰</div><div class="stat-value" id="s-total">—</div><div class="stat-label">Total dépenses</div></div>
+        <div class="stat-card teal"><div class="stat-icon">✅</div><div class="stat-value" id="s-ded">—</div><div class="stat-label">Total déductible</div></div>
+        <div class="stat-card orange"><div class="stat-icon">🚗</div><div class="stat-value" id="s-cra">—</div><div class="stat-label">Indemnité CRA</div></div>
+        <div class="stat-card green"><div class="stat-icon">💻</div><div class="stat-value" id="s-abo">—</div><div class="stat-label">Abonnements/mois</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px">
+        <div class="card">
+          <div class="card-header"><h3>📂 Résumé par catégorie</h3></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Catégorie</th><th>Total</th><th>Déductible</th><th>% du total</th></tr></thead>
+              <tbody id="dash-cats"></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-header"><h3>🧾 TPS/TVQ annuel</h3></div>
+            <div class="card-body" style="padding:16px">
+              <div class="compare-row"><span>TPS perçue</span><span id="d-tps" style="font-weight:600;color:var(--blue)">—</span></div>
+              <div class="compare-row"><span>TVQ perçue</span><span id="d-tvq" style="font-weight:600;color:var(--blue)">—</span></div>
+              <div class="compare-row"><span>CTI fédéral</span><span id="d-cti" style="font-weight:600;color:var(--teal)">—</span></div>
+              <div class="compare-row"><span>RTI québec</span><span id="d-rti" style="font-weight:600;color:var(--teal)">—</span></div>
+              <div class="compare-row" style="border-bottom:none;margin-top:6px"><span style="font-weight:700">Solde à remettre</span><span id="d-solde" style="font-weight:700;font-size:15px;color:var(--orange)">—</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>🚘 Méthode recommandée</h3></div>
+            <div class="card-body" style="padding:16px" id="d-vehicule"><p style="color:var(--gray);font-size:13px">Ajoutez des déplacements pour voir la recommandation.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ REGISTRE ═══ -->
+    <div class="page" id="page-registre">
+      <div class="filters-bar">
+        <select class="filter-select" id="reg-cat" onchange="chargerRegistre()"><option value="">Toutes catégories</option><option>Essence</option><option>Assurance</option><option>Entretien</option><option>Stationnement</option><option>Abonnements</option><option>Téléphone</option><option>Équipements</option><option>Sous-traitants</option></select>
+        <select class="filter-select" id="reg-mois" onchange="chargerRegistre()"><option value="">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Date</th><th>Catégorie</th><th>Fournisseur / Description</th><th>Montant</th><th>Déduc. %</th><th>Mt déductible</th><th>N° Pièce</th></tr></thead>
+            <tbody id="reg-body"></tbody>
+            <tfoot><tr><td colspan="4">TOTAL</td><td id="reg-total">—</td><td></td><td id="reg-total-ded">—</td><td></td></tr></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ KILOMÉTRAGE ═══ -->
+    <div class="page" id="page-kilometrage">
+      <div class="km-totals">
+        <div class="km-total-box"><div class="label">km Professionnels</div><div class="value" id="km-pro">0 km</div></div>
+        <div class="km-total-box"><div class="label">km Total</div><div class="value" id="km-tot">0 km</div></div>
+        <div class="km-total-box"><div class="label">Indemnité CRA</div><div class="value" id="km-ind">0,00 $</div></div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Date</th><th>Origine</th><th>Destination</th><th>Maps</th><th>km</th><th>Type</th><th>Motif</th><th>Indemnité CRA</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody id="km-body"></tbody>
+            <tfoot><tr><td colspan="5">TOTAL</td><td id="km-total-km">0</td><td colspan="2"></td><td id="km-total-ind">0,00 $</td><td colspan="2"></td></tr></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ COMPARATEUR VÉHICULE ═══ -->
+    <div class="page" id="page-vehicule">
+      <div class="compare-grid">
+        <div class="method-card" id="mc-cra">
+          <div class="method-label">📏 Méthode 1 — Kilométrique CRA</div>
+          <div class="compare-row"><span>km professionnels</span><span id="cv-km-pro">0 km</span></div>
+          <div class="compare-row"><span>km total</span><span id="cv-km-tot">0 km</span></div>
+          <div class="compare-row"><span>% utilisation pro</span><span id="cv-pct">0,0 %</span></div>
+          <div class="compare-row"><span>Taux CRA</span><span id="cv-taux">0,72 $/km</span></div>
+          <div class="method-amount">Indemnité : <span id="cv-mt-cra" style="color:var(--blue)">0,00 $</span></div>
+        </div>
+        <div class="method-card" id="mc-reelles">
+          <div class="method-label">💰 Méthode 2 — Dépenses réelles</div>
+          <div class="compare-row"><span>Essence</span><span id="cv-ess">0,00 $</span></div>
+          <div class="compare-row"><span>Assurance</span><span id="cv-ass">0,00 $</span></div>
+          <div class="compare-row"><span>Entretien</span><span id="cv-ent">0,00 $</span></div>
+          <div class="compare-row"><span>Stationnement</span><span id="cv-stat">0,00 $</span></div>
+          <div class="compare-row"><span>Sous-total</span><span id="cv-sous">0,00 $</span></div>
+          <div class="compare-row"><span>× % pro</span><span id="cv-pct2">0,0 %</span></div>
+          <div class="method-amount">Déductible : <span id="cv-mt-reel" style="color:var(--blue)">0,00 $</span></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px"><div class="card-body" id="cv-recommandation" style="padding:18px"><p style="color:var(--gray);font-size:13px">Ajoutez des données kilométriques pour voir la recommandation automatique.</p></div></div>
+    </div>
+
+    <!-- ═══ ESSENCE ═══ -->
+    <div class="page" id="page-essence">
+      <div class="card"><div class="table-wrap"><table>
+        <thead><tr><th>#</th><th>Date</th><th>Litres/kWh</th><th>Prix/L</th><th>Montant</th><th>Station/Borne</th><th>Type</th><th>Odomètre</th><th>N° Reçu</th><th>Notes</th><th>Actions</th></tr></thead>
+        <tbody id="essence-body"></tbody>
+        <tfoot><tr><td colspan="4">TOTAL</td><td id="essence-total">0,00 $</td><td colspan="6"></td></tr></tfoot>
+      </table></div></div>
+    </div>
+
+    <!-- ═══ ASSURANCE ═══ -->
+    <div class="page" id="page-assurance">
+      <div class="card"><div class="table-wrap"><table>
+        <thead><tr><th>#</th><th>Date</th><th>Type</th><th>Assureur</th><th>Montant</th><th>Période</th><th>N° Police</th><th>Déduc. %</th><th>Mt déductible</th><th>Notes</th><th>Actions</th></tr></thead>
+        <tbody id="assurance-body"></tbody>
+        <tfoot><tr><td colspan="4">TOTAL</td><td id="assurance-total">0,00 $</td><td colspan="3"></td><td id="assurance-ded">0,00 $</td><td colspan="2"></td></tr></tfoot>
+      </table></div></div>
+    </div>
+
+    <!-- ═══ ENTRETIEN ═══ -->
+    <div class="page" id="page-entretien">
+      <div class="card"><div class="table-wrap"><table>
+        <thead><tr><th>#</th><th>Date</th><th>Type de travaux</th><th>Garage</th><th>Montant</th><th>Odomètre</th><th>Garantie jusqu'au</th><th>Déduc. %</th><th>Mt déductible</th><th>N° Facture</th><th>Actions</th></tr></thead>
+        <tbody id="entretien-body"></tbody>
+        <tfoot><tr><td colspan="4">TOTAL</td><td id="entretien-total">0,00 $</td><td colspan="3"></td><td id="entretien-ded">0,00 $</td><td colspan="2"></td></tr></tfoot>
+      </table></div></div>
+    </div>
+
+    <!-- ═══ STATIONNEMENT ═══ -->
+    <div class="page" id="page-stationnement">
+      <div class="card"><div class="table-wrap"><table>
+        <thead><tr><th>#</th><th>Date</th><th>Type</th><th>Lieu</th><th>Montant</th><th>Durée</th><th>Motif</th><th>Reçu</th><th>Notes</th><th>Actions</th></tr></thead>
+        <tbody id="stationnement-body"></tbody>
+        <tfoot><tr><td colspan="4">TOTAL</td><td id="stationnement-total">0,00 $</td><td colspan="5"></td></tr></tfoot>
+      </table></div></div>
+    </div>
+
+    <!-- ═══ ABONNEMENTS ═══ -->
+    <div class="page" id="page-abonnements">
+      <div class="abo-grid" id="abo-actifs"></div>
+      <div class="card"><div class="table-wrap"><table>
+        <thead><tr><th>#</th><th>Date</th><th>Service</th><th>Catégorie</th><th>Montant</th><th>Fréquence</th><th>Statut</th><th>Renouvellement</th><th>Déductible</th><th>N° Facture</th><th>Actions</th></tr></thead>
+        <tbody id="abonnements-body"></tbody>
+        <tfoot><tr><td colspan="4">TOTAL / mois</td><td id="abonnements-total">0,00 $</td><td colspan="6"></td></tr></tfoot>
+      </table></div></div>
+    </div>
+
+    <!-- ═══ TÉLÉPHONE ═══ -->
+    <div class="page" id="page-telephone">
+      <div class="card"><div class="table-wrap"><table>
+        <thead><tr><th>#</th><th>Date</th><th>Type</th><th>Fournisseur</th><th>Montant</th><th>Période</th><th>% Pro</th><th>Mt déductible</th><th>N° Compte</th><th>Notes</th><th>Actions</th></tr></thead>
+        <tbody id="telephone-body"></tbody>
+        <tfoot><tr><td colspan="4">TOTAL</td><td id="telephone-total">0,00 $</td><td colspan="2"></td><td id="telephone-ded">0,00 $</td><td colspan="3"></td></tr></tfoot>
+      </table></div></div>
+    </div>
+
+    <!-- ═══ ÉQUIPEMENTS ═══ -->
+    <div class="page" id="page-equipements">
+      <div class="card"><div class="table-wrap"><table>
+        <thead><tr><th>#</th><th>Date</th><th>Article</th><th>Catégorie</th><th>Fournisseur</th><th>Montant</th><th>Garantie jusqu'au</th><th>Déductible</th><th>N° Facture</th><th>Notes</th><th>Actions</th></tr></thead>
+        <tbody id="equipements-body"></tbody>
+        <tfoot><tr><td colspan="5">TOTAL</td><td id="equipements-total">0,00 $</td><td colspan="5"></td></tr></tfoot>
+      </table></div></div>
+    </div>
+
+    <!-- ═══ SOUS-TRAITANTS ═══ -->
+    <div class="page" id="page-soustraitants">
+      <div class="card"><div class="table-wrap"><table>
+        <thead><tr><th>#</th><th>Date</th><th>Nom / Entreprise</th><th>Type de service</th><th>Montant</th><th>TPS/TVQ incluse</th><th>NEQ / NAS</th><th>N° Facture</th><th>Contrat signé</th><th>Notes</th><th>Actions</th></tr></thead>
+        <tbody id="soustraitants-body"></tbody>
+        <tfoot><tr><td colspan="4">TOTAL</td><td id="soustraitants-total">0,00 $</td><td colspan="6"></td></tr></tfoot>
+      </table></div></div>
+    </div>
+
+    <!-- ═══ TPS/TVQ ═══ -->
+    <div class="page" id="page-tpstvq">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px">
+        <div class="config-section"><h4>🏛️ TPS — Fédéral (CRA)</h4><div style="font-size:13px;color:var(--gray)">Taux : <strong style="color:var(--navy)">5,00 %</strong> &nbsp;·&nbsp; N° : <strong style="color:var(--navy)" id="disp-tps">782828008RT0002</strong></div></div>
+        <div class="config-section"><h4>🏛️ TVQ — Québec (Revenu Québec)</h4><div style="font-size:13px;color:var(--gray)">Taux : <strong style="color:var(--navy)">9,975 %</strong> &nbsp;·&nbsp; N° : <strong style="color:var(--navy)" id="disp-tvq">4016921721TQ0001</strong></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>📅 Registre mensuel — Revenus & Taxes</h3><button class="btn btn-teal btn-sm" onclick="sauvegarderTPS()">💾 Sauvegarder</button></div>
+        <div class="table-wrap">
+          <table class="tps-table">
+            <thead><tr><th>Mois</th><th>Revenus</th><th>TPS perçue</th><th>TVQ perçue</th><th>Dépenses</th><th>CTI</th><th>RTI</th><th>Solde TPS</th><th>Solde TVQ</th><th>Total à remettre</th></tr></thead>
+            <tbody id="tps-body"></tbody>
+            <tfoot id="tps-foot"></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ CONFIGURATION ═══ -->
+    <div class="page" id="page-config">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <div class="config-section">
+            <h4>🚗 Taux kilométrique CRA 2026</h4>
+            <div class="form-grid" style="grid-template-columns:1fr 1fr">
+              <div class="form-group"><label class="form-label">≤ 5 000 km ($/km)</label><input type="number" class="form-input" id="cfg-taux1" value="0.72" step="0.01"></div>
+              <div class="form-group"><label class="form-label">> 5 000 km ($/km)</label><input type="number" class="form-input" id="cfg-taux2" value="0.64" step="0.01"></div>
+            </div>
+          </div>
+          <div class="config-section">
+            <h4>🚘 Paramètres véhicule</h4>
+            <div class="form-grid" style="grid-template-columns:1fr">
+              <div class="form-group"><label class="form-label">Modèle</label><input type="text" class="form-input" id="cfg-vehicule" placeholder="Toyota RAV4 2022"></div>
+              <div class="form-group"><label class="form-label">Consommation (L/100km)</label><input type="number" class="form-input" id="cfg-conso" value="9.5" step="0.1"></div>
+              <div class="form-group"><label class="form-label">Prix essence ($/L)</label><input type="number" class="form-input" id="cfg-prix-ess" value="1.75" step="0.01"></div>
+              <div class="form-group"><label class="form-label">Adresse de base</label><input type="text" class="form-input" id="cfg-adresse" value="Lavaltrie, QC"></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="config-section">
+            <h4>🏛️ Numéros fiscaux</h4>
+            <div class="form-grid" style="grid-template-columns:1fr">
+              <div class="form-group"><label class="form-label">N° TPS (CRA)</label><input type="text" class="form-input" id="cfg-num-tps" value="782828008RT0002"></div>
+              <div class="form-group"><label class="form-label">N° TVQ (Revenu Québec)</label><input type="text" class="form-input" id="cfg-num-tvq" value="4016921721TQ0001"></div>
+              <div class="form-group"><label class="form-label">Taux TPS (%)</label><input type="number" class="form-input" id="cfg-taux-tps" value="5" step="0.01"></div>
+              <div class="form-group"><label class="form-label">Taux TVQ (%)</label><input type="number" class="form-input" id="cfg-taux-tvq" value="9.975" step="0.001"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button class="btn btn-primary" onclick="sauvegarderConfig()">💾 Sauvegarder</button>
+        <button class="btn btn-secondary" onclick="chargerConfig()">↺ Réinitialiser</button>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /app -->
+
+<!-- ══════════ MODAL ENTRÉE ══════════ -->
+<div class="modal-overlay" id="modal-entree">
+  <div class="modal-box">
+    <div class="modal-title"><span id="modal-title-text">Nouvelle entrée</span><button class="modal-close" onclick="fermerModal()">✕</button></div>
+    <div id="modal-form-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="fermerModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="sauvegarderEntree()">💾 Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL CONFIRM DELETE ══════════ -->
+<div class="modal-overlay" id="modal-delete">
+  <div class="modal-box" style="max-width:380px">
+    <div class="modal-title">🗑️ Supprimer cette entrée ?<button class="modal-close" onclick="closeModal('modal-delete')">✕</button></div>
+    <p style="font-size:14px;color:var(--gray);margin-bottom:20px">Cette action est irréversible.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-delete')">Annuler</button>
+      <button class="btn btn-danger" onclick="confirmerSupprimer()">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CONFIG & STATE
+// ═══════════════════════════════════════════════════════
+const WORKER = 'https://capturair-portail.tumarchessurlatete.workers.dev';
+const AUTH_WORKER = 'https://capturair-carnet.tumarchessurlatete.workers.dev';
+
+let authToken = '', currentUser = null, currentPage = 'dashboard';
+let loginStep = 1, loginEmail = '', loginPin = '';
+let currentEditId = null, pendingDeleteCat = null, pendingDeleteId = null;
+
+let cfg = {
+  taux1:0.72, taux2:0.64, tauxTPS:5, tauxTVQ:9.975,
+  numTPS:'782828008RT0002', numTVQ:'4016921721TQ0001',
+  vehicule:'', conso:9.5, prixEssence:1.75, adresse:'Lavaltrie, QC'
+};
+
+// Données locales (cache)
+let data = {
+  kilometrage:[], essence:[], assurance:[], entretien:[],
+  stationnement:[], abonnements:[], telephone:[], equipements:[],
+  soustraitants:[], tpstvq:[]
+};
+
+// ═══════════════════════════════════════════════════════
+// AUTH — identique CRM
+// ═══════════════════════════════════════════════════════
+async function login() {
+  const btn = document.getElementById('login-btn-text');
+  const err = document.getElementById('login-error');
+  err.style.display = 'none';
+
+  if (loginStep === 1) {
+    loginEmail = document.getElementById('login-email').value.trim();
+    loginPin = document.getElementById('login-pin').value.trim();
+    if (!loginEmail || !loginPin) { showLoginErr('Veuillez remplir tous les champs.'); return; }
+    btn.innerHTML = '<span class="spinner"></span>';
+    try {
+      const r = await fetch(`${AUTH_WORKER}/api/carnet/auth/init`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ email: loginEmail, pin: loginPin })
+      });
+      const d = await r.json();
+      if (!r.ok || !d.success) { showLoginErr('Email ou PIN incorrect.'); btn.textContent='Connexion →'; return; }
+      loginStep = 2;
+      document.getElementById('login-pin').placeholder = 'Code reçu par email';
+      document.getElementById('login-pin').value = '';
+      document.getElementById('login-pin').type = 'text';
+      document.getElementById('lbl-pin').textContent = 'Code OTP (reçu par email)';
+      document.getElementById('login-email').disabled = true;
+      if (d.otp_bypass) document.getElementById('login-pin').value = d.otp_bypass;
+      btn.textContent = 'Valider →';
+    } catch(e) { showLoginErr('Erreur de connexion.'); btn.textContent='Connexion →'; }
+  } else {
+    const otp = document.getElementById('login-pin').value.trim();
+    if (!otp) { showLoginErr('Entrez le code reçu.'); return; }
+    btn.innerHTML = '<span class="spinner"></span>';
+    try {
+      const r = await fetch(`${AUTH_WORKER}/api/carnet/auth/otp`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ email: loginEmail, otp })
+      });
+      const d = await r.json();
+      if (!r.ok || !d.token) { showLoginErr('Code OTP incorrect ou expiré.'); btn.textContent='Valider →'; return; }
+      authToken = d.token;
+      currentUser = { email: loginEmail, role: d.role||'utilisateur', nom: d.nom||'' };
+      sessionStorage.setItem('finance_jwt', authToken);
+      sessionStorage.setItem('finance_user', JSON.stringify(currentUser));
+      demarrerApp();
+    } catch(e) { showLoginErr('Erreur de connexion.'); btn.textContent='Valider →'; }
+  }
+}
+
+function showLoginErr(m) { const e=document.getElementById('login-error'); e.textContent=m; e.style.display='block'; }
+
+function logout() {
+  sessionStorage.removeItem('finance_jwt');
+  sessionStorage.removeItem('finance_user');
+  authToken=''; currentUser=null;
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('login-screen').style.display='flex';
+  loginStep=1;
+  document.getElementById('login-email').disabled=false;
+  document.getElementById('login-pin').type='password';
+  document.getElementById('login-btn-text').textContent='Connexion →';
+}
+
+// Auto-login si token existant (CRM ou finance)
+(function(){
+  const t = sessionStorage.getItem('finance_jwt') || sessionStorage.getItem('crm_token');
+  const u = sessionStorage.getItem('finance_user') || sessionStorage.getItem('crm_user');
+  if (t && u) {
+    try {
+      const p = JSON.parse(atob(t));
+      if (p.exp > Date.now()) {
+        authToken = t; currentUser = JSON.parse(u);
+        document.getElementById('login-screen').style.display='none';
+        document.getElementById('app').classList.add('visible');
+        demarrerApp();
+        return;
+      }
+    } catch(e) {}
+  }
+  document.getElementById('login-screen').style.display='flex';
+})();
+
+document.getElementById('login-pin').addEventListener('keydown', e => { if(e.key==='Enter') login(); });
+document.getElementById('login-email').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('login-pin').focus(); });
+
+// ═══════════════════════════════════════════════════════
+// INIT APP
+// ═══════════════════════════════════════════════════════
+async function demarrerApp() {
+  const nom = currentUser?.nom || currentUser?.email?.split('@')[0] || 'Utilisateur';
+  document.getElementById('sidebar-name').textContent = nom;
+  document.getElementById('sidebar-role').textContent = currentUser?.role || '';
+  document.getElementById('sidebar-avatar').textContent = nom[0].toUpperCase();
+  chargerMeteo();
+  await chargerConfig();
+  showPage('dashboard');
+}
+
+// ═══════════════════════════════════════════════════════
+// API
+// ═══════════════════════════════════════════════════════
+function hdrs() { return { 'Content-Type':'application/json', 'Authorization':`Bearer ${authToken}` }; }
+
+async function apiGet(path) {
+  const r = await fetch(`${WORKER}${path}`, { headers: hdrs() });
+  if (r.status === 401) { logout(); return {}; }
+  return r.json();
+}
+async function apiPost(path, body) {
+  const r = await fetch(`${WORKER}${path}`, { method:'POST', headers:hdrs(), body:JSON.stringify(body) });
+  return r.json();
+}
+async function apiPut(path, body) {
+  const r = await fetch(`${WORKER}${path}`, { method:'PUT', headers:hdrs(), body:JSON.stringify(body) });
+  return r.json();
+}
+async function apiDelete(path) {
+  const r = await fetch(`${WORKER}${path}`, { method:'DELETE', headers:hdrs() });
+  return r.json();
+}
+
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+const PAGE_TITLES = {
+  dashboard:'📊 Tableau de Bord', registre:'📒 Registre Global',
+  kilometrage:'🚗 Kilométrage', vehicule:'🚘 Comparateur Véhicule',
+  essence:'⛽ Essence', assurance:'🛡️ Assurance & Immat.',
+  entretien:'🔧 Entretien Véhicule', stationnement:'🅿️ Stationnement',
+  abonnements:'💻 Abonnements SaaS', telephone:'📱 Téléphone & Internet',
+  equipements:'🛒 Équipements', soustraitants:'👷 Sous-traitants',
+  tpstvq:'🧾 TPS & TVQ', config:'⚙️ Configuration'
+};
+const NO_ADD = ['dashboard','registre','vehicule','config','tpstvq'];
+
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(`page-${page}`)?.classList.add('active');
+  document.querySelector(`.nav-item[onclick="showPage('${page}')"]`)?.classList.add('active');
+  document.getElementById('topbar-title').textContent = PAGE_TITLES[page]||page;
+  document.getElementById('btn-add').style.display = NO_ADD.includes(page)?'none':'flex';
+  currentPage = page;
+  chargerPage(page);
+}
+
+async function chargerPage(page) {
+  const annee = document.getElementById('year-select').value;
+  switch(page) {
+    case 'dashboard': await chargerDashboard(annee); break;
+    case 'registre': await chargerRegistre(); break;
+    case 'kilometrage': await chargerKilometrage(annee); break;
+    case 'vehicule': chargerVehicule(); break;
+    case 'essence': case 'assurance': case 'entretien': case 'stationnement':
+    case 'abonnements': case 'telephone': case 'equipements': case 'soustraitants':
+      await chargerSimple(page, annee); break;
+    case 'tpstvq': await chargerTPS(annee); break;
+    case 'config': break;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════
+async function chargerConfig() {
+  try {
+    const d = await apiGet('/api/finance/config');
+    if (d && d.taux_cra_1) {
+      cfg.taux1 = d.taux_cra_1; cfg.taux2 = d.taux_cra_2;
+      cfg.tauxTPS = d.taux_tps; cfg.tauxTVQ = d.taux_tvq;
+      cfg.numTPS = d.num_tps; cfg.numTVQ = d.num_tvq;
+      cfg.vehicule = d.vehicule||''; cfg.conso = d.conso_l100;
+      cfg.prixEssence = d.prix_essence; cfg.adresse = d.adresse_base;
+    }
+  } catch(e) {}
+  document.getElementById('cfg-taux1').value = cfg.taux1;
+  document.getElementById('cfg-taux2').value = cfg.taux2;
+  document.getElementById('cfg-taux-tps').value = cfg.tauxTPS;
+  document.getElementById('cfg-taux-tvq').value = cfg.tauxTVQ;
+  document.getElementById('cfg-num-tps').value = cfg.numTPS;
+  document.getElementById('cfg-num-tvq').value = cfg.numTVQ;
+  document.getElementById('cfg-vehicule').value = cfg.vehicule;
+  document.getElementById('cfg-conso').value = cfg.conso;
+  document.getElementById('cfg-prix-ess').value = cfg.prixEssence;
+  document.getElementById('cfg-adresse').value = cfg.adresse;
+  document.getElementById('disp-tps').textContent = cfg.numTPS;
+  document.getElementById('disp-tvq').textContent = cfg.numTVQ;
+}
+
+async function sauvegarderConfig() {
+  cfg.taux1 = parseFloat(document.getElementById('cfg-taux1').value);
+  cfg.taux2 = parseFloat(document.getElementById('cfg-taux2').value);
+  cfg.tauxTPS = parseFloat(document.getElementById('cfg-taux-tps').value);
+  cfg.tauxTVQ = parseFloat(document.getElementById('cfg-taux-tvq').value);
+  cfg.numTPS = document.getElementById('cfg-num-tps').value;
+  cfg.numTVQ = document.getElementById('cfg-num-tvq').value;
+  cfg.vehicule = document.getElementById('cfg-vehicule').value;
+  cfg.conso = parseFloat(document.getElementById('cfg-conso').value);
+  cfg.prixEssence = parseFloat(document.getElementById('cfg-prix-ess').value);
+  cfg.adresse = document.getElementById('cfg-adresse').value;
+  try { await apiPut('/api/finance/config', cfg); } catch(e) {}
+  document.getElementById('disp-tps').textContent = cfg.numTPS;
+  document.getElementById('disp-tvq').textContent = cfg.numTVQ;
+  showNotif('✅ Configuration sauvegardée', 'success');
+}
+
+// ═══════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════
+async function chargerDashboard(annee) {
+  try {
+    const d = await apiGet(`/api/finance/dashboard?annee=${annee}`);
+    if (!d || d.error) { calcDashLocal(); return; }
+    document.getElementById('s-total').textContent = fmt(d.totalDepenses||0);
+    document.getElementById('s-ded').textContent = fmt(d.totalDeductible||0);
+    document.getElementById('s-cra').textContent = fmt(d.indemnite||0);
+    document.getElementById('s-abo').textContent = fmt(d.abonnementsMois||0);
+    document.getElementById('d-tps').textContent = fmt(d.tpsPercue||0);
+    document.getElementById('d-tvq').textContent = fmt(d.tvqPercue||0);
+    document.getElementById('d-cti').textContent = fmt(d.cti||0);
+    document.getElementById('d-rti').textContent = fmt(d.rti||0);
+    document.getElementById('d-solde').textContent = fmt(d.soldeTaxe||0);
+    const total = d.totalDepenses||1;
+    document.getElementById('dash-cats').innerHTML = (d.categories||[]).length
+      ? (d.categories).map(c=>`<tr><td>${c.icon} ${c.nom}</td><td style="font-weight:600">${fmt(c.total)}</td><td style="color:var(--teal)">${fmt(c.deductible)}</td><td><div style="display:flex;align-items:center;gap:8px"><span style="color:var(--gray);font-size:12px">${(c.total/total*100).toFixed(1)}%</span><div style="background:var(--border);border-radius:3px;height:5px;width:70px;overflow:hidden"><div style="background:var(--blue);height:100%;width:${Math.min(100,c.total/total*100)}%"></div></div></span></td></tr>`).join('')
+      : '<tr><td colspan="4" class="table-empty">Aucune dépense — ajoutez des entrées</td></tr>';
+    const v = d.vehicule||{};
+    afficherRecommandationVehicule(v.methCRA||0, v.methReelle||0, v.kmPro||0, v.kmTotal||0);
+  } catch(e) { calcDashLocal(); }
+}
+
+function calcDashLocal() {
+  const kmPro = data.kilometrage.filter(k=>k.type==='Professionnel').reduce((s,k)=>s+parseFloat(k.km||0),0);
+  const kmTot = data.kilometrage.reduce((s,k)=>s+parseFloat(k.km||0),0);
+  const ind = calcCRA(kmPro);
+  const totEss = sum(data.essence,'montant'), totAss = sum(data.assurance,'montant');
+  const totEnt = sum(data.entretien,'montant'), totStat = sum(data.stationnement,'montant');
+  const totAbo = data.abonnements.filter(a=>a.statut==='Actif'&&a.frequence==='Mensuel').reduce((s,e)=>s+parseFloat(e.montant||0),0);
+  const totTel = sum(data.telephone,'montant'), totEq = sum(data.equipements,'montant'), totST = sum(data.soustraitants,'montant');
+  const total = totEss+totAss+totEnt+totStat+totAbo+totTel+totEq+totST;
+  document.getElementById('s-total').textContent = fmt(total);
+  document.getElementById('s-ded').textContent = fmt(total*0.9);
+  document.getElementById('s-cra').textContent = fmt(ind);
+  document.getElementById('s-abo').textContent = fmt(totAbo);
+  const cats = [{icon:'⛽',nom:'Essence',t:totEss},{icon:'🛡️',nom:'Assurance',t:totAss},{icon:'🔧',nom:'Entretien',t:totEnt},{icon:'🅿️',nom:'Stationnement',t:totStat},{icon:'💻',nom:'Abonnements',t:totAbo},{icon:'📱',nom:'Téléphone',t:totTel},{icon:'🛒',nom:'Équipements',t:totEq},{icon:'👷',nom:'Sous-traitants',t:totST}].filter(c=>c.t>0);
+  document.getElementById('dash-cats').innerHTML = cats.length
+    ? cats.map(c=>`<tr><td>${c.icon} ${c.nom}</td><td style="font-weight:600">${fmt(c.t)}</td><td style="color:var(--teal)">${fmt(c.t*0.9)}</td><td><span style="color:var(--gray);font-size:12px">${total?(c.t/total*100).toFixed(1):0}%</span></td></tr>`).join('')
+    : '<tr><td colspan="4" class="table-empty">Aucune dépense — ajoutez des entrées</td></tr>';
+  const pct = kmTot>0?kmPro/kmTot:0;
+  afficherRecommandationVehicule(ind,(totEss+totAss+totEnt+totStat)*pct,kmPro,kmTot);
+}
+
+function afficherRecommandationVehicule(methCRA, methReelle, kmPro, kmTot) {
+  const div = document.getElementById('d-vehicule');
+  if (!methCRA && !methReelle) { div.innerHTML='<p style="color:var(--gray);font-size:13px">Ajoutez des déplacements pour voir la recommandation.</p>'; return; }
+  const rec = methCRA >= methReelle ? 'kilométrique CRA' : 'dépenses réelles';
+  const gain = Math.abs(methCRA - methReelle);
+  div.innerHTML = `<div style="display:flex;gap:10px;margin-bottom:10px">
+    <div style="flex:1;background:${methCRA>=methReelle?'rgba(26,188,156,0.08)':'var(--offwhite)'};border:1.5px solid ${methCRA>=methReelle?'var(--teal)':'var(--border)'};border-radius:10px;padding:12px;text-align:center">
+      <div style="font-size:11px;color:var(--gray);margin-bottom:4px">Méthode CRA</div>
+      <div style="font-size:18px;font-weight:700;color:var(--blue)">${fmt(methCRA)}</div>
+      ${methCRA>=methReelle?'<div style="font-size:10px;background:var(--teal);color:white;border-radius:8px;padding:2px 6px;margin-top:4px;display:inline-block">✅ RECOMMANDÉE</div>':''}
+    </div>
+    <div style="flex:1;background:${methReelle>methCRA?'rgba(26,188,156,0.08)':'var(--offwhite)'};border:1.5px solid ${methReelle>methCRA?'var(--teal)':'var(--border)'};border-radius:10px;padding:12px;text-align:center">
+      <div style="font-size:11px;color:var(--gray);margin-bottom:4px">Dépenses réelles</div>
+      <div style="font-size:18px;font-weight:700;color:var(--blue)">${fmt(methReelle)}</div>
+      ${methReelle>methCRA?'<div style="font-size:10px;background:var(--teal);color:white;border-radius:8px;padding:2px 6px;margin-top:4px;display:inline-block">✅ RECOMMANDÉE</div>':''}
+    </div>
+  </div>
+  <div style="font-size:12px;color:var(--teal)">💡 Méthode ${rec} — économie de ${fmt(gain)}</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// REGISTRE GLOBAL
+// ═══════════════════════════════════════════════════════
+async function chargerRegistre() {
+  const annee = document.getElementById('year-select').value;
+  const cat = document.getElementById('reg-cat').value;
+  const mois = document.getElementById('reg-mois').value;
+  let items = [];
+  try {
+    const d = await apiGet(`/api/finance/registre?annee=${annee}&categorie=${cat}&mois=${mois}`);
+    if (d.items) items = d.items;
+  } catch(e) {
+    // Calcul local
+    const map = {Essence:data.essence,Assurance:data.assurance,Entretien:data.entretien,Stationnement:data.stationnement,Abonnements:data.abonnements,Téléphone:data.telephone,Équipements:data.equipements,'Sous-traitants':data.soustraitants};
+    for (const [c,arr] of Object.entries(map)) {
+      if (cat && cat!==c) continue;
+      arr.forEach(e=>items.push({...e,categorie:c,fournisseur:e.station||e.assureur||e.garage||e.lieu||e.service||e.fournisseur||e.nom||''}));
+    }
+    if (mois) items = items.filter(e=>e.date&&e.date.slice(5,7)===mois);
+  }
+  items.sort((a,b)=>b.date>a.date?1:-1);
+  let totMt=0, totDed=0;
+  document.getElementById('reg-body').innerHTML = items.length
+    ? items.map((e,i)=>{
+        const mt=parseFloat(e.montant||0);
+        const pct=parseFloat(e.pct_deductible||100);
+        const ded=e.montant_deductible?parseFloat(e.montant_deductible):mt*pct/100;
+        totMt+=mt; totDed+=ded;
+        return `<tr><td class="muted">${i+1}</td><td>${e.date||''}</td><td><span class="badge badge-pro">${e.categorie||''}</span></td><td>${e.fournisseur||''} <span class="muted">${e.notes||''}</span></td><td style="font-weight:600">${fmt(mt)}</td><td class="muted">${pct}%</td><td style="color:var(--teal)">${fmt(ded)}</td><td class="muted">${e.num_recu||e.num_facture||''}</td></tr>`;
+      }).join('')
+    : `<tr><td colspan="8" class="table-empty">Aucune dépense</td></tr>`;
+  document.getElementById('reg-total').textContent = fmt(totMt);
+  document.getElementById('reg-total-ded').textContent = fmt(totDed);
+}
+
+// ═══════════════════════════════════════════════════════
+// KILOMÉTRAGE
+// ═══════════════════════════════════════════════════════
+async function chargerKilometrage(annee) {
+  try { const d = await apiGet(`/api/finance/kilometrage?annee=${annee}`); if(d.items) data.kilometrage=d.items; } catch(e) {}
+  rendreKilometrage();
+}
+
+function rendreKilometrage() {
+  const tbody = document.getElementById('km-body');
+  let kmProCumul=0, kmTotCumul=0, totalInd=0;
+  tbody.innerHTML = data.kilometrage.length
+    ? data.kilometrage.map((e,i)=>{
+        const km=parseFloat(e.km||0), isPro=e.type==='Professionnel';
+        if(isPro) kmProCumul+=km;
+        kmTotCumul+=km;
+        const indBefore = calcCRA(isPro?kmProCumul-km:kmProCumul-(isPro?km:0));
+        const ind = isPro ? calcCRA(kmProCumul)-calcCRA(kmProCumul-km) : 0;
+        totalInd+=ind;
+        const maps=`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(e.origine||cfg.adresse)}&destination=${encodeURIComponent(e.destination||'')}`;
+        return `<tr>
+          <td class="muted">${i+1}</td><td>${e.date||''}</td>
+          <td>${e.origine||cfg.adresse}</td><td>${e.destination||''}</td>
+          <td><a href="${maps}" target="_blank" style="color:var(--blue);font-size:11px;text-decoration:none">🗺️ Voir</a></td>
+          <td style="font-weight:600">${km} km</td>
+          <td><span class="badge ${isPro?'badge-deductible':'badge-personnel'}">${isPro?'✅ Pro':'🏠 Perso'}</span></td>
+          <td class="muted">${e.motif||''}</td>
+          <td style="color:var(--teal);font-weight:600">${isPro?fmt(ind):'—'}</td>
+          <td><span class="badge ${isPro?'badge-deductible':'badge-personnel'}">${isPro?'✅ Déductible':'🏠 Non déduc.'}</span></td>
+          <td>${actionsBtns('kilometrage',e.id)}</td>
+        </tr>`;
+      }).join('')
+    : `<tr><td colspan="11" class="table-empty">Aucun déplacement — cliquez sur "+ Nouvelle entrée"</td></tr>`;
+  const kmPro = data.kilometrage.filter(k=>k.type==='Professionnel').reduce((s,k)=>s+parseFloat(k.km||0),0);
+  document.getElementById('km-pro').textContent = kmPro+' km';
+  document.getElementById('km-tot').textContent = kmTotCumul+' km';
+  document.getElementById('km-ind').textContent = fmt(calcCRA(kmPro));
+  document.getElementById('km-total-km').textContent = kmTotCumul+' km';
+  document.getElementById('km-total-ind').textContent = fmt(calcCRA(kmPro));
+}
+
+function calcCRA(km) {
+  if(km<=0) return 0;
+  if(km<=5000) return km*cfg.taux1;
+  return 5000*cfg.taux1+(km-5000)*cfg.taux2;
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPARATEUR VÉHICULE
+// ═══════════════════════════════════════════════════════
+async function chargerVehicule() {
+  const annee = document.getElementById('year-select').value;
+  for (const cat of ['essence','assurance','entretien','stationnement']) {
+    try { const d=await apiGet(`/api/finance/${cat}?annee=${annee}`); if(d.items) data[cat]=d.items; } catch(e){}
+  }
+  const kmPro=data.kilometrage.filter(k=>k.type==='Professionnel').reduce((s,k)=>s+parseFloat(k.km||0),0);
+  const kmTot=data.kilometrage.reduce((s,k)=>s+parseFloat(k.km||0),0);
+  const pct=kmTot>0?kmPro/kmTot:0;
+  const methCRA=calcCRA(kmPro);
+  const totEss=sum(data.essence,'montant'),totAss=sum(data.assurance,'montant');
+  const totEnt=sum(data.entretien,'montant'),totStat=sum(data.stationnement,'montant');
+  const sousTotal=totEss+totAss+totEnt+totStat;
+  const methReelle=sousTotal*pct;
+  document.getElementById('cv-km-pro').textContent=kmPro+' km';
+  document.getElementById('cv-km-tot').textContent=kmTot+' km';
+  document.getElementById('cv-pct').textContent=(pct*100).toFixed(1)+' %';
+  document.getElementById('cv-pct2').textContent=(pct*100).toFixed(1)+' %';
+  document.getElementById('cv-taux').textContent=kmPro<=5000?cfg.taux1+' $/km':cfg.taux1+' puis '+cfg.taux2+' $/km';
+  document.getElementById('cv-mt-cra').textContent=fmt(methCRA);
+  document.getElementById('cv-ess').textContent=fmt(totEss);
+  document.getElementById('cv-ass').textContent=fmt(totAss);
+  document.getElementById('cv-ent').textContent=fmt(totEnt);
+  document.getElementById('cv-stat').textContent=fmt(totStat);
+  document.getElementById('cv-sous').textContent=fmt(sousTotal);
+  document.getElementById('cv-mt-reel').textContent=fmt(methReelle);
+  const rec = methCRA>=methReelle?'kilométrique CRA':'dépenses réelles';
+  const gain = Math.abs(methCRA-methReelle);
+  document.getElementById('mc-cra').className='method-card'+(methCRA>=methReelle?' recommended':'');
+  document.getElementById('mc-reelles').className='method-card'+(methReelle>methCRA?' recommended':'');
+  document.getElementById('cv-recommandation').innerHTML = (methCRA||methReelle)
+    ? `<div style="display:flex;align-items:center;gap:10px"><span style="font-size:28px">✅</span><div><strong style="font-size:15px;color:var(--teal)">Méthode ${rec} recommandée</strong><div style="font-size:13px;color:var(--gray);margin-top:2px">Vous économisez <strong style="color:var(--teal)">${fmt(gain)}</strong> de plus avec cette méthode</div></div></div>`
+    : '<p style="color:var(--gray);font-size:13px">Ajoutez des données kilométriques pour voir la recommandation automatique.</p>';
+}
+
+// ═══════════════════════════════════════════════════════
+// REGISTRES SIMPLES
+// ═══════════════════════════════════════════════════════
+const TABLE_COLS = {
+  essence: ['date','litres_kwh','prix_unitaire','montant','station','type','odometre','num_recu','notes'],
+  assurance: ['date','type','assureur','montant','periode','num_police','pct_deductible','montant_deductible','notes'],
+  entretien: ['date','type_travaux','garage','montant','odometre','garantie_jusqu','pct_deductible','montant_deductible','num_facture'],
+  stationnement: ['date','type','lieu','montant','duree','motif','recu_obtenu','notes'],
+  abonnements: ['date','service','categorie','montant','frequence','statut','renouvellement','deductible','num_facture','notes'],
+  telephone: ['date','type','fournisseur','montant','periode','pct_pro','montant_deductible','num_compte','notes'],
+  equipements: ['date','article','categorie','fournisseur','montant','garantie_jusqu','deductible','num_facture','notes'],
+  soustraitants: ['date','nom','type_service','montant','tps_tvq_incluse','neq_nas','num_facture','contrat_signe','notes']
+};
+
+async function chargerSimple(cat, annee) {
+  try { const d=await apiGet(`/api/finance/${cat}?annee=${annee}`); if(d.items) data[cat]=d.items; } catch(e) {}
+  rendreSimple(cat);
+  if (cat==='abonnements') rendreAboActifs();
+}
+
+function rendreSimple(cat) {
+  const tbody = document.getElementById(`${cat}-body`);
+  const items = data[cat]||[];
+  if (!items.length) { tbody.innerHTML=`<tr><td colspan="20" class="table-empty">Aucune entrée — cliquez sur "+ Nouvelle entrée"</td></tr>`; }
+  else {
+    tbody.innerHTML = items.map((e,i)=>{
+      const cols = TABLE_COLS[cat]||[];
+      const cells = cols.map(c=>{
+        const v=e[c];
+        if(c==='montant') return `<td style="font-weight:600">${fmt(parseFloat(v||0))}</td>`;
+        if(c==='montant_deductible') return `<td style="color:var(--teal)">${v?fmt(parseFloat(v)):'—'}</td>`;
+        if(c==='statut') return `<td><span class="badge badge-${v==='Actif'?'actif':'inactif'}">${v||''}</span></td>`;
+        if(['deductible','tps_tvq_incluse','contrat_signe','recu_obtenu'].includes(c))
+          return `<td><span class="badge badge-${v==='Oui'||v==1?'oui':'non'}">${v==='Oui'||v==1?'✅ Oui':'Non'}</span></td>`;
+        return `<td class="muted">${v||'—'}</td>`;
+      }).join('');
+      return `<tr><td class="muted">${i+1}</td>${cells}<td>${actionsBtns(cat,e.id)}</td></tr>`;
+    }).join('');
+  }
+  // Totaux
+  const total = items.reduce((s,e)=>s+parseFloat(e.montant||0),0);
+  const el=document.getElementById(`${cat}-total`); if(el) el.textContent=fmt(total);
+  const elDed=document.getElementById(`${cat}-ded`);
+  if(elDed) { const ded=items.reduce((s,e)=>s+parseFloat(e.montant_deductible||0),0); elDed.textContent=fmt(ded); }
+}
+
+function rendreAboActifs() {
+  const actifs = data.abonnements.filter(a=>a.statut==='Actif');
+  document.getElementById('abo-actifs').innerHTML = actifs.map(a=>`
+    <div class="abo-card">
+      <div class="abo-name">💻 ${a.service||''}</div>
+      <div class="abo-amount">${fmt(parseFloat(a.montant||0))}</div>
+      <div class="abo-meta">${a.frequence||'Mensuel'} · ${a.categorie||''}</div>
+      ${a.renouvellement?`<div class="abo-meta" style="color:var(--orange);margin-top:3px">🔄 ${a.renouvellement}</div>`:''}
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// TPS/TVQ
+// ═══════════════════════════════════════════════════════
+const MOIS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+async function chargerTPS(annee) {
+  try { const d=await apiGet(`/api/finance/tpstvq?annee=${annee}`); if(d.items) data.tpstvq=d.items; } catch(e) {}
+  rendreTPS();
+}
+
+function rendreTPS() {
+  const annee = parseInt(document.getElementById('year-select').value);
+  let tR=0,tT=0,tQ=0,tD=0,tC=0,tI=0,tST=0,tSQ=0,tTot=0;
+  document.getElementById('tps-body').innerHTML = MOIS.map((nom,i)=>{
+    const m=data.tpstvq.find(x=>parseInt(x.mois)===i+1&&parseInt(x.annee||2026)===annee)||{};
+    const rev=parseFloat(m.revenus||0);
+    const tps=rev*(cfg.tauxTPS/100), tvq=rev*(cfg.tauxTVQ/100);
+    const dep=parseFloat(m.depenses||0);
+    const cti=parseFloat(m.cti||dep*(cfg.tauxTPS/100));
+    const rti=parseFloat(m.rti||dep*(cfg.tauxTVQ/100));
+    const sTPS=tps-cti, sTVQ=tvq-rti, tot=sTPS+sTVQ;
+    tR+=rev;tT+=tps;tQ+=tvq;tD+=dep;tC+=cti;tI+=rti;tST+=sTPS;tSQ+=sTVQ;tTot+=tot;
+    return `<tr>
+      <td style="font-weight:500">${nom}</td>
+      <td><input type="number" value="${rev||''}" placeholder="0,00" style="background:var(--offwhite);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--navy);font-size:12px;width:90px;outline:none" onchange="majRevTPS(${i+1},this.value)"></td>
+      <td style="color:var(--blue)">${fmt(tps)}</td><td style="color:var(--blue)">${fmt(tvq)}</td>
+      <td><input type="number" value="${dep||''}" placeholder="0,00" style="background:var(--offwhite);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--navy);font-size:12px;width:90px;outline:none" onchange="majDepTPS(${i+1},this.value)"></td>
+      <td style="color:var(--teal)">${fmt(cti)}</td><td style="color:var(--teal)">${fmt(rti)}</td>
+      <td style="font-weight:600;${sTPS<0?'color:var(--orange)':''}">${fmt(sTPS)}</td>
+      <td style="font-weight:600;${sTVQ<0?'color:var(--orange)':''}">${fmt(sTVQ)}</td>
+      <td style="font-weight:700;${tot>0?'color:var(--orange)':''}">${fmt(tot)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('tps-foot').innerHTML=`<tr class="tps-total-row">
+    <td>TOTAL ANNUEL</td><td>${fmt(tR)}</td><td>${fmt(tT)}</td><td>${fmt(tQ)}</td>
+    <td>${fmt(tD)}</td><td>${fmt(tC)}</td><td>${fmt(tI)}</td>
+    <td>${fmt(tST)}</td><td>${fmt(tSQ)}</td><td style="font-size:15px">${fmt(tTot)}</td>
+  </tr>`;
+}
+
+function majRevTPS(mois, rev) {
+  const annee = parseInt(document.getElementById('year-select').value);
+  let m=data.tpstvq.find(x=>parseInt(x.mois)===mois&&parseInt(x.annee||2026)===annee);
+  if(!m){m={id:genId(),annee,mois,revenus:0,depenses:0,cti:0,rti:0};data.tpstvq.push(m);}
+  m.revenus=parseFloat(rev)||0; m.tps_percue=m.revenus*(cfg.tauxTPS/100); m.tvq_percue=m.revenus*(cfg.tauxTVQ/100);
+  rendreTPS();
+}
+function majDepTPS(mois, dep) {
+  const annee = parseInt(document.getElementById('year-select').value);
+  let m=data.tpstvq.find(x=>parseInt(x.mois)===mois&&parseInt(x.annee||2026)===annee);
+  if(!m){m={id:genId(),annee,mois,revenus:0,depenses:0,cti:0,rti:0};data.tpstvq.push(m);}
+  m.depenses=parseFloat(dep)||0; m.cti=m.depenses*(cfg.tauxTPS/100); m.rti=m.depenses*(cfg.tauxTVQ/100);
+  rendreTPS();
+}
+async function sauvegarderTPS() {
+  try { await apiPost('/api/finance/tpstvq/bulk',{items:data.tpstvq}); showNotif('✅ TPS/TVQ sauvegardé','success'); }
+  catch(e) { showNotif('✅ Sauvegardé localement','success'); }
+}
+
+// ═══════════════════════════════════════════════════════
+// MODALS — FORMULAIRES
+// ═══════════════════════════════════════════════════════
+const FORMS = {
+  kilometrage: ()=>`
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="f-date" value="${today()}"></div>
+      <div class="form-group"><label class="form-label">Type *</label><select class="form-input" id="f-type"><option>Professionnel</option><option>Personnel</option></select></div>
+      <div class="form-group form-full"><label class="form-label">Origine</label><input type="text" class="form-input" id="f-origine" value="${cfg.adresse}"></div>
+      <div class="form-group form-full"><label class="form-label">Destination *</label><input type="text" class="form-input" id="f-destination" placeholder="Montréal, QC" oninput="previewKM()"></div>
+      <div class="form-group"><label class="form-label">Distance (km) *</label><input type="number" class="form-input" id="f-km" min="0" step="0.1" oninput="previewKM()"></div>
+      <div class="form-group"><label class="form-label">Motif</label><input type="text" class="form-input" id="f-motif" placeholder="Visite client, tournage..."></div>
+    </div>
+    <div id="km-preview" style="display:none;margin-top:12px;background:rgba(26,188,156,0.08);border:1px solid rgba(26,188,156,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--teal);font-weight:600"></div>`,
+
+  essence: ()=>`
+    <div class="form-grid-3">
+      <div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="f-date" value="${today()}"></div>
+      <div class="form-group"><label class="form-label">Type *</label><select class="form-input" id="f-type"><option>Essence</option><option>Électrique</option></select></div>
+      <div class="form-group"><label class="form-label">Station / Borne</label><input type="text" class="form-input" id="f-station" placeholder="Ultramar Lavaltrie"></div>
+    </div>
+    <div class="form-grid-3" style="margin-top:12px">
+      <div class="form-group"><label class="form-label">Litres / kWh *</label><input type="number" class="form-input" id="f-litres_kwh" placeholder="45.0" step="0.1" oninput="calcEss()"></div>
+      <div class="form-group"><label class="form-label">Prix unitaire ($/L)</label><input type="number" class="form-input" id="f-prix_unitaire" placeholder="${cfg.prixEssence}" step="0.001" oninput="calcEss()"></div>
+      <div class="form-group"><label class="form-label">Montant total ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01"></div>
+    </div>
+    <div class="form-grid" style="margin-top:12px">
+      <div class="form-group"><label class="form-label">Odomètre (km)</label><input type="number" class="form-input" id="f-odometre" placeholder="12500"></div>
+      <div class="form-group"><label class="form-label">N° Reçu</label><input type="text" class="form-input" id="f-num_recu" placeholder="REC-001"></div>
+      <div class="form-group form-full"><label class="form-label">Notes</label><input type="text" class="form-input" id="f-notes"></div>
+    </div>`,
+
+  assurance: ()=>`
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="f-date" value="${today()}"></div>
+      <div class="form-group"><label class="form-label">Type *</label><select class="form-input" id="f-type"><option>Assurance auto</option><option>Assurance drone</option><option>Assurance responsabilité</option><option>Immatriculation SAAQ</option><option>Permis de conduire</option><option>Autre</option></select></div>
+      <div class="form-group"><label class="form-label">Assureur / Organisme</label><input type="text" class="form-input" id="f-assureur" placeholder="Intact, SAAQ..."></div>
+      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01" oninput="calcDed('pct_deductible')"></div>
+      <div class="form-group"><label class="form-label">Période couverte</label><input type="text" class="form-input" id="f-periode" placeholder="Jan 2026 – Jan 2027"></div>
+      <div class="form-group"><label class="form-label">N° Police / Dossier</label><input type="text" class="form-input" id="f-num_police" placeholder="POL-123456"></div>
+      <div class="form-group"><label class="form-label">Déductible % *</label><input type="number" class="form-input" id="f-pct_deductible" value="100" min="0" max="100" oninput="calcDed('pct_deductible')"></div>
+      <div class="form-group"><label class="form-label">Mt déductible ($)</label><input type="number" class="form-input" id="f-montant_deductible" placeholder="auto" readonly style="opacity:0.6"></div>
+      <div class="form-group form-full"><label class="form-label">Notes</label><input type="text" class="form-input" id="f-notes"></div>
+    </div>`,
+
+  entretien: ()=>`
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="f-date" value="${today()}"></div>
+      <div class="form-group"><label class="form-label">Type de travaux *</label><input type="text" class="form-input" id="f-type_travaux" placeholder="Changement huile, Pneus été..."></div>
+      <div class="form-group"><label class="form-label">Garage / Fournisseur</label><input type="text" class="form-input" id="f-garage" placeholder="Toyota Lavaltrie..."></div>
+      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01" oninput="calcDed('pct_deductible')"></div>
+      <div class="form-group"><label class="form-label">Odomètre (km)</label><input type="number" class="form-input" id="f-odometre"></div>
+      <div class="form-group"><label class="form-label">Garantie jusqu'au</label><input type="date" class="form-input" id="f-garantie_jusqu"></div>
+      <div class="form-group"><label class="form-label">Déductible %</label><input type="number" class="form-input" id="f-pct_deductible" value="100" min="0" max="100" oninput="calcDed('pct_deductible')"></div>
+      <div class="form-group"><label class="form-label">Mt déductible ($)</label><input type="number" class="form-input" id="f-montant_deductible" placeholder="auto" readonly style="opacity:0.6"></div>
+      <div class="form-group"><label class="form-label">N° Facture</label><input type="text" class="form-input" id="f-num_facture" placeholder="FAC-001"></div>
+      <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-input" id="f-notes"></div>
+    </div>`,
+
+  stationnement: ()=>`
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="f-date" value="${today()}"></div>
+      <div class="form-group"><label class="form-label">Type *</label><select class="form-input" id="f-type"><option>Stationnement</option><option>Péage</option><option>Vignette</option><option>Autre</option></select></div>
+      <div class="form-group form-full"><label class="form-label">Lieu / Endroit *</label><input type="text" class="form-input" id="f-lieu" placeholder="Montréal centre-ville, Tunnel A25..."></div>
+      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01"></div>
+      <div class="form-group"><label class="form-label">Durée</label><input type="text" class="form-input" id="f-duree" placeholder="4h"></div>
+      <div class="form-group"><label class="form-label">Motif professionnel</label><input type="text" class="form-input" id="f-motif" placeholder="Visite client..."></div>
+      <div class="form-group"><label class="form-label">Reçu obtenu</label><select class="form-input" id="f-recu_obtenu"><option value="Oui">Oui</option><option value="Non">Non</option></select></div>
+      <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-input" id="f-notes"></div>
+    </div>`,
+
+  abonnements: ()=>`
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="f-date" value="${today()}"></div>
+      <div class="form-group"><label class="form-label">Statut *</label><select class="form-input" id="f-statut"><option>Actif</option><option>Inactif</option><option>Annulé</option></select></div>
+      <div class="form-group"><label class="form-label">Service *</label><input type="text" class="form-input" id="f-service" placeholder="Make.com, Cloudflare, GitHub Pro..."></div>
+      <div class="form-group"><label class="form-label">Catégorie</label><input type="text" class="form-input" id="f-categorie" placeholder="Automatisation, Hébergement..."></div>
+      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01"></div>
+      <div class="form-group"><label class="form-label">Fréquence *</label><select class="form-input" id="f-frequence"><option>Mensuel</option><option>Annuel</option><option>Trimestriel</option></select></div>
+      <div class="form-group"><label class="form-label">Date renouvellement</label><input type="date" class="form-input" id="f-renouvellement"></div>
+      <div class="form-group"><label class="form-label">Déductible</label><select class="form-input" id="f-deductible"><option value="Oui">Oui</option><option value="Non">Non</option></select></div>
+      <div class="form-group"><label class="form-label">N° Facture</label><input type="text" class="form-input" id="f-num_facture" placeholder="INV-001"></div>
+      <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-input" id="f-notes"></div>
+    </div>`,
+
+  telephone: ()=>`
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="f-date" value="${today()}"></div>
+      <div class="form-group"><label class="form-label">Type *</label><select class="form-input" id="f-type"><option>Cellulaire</option><option>Internet bureau</option><option>Ligne dédiée</option></select></div>
+      <div class="form-group"><label class="form-label">Fournisseur</label><input type="text" class="form-input" id="f-fournisseur" placeholder="Koodo, Vidéotron..."></div>
+      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01" oninput="calcDed('pct_pro')"></div>
+      <div class="form-group"><label class="form-label">Période</label><input type="text" class="form-input" id="f-periode" placeholder="Avril 2026"></div>
+      <div class="form-group"><label class="form-label">% Utilisation pro</label><input type="number" class="form-input" id="f-pct_pro" value="80" min="0" max="100" oninput="calcDed('pct_pro')"></div>
+      <div class="form-group"><label class="form-label">Mt déductible ($)</label><input type="number" class="form-input" id="f-montant_deductible" placeholder="auto" readonly style="opacity:0.6"></div>
+      <div class="form-group"><label class="form-label">N° Compte</label><input type="text" class="form-input" id="f-num_compte" placeholder="KOO-456"></div>
+      <div class="form-group form-full"><label class="form-label">Notes</label><input type="text" class="form-input" id="f-notes"></div>
+    </div>`,
+
+  equipements: ()=>`
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="f-date" value="${today()}"></div>
+      <div class="form-group"><label class="form-label">Catégorie *</label><select class="form-input" id="f-categorie"><option>Drones</option><option>Accessoires</option><option>Caméras</option><option>Stockage</option><option>Éclairage</option><option>Matériel bureau</option><option>Logiciels</option><option>Autre</option></select></div>
+      <div class="form-group form-full"><label class="form-label">Article *</label><input type="text" class="form-input" id="f-article" placeholder="Batterie drone LiPo, DJI Mini 4 Pro..."></div>
+      <div class="form-group"><label class="form-label">Fournisseur</label><input type="text" class="form-input" id="f-fournisseur" placeholder="Amazon, BestBuy..."></div>
+      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01"></div>
+      <div class="form-group"><label class="form-label">Garantie jusqu'au</label><input type="date" class="form-input" id="f-garantie_jusqu"></div>
+      <div class="form-group"><label class="form-label">Déductible</label><select class="form-input" id="f-deductible"><option value="Oui">Oui</option><option value="Non">Non</option></select></div>
+      <div class="form-group"><label class="form-label">N° Facture</label><input type="text" class="form-input" id="f-num_facture" placeholder="AMZ-001"></div>
+      <div class="form-group form-full"><label class="form-label">Notes</label><input type="text" class="form-input" id="f-notes"></div>
+    </div>`,
+
+  soustraitants: ()=>`
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="f-date" value="${today()}"></div>
+      <div class="form-group"><label class="form-label">Type de service *</label><input type="text" class="form-input" id="f-type_service" placeholder="Comptabilité, Montage vidéo..."></div>
+      <div class="form-group form-full"><label class="form-label">Nom / Entreprise *</label><input type="text" class="form-input" id="f-nom" placeholder="Jean Tremblay CPA..."></div>
+      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01"></div>
+      <div class="form-group"><label class="form-label">TPS/TVQ incluse</label><select class="form-input" id="f-tps_tvq_incluse"><option value="Oui">Oui</option><option value="Non">Non</option></select></div>
+      <div class="form-group"><label class="form-label">NEQ / NAS</label><input type="text" class="form-input" id="f-neq_nas" placeholder="123456789"></div>
+      <div class="form-group"><label class="form-label">N° Facture</label><input type="text" class="form-input" id="f-num_facture" placeholder="CPA-001"></div>
+      <div class="form-group"><label class="form-label">Contrat signé</label><select class="form-input" id="f-contrat_signe"><option value="Oui">Oui</option><option value="Non">Non</option></select></div>
+      <div class="form-group form-full"><label class="form-label">Notes</label><input type="text" class="form-input" id="f-notes"></div>
+    </div>`
+};
+
+function ouvrirModal() {
+  const cat = currentPage;
+  if (!FORMS[cat]) return;
+  currentEditId = null;
+  document.getElementById('modal-title-text').textContent = `➕ ${PAGE_TITLES[cat]||cat} — Nouvelle entrée`;
+  document.getElementById('modal-form-body').innerHTML = FORMS[cat]();
+  document.getElementById('modal-entree').classList.add('active');
+}
+
+function fermerModal() { document.getElementById('modal-entree').classList.remove('active'); currentEditId=null; }
+
+function editerEntree(cat, id) {
+  const e = (data[cat]||[]).find(x=>x.id===id);
+  if (!e) return;
+  currentEditId = id;
+  document.getElementById('modal-title-text').textContent = `✏️ Modifier — ${PAGE_TITLES[cat]||cat}`;
+  document.getElementById('modal-form-body').innerHTML = FORMS[cat]();
+  document.getElementById('modal-entree').classList.add('active');
+  // Pré-remplissage
+  Object.keys(e).forEach(k=>{
+    const el = document.getElementById(`f-${k}`);
+    if (el) el.value = e[k]??'';
+  });
+}
+
+async function sauvegarderEntree() {
+  const cat = currentPage;
+  const inputs = document.getElementById('modal-form-body').querySelectorAll('input,select,textarea');
+  const entree = { id: currentEditId || genId() };
+  inputs.forEach(el=>{
+    if(el.id.startsWith('f-')) entree[el.id.replace('f-','')] = el.value;
+  });
+  entree.created_at = new Date().toISOString();
+  try {
+    if (currentEditId) await apiPut(`/api/finance/${cat}/${currentEditId}`, entree);
+    else await apiPost(`/api/finance/${cat}`, entree);
+  } catch(e) {}
+  // Update local
+  if (currentEditId) {
+    const idx = (data[cat]||[]).findIndex(x=>x.id===currentEditId);
+    if(idx>=0) data[cat][idx]=entree; else (data[cat]||[]).push(entree);
+  } else {
+    (data[cat]=data[cat]||[]).push(entree);
+  }
+  fermerModal();
+  chargerPage(cat);
+  showNotif(`✅ Entrée ${currentEditId?'modifiée':'ajoutée'}`, 'success');
+}
+
+function demanderSupprimer(cat, id) {
+  pendingDeleteCat=cat; pendingDeleteId=id;
+  document.getElementById('modal-delete').classList.add('active');
+}
+async function confirmerSupprimer() {
+  if (!pendingDeleteCat || !pendingDeleteId) return;
+  try { await apiDelete(`/api/finance/${pendingDeleteCat}/${pendingDeleteId}`); } catch(e) {}
+  data[pendingDeleteCat] = (data[pendingDeleteCat]||[]).filter(x=>x.id!==pendingDeleteId);
+  closeModal('modal-delete');
+  chargerPage(pendingDeleteCat);
+  showNotif('🗑️ Entrée supprimée', 'success');
+  pendingDeleteCat=null; pendingDeleteId=null;
+}
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('active');}));
+
+// ═══════════════════════════════════════════════════════
+// CALCULS AUTO FORMULAIRE
+// ═══════════════════════════════════════════════════════
+function previewKM() {
+  const km=parseFloat(document.getElementById('f-km')?.value||0);
+  const type=document.getElementById('f-type')?.value;
+  const prev=document.getElementById('km-preview');
+  if(!prev) return;
+  if(km>0 && type==='Professionnel') {
+    const kmProActuel=data.kilometrage.filter(k=>k.type==='Professionnel').reduce((s,k)=>s+parseFloat(k.km||0),0);
+    const ind=calcCRA(kmProActuel+km)-calcCRA(kmProActuel);
+    prev.style.display='block';
+    prev.textContent=`💰 Indemnité CRA estimée : ${fmt(ind)}`;
+  } else { prev.style.display='none'; }
+}
+function calcEss() {
+  const l=parseFloat(document.getElementById('f-litres_kwh')?.value||0);
+  const p=parseFloat(document.getElementById('f-prix_unitaire')?.value||cfg.prixEssence||1.75);
+  const m=document.getElementById('f-montant');
+  if(m&&l&&p) m.value=(l*p).toFixed(2);
+}
+function calcDed(pctField) {
+  const mt=parseFloat(document.getElementById('f-montant')?.value||0);
+  const pct=parseFloat(document.getElementById(`f-${pctField}`)?.value||100);
+  const el=document.getElementById('f-montant_deductible');
+  if(el) el.value=(mt*pct/100).toFixed(2);
+}
+
+// ═══════════════════════════════════════════════════════
+// EXPORT CSV
+// ═══════════════════════════════════════════════════════
+function exportCSV() {
+  const cat=currentPage, annee=document.getElementById('year-select').value;
+  if(NO_ADD.includes(cat)) { window.open(`${WORKER}/api/finance/export/csv/registre?annee=${annee}`,'_blank'); return; }
+  const items=data[cat]||[];
+  if(!items.length){showNotif('Aucune donnée à exporter','error');return;}
+  const cols=Object.keys(items[0]);
+  const csv=[cols.join(';'),...items.map(r=>cols.map(c=>`"${r[c]??''}"`).join(';'))].join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download=`capturair_${cat}_${annee}.csv`;
+  a.click();
+  showNotif('✅ Export CSV téléchargé','success');
+}
+
+// ═══════════════════════════════════════════════════════
+// MÉTÉO (identique site public — Lavaltrie)
+// ═══════════════════════════════════════════════════════
+function chargerMeteo() {
+  fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FToronto')
+    .then(r=>r.json())
+    .then(d=>{
+      const icons={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+      document.getElementById('w-icon').textContent=icons[d.current.weather_code]||'🌡️';
+      const c=Math.round(d.current.temperature_2m);
+      const f=Math.round((c*9/5)+32);
+      const wind=Math.round(d.current.wind_speed_10m);
+      const cond=wind>=30?'❌ Vol déconseillé':wind>=15?'⚠️ Vol prudent':'✅ Vol OK';
+      document.getElementById('w-temp').textContent=`${c}°C · ${f}°F · Vent ${wind} km/h · ${cond}`;
+    })
+    .catch(()=>{ document.getElementById('w-temp').textContent='Indisponible'; });
+}
+
+// ═══════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════
+function fmt(n){return parseFloat(n||0).toLocaleString('fr-CA',{style:'currency',currency:'CAD'});}
+function sum(arr,k){return (arr||[]).reduce((s,e)=>s+parseFloat(e[k]||0),0);}
+function genId(){return Math.random().toString(36).slice(2,10)+Date.now().toString(36);}
+function today(){return new Date().toISOString().slice(0,10);}
+function actionsBtns(cat,id){return `<div style="display:flex;gap:4px"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();editerEntree('${cat}','${id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();demanderSupprimer('${cat}','${id}')">🗑️</button></div>`;}
+
+function showNotif(msg,type=''){
+  const el=document.createElement('div');
+  el.className=`notif ${type}`;
+  el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity 0.3s';setTimeout(()=>el.remove(),300);},3500);
+}
+</script>
+</body>
+</html>
