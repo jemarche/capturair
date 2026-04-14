@@ -1160,7 +1160,22 @@ const FORMS = {
     <div class="form-grid-3" style="margin-top:12px">
       <div class="form-group"><label class="form-label">Litres / kWh *</label><input type="number" class="form-input" id="f-litres_kwh" placeholder="45.0" step="0.1" oninput="calcEss()"></div>
       <div class="form-group"><label class="form-label">Prix unitaire ($/L)</label><input type="number" class="form-input" id="f-prix_unitaire" placeholder="${cfg.prixEssence}" step="0.001" oninput="calcEss()"></div>
-      <div class="form-group"><label class="form-label">Montant total ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01"></div>
+      <div class="form-group"><label class="form-label">Montant total ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01" oninput="calcTaxPreview()"></div>
+    </div>
+    <div id="tax-preview" style="display:none;margin-top:14px;background:rgba(26,143,209,0.06);border:1px solid rgba(26,143,209,0.15);border-radius:10px;padding:14px 16px;">
+      <div style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🧾 Taxes incluses dans ce montant</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label class="form-label">TPS payée (5%)</label>
+          <input type="number" class="form-input" id="tax-tps" step="0.01" style="border-color:rgba(26,143,209,0.3)">
+          <div class="form-hint">Modifiable si arrondi incorrect</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">TVQ payée (9,975%)</label>
+          <input type="number" class="form-input" id="tax-tvq" step="0.01" style="border-color:rgba(26,143,209,0.3)">
+          <div class="form-hint">Modifiable si arrondi incorrect</div>
+        </div>
+      </div>
     </div>
     <div class="form-grid" style="margin-top:12px">
       <div class="form-group"><label class="form-label">Odomètre (km)</label><input type="number" class="form-input" id="f-odometre" placeholder="12500"></div>
@@ -1173,12 +1188,27 @@ const FORMS = {
       <div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="f-date" value="${today()}"></div>
       <div class="form-group"><label class="form-label">Type *</label><select class="form-input" id="f-type"><option>Assurance auto</option><option>Assurance drone</option><option>Assurance responsabilité</option><option>Immatriculation SAAQ</option><option>Permis de conduire</option><option>Autre</option></select></div>
       <div class="form-group"><label class="form-label">Assureur / Organisme</label><input type="text" class="form-input" id="f-assureur" placeholder="Intact, SAAQ..."></div>
-      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01" oninput="calcDed('pct_deductible')"></div>
+      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01" oninput="calcDed('pct_deductible');calcTaxPreview()"></div>
       <div class="form-group"><label class="form-label">Période couverte</label><input type="text" class="form-input" id="f-periode" placeholder="Jan 2026 – Jan 2027"></div>
       <div class="form-group"><label class="form-label">N° Police / Dossier</label><input type="text" class="form-input" id="f-num_police" placeholder="POL-123456"></div>
       <div class="form-group"><label class="form-label">Déductible % *</label><input type="number" class="form-input" id="f-pct_deductible" value="100" min="0" max="100" oninput="calcDed('pct_deductible')"></div>
       <div class="form-group"><label class="form-label">Mt déductible ($)</label><input type="number" class="form-input" id="f-montant_deductible" placeholder="auto" readonly style="opacity:0.6"></div>
       <div class="form-group form-full"><label class="form-label">Notes</label><input type="text" class="form-input" id="f-notes"></div>
+    </div>
+    <div id="tax-preview" style="display:none;margin-top:14px;background:rgba(26,143,209,0.06);border:1px solid rgba(26,143,209,0.15);border-radius:10px;padding:14px 16px;">
+      <div style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🧾 Taxes incluses dans ce montant</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label class="form-label">TPS payée (5%)</label>
+          <input type="number" class="form-input" id="tax-tps" step="0.01" style="border-color:rgba(26,143,209,0.3)">
+          <div class="form-hint">Modifiable si arrondi incorrect</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">TVQ payée (9,975%)</label>
+          <input type="number" class="form-input" id="tax-tvq" step="0.01" style="border-color:rgba(26,143,209,0.3)">
+          <div class="form-hint">Modifiable si arrondi incorrect</div>
+        </div>
+      </div>
     </div>`,
 
   entretien: ()=>`
@@ -1186,13 +1216,28 @@ const FORMS = {
       <div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="f-date" value="${today()}"></div>
       <div class="form-group"><label class="form-label">Type de travaux *</label><input type="text" class="form-input" id="f-type_travaux" placeholder="Changement huile, Pneus été..."></div>
       <div class="form-group"><label class="form-label">Garage / Fournisseur</label><input type="text" class="form-input" id="f-garage" placeholder="Toyota Lavaltrie..."></div>
-      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01" oninput="calcDed('pct_deductible')"></div>
+      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01" oninput="calcDed('pct_deductible');calcTaxPreview()"></div>
       <div class="form-group"><label class="form-label">Odomètre (km)</label><input type="number" class="form-input" id="f-odometre"></div>
       <div class="form-group"><label class="form-label">Garantie jusqu'au</label><input type="date" class="form-input" id="f-garantie_jusqu"></div>
       <div class="form-group"><label class="form-label">Déductible %</label><input type="number" class="form-input" id="f-pct_deductible" value="100" min="0" max="100" oninput="calcDed('pct_deductible')"></div>
       <div class="form-group"><label class="form-label">Mt déductible ($)</label><input type="number" class="form-input" id="f-montant_deductible" placeholder="auto" readonly style="opacity:0.6"></div>
       <div class="form-group"><label class="form-label">N° Facture</label><input type="text" class="form-input" id="f-num_facture" placeholder="FAC-001"></div>
       <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-input" id="f-notes"></div>
+    </div>
+    <div id="tax-preview" style="display:none;margin-top:14px;background:rgba(26,143,209,0.06);border:1px solid rgba(26,143,209,0.15);border-radius:10px;padding:14px 16px;">
+      <div style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🧾 Taxes incluses dans ce montant</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label class="form-label">TPS payée (5%)</label>
+          <input type="number" class="form-input" id="tax-tps" step="0.01" style="border-color:rgba(26,143,209,0.3)">
+          <div class="form-hint">Modifiable si arrondi incorrect</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">TVQ payée (9,975%)</label>
+          <input type="number" class="form-input" id="tax-tvq" step="0.01" style="border-color:rgba(26,143,209,0.3)">
+          <div class="form-hint">Modifiable si arrondi incorrect</div>
+        </div>
+      </div>
     </div>`,
 
   stationnement: ()=>`
@@ -1200,11 +1245,26 @@ const FORMS = {
       <div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="f-date" value="${today()}"></div>
       <div class="form-group"><label class="form-label">Type *</label><select class="form-input" id="f-type"><option>Stationnement</option><option>Péage</option><option>Vignette</option><option>Autre</option></select></div>
       <div class="form-group form-full"><label class="form-label">Lieu / Endroit *</label><input type="text" class="form-input" id="f-lieu" placeholder="Montréal centre-ville, Tunnel A25..."></div>
-      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01"></div>
+      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01" oninput="calcTaxPreview()"></div>
       <div class="form-group"><label class="form-label">Durée</label><input type="text" class="form-input" id="f-duree" placeholder="4h"></div>
       <div class="form-group"><label class="form-label">Motif professionnel</label><input type="text" class="form-input" id="f-motif" placeholder="Visite client..."></div>
       <div class="form-group"><label class="form-label">Reçu obtenu</label><select class="form-input" id="f-recu_obtenu"><option value="Oui">Oui</option><option value="Non">Non</option></select></div>
       <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-input" id="f-notes"></div>
+    </div>
+    <div id="tax-preview" style="display:none;margin-top:14px;background:rgba(26,143,209,0.06);border:1px solid rgba(26,143,209,0.15);border-radius:10px;padding:14px 16px;">
+      <div style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🧾 Taxes incluses dans ce montant</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label class="form-label">TPS payée (5%)</label>
+          <input type="number" class="form-input" id="tax-tps" step="0.01" style="border-color:rgba(26,143,209,0.3)">
+          <div class="form-hint">Modifiable si arrondi incorrect</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">TVQ payée (9,975%)</label>
+          <input type="number" class="form-input" id="tax-tvq" step="0.01" style="border-color:rgba(26,143,209,0.3)">
+          <div class="form-hint">Modifiable si arrondi incorrect</div>
+        </div>
+      </div>
     </div>`,
 
   abonnements: ()=>`
@@ -1213,12 +1273,27 @@ const FORMS = {
       <div class="form-group"><label class="form-label">Statut *</label><select class="form-input" id="f-statut"><option>Actif</option><option>Inactif</option><option>Annulé</option></select></div>
       <div class="form-group"><label class="form-label">Service *</label><input type="text" class="form-input" id="f-service" placeholder="Make.com, Cloudflare, GitHub Pro..."></div>
       <div class="form-group"><label class="form-label">Catégorie</label><input type="text" class="form-input" id="f-categorie" placeholder="Automatisation, Hébergement..."></div>
-      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01"></div>
+      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01" oninput="calcTaxPreview()"></div>
       <div class="form-group"><label class="form-label">Fréquence *</label><select class="form-input" id="f-frequence"><option>Mensuel</option><option>Annuel</option><option>Trimestriel</option></select></div>
       <div class="form-group"><label class="form-label">Date renouvellement</label><input type="date" class="form-input" id="f-renouvellement"></div>
       <div class="form-group"><label class="form-label">Déductible</label><select class="form-input" id="f-deductible"><option value="Oui">Oui</option><option value="Non">Non</option></select></div>
       <div class="form-group"><label class="form-label">N° Facture</label><input type="text" class="form-input" id="f-num_facture" placeholder="INV-001"></div>
       <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-input" id="f-notes"></div>
+    </div>
+    <div id="tax-preview" style="display:none;margin-top:14px;background:rgba(26,143,209,0.06);border:1px solid rgba(26,143,209,0.15);border-radius:10px;padding:14px 16px;">
+      <div style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🧾 Taxes incluses dans ce montant</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label class="form-label">TPS payée (5%)</label>
+          <input type="number" class="form-input" id="tax-tps" step="0.01" style="border-color:rgba(26,143,209,0.3)">
+          <div class="form-hint">Modifiable si arrondi incorrect</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">TVQ payée (9,975%)</label>
+          <input type="number" class="form-input" id="tax-tvq" step="0.01" style="border-color:rgba(26,143,209,0.3)">
+          <div class="form-hint">Modifiable si arrondi incorrect</div>
+        </div>
+      </div>
     </div>`,
 
   telephone: ()=>`
@@ -1226,12 +1301,27 @@ const FORMS = {
       <div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="f-date" value="${today()}"></div>
       <div class="form-group"><label class="form-label">Type *</label><select class="form-input" id="f-type"><option>Cellulaire</option><option>Internet bureau</option><option>Ligne dédiée</option></select></div>
       <div class="form-group"><label class="form-label">Fournisseur</label><input type="text" class="form-input" id="f-fournisseur" placeholder="Koodo, Vidéotron..."></div>
-      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01" oninput="calcDed('pct_pro')"></div>
+      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01" oninput="calcDed('pct_pro');calcTaxPreview()"></div>
       <div class="form-group"><label class="form-label">Période</label><input type="text" class="form-input" id="f-periode" placeholder="Avril 2026"></div>
       <div class="form-group"><label class="form-label">% Utilisation pro</label><input type="number" class="form-input" id="f-pct_pro" value="80" min="0" max="100" oninput="calcDed('pct_pro')"></div>
       <div class="form-group"><label class="form-label">Mt déductible ($)</label><input type="number" class="form-input" id="f-montant_deductible" placeholder="auto" readonly style="opacity:0.6"></div>
       <div class="form-group"><label class="form-label">N° Compte</label><input type="text" class="form-input" id="f-num_compte" placeholder="KOO-456"></div>
       <div class="form-group form-full"><label class="form-label">Notes</label><input type="text" class="form-input" id="f-notes"></div>
+    </div>
+    <div id="tax-preview" style="display:none;margin-top:14px;background:rgba(26,143,209,0.06);border:1px solid rgba(26,143,209,0.15);border-radius:10px;padding:14px 16px;">
+      <div style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🧾 Taxes incluses dans ce montant</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label class="form-label">TPS payée (5%)</label>
+          <input type="number" class="form-input" id="tax-tps" step="0.01" style="border-color:rgba(26,143,209,0.3)">
+          <div class="form-hint">Modifiable si arrondi incorrect</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">TVQ payée (9,975%)</label>
+          <input type="number" class="form-input" id="tax-tvq" step="0.01" style="border-color:rgba(26,143,209,0.3)">
+          <div class="form-hint">Modifiable si arrondi incorrect</div>
+        </div>
+      </div>
     </div>`,
 
   equipements: ()=>`
@@ -1240,11 +1330,26 @@ const FORMS = {
       <div class="form-group"><label class="form-label">Catégorie *</label><select class="form-input" id="f-categorie"><option>Drones</option><option>Accessoires</option><option>Caméras</option><option>Stockage</option><option>Éclairage</option><option>Matériel bureau</option><option>Logiciels</option><option>Autre</option></select></div>
       <div class="form-group form-full"><label class="form-label">Article *</label><input type="text" class="form-input" id="f-article" placeholder="Batterie drone LiPo, DJI Mini 4 Pro..."></div>
       <div class="form-group"><label class="form-label">Fournisseur</label><input type="text" class="form-input" id="f-fournisseur" placeholder="Amazon, BestBuy..."></div>
-      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01"></div>
+      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01" oninput="calcTaxPreview()"></div>
       <div class="form-group"><label class="form-label">Garantie jusqu'au</label><input type="date" class="form-input" id="f-garantie_jusqu"></div>
       <div class="form-group"><label class="form-label">Déductible</label><select class="form-input" id="f-deductible"><option value="Oui">Oui</option><option value="Non">Non</option></select></div>
       <div class="form-group"><label class="form-label">N° Facture</label><input type="text" class="form-input" id="f-num_facture" placeholder="AMZ-001"></div>
       <div class="form-group form-full"><label class="form-label">Notes</label><input type="text" class="form-input" id="f-notes"></div>
+    </div>
+    <div id="tax-preview" style="display:none;margin-top:14px;background:rgba(26,143,209,0.06);border:1px solid rgba(26,143,209,0.15);border-radius:10px;padding:14px 16px;">
+      <div style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🧾 Taxes incluses dans ce montant</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label class="form-label">TPS payée (5%)</label>
+          <input type="number" class="form-input" id="tax-tps" step="0.01" style="border-color:rgba(26,143,209,0.3)">
+          <div class="form-hint">Modifiable si arrondi incorrect</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">TVQ payée (9,975%)</label>
+          <input type="number" class="form-input" id="tax-tvq" step="0.01" style="border-color:rgba(26,143,209,0.3)">
+          <div class="form-hint">Modifiable si arrondi incorrect</div>
+        </div>
+      </div>
     </div>`,
 
   soustraitants: ()=>`
@@ -1252,12 +1357,27 @@ const FORMS = {
       <div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="f-date" value="${today()}"></div>
       <div class="form-group"><label class="form-label">Type de service *</label><input type="text" class="form-input" id="f-type_service" placeholder="Comptabilité, Montage vidéo..."></div>
       <div class="form-group form-full"><label class="form-label">Nom / Entreprise *</label><input type="text" class="form-input" id="f-nom" placeholder="Jean Tremblay CPA..."></div>
-      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01"></div>
+      <div class="form-group"><label class="form-label">Montant ($) *</label><input type="number" class="form-input" id="f-montant" placeholder="0.00" step="0.01" oninput="calcTaxPreview()"></div>
       <div class="form-group"><label class="form-label">TPS/TVQ incluse</label><select class="form-input" id="f-tps_tvq_incluse"><option value="Oui">Oui</option><option value="Non">Non</option></select></div>
       <div class="form-group"><label class="form-label">NEQ / NAS</label><input type="text" class="form-input" id="f-neq_nas" placeholder="123456789"></div>
       <div class="form-group"><label class="form-label">N° Facture</label><input type="text" class="form-input" id="f-num_facture" placeholder="CPA-001"></div>
       <div class="form-group"><label class="form-label">Contrat signé</label><select class="form-input" id="f-contrat_signe"><option value="Oui">Oui</option><option value="Non">Non</option></select></div>
       <div class="form-group form-full"><label class="form-label">Notes</label><input type="text" class="form-input" id="f-notes"></div>
+    </div>
+    <div id="tax-preview" style="display:none;margin-top:14px;background:rgba(26,143,209,0.06);border:1px solid rgba(26,143,209,0.15);border-radius:10px;padding:14px 16px;">
+      <div style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🧾 Taxes incluses dans ce montant</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label class="form-label">TPS payée (5%)</label>
+          <input type="number" class="form-input" id="tax-tps" step="0.01" style="border-color:rgba(26,143,209,0.3)">
+          <div class="form-hint">Modifiable si arrondi incorrect</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">TVQ payée (9,975%)</label>
+          <input type="number" class="form-input" id="tax-tvq" step="0.01" style="border-color:rgba(26,143,209,0.3)">
+          <div class="form-hint">Modifiable si arrondi incorrect</div>
+        </div>
+      </div>
     </div>`
 };
 
@@ -1294,6 +1414,13 @@ async function sauvegarderEntree() {
     if(el.id.startsWith('f-')) entree[el.id.replace('f-','')] = el.value;
   });
   entree.created_at = new Date().toISOString();
+  // Récupérer les taxes corrigées si présentes
+  const taxTps = document.getElementById('tax-tps');
+  const taxTvq = document.getElementById('tax-tvq');
+  const tpsCorrigee = taxTps?.value ? parseFloat(taxTps.value)||0 : null;
+  const tvqCorrigee = taxTvq?.value ? parseFloat(taxTvq.value)||0 : null;
+  // Passer les taxes corrigées au worker (il les utilisera au lieu de calculer)
+  if (tpsCorrigee !== null) { entree._tps_corrigee = tpsCorrigee; entree._tvq_corrigee = tvqCorrigee; }
   try {
     if (currentEditId) await apiPut(`/api/finance/${cat}/${currentEditId}`, entree);
     else await apiPost(`/api/finance/${cat}`, entree);
@@ -1345,7 +1472,19 @@ function calcEss() {
   const l=parseFloat(document.getElementById('f-litres_kwh')?.value||0);
   const p=parseFloat(document.getElementById('f-prix_unitaire')?.value||cfg.prixEssence||1.75);
   const m=document.getElementById('f-montant');
-  if(m&&l&&p) m.value=(l*p).toFixed(2);
+  if(m&&l&&p) { m.value=(l*p).toFixed(2); calcTaxPreview(); }
+}
+
+function calcTaxPreview() {
+  const mt = parseFloat(document.getElementById('f-montant')?.value||0);
+  const prev = document.getElementById('tax-preview');
+  if (!prev) return;
+  if (mt <= 0) { prev.style.display='none'; return; }
+  const tps = mt * 5 / 114.975;
+  const tvq = mt * 9.975 / 114.975;
+  document.getElementById('tax-tps').value = tps.toFixed(2);
+  document.getElementById('tax-tvq').value = tvq.toFixed(2);
+  prev.style.display = 'block';
 }
 function calcDed(pctField) {
   const mt=parseFloat(document.getElementById('f-montant')?.value||0);
