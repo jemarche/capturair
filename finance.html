@@ -677,6 +677,8 @@ async function login() {
       currentUser = { email: loginEmail, role: d.role||'utilisateur', nom: d.nom||'' };
       sessionStorage.setItem('finance_jwt', authToken);
       sessionStorage.setItem('finance_user', JSON.stringify(currentUser));
+      localStorage.setItem('finance_jwt', authToken);
+      localStorage.setItem('finance_user', JSON.stringify(currentUser));
       demarrerApp();
     } catch(e) { showLoginErr('Erreur de connexion.'); btn.textContent='Valider →'; }
   }
@@ -687,6 +689,8 @@ function showLoginErr(m) { const e=document.getElementById('login-error'); e.tex
 function logout() {
   sessionStorage.removeItem('finance_jwt');
   sessionStorage.removeItem('finance_user');
+  localStorage.removeItem('finance_jwt');
+  localStorage.removeItem('finance_user');
   authToken=''; currentUser=null;
   document.getElementById('app').classList.remove('visible');
   document.getElementById('login-screen').style.display='flex';
@@ -698,13 +702,19 @@ function logout() {
 
 // Auto-login si token existant (CRM ou finance)
 (function(){
-  const t = sessionStorage.getItem('finance_jwt') || sessionStorage.getItem('crm_token');
-  const u = sessionStorage.getItem('finance_user') || sessionStorage.getItem('crm_user');
+  const t = sessionStorage.getItem('finance_jwt') || sessionStorage.getItem('crm_token')
+         || localStorage.getItem('finance_jwt') || localStorage.getItem('carnet_token');
+  const u = sessionStorage.getItem('finance_user') || sessionStorage.getItem('crm_user')
+         || localStorage.getItem('finance_user');
   if (t && u) {
     try {
       const p = JSON.parse(atob(t));
       if (p.exp > Date.now()) {
         authToken = t; currentUser = JSON.parse(u);
+        sessionStorage.setItem('finance_jwt', t);
+        sessionStorage.setItem('finance_user', u);
+        localStorage.setItem('finance_jwt', t);
+        localStorage.setItem('finance_user', u);
         document.getElementById('login-screen').style.display='none';
         document.getElementById('app').classList.add('visible');
         demarrerApp();
