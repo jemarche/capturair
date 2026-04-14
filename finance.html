@@ -634,67 +634,56 @@ let data = {
 };
 
 // ═══════════════════════════════════════════════════════
-// AUTH — identique CRM
+// AUTH — copie exacte du CRM v2
 // ═══════════════════════════════════════════════════════
-async function login() {
-  const btn = document.getElementById('login-btn-text');
-  const err = document.getElementById('login-error');
-  err.style.display = 'none';
-
-  if (loginStep === 1) {
-    loginEmail = document.getElementById('login-email').value.trim();
-    loginPin = document.getElementById('login-pin').value.trim();
-    if (!loginEmail || !loginPin) { showLoginErr('Veuillez remplir tous les champs.'); return; }
-    btn.innerHTML = '<span class="spinner"></span>';
-    try {
-      const r = await fetch(`${AUTH_WORKER}/api/carnet/auth/init`, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ email: loginEmail, pin: loginPin })
-      });
-      const d = await r.json();
-      if (!r.ok || !d.success) { showLoginErr('Email ou PIN incorrect.'); btn.textContent='Connexion →'; return; }
-      loginStep = 2;
-      document.getElementById('login-pin').placeholder = 'Code reçu par email';
-      document.getElementById('login-pin').value = '';
-      document.getElementById('login-pin').type = 'text';
-      document.getElementById('lbl-pin').textContent = 'Code OTP (reçu par email)';
-      document.getElementById('login-email').disabled = true;
-      if (d.otp_bypass) document.getElementById('login-pin').value = d.otp_bypass;
-      btn.textContent = 'Valider →';
-    } catch(e) { showLoginErr('Erreur de connexion.'); btn.textContent='Connexion →'; }
-  } else {
-    const otp = document.getElementById('login-pin').value.trim();
-    if (!otp) { showLoginErr('Entrez le code reçu.'); return; }
-    btn.innerHTML = '<span class="spinner"></span>';
-    try {
-      const r = await fetch(`${AUTH_WORKER}/api/carnet/auth/otp`, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ email: loginEmail, otp })
-      });
-      const d = await r.json();
-      if (!r.ok || !d.token) { showLoginErr('Code OTP incorrect ou expiré.'); btn.textContent='Valider →'; return; }
-      authToken = d.token;
-      currentUser = { email: loginEmail, role: d.role||'utilisateur', nom: d.nom||'' };
-      sessionStorage.setItem('finance_jwt', authToken);
-      sessionStorage.setItem('finance_user', JSON.stringify(currentUser));
-      localStorage.setItem('finance_jwt', authToken);
-      localStorage.setItem('finance_user', JSON.stringify(currentUser));
-      btn.textContent = 'Valider →';
-      document.getElementById('login-screen').style.display = 'none';
+async function login(){
+  const btn=document.getElementById('login-btn-text');
+  const err=document.getElementById('login-error');
+  err.style.display='none';
+  if(loginStep===1){
+    loginEmail=document.getElementById('login-email').value.trim();
+    loginPin=document.getElementById('login-pin').value.trim();
+    if(!loginEmail||!loginPin){showLoginErr('Veuillez remplir tous les champs.');return;}
+    btn.innerHTML='<span class="spinner"></span>';
+    try{
+      const r=await fetch(`${AUTH_WORKER}/api/carnet/auth/init`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:loginEmail,pin:loginPin})});
+      const d=await r.json();
+      if(!r.ok||!d.success){showLoginErr('Email ou PIN incorrect.');btn.textContent='Connexion →';return;}
+      loginStep=2;
+      document.getElementById('login-pin').placeholder='Code reçu par email';
+      document.getElementById('login-pin').value='';
+      document.getElementById('login-pin').type='text';
+      document.getElementById('lbl-pin').textContent='Code OTP (reçu par email)';
+      document.getElementById('login-email').disabled=true;
+      if(d.otp_bypass) document.getElementById('login-pin').value=d.otp_bypass;
+      btn.textContent='Valider →';
+    }catch(e){showLoginErr('Erreur de connexion.');btn.textContent='Connexion →';}
+  }else{
+    const otp=document.getElementById('login-pin').value.trim();
+    if(!otp){showLoginErr('Entrez le code reçu.');return;}
+    btn.innerHTML='<span class="spinner"></span>';
+    try{
+      const r=await fetch(`${AUTH_WORKER}/api/carnet/auth/otp`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:loginEmail,otp})});
+      const d=await r.json();
+      if(!r.ok||!d.token){showLoginErr('Code OTP incorrect ou expiré.');btn.textContent='Valider →';return;}
+      authToken=d.token;
+      currentUser={email:loginEmail,role:d.role||'superadmin',nom:d.nom||''};
+      sessionStorage.setItem('crm_token',authToken);
+      sessionStorage.setItem('crm_user',JSON.stringify(currentUser));
+      btn.textContent='Valider →';
+      document.getElementById('login-screen').style.display='none';
       document.getElementById('app').classList.add('visible');
+      loginStep=1;
       demarrerApp();
-    } catch(e) { showLoginErr('Erreur de connexion.'); btn.textContent='Valider →'; }
+    }catch(e){showLoginErr('Erreur de connexion.');btn.textContent='Valider →';}
   }
 }
 
-function showLoginErr(m) { const e=document.getElementById('login-error'); e.textContent=m; e.style.display='block'; }
+function showLoginErr(m){const e=document.getElementById('login-error');e.textContent=m;e.style.display='block';}
 
-function logout() {
-  sessionStorage.removeItem('finance_jwt');
-  sessionStorage.removeItem('finance_user');
-  localStorage.removeItem('finance_jwt');
-  localStorage.removeItem('finance_user');
-  authToken=''; currentUser=null;
+function logout(){
+  sessionStorage.clear();
+  authToken='';currentUser=null;
   document.getElementById('app').classList.remove('visible');
   document.getElementById('login-screen').style.display='flex';
   loginStep=1;
@@ -703,33 +692,27 @@ function logout() {
   document.getElementById('login-btn-text').textContent='Connexion →';
 }
 
-// Auto-login si token existant (CRM ou finance)
+// Auto-login — même logique exacte que le CRM
 (function(){
-  const t = sessionStorage.getItem('finance_jwt') || sessionStorage.getItem('crm_token')
-         || localStorage.getItem('finance_jwt') || localStorage.getItem('carnet_token');
-  const u = sessionStorage.getItem('finance_user') || sessionStorage.getItem('crm_user')
-         || localStorage.getItem('finance_user');
-  if (t && u) {
-    try {
-      const p = JSON.parse(atob(t));
-      if (p.exp > Date.now()) {
-        authToken = t; currentUser = JSON.parse(u);
-        sessionStorage.setItem('finance_jwt', t);
-        sessionStorage.setItem('finance_user', u);
-        localStorage.setItem('finance_jwt', t);
-        localStorage.setItem('finance_user', u);
+  const t=sessionStorage.getItem('crm_token');
+  const u=sessionStorage.getItem('crm_user');
+  if(t&&u){
+    try{
+      const p=JSON.parse(atob(t));
+      if(p.exp>Date.now()){
+        authToken=t;currentUser=JSON.parse(u);
         document.getElementById('login-screen').style.display='none';
         document.getElementById('app').classList.add('visible');
         demarrerApp();
         return;
       }
-    } catch(e) {}
+    }catch(e){}
   }
   document.getElementById('login-screen').style.display='flex';
 })();
 
-document.getElementById('login-pin').addEventListener('keydown', e => { if(e.key==='Enter') login(); });
-document.getElementById('login-email').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('login-pin').focus(); });
+document.getElementById('login-pin').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+document.getElementById('login-email').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('login-pin').focus();});
 
 // ═══════════════════════════════════════════════════════
 // INIT APP
