@@ -1976,7 +1976,51 @@ function showNotif(msg,type=''){const el=document.createElement('div');el.classN
 
 window.addEventListener('beforeunload',e=>{if(hasUnsaved){e.preventDefault();e.returnValue='';}});
 
+
+  // ══ WHATSAPP RAPPEL RDV ═══════════════════════════════════════════════
+function ouvrirWhatsAppRappel() {
+  if (!currentLead) return;
+  const soum = soumissions.find(s => s.projet_id === currentLead.id);
+  const tel = (currentLead.telephone || '').replace(/\D/g, '');
+  if (!tel || tel.length < 10) { showNotif('⚠️ Numéro de téléphone manquant', 'warning'); return; }
+  const dateConf = soum?.date_confirmee ? new Date(soum.date_confirmee) : null;
+  const dateStr = dateConf
+    ? dateConf.toLocaleDateString('fr-CA', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
+    : '(date à confirmer)';
+  const heure = soum?.heure_intervention || '(heure à confirmer)';
+  const ville = currentLead.ville || 'votre secteur';
+  const service = currentLead.type_service || 'séance photo aérienne';
+  const prenom = currentLead.prenom || '';
+  const msg =
+`🚁✨ CapturAir — Rappel RDV
+
+Bonjour ${prenom} ! 👋
+
+Votre séance photo aérienne est demain !
+
+📅 ${dateStr}
+⏰ ${heure}
+📍 ${ville}
+🎯 ${service}
+
+Prévoyez d'être sur place 10 min avant.
+En cas de météo défavorable, je vous contacte pour reporter. ✅
+
+Des questions ? Répondez ici ou appelez-moi.
+
+— Mohand 📸
+CapturAir · 514-446-6078
+capturair.com`;
+  window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
 // Vérifier token toutes les 5 minutes
+setInterval(()=>{
+  if(authToken && verifierTokenExpire()){
+    sessionExpired();
+  }
+}, 5 * 60 * 1000);
+  // Vérifier token toutes les 5 minutes
 setInterval(()=>{
   if(authToken && verifierTokenExpire()){
     sessionExpired();
