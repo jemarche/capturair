@@ -679,6 +679,9 @@ async function login() {
       sessionStorage.setItem('finance_user', JSON.stringify(currentUser));
       localStorage.setItem('finance_jwt', authToken);
       localStorage.setItem('finance_user', JSON.stringify(currentUser));
+      btn.textContent = 'Valider →';
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').classList.add('visible');
       demarrerApp();
     } catch(e) { showLoginErr('Erreur de connexion.'); btn.textContent='Valider →'; }
   }
