@@ -611,8 +611,12 @@ let token = '', projet = null, medias = [], selections = new Set(), commentaires
 // ── MÉTÉO ─────────────────────────────────────────────────────────────
 fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FToronto')
   .then(r => r.json()).then(d => {
-    const icons = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
-    document.getElementById('w-icon').textContent = icons[d.current.weather_code] || '🌡️';
+    var hr = new Date().getHours();
+    var isNight = hr >= 20 || hr < 6;
+    var icons = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+    var nightIcons = {0:'🌙',1:'🌙',2:'🌑',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+    var iconSet = isNight ? nightIcons : icons;
+    document.getElementById('w-icon').textContent = iconSet[d.current.weather_code] || (isNight ? '🌙' : '🌡️');
     const c = Math.round(d.current.temperature_2m);
     const f = Math.round(c * 9/5 + 32);
     const wind = Math.round(d.current.wind_speed_10m);
