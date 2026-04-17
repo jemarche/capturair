@@ -255,17 +255,22 @@ nav.scrolled {
 .hero-stats {
   position: absolute; bottom: 60px; left: 80px; right: 80px;
   display: flex; gap: 0; z-index: 2;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.05);
   border-radius: 16px;
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.01);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   overflow: hidden;
   animation: fadeUp 0.8s 0.6s ease both;
 }
 .hero-stat {
   flex: 1; padding: 20px 28px;
-  border-right: 1px solid rgba(200,216,232,0.08);
+  border-right: 1px solid rgba(200,216,232,0.06);
+  transition: background 0.3s ease;
+  cursor: default;
+}
+.hero-stat:hover {
+  background: rgba(26,143,209,0.12);
 }
 .hero-stat:last-child { border-right: none; }
 .hero-stat-number {
@@ -526,10 +531,24 @@ section { padding: 120px 80px; position: relative; z-index: 1; }
 .apropos-photo-wrap {
   position: relative; border-radius: 24px; overflow: hidden;
   aspect-ratio: 4/5;
+  cursor: default;
 }
 .apropos-photo-wrap img {
   width: 100%; height: 100%; object-fit: cover;
   display: block;
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.apropos-photo-wrap:hover img {
+  transform: scale(1.07);
+}
+.apropos-photo-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(5,8,15,0.6) 0%, transparent 50%);
+  opacity: 0; transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.apropos-photo-wrap:hover .apropos-photo-overlay {
+  opacity: 1;
 }
 /* Decorative corner accent */
 .apropos-corner {
@@ -1048,6 +1067,7 @@ footer {
     <div class="apropos-visual reveal">
       <div class="apropos-photo-wrap">
         <img src="https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=700&q=85" alt="Drone professionnel CapturAir" loading="lazy">
+        <div class="apropos-photo-overlay"></div>
       </div>
       <div class="apropos-corner"></div>
       <div class="apropos-corner2"></div>
@@ -1386,8 +1406,12 @@ function openSms(e) {
 fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FToronto')
   .then(function(r) { return r.json(); })
   .then(function(d) {
+    var hr = new Date().getHours();
+    var isNight = hr >= 20 || hr < 6;
     var icons = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
-    document.getElementById('w-icon').textContent = icons[d.current.weather_code] || '🌡️';
+    var nightIcons = {0:'🌙',1:'🌙',2:'🌑',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+    var iconSet = isNight ? nightIcons : icons;
+    document.getElementById('w-icon').textContent = iconSet[d.current.weather_code] || (isNight ? '🌙' : '🌡️');
     var c = Math.round(d.current.temperature_2m);
     var f = Math.round((c * 9/5) + 32);
     var wind = Math.round(d.current.wind_speed_10m);
