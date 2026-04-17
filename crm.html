@@ -945,9 +945,7 @@ if(!r.ok||!d.success){showLoginErr('Email ou PIN incorrect.');btn.textContent='C
       document.getElementById('login-pin').type='text';
       document.getElementById('lbl-pin').textContent='Code OTP (reçu par email)';
       document.getElementById('login-email').disabled=true;
-      if(d.otp_bypass){
-        document.getElementById('login-pin').value=d.otp_bypass;
-      }
+
       btn.textContent='Valider →';
     }catch(e){showLoginErr('Erreur de connexion.');btn.textContent='Connexion →';}
   }else{
