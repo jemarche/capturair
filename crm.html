@@ -1036,6 +1036,7 @@ async function apiGet(p){
   }catch(e){console.error('apiGet error:',e);return{};}
 }
 async function apiPost(p,b){
+  if(!authToken){return{};}
   if(verifierTokenExpire()){sessionExpired();return{};}
   try{
     const r=await fetch(`${API}${p}`,{method:'POST',headers:hdrs(),body:JSON.stringify(b)});
@@ -1044,6 +1045,7 @@ async function apiPost(p,b){
   }catch(e){console.error('apiPost error:',e);return{};}
 }
 async function apiPut(p,b){
+  if(!authToken){return{};}
   if(verifierTokenExpire()){sessionExpired();return{};}
   try{
     const r=await fetch(`${API}${p}`,{method:'PUT',headers:hdrs(),body:JSON.stringify(b)});
@@ -1052,6 +1054,7 @@ async function apiPut(p,b){
   }catch(e){console.error('apiPut error:',e);return{};}
 }
 async function apiDelete(p){
+  if(!authToken){return{};}
   if(verifierTokenExpire()){sessionExpired();return{};}
   try{
     const r=await fetch(`${API}${p}`,{method:'DELETE',headers:hdrs()});
