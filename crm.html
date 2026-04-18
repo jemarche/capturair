@@ -1023,7 +1023,7 @@ function verifierTokenExpire(){
       showNotif(`⚠️ Session expire dans ${Math.ceil(remaining)} min — sauvegardez vos données`,'warning');
     }
     return p.exp<Date.now();
-  }catch(e){return true;}
+  }catch(e){return false;}
 }
 
 async function apiGet(p){
