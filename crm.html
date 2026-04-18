@@ -2021,10 +2021,7 @@ setInterval(()=>{
   }
 }, 5 * 60 * 1000);
   // Vérifier token toutes les 5 minutes
-setInterval(()=>{
-  if(authToken && verifierTokenExpire()){
-    sessionExpired();
-  }
+
 }, 5 * 60 * 1000);
 </script>
 </body>
