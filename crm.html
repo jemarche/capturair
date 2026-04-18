@@ -994,7 +994,16 @@ function reconnecterSession(){
   pendingReconnect=true;
 }
 document.getElementById('login-pin').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
-(function(){const t=sessionStorage.getItem('crm_token'),u=sessionStorage.getItem('crm_user');if(t&&u){authToken=t;currentUser=JSON.parse(u);document.getElementById('login-screen').style.display='none';document.getElementById('app').classList.add('visible');initApp();}})();
+(function(){
+  const t=sessionStorage.getItem('crm_token'),u=sessionStorage.getItem('crm_user');
+  if(t&&u&&t.includes('.')){
+    authToken=t;
+    currentUser=JSON.parse(u);
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').classList.add('visible');
+    initApp();
+  }
+})();
 
 // ══ INIT ══════════════════════════════════════════════════════════════
 async function initApp(){
