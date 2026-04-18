@@ -1015,7 +1015,7 @@ async function initApp(){
 function verifierTokenExpire(){
   try{
     const t=sessionStorage.getItem('crm_token');
-    if(!t)return true;
+    if(!t)return false;
     const dataB64=t.split('.')[0];
     const p=JSON.parse(atob(dataB64));
     const remaining=(p.exp-Date.now())/1000/60;
