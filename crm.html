@@ -1061,6 +1061,8 @@ async function apiDelete(p){
 
 function sessionExpired(){
   // Ne pas vider les données — afficher modal de reconnexion
+  const t=sessionStorage.getItem('crm_token');
+  if(!t)return;
   document.getElementById('modal-session-expiree').classList.add('active');
 }
 
