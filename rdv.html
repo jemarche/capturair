@@ -550,8 +550,12 @@ fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.283
     var icons = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
     var nightIcons = {0:'🌙',1:'🌙',2:'🌑',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
     var iconSet = isNight ? nightIcons : icons;
-    document.getElementById('w-icon').textContent = iconSet[d.current.weather_code] || (isNight ? '🌙' : '🌡️');
-    document.getElementById('w-temp').textContent = c+'°C · '+f+'°F · Vent '+wind+' km/h · '+cond;
+    var c = Math.round(d.current.temperature_2m);
+var f = Math.round((c * 9/5) + 32);
+var wind = Math.round(d.current.wind_speed_10m);
+var cond = wind >= 30 ? '❌ Vol déconseillé' : wind >= 15 ? '⚠️ Vol prudent' : '✅ Vol OK';
+document.getElementById('w-temp').textContent = c+'°C · '+f+'°F · Vent '+wind+' km/h · '+cond;
+document.getElementById('w-temp-short').textContent = c+'°C · '+f+'°F';
     document.getElementById('w-temp-short').textContent = c+'°C · '+f+'°F';
   }).catch(() => {});
 </script>
