@@ -1016,8 +1016,8 @@ function verifierTokenExpire(){
   try{
     const t=sessionStorage.getItem('crm_token');
     if(!t)return true;
-    const p=JSON.parse(atob(t));
-    // Avertir 10min avant expiration
+    const dataB64=t.split('.')[0];
+    const p=JSON.parse(atob(dataB64));
     const remaining=(p.exp-Date.now())/1000/60;
     if(remaining<10&&remaining>0){
       showNotif(`⚠️ Session expire dans ${Math.ceil(remaining)} min — sauvegardez vos données`,'warning');
