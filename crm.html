@@ -1027,6 +1027,7 @@ function verifierTokenExpire(){
 }
 
 async function apiGet(p){
+  if(!authToken){return{};}
   if(verifierTokenExpire()){sessionExpired();return{};}
   try{
     const r=await fetch(`${API}${p}`,{headers:hdrs()});
