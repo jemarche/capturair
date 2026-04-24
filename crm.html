@@ -2099,6 +2099,288 @@ capturair.com`;
   window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
+// ══ COURTIERS ══════════════════════════════════════════════════════════
+let courtiers=[], courtiersSelectionnes=new Set();
+
+async function chargerCourtiers(){
+  const d=await apiGet('/api/crm/courtiers');
+  courtiers=d.courtiers||[];
+  renderCourtiers();
+  renderHistoriqueCourtiers();
+  updateStatsCourtiers();
+}
+
+function updateStatsCourtiers(){
+  document.getElementById('stat-c-total').textContent=courtiers.length;
+  document.getElementById('stat-c-actifs').textContent=courtiers.filter(c=>c.statut==='Actif').length;
+  document.getElementById('stat-c-envoyes').textContent=courtiers.filter(c=>c.nb_envois>0).length;
+  document.getElementById('stat-c-interesses').textContent=courtiers.filter(c=>c.statut==='Intéressé').length;
+  document.getElementById('stat-c-clients').textContent=courtiers.filter(c=>c.statut==='Client').length;
+}
+
+function renderCourtiers(data){
+  const list=data||courtiers;
+  const tbody=document.getElementById('courtiers-tbody');
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="10"><div class="empty-state"><div class="empty-state-icon">🏢</div><div>Aucun courtier — importez votre liste Excel</div></div></td></tr>`;return;}
+  tbody.innerHTML=list.map(c=>{
+    const sel=courtiersSelectionnes.has(c.id);
+    const doublon=c.doublon?'background:rgba(231,76,60,0.08);':'';
+    const statutColor={'Actif':'var(--green)','Inactif':'var(--gray)','Désabonné':'var(--red)','Intéressé':'var(--orange)','Client':'var(--blue)'};
+    return `<tr style="${doublon}">
+      <td><input type="checkbox" ${sel?'checked':''} onchange="toggleCourtier('${c.id}',this)"></td>
+      <td><strong>${c.prenom||''} ${c.nom||''}</strong>${c.doublon?'<br><span style="font-size:10px;color:var(--red);">⚠️ Doublon</span>':''}</td>
+      <td style="font-size:12px;">${c.email}</td>
+      <td style="font-size:12px;">${c.agence||'—'}${c.banniere&&c.banniere!==c.agence?`<br><span style="color:var(--blue);font-size:10px;">${c.banniere}</span>`:''}</td>
+      <td style="font-size:12px;">${c.ville||'—'}</td>
+      <td style="font-size:11px;">${c.type_contact||'—'}</td>
+      <td><span style="color:${statutColor[c.statut]||'var(--gray)'};font-size:12px;font-weight:600;">${c.statut||'Actif'}</span></td>
+      <td style="text-align:center;font-size:13px;">${c.nb_envois||0}</td>
+      <td style="font-size:11px;">${c.dernier_envoi?new Date(c.dernier_envoi).toLocaleDateString('fr-CA'):'—'}</td>
+      <td>
+        <button class="btn-secondary" style="padding:4px 8px;font-size:11px;" onclick="ouvrirEditionCourtier('${c.id}')">✏️</button>
+        <button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="supprimerCourtier('${c.id}')">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+  document.getElementById('courtiers-selection-count').textContent=`${courtiersSelectionnes.size} sélectionné(s)`;
+}
+
+function filtrerCourtiers(){
+  const q=document.getElementById('search-courtiers').value.toLowerCase();
+  const s=document.getElementById('filter-statut-courtier').value;
+  renderCourtiers(courtiers.filter(c=>{
+    const mq=!q||`${c.prenom} ${c.nom} ${c.email} ${c.agence} ${c.ville}`.toLowerCase().includes(q);
+    const ms=!s||c.statut===s;
+    return mq&&ms;
+  }));
+}
+
+function toggleCourtier(id,el){
+  if(el.checked)courtiersSelectionnes.add(id);
+  else courtiersSelectionnes.delete(id);
+  document.getElementById('courtiers-selection-count').textContent=`${courtiersSelectionnes.size} sélectionné(s)`;
+}
+
+function toggleTousCourtiers(el){
+  if(el.checked)courtiers.forEach(c=>courtiersSelectionnes.add(c.id));
+  else courtiersSelectionnes.clear();
+  renderCourtiers();
+}
+
+function toutSelectionnerCourtiers(){
+  courtiers.forEach(c=>courtiersSelectionnes.add(c.id));
+  document.getElementById('check-all-courtiers').checked=true;
+  renderCourtiers();
+}
+
+function toutDeselectionnerCourtiers(){
+  courtiersSelectionnes.clear();
+  document.getElementById('check-all-courtiers').checked=false;
+  renderCourtiers();
+}
+
+async function supprimerCourtier(id){
+  if(!confirm('Supprimer ce courtier ?'))return;
+  const d=await apiDelete(`/api/crm/courtiers/${id}`);
+  if(d.success){showNotif('✅ Courtier supprimé','success');await chargerCourtiers();}
+  else showNotif('❌ '+d.error,'error');
+}
+
+function ouvrirEditionCourtier(id){
+  const c=courtiers.find(x=>x.id===id);
+  if(!c)return;
+  document.getElementById('edit-courtier-id').value=c.id;
+  document.getElementById('edit-courtier-prenom').value=c.prenom||'';
+  document.getElementById('edit-courtier-nom').value=c.nom||'';
+  document.getElementById('edit-courtier-email').value=c.email||'';
+  document.getElementById('edit-courtier-telephone').value=c.telephone||'';
+  document.getElementById('edit-courtier-agence').value=c.agence||'';
+  document.getElementById('edit-courtier-banniere').value=c.banniere||'';
+  document.getElementById('edit-courtier-ville').value=c.ville||'';
+  document.getElementById('edit-courtier-type').value=c.type_contact||'';
+  document.getElementById('edit-courtier-statut').value=c.statut||'Actif';
+  document.getElementById('edit-courtier-notes').value=c.notes||'';
+  document.getElementById('modal-edit-courtier').classList.add('active');
+}
+
+async function sauverCourtier(){
+  const id=document.getElementById('edit-courtier-id').value;
+  const body={
+    prenom:document.getElementById('edit-courtier-prenom').value,
+    nom:document.getElementById('edit-courtier-nom').value,
+    email:document.getElementById('edit-courtier-email').value,
+    telephone:document.getElementById('edit-courtier-telephone').value,
+    agence:document.getElementById('edit-courtier-agence').value,
+    banniere:document.getElementById('edit-courtier-banniere').value,
+    ville:document.getElementById('edit-courtier-ville').value,
+    type_contact:document.getElementById('edit-courtier-type').value,
+    statut:document.getElementById('edit-courtier-statut').value,
+    notes:document.getElementById('edit-courtier-notes').value,
+  };
+  const d=await apiPut(`/api/crm/courtiers/${id}`,body);
+  if(d.success){showNotif('✅ Courtier mis à jour','success');closeModal('modal-edit-courtier');await chargerCourtiers();}
+  else showNotif('❌ '+d.error,'error');
+}
+
+function openModalNouveauCourtier(){
+  ['nouveau-courtier-prenom','nouveau-courtier-nom','nouveau-courtier-email','nouveau-courtier-telephone','nouveau-courtier-agence','nouveau-courtier-banniere','nouveau-courtier-ville','nouveau-courtier-type','nouveau-courtier-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-nouveau-courtier').classList.add('active');
+}
+
+async function creerCourtier(){
+  const body={
+    prenom:document.getElementById('nouveau-courtier-prenom').value,
+    nom:document.getElementById('nouveau-courtier-nom').value,
+    email:document.getElementById('nouveau-courtier-email').value,
+    telephone:document.getElementById('nouveau-courtier-telephone').value,
+    agence:document.getElementById('nouveau-courtier-agence').value,
+    banniere:document.getElementById('nouveau-courtier-banniere').value,
+    ville:document.getElementById('nouveau-courtier-ville').value,
+    type_contact:document.getElementById('nouveau-courtier-type').value,
+    notes:document.getElementById('nouveau-courtier-notes').value,
+    statut:'Actif'
+  };
+  if(!body.email){showNotif('⚠️ Courriel obligatoire','warning');return;}
+  const d=await apiPost('/api/crm/courtiers',body);
+  if(d.success){
+    showNotif(d.doublon?'⚠️ Courtier ajouté — doublon détecté':'✅ Courtier ajouté','success');
+    closeModal('modal-nouveau-courtier');
+    await chargerCourtiers();
+  } else showNotif('❌ '+d.error,'error');
+}
+
+// ── IMPORT EXCEL ──
+function openModalImportCourtiers(){
+  document.getElementById('modal-import-courtiers').classList.add('active');
+  document.getElementById('import-resultats').style.display='none';
+  document.getElementById('import-file-input').value='';
+}
+
+async function traiterImportExcel(){
+  const file=document.getElementById('import-file-input').files[0];
+  if(!file){showNotif('⚠️ Sélectionnez un fichier Excel','warning');return;}
+  const btn=document.getElementById('btn-importer');
+  btn.innerHTML='⏳ Lecture en cours...';btn.disabled=true;
+  try{
+    const XLSX=window.XLSX;
+    const data=await file.arrayBuffer();
+    const wb=XLSX.read(data,{type:'array'});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+    // Filtrer la ligne d'exemple (ligne 4 du fichier = index 0 si entêtes)
+    const mapping={'Prénom *':'prenom','Nom *':'nom','Courriel *':'email','Téléphone':'telephone','Agence':'agence','Bannière':'banniere','Ville':'ville','Type de contact':'type_contact','Autre 1':'autre_1','Autre 2':'autre_2','Notes':'notes','Statut':'statut'};
+    const rowsMapped=rows.map(r=>{
+      const obj:any={};
+      Object.keys(r).forEach(k=>{const mapped=mapping[k];if(mapped)obj[mapped]=String(r[k]||'').trim();});
+      return obj;
+    }).filter(r=>r.email&&r.email!=='jean.tremblay@remax.ca');
+    if(!rowsMapped.length){showNotif('⚠️ Aucune donnée valide trouvée','warning');btn.innerHTML='📥 Importer';btn.disabled=false;return;}
+    btn.innerHTML=`⏳ Import de ${rowsMapped.length} courtiers...`;
+    const d=await apiPost('/api/crm/courtiers/import',{rows:rowsMapped});
+    if(d.success){
+      document.getElementById('import-resultats').style.display='block';
+      document.getElementById('import-resultats').innerHTML=`
+        <div style="background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:10px;padding:16px;margin-top:16px;">
+          <div style="font-weight:600;color:var(--green);margin-bottom:8px;">✅ Import terminé !</div>
+          <div style="font-size:13px;color:var(--navy);">
+            📥 Importés : <strong>${d.importes}</strong><br>
+            ⚠️ Doublons : <strong style="color:var(--orange);">${d.doublons}</strong><br>
+            ❌ Invalides : <strong style="color:var(--red);">${d.invalides}</strong><br>
+            📊 Total traités : <strong>${d.total}</strong>
+          </div>
+        </div>`;
+      await chargerCourtiers();
+      showNotif(`✅ ${d.importes} courtiers importés !`,'success');
+    } else showNotif('❌ '+d.error,'error');
+  }catch(e){showNotif('❌ Erreur lecture fichier','error');}
+  btn.innerHTML='📥 Importer';btn.disabled=false;
+}
+
+// ── ENVOI MASSIF ──
+let envoiMassifTemplate=1, envoiMassifConfig={};
+
+function ouvrirEnvoiMassif(template){
+  if(courtiersSelectionnes.size===0){showNotif('⚠️ Sélectionnez au moins un courtier','warning');return;}
+  envoiMassifTemplate=template;
+  document.getElementById('envoi-nb-selectionnes').textContent=courtiersSelectionnes.size;
+  document.getElementById('envoi-template-nom').textContent=template===1?'Template 1 — Premier contact':template===2?'Template 2 — Relance':'Template 3 — Offre spéciale';
+  const offreSection=document.getElementById('envoi-offre-section');
+  offreSection.style.display=template===3?'block':'none';
+  // Prévisualisation
+  const c=courtiers.find(x=>courtiersSelectionnes.has(x.id));
+  if(c){
+    const prenom=c.prenom||c.email.split('@')[0];
+    const prenomCap=prenom.charAt(0).toUpperCase()+prenom.slice(1).toLowerCase();
+    document.getElementById('envoi-apercu-prenom').textContent=prenomCap;
+    document.getElementById('envoi-apercu-email').textContent=c.email;
+    document.getElementById('envoi-apercu-banniere').textContent=c.banniere||c.agence||'Centris';
+  }
+  document.getElementById('modal-envoi-massif').classList.add('active');
+}
+
+async function envoyerMassif(){
+  const btn=document.getElementById('btn-envoyer-massif');
+  const rabais=document.getElementById('envoi-rabais')?.value||'15';
+  const dateFin=document.getElementById('envoi-date-fin')?.value||'';
+  // Calculer les prix
+  const r=parseInt(rabais)/100;
+  const prix1=Math.round(249*(1-r));
+  const prix2=Math.round(499*(1-r));
+  const prix3=Math.round(599*(1-r));
+  const prix4=Math.round(279*(1-r));
+  const dateFinStr=dateFin?new Date(dateFin).toLocaleDateString('fr-CA',{day:'numeric',month:'long',year:'numeric'}):'';
+  // Sujets
+  const sujets={
+    1:'CapturAir — Vos annonces méritent la hauteur 🚁',
+    2:'CapturAir — Ce que vos acheteurs voient avant même de visiter 👁️',
+    3:`CapturAir — Offre exclusive courtiers ${rabais}% de rabais, ${dateFinStr} 🔥`
+  };
+  // Templates HTML — récupérés depuis les fichiers
+  const templateUrls={
+    1:'https://jemarche.github.io/capturair/email_template1.html',
+    2:'https://jemarche.github.io/capturair/email_template2.html',
+    3:'https://jemarche.github.io/capturair/email_template3.html',
+  };
+  btn.innerHTML='<span class="spinner"></span> Envoi en cours...';btn.disabled=true;
+  // Barre de progression
+  document.getElementById('envoi-progress').style.display='block';
+  document.getElementById('envoi-progress-bar').style.width='0%';
+  document.getElementById('envoi-progress-text').textContent='Préparation...';
+  try{
+    let html=await fetch(templateUrls[envoiMassifTemplate]).then(r=>r.text());
+    // Remplacer les variables globales
+    html=html.replace(/{{RABAIS}}/g,rabais).replace(/{{DATE_FIN}}/g,dateFinStr).replace(/{{PRIX_1}}/g,String(prix1)).replace(/{{PRIX_2}}/g,String(prix2)).replace(/{{PRIX_3}}/g,String(prix3)).replace(/{{PRIX_4}}/g,String(prix4));
+    const ids=Array.from(courtiersSelectionnes);
+    const total=ids.length;
+    let envoyes=0;
+    // Envoi par batch de 10 avec progress
+    document.getElementById('envoi-progress-text').textContent=`Envoi 0/${total}...`;
+    const d=await apiPost('/api/crm/courtiers/envoyer',{ids,template:envoiMassifTemplate,sujet:sujets[envoiMassifTemplate],contenu_html:html});
+    envoyes=d.envoyes||0;
+    document.getElementById('envoi-progress-bar').style.width='100%';
+    document.getElementById('envoi-progress-text').textContent=`✅ ${envoyes}/${total} envoyés !`;
+    showNotif(`✅ ${envoyes} emails envoyés !`,'success');
+    closeModal('modal-envoi-massif');
+    courtiersSelectionnes.clear();
+    await chargerCourtiers();
+  }catch(e){showNotif('❌ Erreur envoi','error');}
+  btn.innerHTML='📧 Envoyer';btn.disabled=false;
+}
+
+async function renderHistoriqueCourtiers(){
+  const d=await apiGet('/api/crm/courtiers/historique');
+  const historique=d.historique||[];
+  const tbody=document.getElementById('historique-tbody');
+  if(!historique.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--gray);">Aucun envoi pour l\'instant</td></tr>';return;}
+  tbody.innerHTML=historique.map(h=>`<tr>
+    <td style="font-size:12px;">${new Date(h.created_at).toLocaleDateString('fr-CA')}</td>
+    <td><span style="font-size:11px;background:rgba(26,143,209,0.1);color:var(--blue);padding:2px 8px;border-radius:100px;">Template ${h.template}</span></td>
+    <td style="font-size:12px;">${h.sujet||'—'}</td>
+    <td style="text-align:center;color:var(--green);font-weight:600;">${h.nb_envoyes}</td>
+    <td style="text-align:center;color:var(--red);">${h.nb_erreurs||0}</td>
+    <td style="font-size:11px;">${h.envoye_par||'—'}</td>
+  </tr>`).join('');
+}
 // Vérifier token toutes les 5 minutes
 setInterval(()=>{
   if(authToken && verifierTokenExpire()){
