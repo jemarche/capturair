@@ -1170,13 +1170,14 @@ function showPage(page){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById(`page-${page}`)?.classList.add('active');
   document.querySelector(`[onclick="showPage('${page}')"]`)?.classList.add('active');
-  const titles={dashboard:'Dashboard',leads:'Dossiers clients',soumissions:'Soumissions','projets-list':'Projets galerie',factures:'Factures',utilisateurs:'Utilisateurs',dossier:'Fiche dossier'};
+  const titles={dashboard:'Dashboard',leads:'Dossiers clients',soumissions:'Soumissions','projets-list':'Projets galerie',factures:'Factures',utilisateurs:'Utilisateurs',dossier:'Fiche dossier',courtiers:'Courtiers Immobiliers'};
   document.getElementById('topbar-title').textContent=titles[page]||page;
   if(page==='leads')renderLeads();
   if(page==='soumissions')renderSoumissions();
   if(page==='projets-list')renderProjetsList();
   if(page==='factures')renderFactures();
   if(page==='utilisateurs')renderUtilisateurs();
+  if(page==='courtiers')chargerCourtiers();
 }
 
 function confirmerRetour(){
