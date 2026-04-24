@@ -1,1 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CapturAir — Offre exclusive courtiers</title>
+</head>
+<body style="margin:0;padding:0;background:#F4F7FA;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F4F7FA;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+          <!-- HEADER ORANGE/BLEU pour l'offre spéciale -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#0B1F3A 0%,#E67E22 50%,#1A8FD1 100%);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="56" height="56" style="display:block;margin:0 auto 12px;">
+                <circle cx="200" cy="171" r="8" fill="#1A8FD1" stroke="white" stroke-width="2.5"/>
+                <circle cx="200" cy="171" r="3.5" fill="white" opacity="0.9"/>
+                <line x1="163" y1="161" x2="128" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/>
+                <line x1="237" y1="161" x2="272" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/>
+                <line x1="163" y1="181" x2="128" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/>
+                <line x1="237" y1="181" x2="272" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/>
+                <circle cx="128" cy="126" r="7" fill="white"/><circle cx="272" cy="126" r="7" fill="white"/>
+                <circle cx="128" cy="216" r="7" fill="white"/><circle cx="272" cy="216" r="7" fill="white"/>
+                <ellipse cx="128" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-35 128 126)"/>
+                <ellipse cx="128" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(55 128 126)"/>
+                <ellipse cx="272" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(35 272 126)"/>
+                <ellipse cx="272" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-55 272 126)"/>
+                <ellipse cx="128" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(35 128 216)"/>
+                <ellipse cx="128" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-55 128 216)"/>
+                <ellipse cx="272" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-35 272 216)"/>
+                <ellipse cx="272" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(55 272 216)"/>
+                <line x1="172" y1="184" x2="167" y2="200" stroke="white" stroke-width="3"/>
+                <line x1="228" y1="184" x2="233" y2="200" stroke="white" stroke-width="3"/>
+                <line x1="162" y1="200" x2="238" y2="200" stroke="white" stroke-width="3"/>
+              </svg>
+              <div style="font-size:28px;font-weight:800;color:white;letter-spacing:-0.5px;">Captur<span style="color:#3AABEF;">Air</span></div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:3px;text-transform:uppercase;margin-top:6px;">Drone · Photo Aérienne · Lanaudière</div>
+            </td>
+          </tr>
+
+          <!-- BADGE OFFRE -->
+          <tr>
+            <td style="background:#0B1F3A;padding:0 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding:16px 0;">
+                    <span style="display:inline-block;background:rgba(230,126,34,0.15);border:1px solid rgba(230,126,34,0.4);color:#E67E22;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:6px 18px;border-radius:100px;">🔥 Offre exclusive — {{RABAIS}}% de rabais</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- BODY -->
+          <tr>
+            <td style="background:#FFFFFF;padding:44px 48px;border-left:1px solid #DEE4EF;border-right:1px solid #DEE4EF;">
+
+              <p style="font-size:18px;font-weight:700;color:#0B1F3A;margin:0 0 24px;">Bonjour {{PRENOM}},</p>
+
+              <p style="font-size:15px;color:#4A5568;line-height:1.8;margin:0 0 8px;">Pour une durée limitée, CapturAir offre <strong style="color:#E67E22;">{{RABAIS}}% de rabais</strong> sur ses forfaits immobiliers — exclusivement pour les professionnels de l'immobilier.</p>
+
+              <!-- Urgence -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0 28px;">
+                <tr>
+                  <td style="background:rgba(230,126,34,0.06);border:1px solid rgba(230,126,34,0.25);border-radius:10px;padding:14px 20px;text-align:center;">
+                    <div style="font-size:13px;color:#6B7C93;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Offre valide jusqu'au</div>
+                    <div style="font-size:20px;font-weight:800;color:#E67E22;letter-spacing:-0.5px;">{{DATE_FIN}}</div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Tableau des prix -->
+              <div style="font-size:13px;font-weight:700;color:#0B1F3A;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">📋 Forfaits inclus dans l'offre</div>
+              <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #DEE4EF;border-radius:10px;overflow:hidden;margin-bottom:28px;">
+                <tr style="background:#F4F7FA;">
+                  <td style="padding:10px 16px;font-size:11px;font-weight:700;color:#6B7C93;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #DEE4EF;">Forfait</td>
+                  <td style="padding:10px 16px;font-size:11px;font-weight:700;color:#6B7C93;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #DEE4EF;text-align:center;">Prix régulier</td>
+                  <td style="padding:10px 16px;font-size:11px;font-weight:700;color:#E67E22;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #DEE4EF;text-align:center;">Prix partenaire</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 16px;font-size:13px;color:#0B1F3A;border-bottom:1px solid #DEE4EF;">Pack Visibilité Essentielle</td>
+                  <td style="padding:12px 16px;font-size:13px;color:#6B7C93;text-decoration:line-through;text-align:center;border-bottom:1px solid #DEE4EF;">249$</td>
+                  <td style="padding:12px 16px;font-size:14px;font-weight:700;color:#E67E22;text-align:center;border-bottom:1px solid #DEE4EF;">{{PRIX_1}}$</td>
+                </tr>
+                <tr style="background:rgba(26,143,209,0.03);">
+                  <td style="padding:12px 16px;font-size:13px;color:#0B1F3A;border-bottom:1px solid #DEE4EF;">Pack Visibilité Complète ⭐</td>
+                  <td style="padding:12px 16px;font-size:13px;color:#6B7C93;text-decoration:line-through;text-align:center;border-bottom:1px solid #DEE4EF;">499$</td>
+                  <td style="padding:12px 16px;font-size:14px;font-weight:700;color:#E67E22;text-align:center;border-bottom:1px solid #DEE4EF;">{{PRIX_2}}$</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 16px;font-size:13px;color:#0B1F3A;border-bottom:1px solid #DEE4EF;">Pack Signature Premium 🔥</td>
+                  <td style="padding:12px 16px;font-size:13px;color:#6B7C93;text-decoration:line-through;text-align:center;border-bottom:1px solid #DEE4EF;">599$</td>
+                  <td style="padding:12px 16px;font-size:14px;font-weight:700;color:#E67E22;text-align:center;border-bottom:1px solid #DEE4EF;">{{PRIX_3}}$</td>
+                </tr>
+                <tr style="background:rgba(26,143,209,0.03);">
+                  <td style="padding:12px 16px;font-size:13px;color:#0B1F3A;">Inspection Toiture Drone</td>
+                  <td style="padding:12px 16px;font-size:13px;color:#6B7C93;text-decoration:line-through;text-align:center;">279$</td>
+                  <td style="padding:12px 16px;font-size:14px;font-weight:700;color:#E67E22;text-align:center;">{{PRIX_4}}$</td>
+                </tr>
+              </table>
+
+              <p style="font-size:13px;color:#6B7C93;margin:0 0 28px;font-style:italic;">* Taxes en sus. Livraison garantie en 72h. Certifié Transports Canada.</p>
+
+              <!-- CTA URGENT -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding:8px 0 32px;">
+                    <a href="https://capturair.com/courtiers.html" style="display:inline-block;background:linear-gradient(135deg,#E67E22,#D35400);color:white;text-decoration:none;padding:16px 40px;border-radius:10px;font-size:15px;font-weight:700;letter-spacing:0.3px;">Réserver mon créneau avant le {{DATE_FIN}} →</a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="font-size:14px;color:#4A5568;line-height:1.7;margin:0;">Au plaisir de collaborer,</p>
+
+            </td>
+          </tr>
+
+          <!-- SIGNATURE -->
+          <tr>
+            <td style="background:#F4F7FA;padding:28px 48px;border:1px solid #DEE4EF;border-top:none;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td>
+                    <div style="font-size:15px;font-weight:700;color:#0B1F3A;margin-bottom:4px;">Mohand Aïdi</div>
+                    <div style="font-size:12px;color:#6B7C93;margin-bottom:10px;">Fondateur — CapturAir</div>
+                    <div style="font-size:13px;color:#4A5568;line-height:1.8;">
+                      📞 <a href="tel:+15144466078" style="color:#1A8FD1;text-decoration:none;">514 446-6078</a><br>
+                      🌐 <a href="https://capturair.com" style="color:#1A8FD1;text-decoration:none;">capturair.com</a><br>
+                      ✉️ <a href="mailto:info@capturair.com" style="color:#1A8FD1;text-decoration:none;">info@capturair.com</a>
+                    </div>
+                  </td>
+                  <td align="right" valign="middle">
+                    <div style="font-size:11px;color:#9CA3AF;text-align:right;line-height:1.6;">Lanaudière & Grand Montréal<br>Certifié Transports Canada</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="background:#0B1F3A;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;">
+              <p style="font-size:11px;color:rgba(255,255,255,0.3);margin:0;line-height:1.7;">Vous recevez ce courriel en tant que professionnel de l'immobilier.<br>Pour ne plus recevoir nos communications : <a href="mailto:info@capturair.com?subject=Désabonnement" style="color:#3AABEF;text-decoration:none;">se désabonner</a></p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
 
