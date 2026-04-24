@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partenaires Immobiliers — CapturAir</title>
+  <meta name="description" content="CapturAir — Photographie et vidéo aérienne par drone pour courtiers immobiliers. Lanaudière & Grand Montréal.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="canonical" href="https://capturair.com/courtiers.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500&display=swap" rel="stylesheet">
+  <style>
+    :root{--void:#05080F;--deep:#0A0F1A;--dark:#0D1520;--panel:#111827;--blue:#1A8FD1;--blue-light:#3AABEF;--blue-glow:rgba(26,143,209,0.2);--teal:#1ABC9C;--orange:#E67E22;--white:#FFFFFF;--offwhite:#E8EEF5;--muted:rgba(200,216,232,0.55);--border:rgba(200,216,232,0.1);--border-blue:rgba(26,143,209,0.25);--error:#e74c3c;--success:#2ecc71}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;font-weight:300;color:var(--offwhite);background:var(--deep);overflow-x:hidden;position:relative}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(26,143,209,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(26,143,209,0.04) 1px,transparent 1px);background-size:64px 64px;pointer-events:none;z-index:0}
+    ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--void)}::-webkit-scrollbar-thumb{background:var(--blue);border-radius:2px}
+
+    /* ── NAV — identique au site principal ── */
+    nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:72px;background:transparent;transition:background 0.4s ease,backdrop-filter 0.4s ease,border-color 0.4s ease;border-bottom:1px solid transparent;gap:16px}
+    nav.scrolled{background:rgba(5,8,15,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom-color:var(--border)}
+    .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0}
+    .nav-logo-svg{width:38px;height:38px;flex-shrink:0}
+    .nav-logo-text{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--white);letter-spacing:0.3px}
+    .nav-logo-text span{color:var(--blue-light)}
+    .nav-links{display:flex;align-items:center;gap:40px;list-style:none}
+    .nav-links a{text-decoration:none;color:rgba(255,255,255,0.65);font-size:13px;font-weight:400;letter-spacing:0.8px;text-transform:uppercase;transition:color 0.2s}
+    .nav-links a:hover{color:var(--white)}
+    .nav-partner-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(26,143,209,0.12);border:1px solid rgba(26,143,209,0.28);color:var(--blue-light);font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:5px 14px;border-radius:100px}
+    .nav-partner-badge::before{content:'';width:5px;height:5px;background:var(--blue-light);border-radius:50%;animation:pulse 2s infinite}
+    .nav-cta{background:var(--blue)!important;color:var(--white)!important;padding:9px 22px!important;border-radius:6px!important;font-weight:500!important;text-transform:none!important;letter-spacing:0!important}
+    .nav-cta:hover{background:var(--blue-light)!important}
+
+    /* Weather widget */
+    .weather-widget{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(200,216,232,0.1);border-radius:10px;padding:6px 14px;flex-shrink:0}
+    .weather-widget-icon{font-size:17px}
+    .weather-widget-info{display:flex;flex-direction:column;line-height:1.3}
+    .weather-widget-city{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(200,216,232,0.4)}
+    .weather-widget-temp{font-size:13px;font-weight:400;color:var(--white);white-space:nowrap}
+    .weather-widget-temp-short{display:none}
+
+    /* ── HERO ── */
+    #hero{min-height:100vh;position:relative;display:flex;align-items:center;overflow:hidden;z-index:1}
+    .hero-bg{position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1800&q=85') center/cover no-repeat}
+    .hero-overlay{position:absolute;inset:0;background:linear-gradient(160deg,rgba(5,8,15,0.92) 0%,rgba(10,15,26,0.75) 45%,rgba(5,8,15,0.95) 100%)}
+    .hero-glow{position:absolute;bottom:-80px;left:50%;transform:translateX(-50%);width:700px;height:200px;background:radial-gradient(ellipse,rgba(26,143,209,0.1) 0%,transparent 70%);pointer-events:none}
+    .hero-content{position:relative;z-index:2;padding:140px 80px 100px;max-width:860px}
+    .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(26,143,209,0.12);border:1px solid rgba(26,143,209,0.28);color:var(--blue-light);font-size:11px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;padding:6px 16px;border-radius:100px;margin-bottom:36px;animation:fadeUp 0.8s ease both}
+    .hero-badge::before{content:'';width:6px;height:6px;background:var(--blue-light);border-radius:50%;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.3)}}
+    .hero-title{font-family:'Syne',sans-serif;font-size:clamp(44px,6vw,80px);font-weight:800;line-height:0.95;color:var(--white);margin-bottom:10px;letter-spacing:-2px;animation:fadeUp 0.8s 0.1s ease both}
+    .hero-title strong{display:block;color:transparent;-webkit-text-stroke:1.5px rgba(58,171,239,0.7)}
+    .hero-subtitle{font-size:18px;color:rgba(200,216,232,0.75);line-height:1.75;margin-bottom:48px;max-width:560px;animation:fadeUp 0.8s 0.2s ease both}
+    .hero-stats{display:flex;gap:0;border:1px solid rgba(255,255,255,0.05);border-radius:16px;background:rgba(255,255,255,0.02);backdrop-filter:blur(4px);overflow:hidden;max-width:600px;animation:fadeUp 0.8s 0.3s ease both}
+    .hero-stat{flex:1;padding:18px 24px;border-right:1px solid rgba(200,216,232,0.06);transition:background 0.3s}
+    .hero-stat:hover{background:rgba(26,143,209,0.12)}
+    .hero-stat:last-child{border-right:none}
+    .hero-stat-number{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--white);line-height:1}
+    .hero-stat-number span{color:var(--blue-light)}
+    .hero-stat-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:4px}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ── SECTIONS ── */
+    section{padding:100px 80px;position:relative;z-index:1}
+    .section-inner{max-width:1280px;margin:0 auto}
+    .section-tag{display:inline-flex;align-items:center;gap:10px;font-size:10px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--blue-light);margin-bottom:16px}
+    .section-tag::before{content:'';width:24px;height:1px;background:var(--blue-light)}
+    .section-title{font-family:'Syne',sans-serif;font-size:clamp(32px,4vw,52px);font-weight:700;line-height:1.05;color:var(--white);letter-spacing:-1.5px;margin-bottom:16px}
+    .section-title em{font-style:normal;color:transparent;-webkit-text-stroke:1px rgba(58,171,239,0.6)}
+    .section-lead{font-size:16px;color:var(--muted);line-height:1.8;max-width:560px}
+    #pourquoi{background:var(--void)}
+    #comment{background:var(--deep)}
+    #residentiels{background:var(--void)}
+    #commercial{background:var(--deep)}
+    #contact{background:var(--void)}
+
+    /* ── GLASS CARD ── */
+    .glass-card{background:rgba(255,255,255,0.03);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:36px 32px;position:relative;overflow:hidden;transition:all 0.4s cubic-bezier(0.23,1,0.32,1)}
+    .glass-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(58,171,239,0.6),transparent);opacity:0;transition:opacity 0.4s}
+    .glass-card:hover{transform:translateY(-6px);border-color:rgba(58,171,239,0.2);box-shadow:0 24px 60px rgba(0,0,0,0.4)}
+    .glass-card:hover::before{opacity:1}
+    .card-icon{width:52px;height:52px;background:rgba(26,143,209,0.1);border:1px solid rgba(26,143,209,0.2);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px}
+    .card-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:10px}
+    .card-text{font-size:14px;color:var(--muted);line-height:1.75}
+    .card-stat{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:var(--blue-light);margin-top:16px}
+
+    /* ── POURQUOI ── */
+    .pourquoi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:56px}
+
+    /* ── COMMENT CA MARCHE ── */
+    .steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:56px;position:relative}
+    .steps-grid::before{content:'';position:absolute;top:36px;left:16.66%;right:16.66%;height:1px;background:linear-gradient(90deg,transparent,var(--blue-light),var(--blue-light),transparent);opacity:0.3;z-index:0}
+    .step-card{text-align:center;padding:36px 32px;position:relative;z-index:1}
+    .step-num{width:72px;height:72px;border-radius:50%;background:rgba(26,143,209,0.1);border:2px solid rgba(26,143,209,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--blue-light);transition:all 0.3s}
+    .step-card:hover .step-num{background:rgba(26,143,209,0.2);border-color:var(--blue-light);box-shadow:0 0 24px rgba(26,143,209,0.25)}
+    .step-icon{font-size:32px;margin-bottom:8px}
+    .step-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:10px}
+    .step-text{font-size:14px;color:var(--muted);line-height:1.75}
+    .step-detail{display:inline-flex;align-items:center;gap:6px;background:rgba(26,143,209,0.08);border:1px solid rgba(26,143,209,0.2);color:var(--blue-light);font-size:11px;padding:4px 12px;border-radius:100px;margin-top:12px}
+
+    /* ── PACKS ── */
+    .packs-header{margin-bottom:56px}
+    .packs-header-row{display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap}
+    .packs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .pack-card{background:rgba(255,255,255,0.03);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:36px 32px;position:relative;overflow:hidden;transition:all 0.4s cubic-bezier(0.23,1,0.32,1);display:flex;flex-direction:column}
+    .pack-card.featured{background:rgba(26,143,209,0.08);border-color:rgba(26,143,209,0.3)}
+    .pack-card.premium{background:linear-gradient(135deg,rgba(230,126,34,0.08) 0%,rgba(26,143,209,0.05) 100%);border-color:rgba(230,126,34,0.3)}
+    .pack-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity 0.4s}
+    .pack-card:not(.featured):not(.premium)::before{background:linear-gradient(90deg,transparent,rgba(58,171,239,0.6),transparent)}
+    .pack-card.featured::before{background:linear-gradient(90deg,transparent,var(--blue-light),transparent);opacity:1}
+    .pack-card.premium::before{background:linear-gradient(90deg,transparent,var(--orange),transparent);opacity:1}
+    .pack-card:hover{transform:translateY(-6px);box-shadow:0 24px 60px rgba(0,0,0,0.4)}
+    .pack-card:hover::before{opacity:1}
+    .pack-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:100px;margin-bottom:16px;width:fit-content}
+    .pack-badge.best{background:rgba(26,143,209,0.15);color:var(--blue-light);border:1px solid rgba(26,143,209,0.3)}
+    .pack-badge.hot{background:rgba(230,126,34,0.15);color:var(--orange);border:1px solid rgba(230,126,34,0.3)}
+    .pack-badge.entry{background:rgba(26,188,156,0.12);color:var(--teal);border:1px solid rgba(26,188,156,0.25)}
+    .pack-badge.comm{background:rgba(26,143,209,0.15);color:var(--blue-light);border:1px solid rgba(26,143,209,0.3)}
+    .pack-name{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--white);margin-bottom:8px;letter-spacing:-0.3px}
+    .pack-desc{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px}
+    .pack-price{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--blue-light);margin-bottom:4px}
+    .pack-price.orange{color:var(--orange)}
+    .pack-price-note{font-size:11px;color:var(--muted);margin-bottom:24px}
+    .pack-features{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:28px;flex:1}
+    .pack-features li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:rgba(200,216,232,0.8);line-height:1.5}
+    .pack-features li::before{content:'✓';color:var(--blue-light);font-weight:700;flex-shrink:0;margin-top:1px}
+    .pack-card.premium .pack-features li::before{color:var(--orange)}
+    .pack-cta{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--blue);color:var(--white);border:none;padding:13px 24px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;text-decoration:none;width:100%}
+    .pack-cta:hover{background:var(--blue-light);transform:translateY(-1px);box-shadow:0 8px 24px rgba(26,143,209,0.35)}
+    .pack-cta.orange-cta{background:var(--orange)}
+    .pack-cta.orange-cta:hover{background:#f39c12;box-shadow:0 8px 24px rgba(230,126,34,0.35)}
+    .surmesure-card{background:rgba(26,143,209,0.06);border:1px solid rgba(26,143,209,0.2);border-radius:20px;padding:40px 48px;display:flex;align-items:center;justify-content:space-between;gap:40px;flex-wrap:wrap;margin-top:40px}
+    .surmesure-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;color:var(--white);margin-bottom:8px}
+    .surmesure-text{font-size:14px;color:var(--muted);line-height:1.7;max-width:480px}
+
+    /* ── CONTACT ── */
+    .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+    .contact-actions{display:flex;flex-direction:column;gap:12px;margin-bottom:32px}
+    .contact-btn{display:flex;align-items:center;gap:14px;padding:16px 20px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--offwhite);text-decoration:none;font-size:14px;transition:all 0.2s;cursor:pointer;font-family:'DM Sans',sans-serif}
+    .contact-btn:hover{border-color:var(--border-blue);background:rgba(26,143,209,0.08);transform:translateY(-1px)}
+    .contact-btn-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .contact-btn-info{flex:1}
+    .contact-btn-title{font-weight:600;font-size:14px;color:var(--white)}
+    .contact-btn-sub{font-size:12px;color:var(--muted);margin-top:2px}
+    .contact-btn-arrow{color:var(--muted);font-size:18px}
+    .contact-form{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:24px;padding:40px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+    .form-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--white);margin-bottom:24px}
+    .form-group{margin-bottom:18px}
+    .form-label{display:block;font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:rgba(200,216,232,0.5);margin-bottom:7px}
+    .form-input,.form-select,.form-textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(200,216,232,0.12);border-radius:10px;padding:12px 15px;font-size:14px;color:var(--white);font-family:'DM Sans',sans-serif;transition:all 0.2s;outline:none}
+    .form-input::placeholder,.form-textarea::placeholder{color:rgba(200,216,232,0.25)}
+    .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--blue);background:rgba(26,143,209,0.06);box-shadow:0 0 0 3px rgba(26,143,209,0.08)}
+    .form-select option{background:var(--panel);color:var(--white)}
+    .form-textarea{min-height:110px;resize:vertical}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .btn-submit{width:100%;background:var(--blue);color:var(--white);border:none;padding:14px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-top:6px}
+    .btn-submit:hover{background:var(--blue-light);transform:translateY(-1px);box-shadow:0 8px 24px rgba(26,143,209,0.35)}
+
+    /* ── WHATSAPP FLOAT ── */
+    .whatsapp-float{position:fixed;bottom:24px;right:24px;width:56px;height:56px;z-index:999;opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity 0.4s ease,transform 0.4s ease}
+    .whatsapp-float.visible{opacity:1;pointer-events:auto;transform:translateY(0)}
+    .whatsapp-float img{width:100%;height:100%;border-radius:50%;box-shadow:0 8px 24px rgba(0,0,0,0.4);transition:transform 0.2s}
+    .whatsapp-float:hover img{transform:scale(1.1)}
+
+    /* ── MODAL ── */
+    .modal-overlay{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);align-items:center;justify-content:center}
+    .modal-overlay.active{display:flex;animation:fadeIn 0.3s ease}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .modal-box{background:var(--panel);border:1px solid var(--border-blue);border-radius:24px;padding:48px;max-width:460px;width:90%;text-align:center;animation:slideUp 0.4s cubic-bezier(0.23,1,0.32,1)}
+    @keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+    .modal-icon{width:68px;height:68px;background:rgba(26,143,209,0.1);border:2px solid var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px}
+    .modal-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--white);margin-bottom:12px}
+    .modal-text{font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:28px}
+    .modal-close{background:var(--blue);color:var(--white);border:none;border-radius:8px;padding:12px 36px;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.2s}
+    .modal-close:hover{background:var(--blue-light)}
+
+    /* ── FOOTER ── */
+    footer{background:var(--void);padding:36px 80px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;border-top:1px solid rgba(200,216,232,0.05);position:relative;z-index:1}
+    .footer-copy{font-size:12px;color:rgba(200,216,232,0.25)}
+    .footer-links{display:flex;gap:20px}
+    .footer-links a{text-decoration:none;font-size:12px;color:rgba(200,216,232,0.3);transition:color 0.2s}
+    .footer-links a:hover{color:var(--blue-light)}
+
+    /* ── REVEAL ── */
+    .reveal{opacity:0;transform:translateY(32px);transition:opacity 0.7s ease,transform 0.7s cubic-bezier(0.23,1,0.32,1)}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+    .reveal-delay-1{transition-delay:0.1s}
+    .reveal-delay-2{transition-delay:0.2s}
+    .reveal-delay-3{transition-delay:0.3s}
+    .reveal-delay-4{transition-delay:0.4s}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:1100px){.packs-grid{grid-template-columns:repeat(2,1fr)}.pourquoi-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:900px){
+      nav{padding:0 20px;gap:10px}
+      .nav-links{display:none}
+      .weather-widget{padding:5px 10px}
+      .weather-widget-temp{display:none}
+      .weather-widget-temp-short{display:block;font-size:12px}
+      section{padding:72px 24px}
+      .hero-content{padding:120px 24px 80px}
+      .packs-grid{grid-template-columns:1fr}
+      .pourquoi-grid{grid-template-columns:1fr}
+      .steps-grid{grid-template-columns:1fr}
+      .steps-grid::before{display:none}
+      .contact-grid{grid-template-columns:1fr;gap:48px}
+      .form-row{grid-template-columns:1fr}
+      .packs-header-row{flex-direction:column;align-items:flex-start}
+      footer{flex-direction:column;text-align:center;padding:28px 24px}
+      .surmesure-card{flex-direction:column;padding:28px 24px}
+    }
+  </style>
+</head>
+<body>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal-box">
+    <div class="modal-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <div class="modal-title">Merci pour votre message !</div>
+    <p class="modal-text">Votre demande a bien été reçue. Je vous contacterai <strong style="color:var(--blue-light)">dans les 24 heures</strong>.<br><br>— Mohand Aïdi, CapturAir</p>
+    <button class="modal-close" onclick="closeModal()">Fermer</button>
+  </div>
+</div>
+
+<!-- NAV — identique au site principal -->
+<nav id="mainNav">
+  <a href="index.html" class="nav-logo">
+    <svg class="nav-logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+      <circle cx="200" cy="171" r="8" fill="#1A8FD1" stroke="white" stroke-width="2.5"/><circle cx="200" cy="171" r="3.5" fill="white" opacity="0.9"/>
+      <line x1="163" y1="161" x2="128" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/><line x1="237" y1="161" x2="272" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/>
+      <line x1="163" y1="181" x2="128" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/><line x1="237" y1="181" x2="272" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="128" cy="126" r="7" fill="white"/><circle cx="272" cy="126" r="7" fill="white"/><circle cx="128" cy="216" r="7" fill="white"/><circle cx="272" cy="216" r="7" fill="white"/>
+      <ellipse cx="128" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-35 128 126)"/><ellipse cx="128" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(55 128 126)"/>
+      <ellipse cx="272" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(35 272 126)"/><ellipse cx="272" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-55 272 126)"/>
+      <ellipse cx="128" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(35 128 216)"/><ellipse cx="128" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-55 128 216)"/>
+      <ellipse cx="272" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-35 272 216)"/><ellipse cx="272" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(55 272 216)"/>
+      <line x1="172" y1="184" x2="167" y2="200" stroke="white" stroke-width="3"/><line x1="228" y1="184" x2="233" y2="200" stroke="white" stroke-width="3"/><line x1="162" y1="200" x2="238" y2="200" stroke="white" stroke-width="3"/>
+    </svg>
+    <span class="nav-logo-text">Captur<span>Air</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#galerie">Galerie</a></li>
+    <li><a href="index.html#apropos">À propos</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="#contact" class="nav-cta">Demander un devis</a></li>
+  </ul>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="nav-partner-badge">Accès Partenaires</div>
+    <div class="weather-widget">
+      <span class="weather-widget-icon" id="w-icon">⏳</span>
+      <div class="weather-widget-info">
+        <span class="weather-widget-city">Lavaltrie</span>
+        <span class="weather-widget-temp" id="w-temp">--°C</span>
+        <span class="weather-widget-temp weather-widget-temp-short" id="w-temp-short">--°C</span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Exclusif · Professionnels de l'immobilier</div>
+    <h1 class="hero-title">Vendez plus vite,<br><strong>volez plus haut.</strong></h1>
+    <p class="hero-subtitle">Des photos et vidéos aériennes professionnelles qui transforment vos annonces et captivent les acheteurs dès le premier regard — partout en Lanaudière et Grand Montréal.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-number">72<span>h</span></div><div class="hero-stat-label">Livraison garantie</div></div>
+      <div class="hero-stat"><div class="hero-stat-number">4<span>K</span></div><div class="hero-stat-label">Résolution images</div></div>
+      <div class="hero-stat"><div class="hero-stat-number">100<span>%</span></div><div class="hero-stat-label">Certifié TC</div></div>
+      <div class="hero-stat"><div class="hero-stat-number">199<span>$</span></div><div class="hero-stat-label">À partir de</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- POURQUOI -->
+<section id="pourquoi">
+  <div class="section-inner">
+    <div style="text-align:center;max-width:700px;margin:0 auto 56px;">
+      <span class="section-tag reveal">Pourquoi CapturAir</span>
+      <h2 class="section-title reveal reveal-delay-1">La vue aérienne qui <em>fait la différence</em></h2>
+      <p class="section-lead reveal reveal-delay-2" style="margin:0 auto;">Les acheteurs scrollent vite. Une photo aérienne professionnelle arrête le regard et positionne votre annonce au-dessus de la concurrence.</p>
+    </div>
+    <div class="pourquoi-grid">
+      <div class="glass-card reveal">
+        <div class="card-icon">🏆</div>
+        <div class="card-title">Annonces qui se démarquent</div>
+        <div class="card-text">Des images aériennes uniques qui valorisent chaque propriété — terrain, volumes, environnement — sous son meilleur angle.</div>
+        <div class="card-stat">+68%<span style="font-size:14px;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:300;"> de vues</span></div>
+      </div>
+      <div class="glass-card reveal reveal-delay-1">
+        <div class="card-icon">⚡</div>
+        <div class="card-title">Livraison en 72h garantie</div>
+        <div class="card-text">Fichiers haute résolution livrés via lien sécurisé en 72h. Prêts pour Centris, MLS et vos réseaux sociaux.</div>
+        <div class="card-stat">72<span style="font-size:14px;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:300;"> heures</span></div>
+      </div>
+      <div class="glass-card reveal reveal-delay-2">
+        <div class="card-icon">🛡️</div>
+        <div class="card-title">Certifié Transports Canada</div>
+        <div class="card-text">Pilote accrédité, assurance responsabilité complète. Vous êtes protégés à chaque mission, partout en Lanaudière et Grand Montréal.</div>
+        <div class="card-stat">100<span style="font-size:14px;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:300;">% conforme</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMENT CA MARCHE -->
+<section id="comment">
+  <div class="section-inner">
+    <div style="text-align:center;max-width:680px;margin:0 auto 56px;">
+      <span class="section-tag reveal">Simple & Rapide</span>
+      <h2 class="section-title reveal reveal-delay-1">Comment ça <em>marche ?</em></h2>
+      <p class="section-lead reveal reveal-delay-2" style="margin:0 auto;">3 étapes, c'est tout. Nous gérons le reste pour que vous puissiez vous concentrer sur vos mandats.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card reveal">
+        <div class="step-num">1</div>
+        <div class="step-icon">📅</div>
+        <div class="step-title">Vous nous contactez</div>
+        <div class="step-text">Partagez-nous l'adresse de la propriété et vos disponibilités. Nous planifions la mission selon votre calendrier.</div>
+        <div class="step-detail">Réponse sous 24h</div>
+      </div>
+      <div class="step-card reveal reveal-delay-1">
+        <div class="step-num">2</div>
+        <div class="step-icon">🚁</div>
+        <div class="step-title">On vole pour vous</div>
+        <div class="step-text">Notre pilote certifié TC effectue la captation drone en respectant toutes les réglementations. Photos et vidéos 4K.</div>
+        <div class="step-detail">Mission professionnelle</div>
+      </div>
+      <div class="step-card reveal reveal-delay-2">
+        <div class="step-num">3</div>
+        <div class="step-icon">🏡</div>
+        <div class="step-title">Vous mettez en marché</div>
+        <div class="step-text">Fichiers livrés via lien sécurisé en 72h. Prêts à publier sur Centris, MLS, Instagram et Facebook.</div>
+        <div class="step-detail">Livraison en 72h</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PACKS RÉSIDENTIELS -->
+<section id="residentiels">
+  <div class="section-inner">
+    <div class="packs-header">
+      <div class="packs-header-row">
+        <div>
+          <span class="section-tag reveal">🏠 Résidentiel</span>
+          <h2 class="section-title reveal reveal-delay-1">Packs <em>Immobilier</em></h2>
+        </div>
+        <p class="section-lead reveal reveal-delay-2">Des solutions visuelles pour accélérer vos ventes — maisons, condos, terrains et propriétés de prestige.</p>
+      </div>
+    </div>
+    <div class="packs-grid">
+      <div class="pack-card reveal">
+        <span class="pack-badge entry">✦ Point d'entrée</span>
+        <div class="pack-name">Pack Visibilité Essentielle</div>
+        <div class="pack-desc">Des photos aériennes professionnelles pour mettre en valeur votre propriété et capter immédiatement l'attention des acheteurs.</div>
+        <div class="pack-price">À partir de 249$</div>
+        <div class="pack-price-note">taxes en sus · livraison 72h</div>
+        <ul class="pack-features">
+          <li>Photos aériennes haute résolution</li>
+          <li>Optimisation pour mise en marché immobilière</li>
+          <li>Prises de vue valorisant volumes et terrain</li>
+          <li>Livraison rapide via lien sécurisé</li>
+        </ul>
+        <a href="#contact" class="pack-cta">Demander ce pack →</a>
+      </div>
+      <div class="pack-card featured reveal reveal-delay-1">
+        <span class="pack-badge best">⭐ Le plus vendu</span>
+        <div class="pack-name">Pack Visibilité Complète</div>
+        <div class="pack-desc">Une combinaison photo + vidéo conçue pour maximiser l'impact visuel et accélérer la vente de votre bien.</div>
+        <div class="pack-price">À partir de 499$</div>
+        <div class="pack-price-note">taxes en sus · livraison 72h</div>
+        <ul class="pack-features">
+          <li>Photos aériennes haute résolution</li>
+          <li>Capsule vidéo dynamique 30–60 secondes</li>
+          <li>Optimisation complète pour marketing immobilier</li>
+          <li>Livraison rapide via lien sécurisé</li>
+          <li>Offre la plus polyvalente pour la mise en marché</li>
+        </ul>
+        <a href="#contact" class="pack-cta">Demander ce pack →</a>
+      </div>
+      <div class="pack-card premium reveal reveal-delay-2">
+        <span class="pack-badge hot">🔥 Haut de gamme</span>
+        <div class="pack-name">Pack Signature Immobilier Premium</div>
+        <div class="pack-desc">Une mise en valeur haut de gamme qui positionne votre propriété au niveau supérieur et attire des acheteurs qualifiés.</div>
+        <div class="pack-price orange">À partir de 599$</div>
+        <div class="pack-price-note">taxes en sus · livraison 72h</div>
+        <ul class="pack-features">
+          <li>Photos aériennes premium</li>
+          <li>Vidéo immersive</li>
+          <li>Angles stratégiques haut de gamme</li>
+          <li>Optimisation marketing complète</li>
+          <li>Pour mandats premium et propriétés distinctives</li>
+        </ul>
+        <a href="#contact" class="pack-cta orange-cta">Demander ce pack →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PACK COMMERCIAL -->
+<section id="commercial">
+  <div class="section-inner">
+    <div class="packs-header">
+      <div class="packs-header-row">
+        <div>
+          <span class="section-tag reveal">🏢 Commercial & Entreprise</span>
+          <h2 class="section-title reveal reveal-delay-1">Inspection <em>Toiture Drone</em></h2>
+        </div>
+        <p class="section-lead reveal reveal-delay-2">Rapide, sécuritaire et sans risque — idéale pour gestionnaires d'immeubles et syndics de copropriété.</p>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+      <div class="pack-card featured reveal">
+        <span class="pack-badge comm">🏢 Commercial</span>
+        <div class="pack-name">Inspection Toiture Visuelle Drone</div>
+        <div class="pack-desc">Une inspection rapide et sécuritaire de votre toiture, sans risque et sans interruption des activités.</div>
+        <div class="pack-price">À partir de 279$</div>
+        <div class="pack-price-note">taxes en sus · livraison rapide</div>
+        <ul class="pack-features">
+          <li>Photos détaillées de la toiture</li>
+          <li>Accès aux zones difficiles sans échafaudage</li>
+          <li>Analyse visuelle complète</li>
+          <li>Livraison rapide via lien sécurisé</li>
+          <li>Idéal pour copropriétés et immeubles commerciaux</li>
+        </ul>
+        <a href="#contact" class="pack-cta">Demander ce service →</a>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="glass-card reveal reveal-delay-1"><div class="card-icon">🔒</div><div class="card-title">Zéro risque pour votre équipe</div><div class="card-text">Le drone accède à tous les recoins sans échafaudage, sans risque de chute et sans interruption de vos activités.</div></div>
+        <div class="glass-card reveal reveal-delay-2"><div class="card-icon">📸</div><div class="card-title">Documentation visuelle complète</div><div class="card-text">Photos haute résolution — idéal pour rapports de gestion, assurances et planification de travaux.</div></div>
+        <div class="glass-card reveal reveal-delay-3"><div class="card-icon">📍</div><div class="card-title">Lanaudière & Grand Montréal</div><div class="card-text">Laval, Montréal, Repentigny, Terrebonne, Joliette, Lavaltrie — interventions rapides partout sur le territoire.</div></div>
+      </div>
+    </div>
+    <div class="surmesure-card reveal">
+      <div>
+        <div class="surmesure-title">Un projet sur mesure ?</div>
+        <p class="surmesure-text">Chaque mandat est unique. Contactez-nous pour discuter de vos besoins spécifiques — nous adaptons notre offre à votre réalité.</p>
+      </div>
+      <a href="#contact" class="pack-cta" style="width:auto;white-space:nowrap;padding:14px 32px;">Discutons-en →</a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="contact-grid">
+      <div>
+        <span class="section-tag reveal">Contact</span>
+        <h2 class="section-title reveal reveal-delay-1">Parlons de <em>votre prochain mandat</em></h2>
+        <p class="section-lead reveal reveal-delay-2" style="margin-bottom:36px;">Réponse garantie sous 24h. Devis gratuit et sans engagement pour chaque nouveau projet.</p>
+        <div class="contact-actions reveal reveal-delay-2">
+          <a class="contact-btn" href="https://wa.me/15144466078?text=Bonjour%20CapturAir%2C%20je%20suis%20courtier%20immobilier%20et%20je%20voudrais%20discuter%20de%20vos%20services." target="_blank" rel="noopener">
+            <div class="contact-btn-icon" style="background:#25D366;"><svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></div>
+            <div class="contact-btn-info"><div class="contact-btn-title">WhatsApp</div><div class="contact-btn-sub">Message instantané · 514 446-6078</div></div>
+            <span class="contact-btn-arrow">›</span>
+          </a>
+          <a class="contact-btn" href="tel:+15144466078">
+            <div class="contact-btn-icon" style="background:linear-gradient(135deg,#1A8FD1,#0D5C8A);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
+            <div class="contact-btn-info"><div class="contact-btn-title">Appeler</div><div class="contact-btn-sub">514 446-6078 · Lun–Dim</div></div>
+            <span class="contact-btn-arrow">›</span>
+          </a>
+          <a class="contact-btn" href="mailto:info@capturair.com">
+            <div class="contact-btn-icon" style="background:linear-gradient(135deg,#1A8FD1,#0D5C8A);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+            <div class="contact-btn-info"><div class="contact-btn-title">Courriel</div><div class="contact-btn-sub">info@capturair.com</div></div>
+            <span class="contact-btn-arrow">›</span>
+          </a>
+        </div>
+        <div class="reveal reveal-delay-3" style="background:rgba(26,143,209,0.07);border:1px solid rgba(26,143,209,0.2);border-radius:14px;padding:18px 22px;">
+          <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--blue-light);margin-bottom:8px;">Zone de service</div>
+          <div style="font-size:14px;color:var(--muted);line-height:1.7;">Lanaudière · Laval · Montréal · Rive-Nord · Rive-Sud · Repentigny · Terrebonne · Joliette · Lavaltrie</div>
+        </div>
+      </div>
+      <div class="contact-form reveal reveal-delay-2">
+        <div class="form-title">📋 Demande de soumission gratuite</div>
+        <form id="courtierForm" novalidate onsubmit="handleSubmit(event)">
+          <input type="hidden" name="access_key" value="968327d5-cc33-42ad-a702-52e138057bff">
+          <input type="hidden" name="subject" value="Nouvelle demande courtier - CapturAir">
+          <input type="hidden" name="from_name" value="CapturAir Courtiers">
+          <input type="checkbox" name="botcheck" style="display:none;" tabindex="-1" autocomplete="off">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Prénom *</label><input type="text" name="prenom" id="prenom" class="form-input" placeholder="Jean" required></div>
+            <div class="form-group"><label class="form-label">Nom *</label><input type="text" name="nom" id="nom" class="form-input" placeholder="Tremblay" required></div>
+          </div>
+          <div class="form-group"><label class="form-label">Agence immobilière</label><input type="text" name="agence" class="form-input" placeholder="RE/MAX, Sutton, Royal LePage..."></div>
+          <div class="form-group"><label class="form-label">Courriel *</label><input type="email" name="email" id="email" class="form-input" placeholder="jean@agence.com" required></div>
+          <div class="form-group"><label class="form-label">Téléphone</label><input type="tel" name="telephone" class="form-input" placeholder="514 446-6078"></div>
+          <div class="form-group">
+            <label class="form-label">Pack souhaité *</label>
+            <select name="pack" id="pack" class="form-select form-input" required>
+              <option value="">— Sélectionner un pack —</option>
+              <option>Pack Visibilité Essentielle — à partir de 249$</option>
+              <option>Pack Visibilité Complète ⭐ — à partir de 499$</option>
+              <option>Pack Signature Immobilier Premium 🔥 — à partir de 599$</option>
+              <option>Inspection Toiture Visuelle Drone — à partir de 279$</option>
+              <option>Projet sur mesure</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Ville de la propriété *</label><input type="text" name="ville" id="ville" class="form-input" placeholder="Repentigny, Laval, Montréal..." required></div>
+          <div class="form-group"><label class="form-label">Message</label><textarea name="message" class="form-textarea" placeholder="Décrivez votre propriété, vos besoins..."></textarea></div>
+          <button type="submit" class="btn-submit">Envoyer ma demande <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div style="display:flex;align-items:center;gap:10px;font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:rgba(255,255,255,0.4);">
+    <svg width="28" height="28" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" opacity="0.5"><circle cx="200" cy="171" r="8" fill="#1A8FD1" stroke="white" stroke-width="2.5"/><line x1="163" y1="161" x2="128" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/><line x1="237" y1="161" x2="272" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/><line x1="163" y1="181" x2="128" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/><line x1="237" y1="181" x2="272" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/><circle cx="128" cy="126" r="7" fill="white"/><circle cx="272" cy="126" r="7" fill="white"/><circle cx="128" cy="216" r="7" fill="white"/><circle cx="272" cy="216" r="7" fill="white"/></svg>
+    <span style="color:rgba(255,255,255,0.4);">Captur<span style="color:var(--blue-light);">Air</span></span>
+  </div>
+  <div class="footer-copy">© 2026 CapturAir · Tous droits réservés · Lavaltrie, QC</div>
+  <div class="footer-links"><a href="index.html">Accueil</a><a href="mailto:info@capturair.com">info@capturair.com</a><a href="tel:+15144466078">514 446-6078</a></div>
+</footer>
+
+<!-- WHATSAPP FLOAT -->
+<a class="whatsapp-float" id="waFloat" href="https://wa.me/15144466078?text=Bonjour%20CapturAir%2C%20je%20suis%20courtier%20immobilier%20et%20je%20voudrais%20discuter%20de%20vos%20services." target="_blank" rel="noopener" aria-label="WhatsApp CapturAir">
+  <img src="images/whatsapp.png" alt="WhatsApp CapturAir">
+</a>
+
+<script>
+/* NAV SCROLL */
+var nav=document.getElementById('mainNav');
+window.addEventListener('scroll',function(){nav.classList.toggle('scrolled',window.scrollY>60);},{passive:true});
+
+/* SCROLL REVEAL */
+var obs=new IntersectionObserver(function(e){e.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(function(el){obs.observe(el);});
+
+/* WHATSAPP FLOAT — apparaît dès le scroll */
+window.addEventListener('scroll',function(){
+  document.getElementById('waFloat').classList.toggle('visible',window.scrollY>300);
+},{passive:true});
+
+/* MÉTÉO */
+fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FToronto')
+  .then(function(r){return r.json();})
+  .then(function(d){
+    var hr=new Date().getHours();
+    var isNight=hr>=20||hr<6;
+    var icons={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+    var nightIcons={0:'🌙',1:'🌙',2:'🌑',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+    var iconSet=isNight?nightIcons:icons;
+    document.getElementById('w-icon').textContent=iconSet[d.current.weather_code]||(isNight?'🌙':'🌡️');
+    var c=Math.round(d.current.temperature_2m);
+    var f=Math.round(c*9/5+32);
+    var wind=Math.round(d.current.wind_speed_10m);
+    var cond=wind>=30?'❌ Vol déconseillé':wind>=15?'⚠️ Vol prudent':'✅ Vol OK';
+    document.getElementById('w-temp').textContent=c+'°C · '+f+'°F · Vent '+wind+' km/h · '+cond;
+    document.getElementById('w-temp-short').textContent=c+'°C · '+f+'°F';
+  }).catch(function(){});
+
+/* SUBMIT */
+function handleSubmit(e){
+  e.preventDefault();
+  var prenom=document.getElementById('prenom').value.trim();
+  var nom=document.getElementById('nom').value.trim();
+  var email=document.getElementById('email').value.trim();
+  var pack=document.getElementById('pack').value;
+  var ville=document.getElementById('ville').value.trim();
+  if(!prenom||!nom||!email||!pack||!ville){alert('Veuillez remplir tous les champs obligatoires (*).');return;}
+  if(!email.includes('@')){alert('Veuillez entrer un courriel valide.');return;}
+  var btn=e.target.querySelector('.btn-submit');
+  var orig=btn.innerHTML;btn.innerHTML='Envoi en cours…';btn.disabled=true;
+  fetch('https://capturair-portail.tumarchessurlatete.workers.dev/api/public/devis',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({first_name:prenom,last_name:nom,email:email,phone:document.querySelector('[name=telephone]').value,ville:ville,service:pack,message:document.querySelector('[name=message]').value,agence:document.querySelector('[name=agence]').value,source:'Courtiers'})}).catch(function(){});
+  fetch('https://api.web3forms.com/submit',{method:'POST',body:new FormData(e.target)})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.success){e.target.reset();document.getElementById('successModal').classList.add('active');}
+      else{btn.innerHTML='Erreur, réessayez';btn.style.background='#e74c3c';}
+    })
+    .catch(function(){btn.innerHTML='Erreur de connexion';btn.style.background='#e74c3c';})
+    .finally(function(){setTimeout(function(){btn.innerHTML=orig;btn.style.background='';btn.disabled=false;},3000);});
+}
+
+/* MODAL */
+function closeModal(){document.getElementById('successModal').classList.remove('active');}
+document.getElementById('successModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+</script>
+</body>
+</html>
