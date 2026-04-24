@@ -1079,7 +1079,11 @@ async function initApp(){
   document.getElementById('sidebar-role').textContent=currentUser?.role||'utilisateur';
   document.getElementById('sidebar-avatar').textContent=nom[0].toUpperCase();
   const isSuper=currentUser?.role==='superadmin'||currentUser?.email==='mohand.aidi@mohand.ca'||currentUser?.email==='aidimohand@gmail.com';
-  if(isSuper){document.getElementById('nav-admin-section').style.display='block';document.getElementById('nav-utilisateurs').style.display='flex';}
+  if(isSuper){
+    document.getElementById('nav-admin-section').style.display='block';
+    document.getElementById('nav-utilisateurs').style.display='flex';
+    document.getElementById('nav-courtiers').style.display='flex';
+  }
   await Promise.all([chargerLeads(),chargerSoumissions(),chargerFactures(),chargerProjets(),chargerUtilisateurs()]);
   renderDashboard();
   peuplerAssignes();
