@@ -758,6 +758,72 @@
       </div>
     </div>
 
+    <!-- COURTIERS -->
+<div class="page" id="page-courtiers">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+      <button class="btn-primary" onclick="openModalImportCourtiers()">📥 Importer Excel</button>
+      <button class="btn-secondary" onclick="openModalNouveauCourtier()">+ Ajouter</button>
+      <button class="btn-secondary" onclick="toutSelectionnerCourtiers()">☑️ Tout sélectionner</button>
+      <button class="btn-secondary" onclick="toutDeselectionnerCourtiers()">□ Désélectionner</button>
+      <input type="text" class="search-input" id="search-courtiers" placeholder="🔍 Rechercher..." oninput="filtrerCourtiers()" style="width:220px;">
+      <select class="filter-select" id="filter-statut-courtier" onchange="filtrerCourtiers()">
+        <option value="">Tous statuts</option>
+        <option value="Actif">🟢 Actif</option>
+        <option value="Inactif">⚫ Inactif</option>
+        <option value="Désabonné">🔴 Désabonné</option>
+        <option value="Intéressé">⭐ Intéressé</option>
+        <option value="Client">🏆 Client</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <span id="courtiers-selection-count" style="font-size:13px;color:var(--gray);align-self:center;">0 sélectionné(s)</span>
+      <button class="btn-primary" onclick="ouvrirEnvoiMassif(1)" style="background:#1A8FD1;">📧 Template 1</button>
+      <button class="btn-primary" onclick="ouvrirEnvoiMassif(2)" style="background:#1ABC9C;">📧 Template 2</button>
+      <button class="btn-primary" onclick="ouvrirEnvoiMassif(3)" style="background:#E67E22;">🔥 Offre spéciale</button>
+    </div>
+  </div>
+
+  <!-- Stats courtiers -->
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;" id="courtiers-stats">
+    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="stat-c-total">—</div><div class="stat-label">Total</div></div>
+    <div class="stat-card"><div class="stat-icon">🟢</div><div class="stat-value" id="stat-c-actifs">—</div><div class="stat-label">Actifs</div></div>
+    <div class="stat-card"><div class="stat-icon">📧</div><div class="stat-value" id="stat-c-envoyes">—</div><div class="stat-label">Contactés</div></div>
+    <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-value" id="stat-c-interesses">—</div><div class="stat-label">Intéressés</div></div>
+    <div class="stat-card"><div class="stat-icon">🏆</div><div class="stat-value" id="stat-c-clients">—</div><div class="stat-label">Clients</div></div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="check-all-courtiers" onchange="toggleTousCourtiers(this)"></th>
+          <th>Prénom / Nom</th>
+          <th>Courriel</th>
+          <th>Agence / Bannière</th>
+          <th>Ville</th>
+          <th>Type</th>
+          <th>Statut</th>
+          <th>Envois</th>
+          <th>Dernier envoi</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="courtiers-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- Historique envois -->
+  <div style="margin-top:28px;">
+    <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin-bottom:14px;">📊 Historique des envois</div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Date</th><th>Template</th><th>Sujet</th><th>Envoyés</th><th>Erreurs</th><th>Par</th></tr></thead>
+        <tbody id="historique-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>  
     <!-- UTILISATEURS -->
     <div class="page" id="page-utilisateurs">
       <div style="margin-bottom:16px;"><button class="btn-primary" onclick="openModalUtilisateur()">+ Nouvel utilisateur</button></div>
