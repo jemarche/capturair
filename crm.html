@@ -960,6 +960,124 @@
     </div>
   </div>
 </div>
+  <!-- MODAL IMPORT COURTIERS -->
+<div class="modal-overlay" id="modal-import-courtiers">
+  <div class="modal-box" style="max-width:520px;">
+    <div class="modal-title">📥 Importer une liste Excel</div>
+    <p style="font-size:14px;color:var(--gray);margin-bottom:20px;">Sélectionnez votre fichier Excel CapturAir — colonnes obligatoires : Prénom, Nom, Courriel.</p>
+    <div class="form-group">
+      <label class="form-label">Fichier Excel (.xlsx)</label>
+      <input type="file" id="import-file-input" accept=".xlsx,.xls" class="form-input" style="padding:10px;">
+    </div>
+    <div id="import-resultats" style="display:none;"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-import-courtiers')">Fermer</button>
+      <button class="btn-primary" id="btn-importer" onclick="traiterImportExcel()">📥 Importer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOUVEAU COURTIER -->
+<div class="modal-overlay" id="modal-nouveau-courtier">
+  <div class="modal-box" style="max-width:560px;">
+    <div class="modal-title">➕ Nouveau courtier</div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Prénom</label><input type="text" class="form-input" id="nouveau-courtier-prenom" placeholder="Jean"></div>
+      <div class="form-group"><label class="form-label">Nom</label><input type="text" class="form-input" id="nouveau-courtier-nom" placeholder="Tremblay"></div>
+      <div class="form-group"><label class="form-label">Courriel *</label><input type="email" class="form-input" id="nouveau-courtier-email" placeholder="jean@remax.ca"></div>
+      <div class="form-group"><label class="form-label">Téléphone</label><input type="text" class="form-input" id="nouveau-courtier-telephone" placeholder="514-555-1234"></div>
+      <div class="form-group"><label class="form-label">Agence</label><input type="text" class="form-input" id="nouveau-courtier-agence" placeholder="RE/MAX"></div>
+      <div class="form-group"><label class="form-label">Bannière</label><input type="text" class="form-input" id="nouveau-courtier-banniere" placeholder="RE/MAX"></div>
+      <div class="form-group"><label class="form-label">Ville</label><input type="text" class="form-input" id="nouveau-courtier-ville" placeholder="Repentigny"></div>
+      <div class="form-group"><label class="form-label">Type de contact</label><input type="text" class="form-input" id="nouveau-courtier-type" placeholder="Courtier résidentiel"></div>
+      <div class="form-group form-full"><label class="form-label">Notes</label><textarea class="form-input form-textarea" id="nouveau-courtier-notes" style="min-height:60px;"></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-nouveau-courtier')">Annuler</button>
+      <button class="btn-primary" onclick="creerCourtier()">Créer →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITION COURTIER -->
+<div class="modal-overlay" id="modal-edit-courtier">
+  <div class="modal-box" style="max-width:560px;">
+    <div class="modal-title">✏️ Modifier le courtier</div>
+    <input type="hidden" id="edit-courtier-id">
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Prénom</label><input type="text" class="form-input" id="edit-courtier-prenom"></div>
+      <div class="form-group"><label class="form-label">Nom</label><input type="text" class="form-input" id="edit-courtier-nom"></div>
+      <div class="form-group"><label class="form-label">Courriel *</label><input type="email" class="form-input" id="edit-courtier-email"></div>
+      <div class="form-group"><label class="form-label">Téléphone</label><input type="text" class="form-input" id="edit-courtier-telephone"></div>
+      <div class="form-group"><label class="form-label">Agence</label><input type="text" class="form-input" id="edit-courtier-agence"></div>
+      <div class="form-group"><label class="form-label">Bannière</label><input type="text" class="form-input" id="edit-courtier-banniere"></div>
+      <div class="form-group"><label class="form-label">Ville</label><input type="text" class="form-input" id="edit-courtier-ville"></div>
+      <div class="form-group"><label class="form-label">Type de contact</label><input type="text" class="form-input" id="edit-courtier-type"></div>
+      <div class="form-group"><label class="form-label">Statut</label>
+        <select class="form-input form-select" id="edit-courtier-statut">
+          <option value="Actif">🟢 Actif</option>
+          <option value="Inactif">⚫ Inactif</option>
+          <option value="Désabonné">🔴 Désabonné</option>
+          <option value="Intéressé">⭐ Intéressé</option>
+          <option value="Client">🏆 Client</option>
+        </select>
+      </div>
+      <div class="form-group form-full"><label class="form-label">Notes</label><textarea class="form-input form-textarea" id="edit-courtier-notes" style="min-height:60px;"></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-edit-courtier')">Annuler</button>
+      <button class="btn-primary" onclick="sauverCourtier()">💾 Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ENVOI MASSIF -->
+<div class="modal-overlay" id="modal-envoi-massif">
+  <div class="modal-box" style="max-width:560px;">
+    <div class="modal-title">📧 Envoi massif</div>
+    <div style="background:rgba(26,143,209,0.08);border:1px solid rgba(26,143,209,0.2);border-radius:10px;padding:16px;margin-bottom:20px;">
+      <div style="font-size:13px;color:var(--gray);margin-bottom:6px;">Template sélectionné</div>
+      <div style="font-size:15px;font-weight:600;color:var(--navy);" id="envoi-template-nom">—</div>
+      <div style="font-size:13px;color:var(--blue);margin-top:6px;"><strong id="envoi-nb-selectionnes">0</strong> courtier(s) sélectionné(s)</div>
+    </div>
+
+    <!-- Aperçu personnalisation -->
+    <div style="background:var(--offwhite);border-radius:10px;padding:14px 16px;margin-bottom:20px;">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:8px;">👁️ Aperçu personnalisation (1er courtier)</div>
+      <div style="font-size:13px;color:var(--navy);">Bonjour <strong id="envoi-apercu-prenom">—</strong>,</div>
+      <div style="font-size:12px;color:var(--gray);margin-top:4px;">📧 <span id="envoi-apercu-email">—</span></div>
+      <div style="font-size:12px;color:var(--gray);">🏢 Bannière : <span id="envoi-apercu-banniere">—</span></div>
+    </div>
+
+    <!-- Config offre spéciale -->
+    <div id="envoi-offre-section" style="display:none;">
+      <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px;">🔥 Configuration de l'offre</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">% de rabais</label>
+          <input type="number" class="form-input" id="envoi-rabais" value="15" min="1" max="50" placeholder="15">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date de fin</label>
+          <input type="date" class="form-input" id="envoi-date-fin">
+        </div>
+      </div>
+    </div>
+
+    <!-- Barre de progression -->
+    <div id="envoi-progress" style="display:none;margin-bottom:16px;">
+      <div style="font-size:12px;color:var(--gray);margin-bottom:6px;" id="envoi-progress-text">Envoi en cours...</div>
+      <div style="background:var(--border);border-radius:100px;height:6px;overflow:hidden;">
+        <div id="envoi-progress-bar" style="height:100%;background:var(--blue);border-radius:100px;width:0%;transition:width 0.3s;"></div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-envoi-massif')">Annuler</button>
+      <button class="btn-primary" id="btn-envoyer-massif" onclick="envoyerMassif()">📧 Envoyer</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="modal-confirm-delete">
   <div class="modal-box" style="max-width:380px;">
     <div class="modal-title" id="delete-title">🗑️ Confirmer</div>
