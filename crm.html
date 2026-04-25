@@ -255,7 +255,7 @@
       <a class="nav-item" onclick="showPage('factures')" href="#"><span class="nav-icon">📄</span> Factures <span class="nav-badge" id="badge-factures">0</span></a>
       <div class="nav-section" id="nav-admin-section" style="display:none;">Admin</div>
       <a class="nav-item" id="nav-utilisateurs" style="display:none;" onclick="showPage('utilisateurs')" href="#"><span class="nav-icon">👥</span> Utilisateurs</a>
-    <a class="nav-item" id="nav-courtiers" style="display:none;" onclick="showPage('courtiers')" href="#"><span class="nav-icon">🏢</span> Courtiers</a>
+      <a class="nav-item" id="nav-courtiers" style="display:none;" onclick="showPage('courtiers')" href="#"><span class="nav-icon">🏢</span> Courtiers</a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -339,7 +339,6 @@
         <span class="unsaved-label" id="unsaved-label-dos"></span>
       </div>
 
-      <!-- FLUX STATUT -->
       <div class="flux-bar" id="flux-statut"></div>
 
       <div class="dossier-header">
@@ -430,154 +429,146 @@
 
       <!-- TAB SOUMISSION -->
       <div id="tab-content-soumission" style="display:none;">
-
-  <div id="soum-empty-state" style="display:none;">
-    <div class="section-card">
-      <div class="empty-state">
-        <div class="empty-state-icon">📋</div>
-        <div style="margin-bottom:16px;">Aucune soumission pour ce dossier</div>
-        <button class="btn-primary" onclick="creerSoumission()">+ Créer la soumission</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="soum-form-content">
-        <div class="section-card">
-          <div class="section-card-title">
-            <span>📋 Soumission <span id="soum-num" style="color:var(--blue);font-weight:400;font-size:13px;"></span></span>
-            <div style="display:flex;gap:8px;">
-              <div class="actions-menu">
-                <button class="actions-btn" onclick="toggleMenu('soum')">⚙️ ▾</button>
-                <div class="actions-dropdown" id="dropdown-soum">
-                  <div class="action-item" onclick="dupliquerSoumission()">📋 Dupliquer</div>
-                  <div class="action-item danger" onclick="supprimerSoumission()">🗑️ Supprimer</div>
+        <div id="soum-empty-state" style="display:none;">
+          <div class="section-card">
+            <div class="empty-state">
+              <div class="empty-state-icon">📋</div>
+              <div style="margin-bottom:16px;">Aucune soumission pour ce dossier</div>
+              <button class="btn-primary" onclick="creerSoumission()">+ Créer la soumission</button>
+            </div>
+          </div>
+        </div>
+        <div id="soum-form-content">
+          <div class="section-card">
+            <div class="section-card-title">
+              <span>📋 Soumission <span id="soum-num" style="color:var(--blue);font-weight:400;font-size:13px;"></span></span>
+              <div style="display:flex;gap:8px;">
+                <div class="actions-menu">
+                  <button class="actions-btn" onclick="toggleMenu('soum')">⚙️ ▾</button>
+                  <div class="actions-dropdown" id="dropdown-soum">
+                    <div class="action-item" onclick="dupliquerSoumission()">📋 Dupliquer</div>
+                    <div class="action-item danger" onclick="supprimerSoumission()">🗑️ Supprimer</div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-
-          <!-- Champs soumission -->
-          <div class="form-grid" style="margin-bottom:20px;">
-            <div class="form-group"><label class="form-label">Entreprise</label><input type="text" class="form-input" id="soum-entreprise" oninput="marquerModifSoum()"></div>
-            <div class="form-group"><label class="form-label">Personne-contact</label><input type="text" class="form-input" id="soum-contact" oninput="marquerModifSoum()"></div>
-            <div class="form-group"><label class="form-label">Nom du projet</label><input type="text" class="form-input" id="soum-nom-projet" placeholder="Villa Jolie" oninput="marquerModifSoum()"></div>
-            <div class="form-group form-full">
-              <label class="form-label">Adresse du projet (lieu d'intervention)</label>
-              <input type="text" class="form-input" id="soum-adresse-projet" placeholder="123 rue des Érables, Lavaltrie, QC J5T 1A1" oninput="marquerModifSoum();syncAdresseFact()">
-            </div>
-            <div class="form-group form-full" id="soum-adresse-fact-group">
-              <label class="form-label" style="display:flex;align-items:center;gap:10px;">
-                Adresse de facturation
-                <label style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:400;color:var(--gray);cursor:pointer;">
-                  <input type="checkbox" id="soum-meme-adresse" checked onchange="toggleAdresseFact()" style="width:14px;height:14px;accent-color:var(--blue);">
-                  Même adresse que le projet
+            <div class="form-grid" style="margin-bottom:20px;">
+              <div class="form-group"><label class="form-label">Entreprise</label><input type="text" class="form-input" id="soum-entreprise" oninput="marquerModifSoum()"></div>
+              <div class="form-group"><label class="form-label">Personne-contact</label><input type="text" class="form-input" id="soum-contact" oninput="marquerModifSoum()"></div>
+              <div class="form-group"><label class="form-label">Nom du projet</label><input type="text" class="form-input" id="soum-nom-projet" placeholder="Villa Jolie" oninput="marquerModifSoum()"></div>
+              <div class="form-group form-full">
+                <label class="form-label">Adresse du projet (lieu d'intervention)</label>
+                <input type="text" class="form-input" id="soum-adresse-projet" placeholder="123 rue des Érables, Lavaltrie, QC J5T 1A1" oninput="marquerModifSoum();syncAdresseFact()">
+              </div>
+              <div class="form-group form-full" id="soum-adresse-fact-group">
+                <label class="form-label" style="display:flex;align-items:center;gap:10px;">
+                  Adresse de facturation
+                  <label style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:400;color:var(--gray);cursor:pointer;">
+                    <input type="checkbox" id="soum-meme-adresse" checked onchange="toggleAdresseFact()" style="width:14px;height:14px;accent-color:var(--blue);">
+                    Même adresse que le projet
+                  </label>
                 </label>
-              </label>
-              <input type="text" class="form-input" id="soum-adresse-facturation" placeholder="Adresse de facturation si différente..." oninput="marquerModifSoum()" style="display:none;">
-            </div>
-            <div class="form-group"><label class="form-label">Statut</label>
-              <select class="form-input form-select" id="soum-statut-doc" oninput="marquerModifSoum()">
-                <option value="BROUILLON">📝 Brouillon</option><option value="ENVOYE">📧 Envoyée</option>
-                <option value="ACCEPTE">✅ Acceptée</option><option value="REFUSE">❌ Refusée</option>
-              </select>
-            </div>
-            <div class="form-group"><label class="form-label">Date souhaitée</label><input type="date" class="form-input" id="soum-date-souhaitee" oninput="marquerModifSoum()"></div>
-            <div class="form-group"><label class="form-label">Date confirmée</label><input type="date" class="form-input" id="soum-date-confirmee" oninput="marquerModifSoum()"></div>
-            <div class="form-group"><label class="form-label">Heure d'intervention</label>
-              <select class="form-input form-select" id="soum-heure" oninput="marquerModifSoum()">
-                <option value="">— Sélectionner —</option>
-                <option>07:00</option><option>07:30</option><option>08:00</option><option>08:30</option><option>09:00</option><option>09:30</option>
-                <option>10:00</option><option>10:30</option><option>11:00</option><option>11:30</option><option>12:00</option><option>12:30</option>
-                <option>13:00</option><option>13:30</option><option>14:00</option><option>14:30</option><option>15:00</option><option>15:30</option>
-                <option>16:00</option><option>16:30</option><option>17:00</option><option>17:30</option><option>18:00</option>
-              </select>
-            </div>
-            <div class="form-group"><label class="form-label">Durée estimée</label>
-              <select class="form-input form-select" id="soum-duree" oninput="marquerModifSoum()">
-                <option value="">— Sélectionner —</option>
-                <option>30 min</option><option>1 heure</option><option>1h30</option><option>2 heures</option>
-                <option>2h30</option><option>3 heures</option><option>4 heures</option><option>Demi-journée</option><option>Journée complète</option>
-              </select>
-            </div>
-            <div class="form-group"><label class="form-label">Mode de paiement</label>
-              <select class="form-input form-select" id="soum-mode-paiement" oninput="marquerModifSoum()">
-                <option value="">— Sélectionner —</option>
-                <option>Virement Interac</option><option>Carte de crédit (Stripe)</option><option>Chèque</option><option>Comptant</option><option>À discuter</option>
-              </select>
-            </div>
-            <div class="form-group"><label class="form-label">Statut paiement</label>
-              <select class="form-input form-select" id="soum-statut-paiement" oninput="marquerModifSoum()">
-                <option value="EN_ATTENTE">⏳ En attente</option><option value="ACOMPTE_RECU">💰 Acompte reçu</option>
-                <option value="PAYE_COMPLET">✅ Payé complet</option><option value="REMBOURSE">↩️ Remboursé</option>
-              </select>
-            </div>
-            <div class="form-group"><label class="form-label">Statut PDF Soumission</label>
-              <select class="form-input form-select" id="soum-statut-pdf-soum" oninput="marquerModifSoum()">
-                <option value="NON_FAIT">⬜ Non fait</option><option value="FAIT">✅ Fait</option><option value="ENVOYE_CLIENT">📧 Envoyé</option>
-              </select>
-            </div>
-            <div class="form-group"><label class="form-label">Statut PDF Facture</label>
-              <select class="form-input form-select" id="soum-statut-pdf-fact" oninput="marquerModifSoum()">
-                <option value="NON_FAIT">⬜ Non fait</option><option value="FAIT">✅ Fait</option><option value="ENVOYE_CLIENT">📧 Envoyé</option>
-              </select>
-            </div>
-            <div class="form-group"><label class="form-label">Date livraison</label><input type="date" class="form-input" id="soum-date-livraison" oninput="marquerModifSoum()"></div>
-            <div class="form-group"><label class="form-label">Date relance</label><input type="date" class="form-input" id="soum-date-relance" oninput="marquerModifSoum()"></div>
-            <div class="form-group"><label class="form-label">Satisfaction client</label>
-              <div class="stars" id="stars-sat">
-                <span class="star" onclick="setSat(1)">☆</span><span class="star" onclick="setSat(2)">☆</span>
-                <span class="star" onclick="setSat(3)">☆</span><span class="star" onclick="setSat(4)">☆</span>
-                <span class="star" onclick="setSat(5)">☆</span>
+                <input type="text" class="form-input" id="soum-adresse-facturation" placeholder="Adresse de facturation si différente..." oninput="marquerModifSoum()" style="display:none;">
               </div>
-            </div>
-          </div>
-
-          <!-- Financier -->
-          <div style="border-top:1px solid var(--border);padding-top:18px;margin-bottom:18px;">
-            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:14px;">💰 Données financières</div>
-            <div class="form-grid">
-              <div class="form-group"><label class="form-label">Frais déplacement ($)</label><input type="number" class="form-input" id="soum-deplacement" placeholder="0.00" min="0" step="0.01" oninput="calculerSoumission()"></div>
-              <div class="form-group"><label class="form-label">Frais postproduction ($)</label><input type="number" class="form-input" id="soum-postprod" placeholder="0.00" min="0" step="0.01" oninput="calculerSoumission()"></div>
-              <div class="form-group form-full">
-                <label class="form-label">Montant acompte</label>
-                <div class="acompte-btns">
-                  <button class="acompte-btn" onclick="setAcompte(0)">0 $</button>
-                  <button class="acompte-btn" onclick="setAcompte('25')">25 %</button>
-                  <button class="acompte-btn active" onclick="setAcompte('50')">50 % ★</button>
-                  <button class="acompte-btn" onclick="setAcompte('100')">100 %</button>
-                  <button class="acompte-btn" onclick="setAcompte('libre')">Libre</button>
-                </div>
-                <input type="number" class="form-input" id="soum-acompte" placeholder="0.00" min="0" step="0.01" oninput="calculerSoumission()">
+              <div class="form-group"><label class="form-label">Statut</label>
+                <select class="form-input form-select" id="soum-statut-doc" oninput="marquerModifSoum()">
+                  <option value="BROUILLON">📝 Brouillon</option><option value="ENVOYE">📧 Envoyée</option>
+                  <option value="ACCEPTE">✅ Acceptée</option><option value="REFUSE">❌ Refusée</option>
+                </select>
               </div>
-              <div class="form-group form-full">
-                <label class="form-label">Lien Stripe acompte</label>
-                <div style="display:flex;gap:8px;align-items:center;">
-                  <input type="url" class="form-input" id="soum-stripe" placeholder="https://buy.stripe.com/..." style="flex:1;">
-                  <button class="btn-stripe" onclick="genererStripe()">⚡ Générer</button>
+              <div class="form-group"><label class="form-label">Date souhaitée</label><input type="date" class="form-input" id="soum-date-souhaitee" oninput="marquerModifSoum()"></div>
+              <div class="form-group"><label class="form-label">Date confirmée</label><input type="date" class="form-input" id="soum-date-confirmee" oninput="marquerModifSoum()"></div>
+              <div class="form-group"><label class="form-label">Heure d'intervention</label>
+                <select class="form-input form-select" id="soum-heure" oninput="marquerModifSoum()">
+                  <option value="">— Sélectionner —</option>
+                  <option>07:00</option><option>07:30</option><option>08:00</option><option>08:30</option><option>09:00</option><option>09:30</option>
+                  <option>10:00</option><option>10:30</option><option>11:00</option><option>11:30</option><option>12:00</option><option>12:30</option>
+                  <option>13:00</option><option>13:30</option><option>14:00</option><option>14:30</option><option>15:00</option><option>15:30</option>
+                  <option>16:00</option><option>16:30</option><option>17:00</option><option>17:30</option><option>18:00</option>
+                </select>
+              </div>
+              <div class="form-group"><label class="form-label">Durée estimée</label>
+                <select class="form-input form-select" id="soum-duree" oninput="marquerModifSoum()">
+                  <option value="">— Sélectionner —</option>
+                  <option>30 min</option><option>1 heure</option><option>1h30</option><option>2 heures</option>
+                  <option>2h30</option><option>3 heures</option><option>4 heures</option><option>Demi-journée</option><option>Journée complète</option>
+                </select>
+              </div>
+              <div class="form-group"><label class="form-label">Mode de paiement</label>
+                <select class="form-input form-select" id="soum-mode-paiement" oninput="marquerModifSoum()">
+                  <option value="">— Sélectionner —</option>
+                  <option>Virement Interac</option><option>Carte de crédit (Stripe)</option><option>Chèque</option><option>Comptant</option><option>À discuter</option>
+                </select>
+              </div>
+              <div class="form-group"><label class="form-label">Statut paiement</label>
+                <select class="form-input form-select" id="soum-statut-paiement" oninput="marquerModifSoum()">
+                  <option value="EN_ATTENTE">⏳ En attente</option><option value="ACOMPTE_RECU">💰 Acompte reçu</option>
+                  <option value="PAYE_COMPLET">✅ Payé complet</option><option value="REMBOURSE">↩️ Remboursé</option>
+                </select>
+              </div>
+              <div class="form-group"><label class="form-label">Statut PDF Soumission</label>
+                <select class="form-input form-select" id="soum-statut-pdf-soum" oninput="marquerModifSoum()">
+                  <option value="NON_FAIT">⬜ Non fait</option><option value="FAIT">✅ Fait</option><option value="ENVOYE_CLIENT">📧 Envoyé</option>
+                </select>
+              </div>
+              <div class="form-group"><label class="form-label">Statut PDF Facture</label>
+                <select class="form-input form-select" id="soum-statut-pdf-fact" oninput="marquerModifSoum()">
+                  <option value="NON_FAIT">⬜ Non fait</option><option value="FAIT">✅ Fait</option><option value="ENVOYE_CLIENT">📧 Envoyé</option>
+                </select>
+              </div>
+              <div class="form-group"><label class="form-label">Date livraison</label><input type="date" class="form-input" id="soum-date-livraison" oninput="marquerModifSoum()"></div>
+              <div class="form-group"><label class="form-label">Date relance</label><input type="date" class="form-input" id="soum-date-relance" oninput="marquerModifSoum()"></div>
+              <div class="form-group"><label class="form-label">Satisfaction client</label>
+                <div class="stars" id="stars-sat">
+                  <span class="star" onclick="setSat(1)">☆</span><span class="star" onclick="setSat(2)">☆</span>
+                  <span class="star" onclick="setSat(3)">☆</span><span class="star" onclick="setSat(4)">☆</span>
+                  <span class="star" onclick="setSat(5)">☆</span>
                 </div>
               </div>
             </div>
-            <div style="margin-top:14px;"><table class="fin-table" id="soum-fin-table"></table></div>
+            <div style="border-top:1px solid var(--border);padding-top:18px;margin-bottom:18px;">
+              <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:14px;">💰 Données financières</div>
+              <div class="form-grid">
+                <div class="form-group"><label class="form-label">Frais déplacement ($)</label><input type="number" class="form-input" id="soum-deplacement" placeholder="0.00" min="0" step="0.01" oninput="calculerSoumission()"></div>
+                <div class="form-group"><label class="form-label">Frais postproduction ($)</label><input type="number" class="form-input" id="soum-postprod" placeholder="0.00" min="0" step="0.01" oninput="calculerSoumission()"></div>
+                <div class="form-group form-full">
+                  <label class="form-label">Montant acompte</label>
+                  <div class="acompte-btns">
+                    <button class="acompte-btn" onclick="setAcompte(0)">0 $</button>
+                    <button class="acompte-btn" onclick="setAcompte('25')">25 %</button>
+                    <button class="acompte-btn active" onclick="setAcompte('50')">50 % ★</button>
+                    <button class="acompte-btn" onclick="setAcompte('100')">100 %</button>
+                    <button class="acompte-btn" onclick="setAcompte('libre')">Libre</button>
+                  </div>
+                  <input type="number" class="form-input" id="soum-acompte" placeholder="0.00" min="0" step="0.01" oninput="calculerSoumission()">
+                </div>
+                <div class="form-group form-full">
+                  <label class="form-label">Lien Stripe acompte</label>
+                  <div style="display:flex;gap:8px;align-items:center;">
+                    <input type="url" class="form-input" id="soum-stripe" placeholder="https://buy.stripe.com/..." style="flex:1;">
+                    <button class="btn-stripe" onclick="genererStripe()">⚡ Générer</button>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:14px;"><table class="fin-table" id="soum-fin-table"></table></div>
+            </div>
+            <div class="form-group"><label class="form-label">Notes internes</label><textarea class="form-input form-textarea" id="soum-notes" oninput="marquerModifSoum()"></textarea></div>
+            <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+              <div class="checkbox-row"><input type="checkbox" id="soum-conditions" checked><label for="soum-conditions">☑️ Joindre les Conditions Générales CapturAir (PDF)</label></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;">
+              <button class="btn-secondary" onclick="apercuSoumission()">👁️ Aperçu</button>
+              <button class="btn-secondary" onclick="imprimerPDF('soumission')">🖨️ PDF</button>
+              <button class="btn-primary" onclick="sauverSoumissionManuel()">💾 Sauvegarder</button>
+              <button class="btn-teal" onclick="envoyerSoumission()">📧 Envoyer</button>
+              <button class="btn-secondary" onclick="ouvrirAgenda()" style="border-color:#27AE60;color:#27AE60;">📅 Ouvrir agenda</button>
+              <button class="btn-secondary" onclick="envoyerConfirmationVisite()" style="border-color:var(--blue);color:var(--blue);">📅 Confirmer visite</button>
+              <button class="btn-secondary" onclick="ouvrirWhatsAppRappel()" style="border-color:#25D366;color:#25D366;">💬 WhatsApp RDV</button>
+              <button class="btn-secondary" onclick="envoyerRappelVisite()" style="border-color:#E67E22;color:#E67E22;">⏰ Rappel 24h</button>
+            </div>
           </div>
-
-          <div class="form-group"><label class="form-label">Notes internes</label><textarea class="form-input form-textarea" id="soum-notes" oninput="marquerModifSoum()"></textarea></div>
-          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
-            <div class="checkbox-row"><input type="checkbox" id="soum-conditions" checked><label for="soum-conditions">☑️ Joindre les Conditions Générales CapturAir (PDF)</label></div>
-          </div>
-<div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;">
-  <button class="btn-secondary" onclick="apercuSoumission()">👁️ Aperçu</button>
-  <button class="btn-secondary" onclick="imprimerPDF('soumission')">🖨️ PDF</button>
-  <button class="btn-primary" onclick="sauverSoumissionManuel()">💾 Sauvegarder</button>
-  <button class="btn-teal" onclick="envoyerSoumission()">📧 Envoyer</button>
-  <button class="btn-secondary" onclick="ouvrirAgenda()" style="border-color:#27AE60;color:#27AE60;">📅 Ouvrir agenda</button>
-  <button class="btn-secondary" onclick="envoyerConfirmationVisite()" style="border-color:var(--blue);color:var(--blue);">📅 Confirmer visite</button>
-  <button class="btn-secondary" onclick="ouvrirWhatsAppRappel()" style="border-color:#25D366;color:#25D366;">💬 WhatsApp RDV</button>
-  <button class="btn-secondary" onclick="envoyerRappelVisite()" style="border-color:#E67E22;color:#E67E22;">⏰ Rappel 24h</button>
-</div>
         </div>
       </div>
-  </div>
-</div>
 
       <!-- TAB PROJET GALERIE -->
       <div id="tab-content-projet" style="display:none;">
@@ -588,8 +579,6 @@
               <span id="projet-statut-badge"></span>
             </div>
           </div>
-
-          <!-- Infos projet -->
           <div class="form-grid" style="margin-bottom:18px;">
             <div class="form-group"><label class="form-label">Nom du projet</label><input type="text" class="form-input" id="projet-nom"></div>
             <div class="form-group"><label class="form-label">Client</label><input type="text" class="form-input" id="projet-client-nom" readonly style="background:var(--offwhite);"></div>
@@ -615,8 +604,6 @@
             <div class="form-group"><label class="form-label">Adresse du projet</label><input type="text" class="form-input" id="projet-adresse-soum" readonly style="background:var(--offwhite);" placeholder="—"></div>
             <div class="form-group form-full"><label class="form-label">Notes admin</label><textarea class="form-input form-textarea" id="projet-notes" style="min-height:60px;"></textarea></div>
           </div>
-
-          <!-- Lien galerie -->
           <div id="projet-galerie-section" style="display:none;margin-bottom:18px;">
             <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:10px;">🔗 Lien galerie client</div>
             <div class="galerie-link-box">
@@ -626,15 +613,12 @@
             </div>
             <div style="font-size:11px;color:var(--gray);margin-top:6px;">Expiration : <span id="projet-galerie-expiry">—</span></div>
           </div>
-
           <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
             <button class="btn-primary" onclick="sauverProjet()">💾 Sauvegarder</button>
             <button class="btn-teal" onclick="envoyerGalerie()">📧 Envoyer galerie</button>
             <button class="btn-teal" onclick="envoyerGalerieDejaPaye()" style="background:#27AE60;">✅ Envoyer (déjà payé)</button>
             <button class="btn-stripe" onclick="ouvrirStripeProjet()">⚡ Stripe paiement</button>
           </div>
-
-          <!-- Section Stripe lien paiement -->
           <div id="projet-stripe-section" style="background:rgba(99,91,255,0.06);border:1px solid rgba(99,91,255,0.2);border-radius:12px;padding:18px 20px;margin-bottom:18px;">
             <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#635bff;margin-bottom:12px;">⚡ Lien Stripe paiement</div>
             <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
@@ -650,8 +634,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Upload médias -->
           <div style="border-top:1px solid var(--border);padding-top:18px;">
             <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:14px;">📸 Médias du projet</div>
             <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFichiers(event)">
@@ -671,61 +653,58 @@
       <!-- TAB FACTURE -->
       <div id="tab-content-facture" style="display:none;">
         <div id="fact-empty-state" style="display:none;">
-    <div class="section-card">
-      <div class="empty-state">
-        <div class="empty-state-icon">📄</div>
-        <div style="margin-bottom:16px;">Aucune facture pour ce dossier</div>
-        <button class="btn-primary" onclick="creerFacture()">+ Créer la facture</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="fact-form-content">
-        <div class="section-card">
-          <div class="section-card-title">
-            <span>📄 Facture <span id="fact-num" style="color:var(--teal);font-weight:400;font-size:13px;"></span></span>
-            <div class="actions-menu">
-              <button class="actions-btn" onclick="toggleMenu('fact')">⚙️ ▾</button>
-              <div class="actions-dropdown" id="dropdown-fact">
-                <div class="action-item" onclick="dupliquerFacture()">📋 Dupliquer</div>
-                <div class="action-item danger" onclick="supprimerFacture()">🗑️ Supprimer</div>
+          <div class="section-card">
+            <div class="empty-state">
+              <div class="empty-state-icon">📄</div>
+              <div style="margin-bottom:16px;">Aucune facture pour ce dossier</div>
+              <button class="btn-primary" onclick="creerFacture()">+ Créer la facture</button>
+            </div>
+          </div>
+        </div>
+        <div id="fact-form-content">
+          <div class="section-card">
+            <div class="section-card-title">
+              <span>📄 Facture <span id="fact-num" style="color:var(--teal);font-weight:400;font-size:13px;"></span></span>
+              <div class="actions-menu">
+                <button class="actions-btn" onclick="toggleMenu('fact')">⚙️ ▾</button>
+                <div class="actions-dropdown" id="dropdown-fact">
+                  <div class="action-item" onclick="dupliquerFacture()">📋 Dupliquer</div>
+                  <div class="action-item danger" onclick="supprimerFacture()">🗑️ Supprimer</div>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="form-grid">
-            <div class="form-group"><label class="form-label">Frais déplacement ($)</label><input type="number" class="form-input" id="fact-deplacement" placeholder="0.00" min="0" step="0.01" oninput="calculerFacture()"></div>
-            <div class="form-group"><label class="form-label">Autres frais ($)</label><input type="number" class="form-input" id="fact-autres" placeholder="0.00" min="0" step="0.01" oninput="calculerFacture()"></div>
-            <div class="form-group"><label class="form-label">Acompte reçu ($)</label><input type="number" class="form-input" id="fact-acompte" placeholder="0.00" min="0" step="0.01" oninput="calculerFacture()"><span class="form-hint">Pré-rempli depuis la soumission</span></div>
-            <div class="form-group form-full"><label class="form-label">Notes</label><textarea class="form-input form-textarea" id="fact-notes"></textarea></div>
-          </div>
-          <div style="margin-top:18px;"><table class="fin-table" id="fact-fin-table"></table></div>
-          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
-            <div class="checkbox-row"><input type="checkbox" id="fact-conditions"><label for="fact-conditions">☑️ Joindre les Conditions Générales CapturAir (PDF)</label></div>
-          </div>
-          <!-- Section Stripe Facture -->
-          <div style="background:rgba(99,91,255,0.06);border:1px solid rgba(99,91,255,0.2);border-radius:12px;padding:16px 20px;margin-top:16px;">
-            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#635bff;margin-bottom:10px;">⚡ Lien Stripe — Solde à payer</div>
-            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-              <input type="number" class="form-input" id="fact-stripe-montant" placeholder="Montant solde ($)" step="0.01" min="0" style="flex:1;">
-              <button class="btn-stripe" onclick="genererStripeFacture()">⚡ Générer</button>
+            <div class="form-grid">
+              <div class="form-group"><label class="form-label">Frais déplacement ($)</label><input type="number" class="form-input" id="fact-deplacement" placeholder="0.00" min="0" step="0.01" oninput="calculerFacture()"></div>
+              <div class="form-group"><label class="form-label">Autres frais ($)</label><input type="number" class="form-input" id="fact-autres" placeholder="0.00" min="0" step="0.01" oninput="calculerFacture()"></div>
+              <div class="form-group"><label class="form-label">Acompte reçu ($)</label><input type="number" class="form-input" id="fact-acompte" placeholder="0.00" min="0" step="0.01" oninput="calculerFacture()"><span class="form-hint">Pré-rempli depuis la soumission</span></div>
+              <div class="form-group form-full"><label class="form-label">Notes</label><textarea class="form-input form-textarea" id="fact-notes"></textarea></div>
             </div>
-            <div id="fact-stripe-result" style="display:none;background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:8px;padding:10px;">
-              <div style="font-size:11px;color:#27AE60;font-weight:600;margin-bottom:6px;">✅ Lien Stripe généré</div>
-              <div style="display:flex;gap:6px;align-items:center;">
-                <input type="url" class="form-input" id="fact-stripe-url" readonly style="flex:1;font-size:11px;background:white;">
-                <button class="btn-secondary" onclick="copierStripeFacture()" style="padding:7px 10px;font-size:11px;white-space:nowrap;">📋 Copier</button>
-                <a id="fact-stripe-open" href="#" target="_blank" class="btn-secondary" style="padding:7px 10px;font-size:11px;white-space:nowrap;text-decoration:none;">🔗 Ouvrir</a>
+            <div style="margin-top:18px;"><table class="fin-table" id="fact-fin-table"></table></div>
+            <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+              <div class="checkbox-row"><input type="checkbox" id="fact-conditions"><label for="fact-conditions">☑️ Joindre les Conditions Générales CapturAir (PDF)</label></div>
+            </div>
+            <div style="background:rgba(99,91,255,0.06);border:1px solid rgba(99,91,255,0.2);border-radius:12px;padding:16px 20px;margin-top:16px;">
+              <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#635bff;margin-bottom:10px;">⚡ Lien Stripe — Solde à payer</div>
+              <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+                <input type="number" class="form-input" id="fact-stripe-montant" placeholder="Montant solde ($)" step="0.01" min="0" style="flex:1;">
+                <button class="btn-stripe" onclick="genererStripeFacture()">⚡ Générer</button>
+              </div>
+              <div id="fact-stripe-result" style="display:none;background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:8px;padding:10px;">
+                <div style="font-size:11px;color:#27AE60;font-weight:600;margin-bottom:6px;">✅ Lien Stripe généré</div>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <input type="url" class="form-input" id="fact-stripe-url" readonly style="flex:1;font-size:11px;background:white;">
+                  <button class="btn-secondary" onclick="copierStripeFacture()" style="padding:7px 10px;font-size:11px;white-space:nowrap;">📋 Copier</button>
+                  <a id="fact-stripe-open" href="#" target="_blank" class="btn-secondary" style="padding:7px 10px;font-size:11px;white-space:nowrap;text-decoration:none;">🔗 Ouvrir</a>
+                </div>
               </div>
             </div>
+            <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;">
+              <button class="btn-secondary" onclick="apercuFacture()">👁️ Aperçu</button>
+              <button class="btn-secondary" onclick="imprimerPDF('facture')">🖨️ PDF</button>
+              <button class="btn-primary" onclick="sauverFactureManuel()">💾 Sauvegarder</button>
+              <button class="btn-teal" onclick="envoyerFacture()">📧 Envoyer</button>
+            </div>
           </div>
-
-          <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;">
-            <button class="btn-secondary" onclick="apercuFacture()">👁️ Aperçu</button>
-            <button class="btn-secondary" onclick="imprimerPDF('facture')">🖨️ PDF</button>
-            <button class="btn-primary" onclick="sauverFactureManuel()">💾 Sauvegarder</button>
-            <button class="btn-teal" onclick="envoyerFacture()">📧 Envoyer</button>
-          </div>
-          </div><!-- /fact-form-content -->
         </div>
       </div>
     </div>
@@ -761,71 +740,60 @@
     </div>
 
     <!-- COURTIERS -->
-<div class="page" id="page-courtiers">
-  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
-    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-      <button class="btn-primary" onclick="openModalImportCourtiers()">📥 Importer Excel</button>
-      <button class="btn-secondary" onclick="openModalNouveauCourtier()">+ Ajouter</button>
-      <button class="btn-secondary" onclick="toutSelectionnerCourtiers()">☑️ Tout sélectionner</button>
-      <button class="btn-secondary" onclick="toutDeselectionnerCourtiers()">□ Désélectionner</button>
-      <input type="text" class="search-input" id="search-courtiers" placeholder="🔍 Rechercher..." oninput="filtrerCourtiers()" style="width:220px;">
-      <select class="filter-select" id="filter-statut-courtier" onchange="filtrerCourtiers()">
-        <option value="">Tous statuts</option>
-        <option value="Actif">🟢 Actif</option>
-        <option value="Inactif">⚫ Inactif</option>
-        <option value="Désabonné">🔴 Désabonné</option>
-        <option value="Intéressé">⭐ Intéressé</option>
-        <option value="Client">🏆 Client</option>
-      </select>
+    <div class="page" id="page-courtiers">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <button class="btn-primary" onclick="openModalImportCourtiers()">📥 Importer Excel</button>
+          <button class="btn-secondary" onclick="openModalNouveauCourtier()">+ Ajouter</button>
+          <button class="btn-secondary" onclick="toutSelectionnerCourtiers()">☑️ Tout sélectionner</button>
+          <button class="btn-secondary" onclick="toutDeselectionnerCourtiers()">□ Désélectionner</button>
+          <input type="text" class="search-input" id="search-courtiers" placeholder="🔍 Rechercher..." oninput="filtrerCourtiers()" style="width:220px;">
+          <select class="filter-select" id="filter-statut-courtier" onchange="filtrerCourtiers()">
+            <option value="">Tous statuts</option>
+            <option value="Actif">🟢 Actif</option>
+            <option value="Inactif">⚫ Inactif</option>
+            <option value="Désabonné">🔴 Désabonné</option>
+            <option value="Intéressé">⭐ Intéressé</option>
+            <option value="Client">🏆 Client</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <span id="courtiers-selection-count" style="font-size:13px;color:var(--gray);align-self:center;">0 sélectionné(s)</span>
+          <button class="btn-primary" onclick="ouvrirEnvoiMassif(1)" style="background:#1A8FD1;">📧 Template 1</button>
+          <button class="btn-primary" onclick="ouvrirEnvoiMassif(2)" style="background:#1ABC9C;">📧 Template 2</button>
+          <button class="btn-primary" onclick="ouvrirEnvoiMassif(3)" style="background:#E67E22;">🔥 Offre spéciale</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;" id="courtiers-stats">
+        <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="stat-c-total">—</div><div class="stat-label">Total</div></div>
+        <div class="stat-card"><div class="stat-icon">🟢</div><div class="stat-value" id="stat-c-actifs">—</div><div class="stat-label">Actifs</div></div>
+        <div class="stat-card"><div class="stat-icon">📧</div><div class="stat-value" id="stat-c-envoyes">—</div><div class="stat-label">Contactés</div></div>
+        <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-value" id="stat-c-interesses">—</div><div class="stat-label">Intéressés</div></div>
+        <div class="stat-card"><div class="stat-icon">🏆</div><div class="stat-value" id="stat-c-clients">—</div><div class="stat-label">Clients</div></div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="check-all-courtiers" onchange="toggleTousCourtiers(this)"></th>
+              <th>Prénom / Nom</th><th>Courriel</th><th>Agence / Bannière</th><th>Ville</th>
+              <th>Type</th><th>Statut</th><th>Envois</th><th>Dernier envoi</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="courtiers-tbody"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:28px;">
+        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin-bottom:14px;">📊 Historique des envois</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Date</th><th>Template</th><th>Sujet</th><th>Envoyés</th><th>Erreurs</th><th>Par</th></tr></thead>
+            <tbody id="historique-tbody"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <span id="courtiers-selection-count" style="font-size:13px;color:var(--gray);align-self:center;">0 sélectionné(s)</span>
-      <button class="btn-primary" onclick="ouvrirEnvoiMassif(1)" style="background:#1A8FD1;">📧 Template 1</button>
-      <button class="btn-primary" onclick="ouvrirEnvoiMassif(2)" style="background:#1ABC9C;">📧 Template 2</button>
-      <button class="btn-primary" onclick="ouvrirEnvoiMassif(3)" style="background:#E67E22;">🔥 Offre spéciale</button>
-    </div>
-  </div>
 
-  <!-- Stats courtiers -->
-  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;" id="courtiers-stats">
-    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="stat-c-total">—</div><div class="stat-label">Total</div></div>
-    <div class="stat-card"><div class="stat-icon">🟢</div><div class="stat-value" id="stat-c-actifs">—</div><div class="stat-label">Actifs</div></div>
-    <div class="stat-card"><div class="stat-icon">📧</div><div class="stat-value" id="stat-c-envoyes">—</div><div class="stat-label">Contactés</div></div>
-    <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-value" id="stat-c-interesses">—</div><div class="stat-label">Intéressés</div></div>
-    <div class="stat-card"><div class="stat-icon">🏆</div><div class="stat-value" id="stat-c-clients">—</div><div class="stat-label">Clients</div></div>
-  </div>
-
-  <div class="table-wrap">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th><input type="checkbox" id="check-all-courtiers" onchange="toggleTousCourtiers(this)"></th>
-          <th>Prénom / Nom</th>
-          <th>Courriel</th>
-          <th>Agence / Bannière</th>
-          <th>Ville</th>
-          <th>Type</th>
-          <th>Statut</th>
-          <th>Envois</th>
-          <th>Dernier envoi</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="courtiers-tbody"></tbody>
-    </table>
-  </div>
-
-  <!-- Historique envois -->
-  <div style="margin-top:28px;">
-    <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin-bottom:14px;">📊 Historique des envois</div>
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr><th>Date</th><th>Template</th><th>Sujet</th><th>Envoyés</th><th>Erreurs</th><th>Par</th></tr></thead>
-        <tbody id="historique-tbody"></tbody>
-      </table>
-    </div>
-  </div>
-</div>  
     <!-- UTILISATEURS -->
     <div class="page" id="page-utilisateurs">
       <div style="margin-bottom:16px;"><button class="btn-primary" onclick="openModalUtilisateur()">+ Nouvel utilisateur</button></div>
@@ -873,10 +841,10 @@
           <option>Immobilier</option><option>Événement</option><option>Industriel / Construction</option><option>Nature / Tourisme</option><option>Autre</option>
         </select>
       </div>
-<div class="form-group" style="position:relative;"><label class="form-label">Ville</label>
-  <input type="text" class="form-input" id="new-ville" placeholder="Tapez une ville..." oninput="autocompleteVille('new-ville')" autocomplete="off">
-  <div id="autocomplete-new-ville" class="autocomplete-list" style="display:none;position:absolute;z-index:300;background:white;border:1px solid var(--border);border-radius:8px;max-height:200px;overflow-y:auto;width:100%;box-shadow:0 4px 16px rgba(0,0,0,0.1);"></div>
-</div>
+      <div class="form-group" style="position:relative;"><label class="form-label">Ville</label>
+        <input type="text" class="form-input" id="new-ville" placeholder="Tapez une ville..." oninput="autocompleteVille('new-ville')" autocomplete="off">
+        <div id="autocomplete-new-ville" class="autocomplete-list" style="display:none;position:absolute;z-index:300;background:white;border:1px solid var(--border);border-radius:8px;max-height:200px;overflow-y:auto;width:100%;box-shadow:0 4px 16px rgba(0,0,0,0.1);"></div>
+      </div>
       <div class="form-group form-full"><label class="form-label">Description</label><textarea class="form-input form-textarea" id="new-description" rows="2"></textarea></div>
     </div>
     <div class="modal-actions">
@@ -891,24 +859,15 @@
     <div class="modal-title">✏️ Modifier le statut</div>
     <div class="form-group"><label class="form-label">Nouveau statut</label>
       <select class="form-input form-select" id="select-statut">
-        <option value="Nouveau">🔵 Nouveau</option>
-        <option value="Contacté">📞 Contacté</option>
-        <option value="Soumission envoyée">📋 Soumission envoyée</option>
-        <option value="En attente acompte">⏳ En attente acompte</option>
-        <option value="Acompte reçu">💰 Acompte reçu</option>
-        <option value="RDV confirmé">📅 RDV confirmé</option>
-        <option value="RDV ajourné">🌧️ RDV ajourné</option>
-        <option value="RDV à replanifier">🔄 RDV à replanifier</option>
-        <option value="Sur site">🚁 Sur site</option>
-        <option value="En postproduction">🎬 En postproduction</option>
-        <option value="Galerie envoyée">🖼️ Galerie envoyée</option>
-        <option value="Sélection faite">🎨 Sélection faite</option>
-        <option value="Solde en attente">📄 Solde en attente</option>
-        <option value="Payé complet">✅ Payé complet</option>
-        <option value="Livré">📸 Livré</option>
-        <option value="Remerciements envoyés">🙏 Remerciements envoyés</option>
-        <option value="Avis demandé">⭐ Avis demandé</option>
-        <option value="Fermé">🏆 Fermé</option>
+        <option value="Nouveau">🔵 Nouveau</option><option value="Contacté">📞 Contacté</option>
+        <option value="Soumission envoyée">📋 Soumission envoyée</option><option value="En attente acompte">⏳ En attente acompte</option>
+        <option value="Acompte reçu">💰 Acompte reçu</option><option value="RDV confirmé">📅 RDV confirmé</option>
+        <option value="RDV ajourné">🌧️ RDV ajourné</option><option value="RDV à replanifier">🔄 RDV à replanifier</option>
+        <option value="Sur site">🚁 Sur site</option><option value="En postproduction">🎬 En postproduction</option>
+        <option value="Galerie envoyée">🖼️ Galerie envoyée</option><option value="Sélection faite">🎨 Sélection faite</option>
+        <option value="Solde en attente">📄 Solde en attente</option><option value="Payé complet">✅ Payé complet</option>
+        <option value="Livré">📸 Livré</option><option value="Remerciements envoyés">🙏 Remerciements envoyés</option>
+        <option value="Avis demandé">⭐ Avis demandé</option><option value="Fermé">🏆 Fermé</option>
       </select>
     </div>
     <div class="modal-actions">
@@ -917,6 +876,7 @@
     </div>
   </div>
 </div>
+
 <div class="modal-overlay" id="modal-confirm-save">
   <div class="modal-box" style="max-width:380px;">
     <div class="modal-title">💾 Modifications non sauvegardées</div>
@@ -928,9 +888,6 @@
   </div>
 </div>
 
-
-
-<!-- MODAL SESSION EXPIRÉE -->
 <div class="modal-overlay" id="modal-session-expiree">
   <div class="modal-box" style="max-width:400px;text-align:center;">
     <div style="font-size:48px;margin-bottom:12px;">⏰</div>
@@ -961,7 +918,7 @@
     </div>
   </div>
 </div>
-  <!-- MODAL IMPORT COURTIERS -->
+
 <div class="modal-overlay" id="modal-import-courtiers">
   <div class="modal-box" style="max-width:520px;">
     <div class="modal-title">📥 Importer une liste Excel</div>
@@ -978,7 +935,6 @@
   </div>
 </div>
 
-<!-- MODAL NOUVEAU COURTIER -->
 <div class="modal-overlay" id="modal-nouveau-courtier">
   <div class="modal-box" style="max-width:560px;">
     <div class="modal-title">➕ Nouveau courtier</div>
@@ -1000,7 +956,6 @@
   </div>
 </div>
 
-<!-- MODAL EDITION COURTIER -->
 <div class="modal-overlay" id="modal-edit-courtier">
   <div class="modal-box" style="max-width:560px;">
     <div class="modal-title">✏️ Modifier le courtier</div>
@@ -1016,11 +971,8 @@
       <div class="form-group"><label class="form-label">Type de contact</label><input type="text" class="form-input" id="edit-courtier-type"></div>
       <div class="form-group"><label class="form-label">Statut</label>
         <select class="form-input form-select" id="edit-courtier-statut">
-          <option value="Actif">🟢 Actif</option>
-          <option value="Inactif">⚫ Inactif</option>
-          <option value="Désabonné">🔴 Désabonné</option>
-          <option value="Intéressé">⭐ Intéressé</option>
-          <option value="Client">🏆 Client</option>
+          <option value="Actif">🟢 Actif</option><option value="Inactif">⚫ Inactif</option>
+          <option value="Désabonné">🔴 Désabonné</option><option value="Intéressé">⭐ Intéressé</option><option value="Client">🏆 Client</option>
         </select>
       </div>
       <div class="form-group form-full"><label class="form-label">Notes</label><textarea class="form-input form-textarea" id="edit-courtier-notes" style="min-height:60px;"></textarea></div>
@@ -1032,7 +984,6 @@
   </div>
 </div>
 
-<!-- MODAL ENVOI MASSIF -->
 <div class="modal-overlay" id="modal-envoi-massif">
   <div class="modal-box" style="max-width:560px;">
     <div class="modal-title">📧 Envoi massif</div>
@@ -1041,16 +992,12 @@
       <div style="font-size:15px;font-weight:600;color:var(--navy);" id="envoi-template-nom">—</div>
       <div style="font-size:13px;color:var(--blue);margin-top:6px;"><strong id="envoi-nb-selectionnes">0</strong> courtier(s) sélectionné(s)</div>
     </div>
-
-    <!-- Aperçu personnalisation -->
     <div style="background:var(--offwhite);border-radius:10px;padding:14px 16px;margin-bottom:20px;">
       <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:8px;">👁️ Aperçu personnalisation (1er courtier)</div>
       <div style="font-size:13px;color:var(--navy);">Bonjour <strong id="envoi-apercu-prenom">—</strong>,</div>
       <div style="font-size:12px;color:var(--gray);margin-top:4px;">📧 <span id="envoi-apercu-email">—</span></div>
       <div style="font-size:12px;color:var(--gray);">🏢 Bannière : <span id="envoi-apercu-banniere">—</span></div>
     </div>
-
-    <!-- Config offre spéciale -->
     <div id="envoi-offre-section" style="display:none;">
       <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px;">🔥 Configuration de l'offre</div>
       <div class="form-grid">
@@ -1064,21 +1011,19 @@
         </div>
       </div>
     </div>
-
-    <!-- Barre de progression -->
     <div id="envoi-progress" style="display:none;margin-bottom:16px;">
       <div style="font-size:12px;color:var(--gray);margin-bottom:6px;" id="envoi-progress-text">Envoi en cours...</div>
       <div style="background:var(--border);border-radius:100px;height:6px;overflow:hidden;">
         <div id="envoi-progress-bar" style="height:100%;background:var(--blue);border-radius:100px;width:0%;transition:width 0.3s;"></div>
       </div>
     </div>
-
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal('modal-envoi-massif')">Annuler</button>
       <button class="btn-primary" id="btn-envoyer-massif" onclick="envoyerMassif()">📧 Envoyer</button>
     </div>
   </div>
 </div>
+
 <div class="modal-overlay" id="modal-confirm-delete">
   <div class="modal-box" style="max-width:380px;">
     <div class="modal-title" id="delete-title">🗑️ Confirmer</div>
@@ -1089,6 +1034,7 @@
     </div>
   </div>
 </div>
+
 <div class="modal-overlay" id="modal-confirm-envoi">
   <div class="modal-box" style="max-width:420px;">
     <div class="modal-title" id="confirm-envoi-title">📧 Confirmer l'envoi</div>
@@ -1100,14 +1046,21 @@
     </div>
   </div>
 </div>
+
 <script>
+// ════════════════════════════════════════════════════════════════════
+// CapturAir CRM v2 — Script principal
+// BUG FIX: Suppression de la syntaxe TypeScript "const obj:any={}"
+// qui causait "Uncaught ReferenceError: login is not defined"
+// ════════════════════════════════════════════════════════════════════
+
 const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
 let authToken='', currentUser=null;
 let leads=[], soumissions=[], factures=[], utilisateurs=[], projets=[];
 let currentLead=null, currentSoumission=null, currentFacture=null, currentProjet=null;
 let pendingEnvoi=null, pendingDelete=null, pendingNavigation=null;
 let hasUnsaved=false, currentSatisfaction=0, pendingReconnect=false;
-const hdrs=()=>({'Authorization':`Bearer ${authToken}`,'Content-Type':'application/json'});  
+const hdrs=()=>({'Authorization':`Bearer ${authToken}`,'Content-Type':'application/json'});
 
 // ══ LOGIN OTP ══════════════════════════════════════════════════════════
 let loginStep=1, loginEmail='', loginPin='';
@@ -1124,14 +1077,13 @@ async function login(){
     try{
       const r=await fetch('https://capturair-carnet.tumarchessurlatete.workers.dev/api/carnet/auth/init',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:loginEmail,pin:loginPin})});
       const d=await r.json();
-if(!r.ok||!d.success){showLoginErr('Email ou PIN incorrect.');btn.textContent='Connexion →';return;}
+      if(!r.ok||!d.success){showLoginErr('Email ou PIN incorrect.');btn.textContent='Connexion →';return;}
       loginStep=2;
       document.getElementById('login-pin').placeholder='Code reçu par email';
       document.getElementById('login-pin').value='';
       document.getElementById('login-pin').type='text';
       document.getElementById('lbl-pin').textContent='Code OTP (reçu par email)';
       document.getElementById('login-email').disabled=true;
-
       btn.textContent='Valider →';
     }catch(e){showLoginErr('Erreur de connexion.');btn.textContent='Connexion →';}
   }else{
@@ -1151,10 +1103,7 @@ if(!r.ok||!d.success){showLoginErr('Email ou PIN incorrect.');btn.textContent='C
       loginStep=1;
       if(pendingReconnect && currentLead){
         pendingReconnect=false;
-        // Restore session — reload data then reopen current dossier
-        initApp().then(()=>{
-          if(currentLead) setTimeout(()=>ouvrirDossier(currentLead.id),500);
-        });
+        initApp().then(()=>{if(currentLead) setTimeout(()=>ouvrirDossier(currentLead.id),500);});
       } else {
         initApp();
       }
@@ -1165,9 +1114,7 @@ function showLoginErr(m){const e=document.getElementById('login-error');e.textCo
 function logout(){sessionStorage.clear();authToken='';currentUser=null;document.getElementById('app').classList.remove('visible');document.getElementById('login-screen').style.display='flex';loginStep=1;document.getElementById('login-email').disabled=false;document.getElementById('login-pin').type='password';document.getElementById('login-btn-text').textContent='Connexion →';}
 
 function reconnecterSession(){
-  // Garder les données en mémoire, juste réafficher le login
   closeModal('modal-session-expiree');
-  // Pré-remplir l'email
   if(currentUser?.email) document.getElementById('login-email').value=currentUser.email;
   document.getElementById('app').classList.remove('visible');
   document.getElementById('login-screen').style.display='flex';
@@ -1176,7 +1123,6 @@ function reconnecterSession(){
   document.getElementById('login-pin').type='password';
   document.getElementById('login-pin').value='';
   document.getElementById('login-btn-text').textContent='Connexion →';
-  // Après reconnexion réussie, réafficher le dossier en cours
   pendingReconnect=true;
 }
 document.getElementById('login-pin').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
@@ -1209,8 +1155,6 @@ async function initApp(){
 }
 
 // ══ API ═══════════════════════════════════════════════════════════════
-
-
 function verifierTokenExpire(){
   try{
     const t=sessionStorage.getItem('crm_token');
@@ -1218,56 +1162,15 @@ function verifierTokenExpire(){
     const dataB64=t.split('.')[0];
     const p=JSON.parse(atob(dataB64));
     const remaining=(p.exp-Date.now())/1000/60;
-    if(remaining<10&&remaining>0){
-      showNotif(`⚠️ Session expire dans ${Math.ceil(remaining)} min — sauvegardez vos données`,'warning');
-    }
+    if(remaining<10&&remaining>0){showNotif(`⚠️ Session expire dans ${Math.ceil(remaining)} min — sauvegardez vos données`,'warning');}
     return p.exp<Date.now();
   }catch(e){return false;}
 }
-
-async function apiGet(p){
-  if(!authToken){return{};}
-  if(verifierTokenExpire()){sessionExpired();return{};}
-  try{
-    const r=await fetch(`${API}${p}`,{headers:hdrs()});
-    if(r.status===401){sessionExpired();return{};}
-    return r.json();
-  }catch(e){console.error('apiGet error:',e);return{};}
-}
-async function apiPost(p,b){
-  if(!authToken){return{};}
-  if(verifierTokenExpire()){sessionExpired();return{};}
-  try{
-    const r=await fetch(`${API}${p}`,{method:'POST',headers:hdrs(),body:JSON.stringify(b)});
-    if(r.status===401){sessionExpired();return{};}
-    return r.json();
-  }catch(e){console.error('apiPost error:',e);return{};}
-}
-async function apiPut(p,b){
-  if(!authToken){return{};}
-  if(verifierTokenExpire()){sessionExpired();return{};}
-  try{
-    const r=await fetch(`${API}${p}`,{method:'PUT',headers:hdrs(),body:JSON.stringify(b)});
-    if(r.status===401){sessionExpired();return{};}
-    return r.json();
-  }catch(e){console.error('apiPut error:',e);return{};}
-}
-async function apiDelete(p){
-  if(!authToken){return{};}
-  if(verifierTokenExpire()){sessionExpired();return{};}
-  try{
-    const r=await fetch(`${API}${p}`,{method:'DELETE',headers:hdrs()});
-    if(r.status===401){sessionExpired();return{};}
-    return r.json();
-  }catch(e){console.error('apiDelete error:',e);return{};}
-}
-
-function sessionExpired(){
-  const t=sessionStorage.getItem('crm_token');
-  if(!t)return;
-  if(!document.getElementById('app').classList.contains('visible'))return;
-  document.getElementById('modal-session-expiree').classList.add('active');
-}
+async function apiGet(p){if(!authToken){return{};}if(verifierTokenExpire()){sessionExpired();return{};}try{const r=await fetch(`${API}${p}`,{headers:hdrs()});if(r.status===401){sessionExpired();return{};}return r.json();}catch(e){console.error('apiGet error:',e);return{};}}
+async function apiPost(p,b){if(!authToken){return{};}if(verifierTokenExpire()){sessionExpired();return{};}try{const r=await fetch(`${API}${p}`,{method:'POST',headers:hdrs(),body:JSON.stringify(b)});if(r.status===401){sessionExpired();return{};}return r.json();}catch(e){console.error('apiPost error:',e);return{};}}
+async function apiPut(p,b){if(!authToken){return{};}if(verifierTokenExpire()){sessionExpired();return{};}try{const r=await fetch(`${API}${p}`,{method:'PUT',headers:hdrs(),body:JSON.stringify(b)});if(r.status===401){sessionExpired();return{};}return r.json();}catch(e){console.error('apiPut error:',e);return{};}}
+async function apiDelete(p){if(!authToken){return{};}if(verifierTokenExpire()){sessionExpired();return{};}try{const r=await fetch(`${API}${p}`,{method:'DELETE',headers:hdrs()});if(r.status===401){sessionExpired();return{};}return r.json();}catch(e){console.error('apiDelete error:',e);return{};}}
+function sessionExpired(){const t=sessionStorage.getItem('crm_token');if(!t)return;if(!document.getElementById('app').classList.contains('visible'))return;document.getElementById('modal-session-expiree').classList.add('active');}
 
 async function chargerLeads(){try{const d=await apiGet('/api/crm/leads');if(d.leads!==undefined)leads=d.leads||[];document.getElementById('badge-leads').textContent=leads.filter(l=>l.statut!=='Fermé').length;}catch(e){console.error('chargerLeads',e);}}
 async function chargerSoumissions(){try{const d=await apiGet('/api/crm/soumissions');if(d.soumissions!==undefined)soumissions=d.soumissions||[];document.getElementById('badge-soumissions').textContent=soumissions.filter(s=>s.statut==='BROUILLON').length;}catch(e){console.error('chargerSoumissions',e);}}
@@ -1298,45 +1201,14 @@ function showPage(page){
   if(page==='utilisateurs')renderUtilisateurs();
   if(page==='courtiers')chargerCourtiers();
 }
-
-function confirmerRetour(){
-  if(hasUnsaved){pendingNavigation=()=>{hasUnsaved=false;showPage('leads');};document.getElementById('modal-confirm-save').classList.add('active');}
-  else showPage('leads');
-}
+function confirmerRetour(){if(hasUnsaved){pendingNavigation=()=>{hasUnsaved=false;showPage('leads');};document.getElementById('modal-confirm-save').classList.add('active');}else showPage('leads');}
 function ignorerModifs(){hasUnsaved=false;closeModal('modal-confirm-save');if(pendingNavigation){pendingNavigation();pendingNavigation=null;}}
-async function sauverEtContinuer(){
-  if(hasUnsaved){await sauverLeadManuel(true);await sauverSoumissionManuel(true);}
-  closeModal('modal-confirm-save');
-  if(pendingNavigation){pendingNavigation();pendingNavigation=null;}
-}
+async function sauverEtContinuer(){if(hasUnsaved){await sauverLeadManuel(true);await sauverSoumissionManuel(true);}closeModal('modal-confirm-save');if(pendingNavigation){pendingNavigation();pendingNavigation=null;}}
 function marquerModif(){hasUnsaved=true;document.getElementById('unsaved-label').classList.add('visible');document.getElementById('unsaved-label-dos').textContent='● Non sauvegardé';document.getElementById('unsaved-label-dos').style.display='inline';}
-async function envoyerRappelVisite(){
-  if(!currentSoumission?.id)return;
-  if(!document.getElementById("soum-date-confirmee").value){showNotif("⚠️ Renseignez la date confirmée","warning");return;}
-  await sauverSoumissionManuel(true);
-  const d=await apiPost(`/api/crm/soumissions/${currentSoumission.id}/confirmation-visite`,{type:'rappel'});
-  if(d.success)showNotif('✅ Rappel de visite envoyé !','success');
-  else showNotif('❌ '+(d.error||'Erreur'),'error');
-}
-function ouvrirAgenda(){
-  if(!currentLead)return;
-  const nom=`${currentLead.prenom} ${currentLead.nom}`;
-  const service=currentLead.type_service||'';
-  const ville=currentLead.ville||'';
-  const tel=currentLead.telephone||'';
-  const date=document.getElementById('soum-date-souhaitee').value||'';
-  const texte=encodeURIComponent(`RDV CapturAir — ${nom}`);
-  const details=encodeURIComponent(`Client: ${nom}\nService: ${service}\nVille: ${ville}\nTél: ${tel}\nDossier: ${currentLead?.num_soumission||''}`);
-  let url=`https://calendar.google.com/calendar/r/eventedit?text=${texte}&details=${details}`;
-  if(date){
-    const d=date.replace(/-/g,'');
-    url+=`&dates=${d}T090000/${d}T100000`;
-  }
-  window.open(url,'_blank');
-}
 function marquerModifSoum(){marquerModif();const nomProjet=document.getElementById('soum-nom-projet')?.value;if(nomProjet)document.getElementById('projet-nom').value=nomProjet;}
 function clearUnsaved(){hasUnsaved=false;document.getElementById('unsaved-label').classList.remove('visible');document.getElementById('unsaved-label-dos').style.display='none';}
-const VILLES_QC=['Acton Vale','Adstock','Albanel','Alma','Amos','Amqui','Anjou','Asbestos','Baie-Comeau','Baie-D\'Urfé','Baie-James','Baie-Saint-Paul','Baie-Trinité','Barkmere','Beaconsfield','Beauceville','Beauharnois','Beaupré','Bedford','Beloeil','Berthierville','Blainville','Boisbriand','Bois-des-Filion','Bonaventure','Boucherville','Bromont','Brossard','Brownsburg-Chatham','Candiac','Carignan','Carleton-sur-Mer','Causapscal','Chambly','Chandler','Chapais','Charlemagne','Châteauguay','Chibougamau','Clermont','Coaticook','Contrecoeur','Cookshire-Eaton','Côte-Saint-Luc','Coteau-du-Lac','Cowansville','Danville','Daveluyville','Delson','Deux-Montagnes','Disraeli','Dolbeau-Mistassini','Dollard-des-Ormeaux','Donnacona','Dorval','Drummondville','East Angus','Farnham','Fermont','Forestville','Gatineau','Gaspé','Gracefield','Granby','Grande-Rivière','Hampstead','Havre-Saint-Pierre','Hudson','Huntingdon','Joliette','Kirkland','L\'Ancienne-Lorette','L\'Assomption','L\'Épiphanie','L\'Île-Perrot','La Malbaie','La Pocatière','La Prairie','La Sarre','La Tuque','Lac-Etchemin','Lac-Mégantic','Lachute','Lacolle','Lasalle','Lanoraie','Laval','Lavaltrie','Lebel-sur-Quévillon','Lévis','Longueuil','Lorraine','Louiseville','Macamic','Magog','Maniwaki','Marieville','Mascouche','Matagami','McMasterville','Mercier','Mirabel','Mont-Joli','Mont-Laurier','Mont-Royal','Mont-Saint-Hilaire','Montmagny','Montréal','Montréal-Est','Montréal-Ouest','Mont-Tremblant','Napierville','New Richmond','Nicolet','Normandin','Notre-Dame-de-l\'Île-Perrot','Otterburn Park','Papineauville','Paspébiac','Percé','Pierrefonds','Pincourt','Plessisville','Pohénégamook','Pointe-Calumet','Pointe-Claire','Pointe-du-Lac','Port-Cartier','Plessisville','Princeville','Québec','Rawdon','Repentigny','Richelieu','Richmond','Rigaud','Rimouski','Rivière-du-Loup','Rivière-Rouge','Roberval','Rosemère','Rouyn-Noranda','Saint-Amable','Saint-Basile-le-Grand','Saint-Bruno-de-Montarville','Saint-Charles-Borromée','Saint-Constant','Saint-Eustache','Saint-Félicien','Saint-Georges','Saint-Hyacinthe','Saint-Jean-sur-Richelieu','Saint-Jérôme','Saint-Joseph-de-Sorel','Saint-Lambert','Saint-Laurent','Saint-Lazare','Saint-Lin–Laurentides','Saint-Pie','Saint-Rémi','Saint-Sauveur','Sainte-Adèle','Sainte-Agathe-des-Monts','Sainte-Anne-de-Bellevue','Sainte-Anne-des-Monts','Sainte-Anne-des-Plaines','Sainte-Catherine','Sainte-Julie','Sainte-Marie','Sainte-Marthe-sur-le-Lac','Sainte-Sophie','Sainte-Thérèse','Salaberry-de-Valleyfield','Senneterre','Sept-Îles','Shawinigan','Sherbrooke','Sorel-Tracy','Sutton','Terrebonne','Thetford Mines','Thurso','Trois-Rivières','Val-d\'Or','Varennes','Vaudreuil-Dorion','Verchères','Victoriaville','Ville-Marie','Waterloo','Westmount','Windsor'];
+
+const VILLES_QC=['Acton Vale','Adstock','Albanel','Alma','Amos','Amqui','Anjou','Asbestos','Baie-Comeau','Baie-D\'Urfé','Baie-James','Baie-Saint-Paul','Baie-Trinité','Barkmere','Beaconsfield','Beauceville','Beauharnois','Beaupré','Bedford','Beloeil','Berthierville','Blainville','Boisbriand','Bois-des-Filion','Bonaventure','Boucherville','Bromont','Brossard','Brownsburg-Chatham','Candiac','Carignan','Carleton-sur-Mer','Causapscal','Chambly','Chandler','Chapais','Charlemagne','Châteauguay','Chibougamau','Clermont','Coaticook','Contrecoeur','Cookshire-Eaton','Côte-Saint-Luc','Coteau-du-Lac','Cowansville','Danville','Daveluyville','Delson','Deux-Montagnes','Disraeli','Dolbeau-Mistassini','Dollard-des-Ormeaux','Donnacona','Dorval','Drummondville','East Angus','Farnham','Fermont','Forestville','Gatineau','Gaspé','Gracefield','Granby','Grande-Rivière','Hampstead','Havre-Saint-Pierre','Hudson','Huntingdon','Joliette','Kirkland','L\'Ancienne-Lorette','L\'Assomption','L\'Épiphanie','L\'Île-Perrot','La Malbaie','La Pocatière','La Prairie','La Sarre','La Tuque','Lac-Etchemin','Lac-Mégantic','Lachute','Lacolle','Lasalle','Lanoraie','Laval','Lavaltrie','Lebel-sur-Quévillon','Lévis','Longueuil','Lorraine','Louiseville','Macamic','Magog','Maniwaki','Marieville','Mascouche','Matagami','McMasterville','Mercier','Mirabel','Mont-Joli','Mont-Laurier','Mont-Royal','Mont-Saint-Hilaire','Montmagny','Montréal','Montréal-Est','Montréal-Ouest','Mont-Tremblant','Napierville','New Richmond','Nicolet','Normandin','Notre-Dame-de-l\'Île-Perrot','Otterburn Park','Papineauville','Paspébiac','Percé','Pierrefonds','Pincourt','Plessisville','Pohénégamook','Pointe-Calumet','Pointe-Claire','Pointe-du-Lac','Port-Cartier','Princeville','Québec','Rawdon','Repentigny','Richelieu','Richmond','Rigaud','Rimouski','Rivière-du-Loup','Rivière-Rouge','Roberval','Rosemère','Rouyn-Noranda','Saint-Amable','Saint-Basile-le-Grand','Saint-Bruno-de-Montarville','Saint-Charles-Borromée','Saint-Constant','Saint-Eustache','Saint-Félicien','Saint-Georges','Saint-Hyacinthe','Saint-Jean-sur-Richelieu','Saint-Jérôme','Saint-Joseph-de-Sorel','Saint-Lambert','Saint-Laurent','Saint-Lazare','Saint-Lin–Laurentides','Saint-Pie','Saint-Rémi','Saint-Sauveur','Sainte-Adèle','Sainte-Agathe-des-Monts','Sainte-Anne-de-Bellevue','Sainte-Anne-des-Monts','Sainte-Anne-des-Plaines','Sainte-Catherine','Sainte-Julie','Sainte-Marie','Sainte-Marthe-sur-le-Lac','Sainte-Sophie','Sainte-Thérèse','Salaberry-de-Valleyfield','Senneterre','Sept-Îles','Shawinigan','Sherbrooke','Sorel-Tracy','Sutton','Terrebonne','Thetford Mines','Thurso','Trois-Rivières','Val-d\'Or','Varennes','Vaudreuil-Dorion','Verchères','Victoriaville','Ville-Marie','Waterloo','Westmount','Windsor'];
 
 function autocompleteVille(id){
   const input=document.getElementById(id);
@@ -1348,18 +1220,9 @@ function autocompleteVille(id){
   list.innerHTML=matches.map(v=>`<div style="padding:9px 14px;font-size:13px;cursor:pointer;color:var(--navy);" onmousedown="selectVille('${id}','${v.replace(/'/g,"\\'")}')">${v}</div>`).join('');
   list.style.display='block';
 }
+function selectVille(id,ville){document.getElementById(id).value=ville;document.getElementById(`autocomplete-${id}`).style.display='none';if(id==='info-ville')marquerModif();}
+document.addEventListener('click',e=>{if(!e.target.closest('.autocomplete-list')&&!e.target.id?.includes('ville')){document.querySelectorAll('.autocomplete-list').forEach(l=>l.style.display='none');}});
 
-function selectVille(id,ville){
-  document.getElementById(id).value=ville;
-  document.getElementById(`autocomplete-${id}`).style.display='none';
-  if(id==='info-ville')marquerModif();
-}
-
-document.addEventListener('click',e=>{
-  if(!e.target.closest('.autocomplete-list')&&!e.target.id?.includes('ville')){
-    document.querySelectorAll('.autocomplete-list').forEach(l=>l.style.display='none');
-  }
-});
 function switchTab(tab){
   ['infos','soumission','projet','facture'].forEach(t=>{
     document.getElementById(`tab-${t}`)?.classList.toggle('active',t===tab);
@@ -1370,13 +1233,8 @@ function switchTab(tab){
   if(tab==='projet')chargerProjetDossier();
   if(tab==='facture')chargerFactureDossier();
 }
-function ouvrirOnglet(t){switchTab(t);}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
-function toggleMenu(id){
-  const dd=document.getElementById(`dropdown-${id}`);
-  document.querySelectorAll('.actions-dropdown').forEach(d=>{if(d!==dd)d.classList.remove('open');});
-  dd.classList.toggle('open');
-}
+function toggleMenu(id){const dd=document.getElementById(`dropdown-${id}`);document.querySelectorAll('.actions-dropdown').forEach(d=>{if(d!==dd)d.classList.remove('open');});dd.classList.toggle('open');}
 document.addEventListener('click',e=>{if(!e.target.closest('.actions-menu'))document.querySelectorAll('.actions-dropdown').forEach(d=>d.classList.remove('open'));});
 
 // ══ DASHBOARD ═════════════════════════════════════════════════════════
@@ -1387,36 +1245,17 @@ function renderDashboard(){
   const now=new Date();
   const rev=factures.filter(f=>{const d=new Date(f.created_at||'');return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}).reduce((s,f)=>s+((f.prix_base||0)*1.14975),0);
   document.getElementById('stat-revenus').textContent=rev>0?`${rev.toFixed(0)}$`:'—';
-
   const STATUTS=[
-    {key:'Nouveau',label:'Nouveaux',color:'#3AABEF'},
-    {key:'Contacté',label:'Contacté',color:'#9B59B6'},
-    {key:'Soumission envoyée',label:'Soumission',color:'#E67E22'},
-    {key:'En attente acompte',label:'Att. acompte',color:'#F1C40F'},
-    {key:'Acompte reçu',label:'Acompte reçu',color:'#27AE60'},
-    {key:'RDV confirmé',label:'RDV confirmé',color:'#1A8FD1'},
-    {key:'RDV ajourné',label:'RDV ajourné',color:'#E74C3C'},
-    {key:'Sur site',label:'Sur site',color:'#1ABC9C'},
-    {key:'En postproduction',label:'Postprod.',color:'#8E44AD'},
-    {key:'Galerie envoyée',label:'Galerie',color:'#2ECC71'},
-    {key:'Solde en attente',label:'Solde att.',color:'#E67E22'},
-    {key:'Payé complet',label:'Payé',color:'#27AE60'},
+    {key:'Nouveau',label:'Nouveaux',color:'#3AABEF'},{key:'Contacté',label:'Contacté',color:'#9B59B6'},
+    {key:'Soumission envoyée',label:'Soumission',color:'#E67E22'},{key:'En attente acompte',label:'Att. acompte',color:'#F1C40F'},
+    {key:'Acompte reçu',label:'Acompte reçu',color:'#27AE60'},{key:'RDV confirmé',label:'RDV confirmé',color:'#1A8FD1'},
+    {key:'RDV ajourné',label:'RDV ajourné',color:'#E74C3C'},{key:'Sur site',label:'Sur site',color:'#1ABC9C'},
+    {key:'En postproduction',label:'Postprod.',color:'#8E44AD'},{key:'Galerie envoyée',label:'Galerie',color:'#2ECC71'},
+    {key:'Solde en attente',label:'Solde att.',color:'#E67E22'},{key:'Payé complet',label:'Payé',color:'#27AE60'},
   ];
   document.getElementById('pipeline-kanban').innerHTML=STATUTS.map(s=>{
     const items=leads.filter(l=>l.statut===s.key);
-    return `<div class="pipeline-col">
-      <div class="pipeline-col-header" style="color:${s.color};">
-        <span class="pipeline-col-title">${s.label}</span>
-        <span class="pipeline-count">${items.length}</span>
-      </div>
-      ${items.length===0?'<div style="font-size:11px;color:var(--gray);text-align:center;padding:12px 0;">Vide</div>':
-        items.slice(0,4).map(l=>`<div class="pipeline-card" onclick="ouvrirDossier('${l.id}')">
-          <div class="pipeline-card-name">${l.prenom} ${l.nom}</div>
-          <div class="pipeline-card-service">${l.type_service||'—'}</div>
-          <div class="pipeline-card-num">${l.num_soumission||''}</div>
-        </div>`).join('')
-      }
-    </div>`;
+    return `<div class="pipeline-col"><div class="pipeline-col-header" style="color:${s.color};"><span class="pipeline-col-title">${s.label}</span><span class="pipeline-count">${items.length}</span></div>${items.length===0?'<div style="font-size:11px;color:var(--gray);text-align:center;padding:12px 0;">Vide</div>':items.slice(0,4).map(l=>`<div class="pipeline-card" onclick="ouvrirDossier('${l.id}')"><div class="pipeline-card-name">${l.prenom} ${l.nom}</div><div class="pipeline-card-service">${l.type_service||'—'}</div><div class="pipeline-card-num">${l.num_soumission||''}</div></div>`).join('')}</div>`;
   }).join('');
 }
 
@@ -1428,30 +1267,14 @@ function renderLeads(data){
   tbody.innerHTML=list.map(l=>{
     const p=projets.find(pr=>pr.lead_id===l.id||pr.num_soumission===l.num_soumission);
     const projetBadge=p?`<span style="font-size:10px;background:rgba(155,89,182,0.15);color:#9B59B6;padding:2px 8px;border-radius:100px;">🚁 ${p.statut||'—'}</span>`:'<span style="font-size:10px;color:var(--gray);">—</span>';
-    return `<tr onclick="ouvrirDossier('${l.id}')">
-      <td><div style="font-weight:600;">${l.num_soumission||'—'}</div>
-        <span class="badge ${l.num_soumission?.startsWith('MAN')?'badge-man':'badge-web'}">${l.num_soumission?.startsWith('MAN')?'📝 Manuel':'🌐 Web'}</span></td>
-      <td><strong>${l.prenom} ${l.nom}</strong><br><span style="font-size:11px;color:var(--gray);">${l.courriel}</span></td>
-      <td style="font-size:12px;">${l.type_service||'—'}</td>
-      <td>${l.ville||'—'}</td>
-      <td>${badgeStatut(l.statut)}</td>
-      <td>${projetBadge}</td>
-      <td>${ageDossier(l.created_at)}</td>
-      <td style="font-size:12px;">${l.assigne_a||'Mohand'}</td>
-    </tr>`;
+    return `<tr onclick="ouvrirDossier('${l.id}')"><td><div style="font-weight:600;">${l.num_soumission||'—'}</div><span class="badge ${l.num_soumission?.startsWith('MAN')?'badge-man':'badge-web'}">${l.num_soumission?.startsWith('MAN')?'📝 Manuel':'🌐 Web'}</span></td><td><strong>${l.prenom} ${l.nom}</strong><br><span style="font-size:11px;color:var(--gray);">${l.courriel}</span></td><td style="font-size:12px;">${l.type_service||'—'}</td><td>${l.ville||'—'}</td><td>${badgeStatut(l.statut)}</td><td>${projetBadge}</td><td>${ageDossier(l.created_at)}</td><td style="font-size:12px;">${l.assigne_a||'Mohand'}</td></tr>`;
   }).join('');
 }
-
 function filtrerLeads(){
   const q=document.getElementById('search-leads').value.toLowerCase();
   const s=document.getElementById('filter-statut').value;
   const src=document.getElementById('filter-source').value;
-  renderLeads(leads.filter(l=>{
-    const mq=!q||`${l.prenom} ${l.nom} ${l.courriel} ${l.ville} ${l.type_service} ${l.num_soumission}`.toLowerCase().includes(q);
-    const ms=!s||l.statut===s;
-    const msrc=!src||l.num_soumission?.startsWith(src);
-    return mq&&ms&&msrc;
-  }));
+  renderLeads(leads.filter(l=>{const mq=!q||`${l.prenom} ${l.nom} ${l.courriel} ${l.ville} ${l.type_service} ${l.num_soumission}`.toLowerCase().includes(q);const ms=!s||l.statut===s;const msrc=!src||l.num_soumission?.startsWith(src);return mq&&ms&&msrc;}));
 }
 
 // ══ DOSSIER ════════════════════════════════════════════════════════════
@@ -1463,7 +1286,6 @@ function ouvrirDossier(id){
   document.getElementById('dossier-avatar').textContent=init;
   document.getElementById('dossier-nom').textContent=`${currentLead.prenom} ${currentLead.nom}`;
   document.getElementById('dossier-meta').innerHTML=`${currentLead.courriel} · ${currentLead.telephone||'—'} · ${currentLead.ville||'—'}<br>${badgeStatut(currentLead.statut)} <span style="font-size:11px;color:var(--gray);margin-left:8px;">${currentLead.num_soumission||''}</span> ${ageDossier(currentLead.created_at)}`;
-  // Remplir infos
   ['prenom','nom','courriel','telephone'].forEach(f=>document.getElementById(`info-${f}`).value=currentLead[f]||'');
   document.getElementById('info-service').value=currentLead.type_service||'';
   document.getElementById('info-date').value=currentLead.date_souhaitee?.split('T')[0]||'';
@@ -1478,16 +1300,8 @@ function ouvrirDossier(id){
   switchTab('infos');
   showPage('dossier');
 }
-
 function renderFluxStatut(statut){
-  const steps=[
-    {label:'Lead',icon:'📁'},
-    {label:'Soumission',icon:'📋'},
-    {label:'Projet',icon:'🚁'},
-    {label:'Facture',icon:'📄'},
-    {label:'Galerie',icon:'🖼️'},
-    {label:'Payé',icon:'✅'}
-  ];
+  const steps=[{label:'Lead',icon:'📁'},{label:'Soumission',icon:'📋'},{label:'Projet',icon:'🚁'},{label:'Facture',icon:'📄'},{label:'Galerie',icon:'🖼️'},{label:'Payé',icon:'✅'}];
   const stMap={'Nouveau':0,'Contacté':0,'Soumission envoyée':1,'Acompte reçu':2,'En production':2,'Livré':3,'Payé complet':5};
   const idx=stMap[statut]??0;
   const soum=soumissions.find(s=>s.projet_id===currentLead?.id);
@@ -1496,54 +1310,29 @@ function renderFluxStatut(statut){
   const realIdx=soum?Math.max(idx,1):idx;
   const realIdx2=proj?Math.max(realIdx,2):realIdx;
   const realIdx3=fact?Math.max(realIdx2,3):realIdx2;
-  document.getElementById('flux-statut').innerHTML=steps.map((s,i)=>`
-    <div class="flux-step ${i<realIdx3?'done':''} ${i===realIdx3?'current':''}">
-      <div class="flux-dot">${i<realIdx3?'✓':s.icon}</div>
-      <div class="flux-label">${s.label}</div>
-    </div>`).join('');
+  document.getElementById('flux-statut').innerHTML=steps.map((s,i)=>`<div class="flux-step ${i<realIdx3?'done':''} ${i===realIdx3?'current':''}"><div class="flux-dot">${i<realIdx3?'✓':s.icon}</div><div class="flux-label">${s.label}</div></div>`).join('');
 }
-
 async function sauverLeadManuel(silencieux=false){
   if(!currentLead)return;
   const body={prenom:document.getElementById('info-prenom').value,nom:document.getElementById('info-nom').value,courriel:document.getElementById('info-courriel').value,telephone:document.getElementById('info-telephone').value,type_service:document.getElementById('info-service').value,date_souhaitee:document.getElementById('info-date').value,ville:document.getElementById('info-ville').value,budget:document.getElementById('info-budget').value,source:document.getElementById('info-source').value,assigne_a:document.getElementById('info-assigne').value,description:document.getElementById('info-description').value,prochaine_action:document.getElementById('info-action').value,statut:currentLead.statut};
-  await apiPut(`/api/crm/leads/${currentLead.id}`,body);
-  Object.assign(currentLead,body);
-  clearUnsaved();
-  if(!silencieux)showNotif('✅ Dossier sauvegardé','success');
+  await apiPut(`/api/crm/leads/${currentLead.id}`,body);Object.assign(currentLead,body);clearUnsaved();if(!silencieux)showNotif('✅ Dossier sauvegardé','success');
 }
-
 function modifierStatut(){if(!currentLead)return;document.getElementById('select-statut').value=currentLead?.statut||'Nouveau';document.getElementById('modal-statut').classList.add('active');}
 async function appliquerStatut(){
   const s=document.getElementById('select-statut').value;
   await apiPut(`/api/crm/leads/${currentLead.id}`,{...currentLead,statut:s});
-  currentLead.statut=s;
-  renderFluxStatut(s);
+  currentLead.statut=s;renderFluxStatut(s);
   document.getElementById('dossier-meta').innerHTML=`${currentLead.courriel} · ${currentLead.telephone||'—'} · ${currentLead.ville||'—'}<br>${badgeStatut(s)}`;
-  closeModal('modal-statut');
-  showNotif('✅ Statut mis à jour','success');
-  await chargerLeads();
+  closeModal('modal-statut');showNotif('✅ Statut mis à jour','success');await chargerLeads();
 }
-
 async function dupliquerLead(){if(!currentLead)return;const d=await apiPost(`/api/crm/leads/${currentLead.id}/dupliquer`,{});if(d.success){showNotif('✅ Dossier dupliqué','success');await chargerLeads();renderDashboard();}else showNotif('❌ '+d.error,'error');}
 function supprimerLead(){pendingDelete={type:'lead',id:currentLead.id};document.getElementById('delete-title').textContent='🗑️ Supprimer le dossier';document.getElementById('delete-msg').textContent=`Supprimer ${currentLead.prenom} ${currentLead.nom} ? Irréversible.`;document.getElementById('modal-confirm-delete').classList.add('active');}
 async function executeDelete(){
   if(!pendingDelete)return;
   try{
     if(pendingDelete.type==='lead'){await apiDelete(`/api/crm/leads/${pendingDelete.id}`);await chargerLeads();showPage('leads');showNotif('✅ Supprimé','success');}
-    else if(pendingDelete.type==='soumission'){
-      await apiDelete(`/api/crm/soumissions/${pendingDelete.id}`);
-      currentSoumission=null;
-      await chargerSoumissions();
-      showNotif('✅ Soumission supprimée','success');
-      chargerSoumissionDossier();
-    }
-    else if(pendingDelete.type==='facture'){
-      await apiDelete(`/api/crm/factures/${pendingDelete.id}`);
-      currentFacture=null;
-      await chargerFactures();
-      showNotif('✅ Facture supprimée','success');
-      chargerFactureDossier();
-    }
+    else if(pendingDelete.type==='soumission'){await apiDelete(`/api/crm/soumissions/${pendingDelete.id}`);currentSoumission=null;await chargerSoumissions();showNotif('✅ Soumission supprimée','success');chargerSoumissionDossier();}
+    else if(pendingDelete.type==='facture'){await apiDelete(`/api/crm/factures/${pendingDelete.id}`);currentFacture=null;await chargerFactures();showNotif('✅ Facture supprimée','success');chargerFactureDossier();}
   }catch(e){showNotif('❌ Erreur','error');}
   closeModal('modal-confirm-delete');pendingDelete=null;
 }
@@ -1554,23 +1343,19 @@ async function creerSoumission(){
   const d=await apiPost('/api/crm/soumissions',{projet_id:currentLead.id,source_lead:'MANUEL'});
   if(d.success){
     await chargerSoumissions();
-    // Set currentSoumission directly
     currentSoumission=soumissions.find(s=>s.id===d.id)||{id:d.id,num_soumission:d.num_soumission,statut:'BROUILLON',projet_id:currentLead.id};
     showNotif('✅ Soumission créée — '+d.num_soumission,'success');
-    // Show form, hide empty state
     document.getElementById('soum-empty-state').style.display='none';
     document.getElementById('soum-form-content').style.display='block';
     document.getElementById('soum-num').textContent=d.num_soumission||'';
     calculerSoumission();
   } else showNotif('❌ '+(d.error||'Erreur'),'error');
 }
-
 async function chargerSoumissionDossier(){
   if(!currentLead)return;
   await chargerSoumissions();
   currentSoumission=soumissions.find(s=>s.projet_id===currentLead.id)||null;
   if(!currentSoumission){
-    // Afficher état vide avec bouton créer
     document.getElementById('soum-num').textContent='';
     document.getElementById('soum-empty-state').style.display='block';
     document.getElementById('soum-form-content').style.display='none';
@@ -1579,7 +1364,6 @@ async function chargerSoumissionDossier(){
   document.getElementById('soum-empty-state').style.display='none';
   document.getElementById('soum-form-content').style.display='block';
   document.getElementById('soum-num').textContent=currentSoumission.num_soumission||'';
-  const campos=['deplacement','postprod','acompte'];
   document.getElementById('soum-deplacement').value=currentSoumission.frais_deplacement||'';
   document.getElementById('soum-postprod').value=currentSoumission.frais_postprod||'';
   document.getElementById('soum-acompte').value=currentSoumission.montant_acompte||'';
@@ -1609,7 +1393,6 @@ async function chargerSoumissionDossier(){
   setSatDisplay(currentSoumission.satisfaction||0);
   calculerSoumission();
 }
-
 function getPrixBase(){
   const P={'Pack Visibilité Essentielle':249,'Capsule Vidéo Impact':349,'Pack Visibilité Complète':499,'Cartographie Drone Professionnelle':799,'Inspection Toiture Visuelle Drone':279,'Inspection Structure & Bâtiment':449,'Inspection Réseaux & Infrastructures':599,'Pack Signature Immobilier Premium':599,'Captation Événementielle Drone':699,'Suivi de Chantier Drone Pro':549,'Pack Promotion Tourisme & Paysage':399,'Projet sur mesure':0};
   const svc=currentLead?.type_service||'';
@@ -1620,14 +1403,7 @@ function calcMtx(b,d,a){const s=b+d+a;const t=s*0.05;const q=s*0.09975;return{s,
 function calculerSoumission(){
   const b=getPrixBase(),d=parseFloat(document.getElementById('soum-deplacement').value)||0,p=parseFloat(document.getElementById('soum-postprod').value)||0;
   const{s,t,q,tot}=calcMtx(b,d,p);
-  document.getElementById('soum-fin-table').innerHTML=`
-    <tr><td>Honoraires (${currentLead?.type_service||'—'})</td><td>${fmt(b)}</td></tr>
-    ${d>0?`<tr><td>Frais de déplacement</td><td>${fmt(d)}</td></tr>`:''}
-    ${p>0?`<tr><td>Postproduction</td><td>${fmt(p)}</td></tr>`:''}
-    <tr style="color:var(--gray)"><td>Sous-total</td><td>${fmt(s)}</td></tr>
-    <tr style="color:var(--gray)"><td>TPS (5%) — 782828008RT0002</td><td>${fmt(t)}</td></tr>
-    <tr style="color:var(--gray)"><td>TVQ (9,975%) — 4016921721TQ0001</td><td>${fmt(q)}</td></tr>
-    <tr class="fin-total"><td>💰 TOTAL (taxes incluses)</td><td>${fmt(tot)}</td></tr>`;
+  document.getElementById('soum-fin-table').innerHTML=`<tr><td>Honoraires (${currentLead?.type_service||'—'})</td><td>${fmt(b)}</td></tr>${d>0?`<tr><td>Frais de déplacement</td><td>${fmt(d)}</td></tr>`:''} ${p>0?`<tr><td>Postproduction</td><td>${fmt(p)}</td></tr>`:''}<tr style="color:var(--gray)"><td>Sous-total</td><td>${fmt(s)}</td></tr><tr style="color:var(--gray)"><td>TPS (5%) — 782828008RT0002</td><td>${fmt(t)}</td></tr><tr style="color:var(--gray)"><td>TVQ (9,975%) — 4016921721TQ0001</td><td>${fmt(q)}</td></tr><tr class="fin-total"><td>💰 TOTAL (taxes incluses)</td><td>${fmt(tot)}</td></tr>`;
 }
 function setAcompte(v){
   document.querySelectorAll('.acompte-btn').forEach(b=>b.classList.remove('active'));
@@ -1642,45 +1418,15 @@ function setSat(v){currentSatisfaction=v;setSatDisplay(v);marquerModif();}
 function setSatDisplay(v){document.querySelectorAll('#stars-sat .star').forEach((s,i)=>{s.textContent=i<v?'⭐':'☆';});currentSatisfaction=v;}
 
 async function sauverSoumissionManuel(silencieux=false){
-  if(!currentSoumission){
-    // Créer la soumission si elle n'existe pas encore
-    await creerSoumission();
-    return;
-  }
-  const body={frais_deplacement:parseFloat(document.getElementById('soum-deplacement').value)||0,frais_postprod:parseFloat(document.getElementById('soum-postprod').value)||0,montant_acompte:parseFloat(document.getElementById('soum-acompte').value)||0,stripe_acompte_url:document.getElementById('soum-stripe').value,notes:document.getElementById('soum-notes').value,statut:document.getElementById('soum-statut-doc').value||'BROUILLON',entreprise:document.getElementById('soum-entreprise').value,personne_contact:document.getElementById('soum-contact').value,nom_projet:document.getElementById('soum-nom-projet').value,date_souhaitee:document.getElementById('soum-date-souhaitee').value,date_confirmee:document.getElementById('soum-date-confirmee').value,heure_intervention:document.getElementById('soum-heure').value,duree_estimee:document.getElementById('soum-duree').value,mode_paiement:document.getElementById('soum-mode-paiement').value,statut_paiement:document.getElementById('soum-statut-paiement').value,statut_pdf_soumission:document.getElementById('soum-statut-pdf-soum').value,statut_pdf_facture:document.getElementById('soum-statut-pdf-fact').value,date_livraison:document.getElementById('soum-date-livraison').value,date_relance:document.getElementById('soum-date-relance').value,satisfaction:currentSatisfaction||null,projet_id:currentLead.id,
-    adresse_projet:document.getElementById('soum-adresse-projet').value,
-    adresse_facturation:document.getElementById('soum-meme-adresse').checked?document.getElementById('soum-adresse-projet').value:document.getElementById('soum-adresse-facturation').value};
-  await apiPut(`/api/crm/soumissions/${currentSoumission.id}`,body);
-  Object.assign(currentSoumission,body);
-  clearUnsaved();
-  // Recharger projet (auto-créé)
-  await chargerProjets();
-  renderFluxStatut(currentLead.statut);
-  // Propagation automatique vers la facture existante
-  if(currentFacture?.id) {
-    const factBody = {
-      frais_deplacement: parseFloat(document.getElementById('soum-deplacement').value)||0,
-      autres_frais: parseFloat(document.getElementById('soum-postprod').value)||0,
-      acompte_recu: parseFloat(document.getElementById('soum-acompte').value)||0,
-      notes: currentFacture.notes||'',
-      statut: currentFacture.statut||'BROUILLON'
-    };
-    await apiPut(`/api/crm/factures/${currentFacture.id}`, factBody);
-    Object.assign(currentFacture, factBody);
-  }
+  if(!currentSoumission){await creerSoumission();return;}
+  const body={frais_deplacement:parseFloat(document.getElementById('soum-deplacement').value)||0,frais_postprod:parseFloat(document.getElementById('soum-postprod').value)||0,montant_acompte:parseFloat(document.getElementById('soum-acompte').value)||0,stripe_acompte_url:document.getElementById('soum-stripe').value,notes:document.getElementById('soum-notes').value,statut:document.getElementById('soum-statut-doc').value||'BROUILLON',entreprise:document.getElementById('soum-entreprise').value,personne_contact:document.getElementById('soum-contact').value,nom_projet:document.getElementById('soum-nom-projet').value,date_souhaitee:document.getElementById('soum-date-souhaitee').value,date_confirmee:document.getElementById('soum-date-confirmee').value,heure_intervention:document.getElementById('soum-heure').value,duree_estimee:document.getElementById('soum-duree').value,mode_paiement:document.getElementById('soum-mode-paiement').value,statut_paiement:document.getElementById('soum-statut-paiement').value,statut_pdf_soumission:document.getElementById('soum-statut-pdf-soum').value,statut_pdf_facture:document.getElementById('soum-statut-pdf-fact').value,date_livraison:document.getElementById('soum-date-livraison').value,date_relance:document.getElementById('soum-date-relance').value,satisfaction:currentSatisfaction||null,projet_id:currentLead.id,adresse_projet:document.getElementById('soum-adresse-projet').value,adresse_facturation:document.getElementById('soum-meme-adresse').checked?document.getElementById('soum-adresse-projet').value:document.getElementById('soum-adresse-facturation').value};
+  await apiPut(`/api/crm/soumissions/${currentSoumission.id}`,body);Object.assign(currentSoumission,body);clearUnsaved();await chargerProjets();renderFluxStatut(currentLead.statut);
+  if(currentFacture?.id){const factBody={frais_deplacement:parseFloat(document.getElementById('soum-deplacement').value)||0,autres_frais:parseFloat(document.getElementById('soum-postprod').value)||0,acompte_recu:parseFloat(document.getElementById('soum-acompte').value)||0,notes:currentFacture.notes||'',statut:currentFacture.statut||'BROUILLON'};await apiPut(`/api/crm/factures/${currentFacture.id}`,factBody);Object.assign(currentFacture,factBody);}
   if(!silencieux)showNotif('✅ Soumission sauvegardée — Projet créé/mis à jour','success');
 }
-
-function apercuSoumission(){
-  if(!currentSoumission){showNotif("⚠️ Créez d'abord la soumission","warning");return;}
-  window.open(`${API}/api/crm/soumissions/${currentSoumission.id}/apercu`,'_blank');
-}
-function apercuFacture(){
-  if(!currentFacture){showNotif("⚠️ Créez d'abord la facture","warning");return;}
-  window.open(`${API}/api/crm/factures/${currentFacture.id}/apercu`,'_blank');
-}
+function apercuSoumission(){if(!currentSoumission){showNotif("⚠️ Créez d'abord la soumission","warning");return;}window.open(`${API}/api/crm/soumissions/${currentSoumission.id}/apercu`,'_blank');}
+function apercuFacture(){if(!currentFacture){showNotif("⚠️ Créez d'abord la facture","warning");return;}window.open(`${API}/api/crm/factures/${currentFacture.id}/apercu`,'_blank');}
 function imprimerPDF(t){const u=t==='soumission'?`${API}/api/crm/soumissions/${currentSoumission?.id}/apercu`:`${API}/api/crm/factures/${currentFacture?.id}/apercu`;const w=window.open(u,'_blank');if(w)w.onload=()=>w.print();}
-
 async function genererStripe(){
   if(!currentSoumission)return;
   const m=parseFloat(document.getElementById('soum-acompte').value)||0;
@@ -1691,19 +1437,35 @@ async function genererStripe(){
   if(d.success&&d.stripe_url){document.getElementById('soum-stripe').value=d.stripe_url;showNotif('✅ Lien Stripe généré !','success');}
   else showNotif('❌ '+(d.error||'Erreur Stripe'),'error');
 }
-
 async function envoyerConfirmationVisite(){
   if(!currentSoumission?.id)return;
   if(!document.getElementById("soum-date-confirmee").value){showNotif("⚠️ Renseignez la date confirmée","warning");return;}
   await sauverSoumissionManuel(true);
   const d=await apiPost(`/api/crm/soumissions/${currentSoumission.id}/confirmation-visite`,{});
-  if(d.success)showNotif('✅ Confirmation de visite envoyée !','success');
-  else showNotif('❌ '+(d.error||'Erreur'),'error');
+  if(d.success)showNotif('✅ Confirmation de visite envoyée !','success');else showNotif('❌ '+(d.error||'Erreur'),'error');
 }
-
+async function envoyerRappelVisite(){
+  if(!currentSoumission?.id)return;
+  if(!document.getElementById("soum-date-confirmee").value){showNotif("⚠️ Renseignez la date confirmée","warning");return;}
+  await sauverSoumissionManuel(true);
+  const d=await apiPost(`/api/crm/soumissions/${currentSoumission.id}/confirmation-visite`,{type:'rappel'});
+  if(d.success)showNotif('✅ Rappel de visite envoyé !','success');else showNotif('❌ '+(d.error||'Erreur'),'error');
+}
+function ouvrirAgenda(){
+  if(!currentLead)return;
+  const nom=`${currentLead.prenom} ${currentLead.nom}`;
+  const service=currentLead.type_service||'';
+  const ville=currentLead.ville||'';
+  const tel=currentLead.telephone||'';
+  const date=document.getElementById('soum-date-souhaitee').value||'';
+  const texte=encodeURIComponent(`RDV CapturAir — ${nom}`);
+  const details=encodeURIComponent(`Client: ${nom}\nService: ${service}\nVille: ${ville}\nTél: ${tel}\nDossier: ${currentLead?.num_soumission||''}`);
+  let url=`https://calendar.google.com/calendar/r/eventedit?text=${texte}&details=${details}`;
+  if(date){const d=date.replace(/-/g,'');url+=`&dates=${d}T090000/${d}T100000`;}
+  window.open(url,'_blank');
+}
 async function dupliquerSoumission(){if(!currentSoumission)return;const d=await apiPost(`/api/crm/soumissions/${currentSoumission.id}/dupliquer`,{});if(d.success){showNotif('✅ Soumission dupliquée — '+d.num_soumission,'success');await chargerSoumissions();chargerSoumissionDossier();}else showNotif('❌ '+d.error,'error');}
 function supprimerSoumission(){pendingDelete={type:'soumission',id:currentSoumission?.id};document.getElementById('delete-title').textContent='🗑️ Supprimer la soumission';document.getElementById('delete-msg').textContent=`Supprimer ${currentSoumission?.num_soumission} ?`;document.getElementById('modal-confirm-delete').classList.add('active');}
-
 async function envoyerSoumission(){
   await sauverSoumissionManuel(true);
   const c=document.getElementById('soum-conditions').checked;
@@ -1717,10 +1479,8 @@ async function envoyerSoumission(){
 // ══ PROJET GALERIE ════════════════════════════════════════════════════
 async function chargerProjetDossier(){
   if(!currentLead)return;
-  // Chercher projet lié via lead_id ou num_soumission
   currentProjet=projets.find(p=>p.lead_id===currentLead.id||p.num_soumission===currentLead.num_soumission)||null;
-
-if(!currentProjet){
+  if(!currentProjet){
     document.getElementById('projet-num').textContent='';
     document.getElementById('projet-galerie-section').style.display='none';
     document.getElementById('media-grid').innerHTML='';
@@ -1729,11 +1489,9 @@ if(!currentProjet){
     showNotif('ℹ️ Sauvegardez une soumission avec un nom de projet pour créer le projet automatiquement','');
     return;
   }
- // Charger détails complets avec médias
   const d=await apiGet(`/api/crm/projets/${currentProjet.id}`);
   currentProjet=d.projet||currentProjet;
   const medias=d.medias||[];
-  // Charger soumission liée AVANT pour pré-remplir
   const soumLiee=soumissions.find(s=>s.projet_id===currentLead?.id);
   document.getElementById('projet-num').textContent=currentProjet.id||'';
   document.getElementById('projet-nom').value=soumLiee?.nom_projet||currentProjet.nom||'';
@@ -1746,18 +1504,11 @@ if(!currentProjet){
   if(soumLiee){
     document.getElementById('projet-heure-soum').value=soumLiee.heure_intervention||'—';
     document.getElementById('projet-adresse-soum').value=soumLiee.adresse_projet||'—';
-    if(soumLiee.montant_acompte>0){
-      document.getElementById('projet-stripe-montant').value=soumLiee.montant_acompte.toFixed(2);
-    }
+    if(soumLiee.montant_acompte>0)document.getElementById('projet-stripe-montant').value=soumLiee.montant_acompte.toFixed(2);
   }
-  // Reset stripe result
   document.getElementById('projet-stripe-result').style.display='none';
-
-  // Badge statut
   const statutColors={'EN_ATTENTE':'var(--gray)','ENVOYE':'var(--blue)','SELECTION':'var(--orange)','DEJA_PAYE':'var(--green)','PAYE':'var(--green)','LIVRE':'#27AE60'};
   document.getElementById('projet-statut-badge').innerHTML=`<span class="badge" style="background:rgba(0,0,0,0.08);color:${statutColors[currentProjet.statut]||'var(--gray)'};">${currentProjet.statut||'—'}</span>`;
-
-  // Lien galerie
   if(currentProjet.token_acces){
     const url=`https://capturair.com/client.html?token=${currentProjet.token_acces}`;
     document.getElementById('projet-galerie-url').textContent=url;
@@ -1767,57 +1518,21 @@ if(!currentProjet){
   } else {
     document.getElementById('projet-galerie-section').style.display='none';
   }
-
-  // Médias
   renderMedias(medias);
 }
-
 function renderMedias(medias){
   const grid=document.getElementById('media-grid');
   if(!medias.length){grid.innerHTML='<div style="font-size:13px;color:var(--gray);padding:12px 0;">Aucun média — uploadez des photos/vidéos ci-dessus</div>';return;}
-  grid.innerHTML=medias.map(m=>`
-    <div class="media-item">
-      ${m.type==='VIDEO'?`<div style="background:#111;display:flex;align-items:center;justify-content:center;height:100%;"><span style="font-size:32px;">🎬</span></div>`:
-        `<img src="${m.preview_url||''}" alt="${m.nom_fichier}" loading="lazy">`}
-      <button class="media-item-del" onclick="supprimerMedia('${m.id}','${m.nom_fichier}')">✕</button>
-      <div style="position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,0.6);color:white;font-size:9px;padding:2px 6px;border-radius:4px;">${m.nom_fichier?.split('.').pop()?.toUpperCase()||''}</div>
-    </div>`).join('');
+  grid.innerHTML=medias.map(m=>`<div class="media-item">${m.type==='VIDEO'?`<div style="background:#111;display:flex;align-items:center;justify-content:center;height:100%;"><span style="font-size:32px;">🎬</span></div>`:`<img src="${m.preview_url||''}" alt="${m.nom_fichier}" loading="lazy">`}<button class="media-item-del" onclick="supprimerMedia('${m.id}','${m.nom_fichier}')">✕</button><div style="position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,0.6);color:white;font-size:9px;padding:2px 6px;border-radius:4px;">${m.nom_fichier?.split('.').pop()?.toUpperCase()||''}</div></div>`).join('');
 }
-
 async function sauverProjet(){
   if(!currentProjet?.id){showNotif("⚠️ Sauvegardez une soumission pour créer le projet","warning");return;}
   const body={nom:document.getElementById('projet-nom').value,client_nom:document.getElementById('projet-client-nom').value,client_email:document.getElementById('projet-client-email').value,statut:document.getElementById('projet-statut').value,modele_prix:document.getElementById('projet-modele').value,prix_base:parseFloat(document.getElementById('projet-prix-base').value)||0,note_admin:document.getElementById('projet-notes').value};
-  await apiPut(`/api/crm/projets/${currentProjet.id}`,body);
-  Object.assign(currentProjet,body);
-  showNotif('✅ Projet sauvegardé','success');
-  await chargerProjets();
-  renderFluxStatut(currentLead.statut);
+  await apiPut(`/api/crm/projets/${currentProjet.id}`,body);Object.assign(currentProjet,body);showNotif('✅ Projet sauvegardé','success');await chargerProjets();renderFluxStatut(currentLead.statut);
 }
-
-async function envoyerGalerie(){
-  if(!currentProjet?.id){showNotif("⚠️ Projet non créé — sauvegardez la soumission","warning");return;}
-  const d=await apiPost(`/api/portail/projets/${currentProjet.id}/envoyer`,{deja_paye:false});
-  if(d.success){showNotif('✅ Galerie envoyée au client !','success');await chargerProjets();chargerProjetDossier();}
-  else showNotif('❌ '+(d.error||'Erreur'),'error');
-}
-
-async function envoyerGalerieDejaPaye(){
-  if(!currentProjet?.id){showNotif('⚠️ Projet non créé','warning');return;}
-  const d=await apiPost(`/api/portail/projets/${currentProjet.id}/envoyer`,{deja_paye:true});
-  if(d.success){showNotif('✅ Galerie envoyée (déjà payé) !','success');await chargerProjets();chargerProjetDossier();}
-  else showNotif('❌ '+(d.error||'Erreur'),'error');
-}
-
-function ouvrirStripeProjet(){
-  const section=document.getElementById('projet-stripe-section');
-  if(section){
-    // Pre-fill montant from projet prix
-    const b=parseFloat(document.getElementById('projet-prix-base').value)||0;
-    if(b>0) document.getElementById('projet-stripe-montant').value=(b*1.14975).toFixed(2);
-    section.scrollIntoView({behavior:'smooth'});
-  }
-}
-
+async function envoyerGalerie(){if(!currentProjet?.id){showNotif("⚠️ Projet non créé — sauvegardez la soumission","warning");return;}const d=await apiPost(`/api/portail/projets/${currentProjet.id}/envoyer`,{deja_paye:false});if(d.success){showNotif('✅ Galerie envoyée au client !','success');await chargerProjets();chargerProjetDossier();}else showNotif('❌ '+(d.error||'Erreur'),'error');}
+async function envoyerGalerieDejaPaye(){if(!currentProjet?.id){showNotif('⚠️ Projet non créé','warning');return;}const d=await apiPost(`/api/portail/projets/${currentProjet.id}/envoyer`,{deja_paye:true});if(d.success){showNotif('✅ Galerie envoyée (déjà payé) !','success');await chargerProjets();chargerProjetDossier();}else showNotif('❌ '+(d.error||'Erreur'),'error');}
+function ouvrirStripeProjet(){const section=document.getElementById('projet-stripe-section');if(section){const b=parseFloat(document.getElementById('projet-prix-base').value)||0;if(b>0) document.getElementById('projet-stripe-montant').value=(b*1.14975).toFixed(2);section.scrollIntoView({behavior:'smooth'});}}
 async function genererStripeProjet(){
   if(!currentProjet?.id){showNotif('⚠️ Projet non créé — sauvegardez la soumission','warning');return;}
   const montant=parseFloat(document.getElementById('projet-stripe-montant').value)||0;
@@ -1825,21 +1540,10 @@ async function genererStripeProjet(){
   const btn=event.target;btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   const d=await apiPost(`/api/portail/projets/${currentProjet.id}/stripe-link`,{montant:Math.round(montant*100)});
   btn.textContent='⚡ Générer';btn.disabled=false;
-  if(d.success&&(d.payment_url||d.url)){
-    const url=d.payment_url||d.url;
-    document.getElementById('projet-stripe-url').value=url;
-    document.getElementById('projet-stripe-open').href=url;
-    document.getElementById('projet-stripe-result').style.display='block';
-    showNotif('✅ Lien Stripe généré !','success');
-  } else showNotif('❌ '+(d.error||'Erreur Stripe'),'error');
+  if(d.success&&(d.payment_url||d.url)){const url=d.payment_url||d.url;document.getElementById('projet-stripe-url').value=url;document.getElementById('projet-stripe-open').href=url;document.getElementById('projet-stripe-result').style.display='block';showNotif('✅ Lien Stripe généré !','success');}
+  else showNotif('❌ '+(d.error||'Erreur Stripe'),'error');
 }
-
-function copierStripeProjet(){
-  const url=document.getElementById('projet-stripe-url').value;
-  if(!url)return;
-  navigator.clipboard.writeText(url).then(()=>showNotif('✅ Lien copié !','success'));
-}
-
+function copierStripeProjet(){const url=document.getElementById('projet-stripe-url').value;if(!url)return;navigator.clipboard.writeText(url).then(()=>showNotif('✅ Lien copié !','success'));}
 async function genererStripeFacture(){
   if(!currentFacture?.id){showNotif("⚠️ Créez la facture d'abord","warning");return;}
   const montant=parseFloat(document.getElementById('fact-stripe-montant').value)||0;
@@ -1847,58 +1551,24 @@ async function genererStripeFacture(){
   const btn=event.target;btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   const d=await apiPost(`/api/crm/factures/${currentFacture.id}/stripe`,{montant});
   btn.textContent='⚡ Générer';btn.disabled=false;
-  if(d.success&&d.stripe_url){
-    document.getElementById('fact-stripe-url').value=d.stripe_url;
-    document.getElementById('fact-stripe-open').href=d.stripe_url;
-    document.getElementById('fact-stripe-result').style.display='block';
-    showNotif('✅ Lien Stripe facture généré !','success');
-  } else showNotif('❌ '+(d.error||'Erreur Stripe'),'error');
+  if(d.success&&d.stripe_url){document.getElementById('fact-stripe-url').value=d.stripe_url;document.getElementById('fact-stripe-open').href=d.stripe_url;document.getElementById('fact-stripe-result').style.display='block';showNotif('✅ Lien Stripe facture généré !','success');}
+  else showNotif('❌ '+(d.error||'Erreur Stripe'),'error');
 }
-
-function copierStripeFacture(){
-  const url=document.getElementById('fact-stripe-url').value;
-  if(!url)return;
-  navigator.clipboard.writeText(url).then(()=>showNotif('✅ Lien copié !','success'));
-}
-
-function copierLienGalerie(){
-  const url=`https://capturair.com/client.html?token=${currentProjet?.token_acces}`;
-  navigator.clipboard.writeText(url).then(()=>showNotif('✅ Lien copié !','success'));
-}
+function copierStripeFacture(){const url=document.getElementById('fact-stripe-url').value;if(!url)return;navigator.clipboard.writeText(url).then(()=>showNotif('✅ Lien copié !','success'));}
+function copierLienGalerie(){const url=`https://capturair.com/client.html?token=${currentProjet?.token_acces}`;navigator.clipboard.writeText(url).then(()=>showNotif('✅ Lien copié !','success'));}
 function ouvrirGalerie(){window.open(`https://capturair.com/client.html?token=${currentProjet?.token_acces}`,'_blank');}
-
-// Upload médias
 function dragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
 function dragLeave(e){e.currentTarget.classList.remove('drag-over');}
 function dropFichiers(e){e.preventDefault();e.currentTarget.classList.remove('drag-over');uploaderFichiersListe(e.dataTransfer.files);}
 function uploaderFichiers(e){uploaderFichiersListe(e.target.files);}
-
 async function uploaderFichiersListe(files){
   if(!currentProjet?.id){showNotif("⚠️ Sauvegardez une soumission pour créer le projet","warning");return;}
-  const prog=document.getElementById('upload-progress');
-  const txt=document.getElementById('upload-progress-text');
-  prog.style.display='block';
-  const total=files.length;
-  let done=0;
-  for(const file of files){
-    txt.textContent=`${done+1}/${total} — ${file.name}`;
-    const fd=new FormData();fd.append('file',file);
-    try{
-      await fetch(`${API}/api/crm/projets/${currentProjet.id}/medias`,{method:'POST',headers:{'Authorization':`Bearer ${authToken}`},body:fd});
-      done++;
-    }catch(e){console.error(e);}
-  }
-  prog.style.display='none';
-  showNotif(`✅ ${done}/${total} fichier(s) uploadé(s)`,done===total?'success':'warning');
-  chargerProjetDossier();
+  const prog=document.getElementById('upload-progress');const txt=document.getElementById('upload-progress-text');prog.style.display='block';
+  const total=files.length;let done=0;
+  for(const file of files){txt.textContent=`${done+1}/${total} — ${file.name}`;const fd=new FormData();fd.append('file',file);try{await fetch(`${API}/api/crm/projets/${currentProjet.id}/medias`,{method:'POST',headers:{'Authorization':`Bearer ${authToken}`},body:fd});done++;}catch(e){console.error(e);}}
+  prog.style.display='none';showNotif(`✅ ${done}/${total} fichier(s) uploadé(s)`,done===total?'success':'warning');chargerProjetDossier();
 }
-
-async function supprimerMedia(id,nom){
-  if(!confirm(`Supprimer ${nom} ?`))return;
-  const d=await apiDelete(`/api/crm/medias/${id}`);
-  if(d.success){showNotif('✅ Média supprimé','success');chargerProjetDossier();}
-  else showNotif('❌ '+d.error,'error');
-}
+async function supprimerMedia(id,nom){if(!confirm(`Supprimer ${nom} ?`))return;const d=await apiDelete(`/api/crm/medias/${id}`);if(d.success){showNotif('✅ Média supprimé','success');chargerProjetDossier();}else showNotif('❌ '+d.error,'error');}
 
 // ══ FACTURE ════════════════════════════════════════════════════════════
 async function creerFacture(){
@@ -1907,81 +1577,45 @@ async function creerFacture(){
   const d=await apiPost('/api/crm/factures',{projet_id:currentLead.id,num_soumission:s?.num_soumission||'',acompte_recu:s?.montant_acompte||0});
   if(d.success){
     await chargerFactures();
-    // Set currentFacture directly from response
     currentFacture=factures.find(f=>f.id===d.id)||{id:d.id,num_facture:d.num_facture,statut:'BROUILLON',projet_id:currentLead.id,acompte_recu:s?.montant_acompte||0};
     showNotif('✅ Facture créée — '+d.num_facture,'success');
-    // Show form, hide empty state
     document.getElementById('fact-empty-state').style.display='none';
     document.getElementById('fact-form-content').style.display='block';
     document.getElementById('fact-num').textContent=d.num_facture||'';
     calculerFacture();
   } else showNotif('❌ '+(d.error||'Erreur'),'error');
 }
-
 async function chargerFactureDossier(){
   if(!currentLead)return;
   await chargerFactures();
-  currentFacture = factures.find(f => 
-    f.projet_id === currentLead.id || 
-    f.num_facture === currentLead.num_soumission
-  ) || null;
-  if(!currentFacture){
-    document.getElementById('fact-num').textContent='';
-    document.getElementById('fact-empty-state').style.display='block';
-    document.getElementById('fact-form-content').style.display='none';
-    return;
-  }
+  currentFacture=factures.find(f=>f.projet_id===currentLead.id||f.num_facture===currentLead.num_soumission)||null;
+  if(!currentFacture){document.getElementById('fact-num').textContent='';document.getElementById('fact-empty-state').style.display='block';document.getElementById('fact-form-content').style.display='none';return;}
   document.getElementById('fact-empty-state').style.display='none';
   document.getElementById('fact-form-content').style.display='block';
   document.getElementById('fact-num').textContent=currentFacture.num_facture||'';
-
-  // Pré-remplir depuis la soumission liée si champs vides
-  const soumLiee = soumissions.find(s => s.projet_id === currentLead.id);
-
-  const deplacement = currentFacture.frais_deplacement > 0 ? currentFacture.frais_deplacement : (soumLiee?.frais_deplacement || '');
-const acompte = currentFacture.acompte_recu > 0 ? currentFacture.acompte_recu : (soumLiee?.montant_acompte || '');
-
-document.getElementById('fact-deplacement').value = deplacement;
-document.getElementById('fact-autres').value = 
-  currentFacture.autres_frais > 0 ? currentFacture.autres_frais : (soumLiee?.frais_postprod || '');
-document.getElementById('fact-acompte').value = acompte;
-document.getElementById('fact-notes').value = currentFacture.notes || soumLiee?.notes || '';
+  const soumLiee=soumissions.find(s=>s.projet_id===currentLead.id);
+  document.getElementById('fact-deplacement').value=currentFacture.frais_deplacement>0?currentFacture.frais_deplacement:(soumLiee?.frais_deplacement||'');
+  document.getElementById('fact-autres').value=currentFacture.autres_frais>0?currentFacture.autres_frais:(soumLiee?.frais_postprod||'');
+  document.getElementById('fact-acompte').value=currentFacture.acompte_recu>0?currentFacture.acompte_recu:(soumLiee?.montant_acompte||'');
+  document.getElementById('fact-notes').value=currentFacture.notes||soumLiee?.notes||'';
   calculerFacture();
 }
-
-
 function calculerFacture(){
   const b=getPrixBase(),d=parseFloat(document.getElementById('fact-deplacement').value)||0,a=parseFloat(document.getElementById('fact-autres').value)||0,ac=parseFloat(document.getElementById('fact-acompte').value)||0;
   const{s,t,q,tot}=calcMtx(b,d,a);const sol=tot-ac;
-  document.getElementById('fact-fin-table').innerHTML=`
-    <tr><td>${currentLead?.type_service||'Service'}</td><td>${fmt(b)}</td></tr>
-    ${d>0?`<tr><td>Frais de déplacement</td><td>${fmt(d)}</td></tr>`:''}
-    ${a>0?`<tr><td>Autres frais</td><td>${fmt(a)}</td></tr>`:''}
-    <tr style="color:var(--gray)"><td>Sous-total</td><td>${fmt(s)}</td></tr>
-    <tr style="color:var(--gray)"><td>TPS (5%) — 782828008RT0002</td><td>${fmt(t)}</td></tr>
-    <tr style="color:var(--gray)"><td>TVQ (9,975%) — 4016921721TQ0001</td><td>${fmt(q)}</td></tr>
-    <tr class="fin-total"><td>💰 TOTAL (taxes incluses)</td><td>${fmt(tot)}</td></tr>
-    ${ac>0?`<tr style="color:var(--gray)"><td>Acompte reçu</td><td>— ${fmt(ac)}</td></tr><tr class="fin-solde"><td>💳 SOLDE À PAYER</td><td>${fmt(sol)}</td></tr>`:''}`;
-  // Auto-remplir montant Stripe avec le solde
+  document.getElementById('fact-fin-table').innerHTML=`<tr><td>${currentLead?.type_service||'Service'}</td><td>${fmt(b)}</td></tr>${d>0?`<tr><td>Frais de déplacement</td><td>${fmt(d)}</td></tr>`:''} ${a>0?`<tr><td>Autres frais</td><td>${fmt(a)}</td></tr>`:''}<tr style="color:var(--gray)"><td>Sous-total</td><td>${fmt(s)}</td></tr><tr style="color:var(--gray)"><td>TPS (5%) — 782828008RT0002</td><td>${fmt(t)}</td></tr><tr style="color:var(--gray)"><td>TVQ (9,975%) — 4016921721TQ0001</td><td>${fmt(q)}</td></tr><tr class="fin-total"><td>💰 TOTAL (taxes incluses)</td><td>${fmt(tot)}</td></tr>${ac>0?`<tr style="color:var(--gray)"><td>Acompte reçu</td><td>— ${fmt(ac)}</td></tr><tr class="fin-solde"><td>💳 SOLDE À PAYER</td><td>${fmt(sol)}</td></tr>`:''}`;
   const soldeStripe=sol>0?sol:tot;
   const factStripeInput=document.getElementById('fact-stripe-montant');
   if(factStripeInput&&soldeStripe>0) factStripeInput.value=soldeStripe.toFixed(2);
   document.getElementById('fact-stripe-result').style.display='none';
 }
-
 async function sauverFactureManuel(silencieux=false){
-  if(!currentFacture){
-    await creerFacture();
-    return;
-  }
+  if(!currentFacture){await creerFacture();return;}
   const body={frais_deplacement:parseFloat(document.getElementById('fact-deplacement').value)||0,autres_frais:parseFloat(document.getElementById('fact-autres').value)||0,acompte_recu:parseFloat(document.getElementById('fact-acompte').value)||0,notes:document.getElementById('fact-notes').value,statut:'BROUILLON'};
-  await apiPut(`/api/crm/factures/${currentFacture.id}`,body);
-  Object.assign(currentFacture,body);
-  if(!silencieux)showNotif('✅ Facture sauvegardée','success');
+  await apiPut(`/api/crm/factures/${currentFacture.id}`,body);Object.assign(currentFacture,body);if(!silencieux)showNotif('✅ Facture sauvegardée','success');
 }
 async function dupliquerFacture(){if(!currentFacture)return;const d=await apiPost(`/api/crm/factures/${currentFacture.id}/dupliquer`,{});if(d.success){showNotif('✅ Facture dupliquée — '+d.num_facture,'success');await chargerFactures();chargerFactureDossier();}else showNotif('❌ '+d.error,'error');}
 function supprimerFacture(){pendingDelete={type:'facture',id:currentFacture?.id};document.getElementById('delete-title').textContent='🗑️ Supprimer la facture';document.getElementById('delete-msg').textContent=`Supprimer ${currentFacture?.num_facture} ?`;document.getElementById('modal-confirm-delete').classList.add('active');}
-
 async function envoyerFacture(){
   await sauverFactureManuel(true);
   const c=document.getElementById('fact-conditions').checked;
@@ -1991,23 +1625,12 @@ async function envoyerFacture(){
   pendingEnvoi={type:'facture'};
   document.getElementById('modal-confirm-envoi').classList.add('active');
 }
-
 async function confirmerEnvoi(){
   if(!pendingEnvoi)return;
-  const btn=document.getElementById('confirm-envoi-btn');
-  btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
+  const btn=document.getElementById('confirm-envoi-btn');btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   try{
-    if(pendingEnvoi.type==='soumission'){
-      const c=document.getElementById('soum-conditions').checked;
-      const d=await apiPost(`/api/crm/soumissions/${currentSoumission.id}/envoyer`,{joindre_conditions:c});
-      if(d.success){showNotif('✅ Soumission envoyée !','success');currentLead.statut='Soumission envoyée';renderFluxStatut('Soumission envoyée');await apiPut(`/api/crm/leads/${currentLead.id}`,{...currentLead});}
-      else showNotif('❌ '+(d.error||'Erreur'),'error');
-    }else{
-      const c=document.getElementById('fact-conditions').checked;
-      const d=await apiPost(`/api/crm/factures/${currentFacture.id}/envoyer`,{joindre_conditions:c});
-      if(d.success)showNotif('✅ Facture envoyée !','success');
-      else showNotif('❌ '+(d.error||'Erreur'),'error');
-    }
+    if(pendingEnvoi.type==='soumission'){const c=document.getElementById('soum-conditions').checked;const d=await apiPost(`/api/crm/soumissions/${currentSoumission.id}/envoyer`,{joindre_conditions:c});if(d.success){showNotif('✅ Soumission envoyée !','success');currentLead.statut='Soumission envoyée';renderFluxStatut('Soumission envoyée');await apiPut(`/api/crm/leads/${currentLead.id}`,{...currentLead});}else showNotif('❌ '+(d.error||'Erreur'),'error');}
+    else{const c=document.getElementById('fact-conditions').checked;const d=await apiPost(`/api/crm/factures/${currentFacture.id}/envoyer`,{joindre_conditions:c});if(d.success)showNotif('✅ Facture envoyée !','success');else showNotif('❌ '+(d.error||'Erreur'),'error');}
   }catch(e){showNotif('❌ Erreur','error');}
   closeModal('modal-confirm-envoi');btn.innerHTML='📧 Envoyer';btn.disabled=false;pendingEnvoi=null;
 }
@@ -2019,65 +1642,36 @@ function renderSoumissions(){
   tbody.innerHTML=soumissions.map(s=>{
     const b=s.prix_base||0;const tot=((b+(s.frais_deplacement||0)+(s.frais_postprod||0))*1.14975).toFixed(2);
     const cn=s.client_nom||(s.prenom&&s.nom?`${s.prenom} ${s.nom}`:'—');
-    return `<tr onclick="ouvrirDossierDoc('${s.projet_id}','soumission')">
-      <td><strong>${s.num_soumission||'—'}</strong></td>
-      <td>${cn}</td>
-      <td style="font-size:12px;">${s.nom_projet||s.type_service||'—'}</td>
-      <td>${b>0?fmt(parseFloat(tot)):'—'}</td>
-      <td>${badgeDoc(s.statut)}</td>
-      <td style="font-size:11px;">${badgePaiement(s.statut_paiement)}</td>
-      <td style="font-size:11px;">${s.created_at?formatDate(s.created_at):'—'}</td>
-      <td onclick="event.stopPropagation()"><button class="btn-secondary" style="padding:5px 10px;font-size:11px;" onclick="window.open('${API}/api/crm/soumissions/${s.id}/apercu','_blank')">👁️</button></td>
-    </tr>`;
+    return `<tr onclick="ouvrirDossierDoc('${s.projet_id}','soumission')"><td><strong>${s.num_soumission||'—'}</strong></td><td>${cn}</td><td style="font-size:12px;">${s.nom_projet||s.type_service||'—'}</td><td>${b>0?fmt(parseFloat(tot)):'—'}</td><td>${badgeDoc(s.statut)}</td><td style="font-size:11px;">${badgePaiement(s.statut_paiement)}</td><td style="font-size:11px;">${s.created_at?formatDate(s.created_at):'—'}</td><td onclick="event.stopPropagation()"><button class="btn-secondary" style="padding:5px 10px;font-size:11px;" onclick="window.open('${API}/api/crm/soumissions/${s.id}/apercu','_blank')">👁️</button></td></tr>`;
   }).join('');
 }
-
+function ouvrirDossierDoc(leadId,tab){
+  const l=leads.find(x=>x.id===leadId);
+  if(!l)return;
+  ouvrirDossier(leadId);
+  setTimeout(()=>switchTab(tab),300);
+}
 function renderProjetsList(){
   const tbody=document.getElementById('projets-tbody');
   if(!projets.length){tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">🚁</div><div>Aucun projet — sauvegardez une soumission</div></div></td></tr>`;return;}
   tbody.innerHTML=projets.map(p=>{
     const exp=p.token_expires?new Date(p.token_expires).toLocaleDateString('fr-CA'):'—';
     const lead=leads.find(l=>l.id===p.lead_id||l.num_soumission===p.num_soumission);
-    return `<tr onclick="${lead?`ouvrirDossier('${lead.id}');setTimeout(()=>switchTab('projet'),200)`:''}">
-      <td><strong>${p.nom||'—'}</strong></td>
-      <td>${p.client_nom||'—'}</td>
-      <td style="font-size:12px;">${p.num_soumission||p.lead_num_soumission||'—'}</td>
-      <td>${badgeGalerie(p.statut)}</td>
-      <td style="font-size:12px;">—</td>
-      <td style="font-size:12px;">${exp}</td>
-      <td onclick="event.stopPropagation()">
-        <button class="btn-secondary" style="padding:5px 10px;font-size:11px;" onclick="window.open('https://capturair.com/client.html?token=${p.token_acces}','_blank')">🔗</button>
-      </td>
-    </tr>`;
+    return `<tr onclick="${lead?`ouvrirDossier('${lead.id}');setTimeout(()=>switchTab('projet'),200)`:''}"><td><strong>${p.nom||'—'}</strong></td><td>${p.client_nom||'—'}</td><td style="font-size:12px;">${p.num_soumission||p.lead_num_soumission||'—'}</td><td>${badgeGalerie(p.statut)}</td><td style="font-size:12px;">—</td><td style="font-size:12px;">${exp}</td><td onclick="event.stopPropagation()"><button class="btn-secondary" style="padding:5px 10px;font-size:11px;" onclick="window.open('https://capturair.com/client.html?token=${p.token_acces}','_blank')">🔗</button></td></tr>`;
   }).join('');
 }
-
 function renderFactures(){
   const tbody=document.getElementById('factures-tbody');
   if(!factures.length){tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">📄</div><div>Aucune facture</div></div></td></tr>`;return;}
   tbody.innerHTML=factures.map(f=>{
     const b=f.prix_base||0;const tot=((b+(f.frais_deplacement||0)+(f.autres_frais||0))*1.14975).toFixed(2);const sol=(parseFloat(tot)-(f.acompte_recu||0)).toFixed(2);
-    return `<tr onclick="ouvrirDossierDoc('${f.projet_id}','facture')">
-      <td><strong>${f.num_facture||'—'}</strong></td>
-      <td>${f.client_nom||'—'}</td>
-      <td style="font-size:12px;">${f.type_service||'—'}</td>
-      <td>${b>0?fmt(parseFloat(tot)):'—'}</td>
-      <td style="color:var(--blue);font-weight:600;">${parseFloat(sol)>0?fmt(parseFloat(sol)):'✅ Soldé'}</td>
-      <td>${badgeDoc(f.statut)}</td>
-      <td onclick="event.stopPropagation()"><button class="btn-secondary" style="padding:5px 10px;font-size:11px;" onclick="window.open('${API}/api/crm/factures/${f.id}/apercu','_blank')">👁️</button></td>
-    </tr>`;
+    return `<tr onclick="ouvrirDossierDoc('${f.projet_id}','facture')"><td><strong>${f.num_facture||'—'}</strong></td><td>${f.client_nom||'—'}</td><td style="font-size:12px;">${f.type_service||'—'}</td><td>${b>0?fmt(parseFloat(tot)):'—'}</td><td style="color:var(--blue);font-weight:600;">${parseFloat(sol)>0?fmt(parseFloat(sol)):'✅ Soldé'}</td><td>${badgeDoc(f.statut)}</td><td onclick="event.stopPropagation()"><button class="btn-secondary" style="padding:5px 10px;font-size:11px;" onclick="window.open('${API}/api/crm/factures/${f.id}/apercu','_blank')">👁️</button></td></tr>`;
   }).join('');
 }
-
 function renderUtilisateurs(){
   const tbody=document.getElementById('utilisateurs-tbody');
   if(!utilisateurs.length){tbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><div>Aucun utilisateur</div></div></td></tr>`;return;}
-  tbody.innerHTML=utilisateurs.map(u=>`<tr>
-    <td><strong>${u.nom||'—'}</strong></td><td>${u.email}</td>
-    <td><span style="color:${u.role==='superadmin'?'#E67E22':u.role==='admin'?'#1A8FD1':'#6B7C93'};font-weight:600;font-size:12px;">${u.role}</span></td>
-    <td>${u.actif?'<span style="color:var(--green);">✅</span>':'<span style="color:var(--red);">❌</span>'}</td>
-    <td>${u.role==='superadmin'?'—':`<button class="btn-danger" style="padding:5px 10px;font-size:11px;" onclick="supprimerUtilisateur('${u.id}')">Supprimer</button>`}</td>
-  </tr>`).join('');
+  tbody.innerHTML=utilisateurs.map(u=>`<tr><td><strong>${u.nom||'—'}</strong></td><td>${u.email}</td><td><span style="color:${u.role==='superadmin'?'#E67E22':u.role==='admin'?'#1A8FD1':'#6B7C93'};font-weight:600;font-size:12px;">${u.role}</span></td><td>${u.actif?'<span style="color:var(--green);">✅</span>':'<span style="color:var(--red);">❌</span>'}</td><td>${u.role==='superadmin'?'—':`<button class="btn-danger" style="padding:5px 10px;font-size:11px;" onclick="supprimerUtilisateur('${u.id}')">Supprimer</button>`}</td></tr>`).join('');
 }
 
 // ══ MODALS & CRÉATION ═════════════════════════════════════════════════
@@ -2087,7 +1681,6 @@ function openModalNouveauLead(){
   document.getElementById('modal-doublon-bar').classList.remove('visible');
   document.getElementById('modal-lead').classList.add('active');
 }
-
 async function creerLead(){
   const p=document.getElementById('new-prenom').value.trim(),n=document.getElementById('new-nom').value.trim(),c=document.getElementById('new-courriel').value.trim(),s=document.getElementById('new-service').value,b=document.getElementById('new-budget').value;
   if(!p||!n||!c||!s||!b){showNotif('⚠️ Remplissez tous les champs requis (*)','error');return;}
@@ -2096,7 +1689,6 @@ async function creerLead(){
   if(d.success){showNotif('✅ Dossier créé','success');closeModal('modal-lead');await chargerLeads();renderDashboard();ouvrirDossier(d.id);}
   else showNotif('❌ '+(d.error||'Erreur'),'error');
 }
-
 function openModalUtilisateur(){document.getElementById('modal-utilisateur').classList.add('active');}
 async function creerUtilisateur(){
   const d=await apiPost('/api/crm/utilisateurs',{nom:document.getElementById('user-nom').value,email:document.getElementById('user-email').value,pin:document.getElementById('user-pin').value,role:document.getElementById('user-role').value});
@@ -2104,70 +1696,23 @@ async function creerUtilisateur(){
   else showNotif('❌ '+(d.error||'Erreur'),'error');
 }
 async function supprimerUtilisateur(id){if(!confirm('Supprimer ?'))return;const d=await apiDelete(`/api/crm/utilisateurs/${id}`);if(d.success){showNotif('✅ Supprimé','success');await chargerUtilisateurs();renderUtilisateurs();}else showNotif('❌ '+d.error,'error');}
-
 function closeModal(id){document.getElementById(id).classList.remove('active');}
 document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('active');}));
 
-// ══ ADRESSE HELPERS ══════════════════════════════════════════════════
-function syncAdresseFact() {
-  const meme = document.getElementById('soum-meme-adresse')?.checked;
-  if (meme) {
-    const adresseProjet = document.getElementById('soum-adresse-projet').value;
-    document.getElementById('soum-adresse-facturation').value = adresseProjet;
-  }
-}
-
-function toggleAdresseFact() {
-  const meme = document.getElementById('soum-meme-adresse').checked;
-  const factInput = document.getElementById('soum-adresse-facturation');
-  if (meme) {
-    factInput.style.display = 'none';
-    factInput.value = document.getElementById('soum-adresse-projet').value;
-  } else {
-    factInput.style.display = 'block';
-    factInput.focus();
-  }
-  marquerModifSoum();
-}
+// ══ ADRESSE HELPERS ═════════════════════════════════════════════════
+function syncAdresseFact(){const meme=document.getElementById('soum-meme-adresse')?.checked;if(meme){const adresseProjet=document.getElementById('soum-adresse-projet').value;document.getElementById('soum-adresse-facturation').value=adresseProjet;}}
+function toggleAdresseFact(){const meme=document.getElementById('soum-meme-adresse').checked;const factInput=document.getElementById('soum-adresse-facturation');if(meme){factInput.style.display='none';factInput.value=document.getElementById('soum-adresse-projet').value;}else{factInput.style.display='block';factInput.focus();}marquerModifSoum();}
 
 // ══ VALIDATION ════════════════════════════════════════════════════════
 const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PHONE_RE=/^\d{3}-\d{3}-\d{4}$/;
-
 function formatTel(id){const el=document.getElementById(id);if(!el)return;const d=el.value.replace(/\D/g,'');if(d.length===10)el.value=`${d.slice(0,3)}-${d.slice(3,6)}-${d.slice(6)}`;}
 function formatCap(id){const el=document.getElementById(id);if(!el||!el.value.trim())return;el.value=el.value.trim().toLowerCase().replace(/(?:^|\s|[-'])([a-zàâäéèêëîïôùûüÿæœ])/g,(m,c)=>m.replace(c,c.toUpperCase()));}
+function validerChamp(id,type){const el=document.getElementById(id);const errEl=document.getElementById(`err-${id}`);if(!el)return true;const v=el.value.trim();let ok=true;if(type==='req')ok=v!=='';else if(type==='email')ok=v!==''&&EMAIL_RE.test(v);else if(type==='tel')ok=v===''||PHONE_RE.test(v);el.classList.toggle('is-invalid',!ok);el.classList.toggle('is-valid',ok&&v!=='');if(errEl)errEl.classList.toggle('visible',!ok);return ok;}
+async function checkDoublon(){const c=document.getElementById('info-courriel').value.trim(),t=document.getElementById('info-telephone').value.trim();if(!c&&!t)return;const d=await apiPost('/api/crm/leads/check-doublon',{courriel:c,telephone:t,id_exclude:currentLead?.id});const bar=document.getElementById('doublon-bar');if(d.count>0){const x=d.doublons[0];document.getElementById('doublon-msg').textContent=`Doublon : ${x.prenom} ${x.nom} (${x.courriel})`;bar.classList.add('visible');}else bar.classList.remove('visible');}
+async function checkDoublonModal(){const c=document.getElementById('new-courriel').value.trim(),t=document.getElementById('new-telephone').value.trim();if(!c&&!t)return;const d=await apiPost('/api/crm/leads/check-doublon',{courriel:c,telephone:t});const bar=document.getElementById('modal-doublon-bar');if(d.count>0){const x=d.doublons[0];document.getElementById('modal-doublon-msg').textContent=`⚠️ Doublon possible : ${x.prenom} ${x.nom} (${x.courriel})`;bar.classList.add('visible');}else bar.classList.remove('visible');}
 
-function validerChamp(id,type){
-  const el=document.getElementById(id);const errEl=document.getElementById(`err-${id}`);
-  if(!el)return true;const v=el.value.trim();
-  let ok=true;
-  if(type==='req')ok=v!=='';
-  else if(type==='email')ok=v!==''&&EMAIL_RE.test(v);
-  else if(type==='tel')ok=v===''||PHONE_RE.test(v);
-  el.classList.toggle('is-invalid',!ok);el.classList.toggle('is-valid',ok&&v!=='');
-  if(errEl)errEl.classList.toggle('visible',!ok);
-  return ok;
-}
-
-async function checkDoublon(){
-  const c=document.getElementById('info-courriel').value.trim(),t=document.getElementById('info-telephone').value.trim();
-  if(!c&&!t)return;
-  const d=await apiPost('/api/crm/leads/check-doublon',{courriel:c,telephone:t,id_exclude:currentLead?.id});
-  const bar=document.getElementById('doublon-bar');
-  if(d.count>0){const x=d.doublons[0];document.getElementById('doublon-msg').textContent=`Doublon : ${x.prenom} ${x.nom} (${x.courriel})`;bar.classList.add('visible');}
-  else bar.classList.remove('visible');
-}
-
-async function checkDoublonModal(){
-  const c=document.getElementById('new-courriel').value.trim(),t=document.getElementById('new-telephone').value.trim();
-  if(!c&&!t)return;
-  const d=await apiPost('/api/crm/leads/check-doublon',{courriel:c,telephone:t});
-  const bar=document.getElementById('modal-doublon-bar');
-  if(d.count>0){const x=d.doublons[0];document.getElementById('modal-doublon-msg').textContent=`⚠️ Doublon possible : ${x.prenom} ${x.nom} (${x.courriel})`;bar.classList.add('visible');}
-  else bar.classList.remove('visible');
-}
-
-// ══ HELPERS ════════════════════════════════════════════════════════════
+// ══ HELPERS ═══════════════════════════════════════════════════════════
 function fmt(n){return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')+' $';}
 function formatDate(s){if(!s)return'—';const d=new Date(s);if(isNaN(d))return s;const j=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],m=['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];return`${j[d.getDay()]} ${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()}`;}
 function ageDossier(c){if(!c)return'';const j=Math.floor((Date.now()-new Date(c))/(86400000));const cl=j<=7?'age-fresh':j<=30?'age-medium':'age-old';return`<span class="age-badge ${cl}">${j}j</span>`;}
@@ -2175,47 +1720,23 @@ function badgeStatut(s){const m={'Nouveau':'nouveau','Contacté':'contacte','Sou
 function badgeDoc(s){const m={'BROUILLON':'brouillon','ENVOYE':'envoye','ACCEPTE':'paye','REFUSE':'ferme','PAYE':'paye'};return`<span class="badge badge-${m[s]||'brouillon'}">${s||'—'}</span>`;}
 function badgeGalerie(s){const m={'EN_ATTENTE':'brouillon','ENVOYE':'envoye','SELECTION':'soumis','DEJA_PAYE':'paye','PAYE':'paye','LIVRE':'livre'};return`<span class="badge badge-${m[s]||'brouillon'}">${s||'—'}</span>`;}
 function badgePaiement(s){if(!s)return'—';const m={'EN_ATTENTE':'⏳','ACOMPTE_RECU':'💰','PAYE_COMPLET':'✅','REMBOURSE':'↩️'};return`${m[s]||s}`;}
-
 function showNotif(msg,type=''){const el=document.createElement('div');el.className=`notif ${type}`;el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),4000);}
-
 window.addEventListener('beforeunload',e=>{if(hasUnsaved){e.preventDefault();e.returnValue='';}});
 
-
-  // ══ WHATSAPP RAPPEL RDV ═══════════════════════════════════════════════
-function ouvrirWhatsAppRappel() {
-  if (!currentLead) return;
-  const soum = soumissions.find(s => s.projet_id === currentLead.id);
-  const tel = (currentLead.telephone || '').replace(/\D/g, '');
-  if (!tel || tel.length < 10) { showNotif('⚠️ Numéro de téléphone manquant', 'warning'); return; }
-  const dateConf = soum?.date_confirmee ? new Date(soum.date_confirmee) : null;
-  const dateStr = dateConf
-    ? dateConf.toLocaleDateString('fr-CA', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
-    : '(date à confirmer)';
-  const heure = soum?.heure_intervention || '(heure à confirmer)';
-  const ville = currentLead.ville || 'votre secteur';
-  const service = currentLead.type_service || 'séance photo aérienne';
-  const prenom = currentLead.prenom || '';
-  const msg =
-`🚁✨ CapturAir — Rappel RDV
-
-Bonjour ${prenom} ! 👋
-
-Votre séance photo aérienne est demain !
-
-📅 ${dateStr}
-⏰ ${heure}
-📍 ${ville}
-🎯 ${service}
-
-Prévoyez d'être sur place 10 min avant.
-En cas de météo défavorable, je vous contacte pour reporter. ✅
-
-Des questions ? Répondez ici ou appelez-moi.
-
-— Mohand 📸
-CapturAir · 514-446-6078
-capturair.com`;
-  window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`, '_blank');
+// ══ WHATSAPP RAPPEL RDV ═══════════════════════════════════════════════
+function ouvrirWhatsAppRappel(){
+  if(!currentLead)return;
+  const soum=soumissions.find(s=>s.projet_id===currentLead.id);
+  const tel=(currentLead.telephone||'').replace(/\D/g,'');
+  if(!tel||tel.length<10){showNotif('⚠️ Numéro de téléphone manquant','warning');return;}
+  const dateConf=soum?.date_confirmee?new Date(soum.date_confirmee):null;
+  const dateStr=dateConf?dateConf.toLocaleDateString('fr-CA',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'(date à confirmer)';
+  const heure=soum?.heure_intervention||'(heure à confirmer)';
+  const ville=currentLead.ville||'votre secteur';
+  const service=currentLead.type_service||'séance photo aérienne';
+  const prenom=currentLead.prenom||'';
+  const msg=`🚁✨ CapturAir — Rappel RDV\n\nBonjour ${prenom} ! 👋\n\nVotre séance photo aérienne est demain !\n\n📅 ${dateStr}\n⏰ ${heure}\n📍 ${ville}\n🎯 ${service}\n\nPrévoyez d'être sur place 10 min avant.\nEn cas de météo défavorable, je vous contacte pour reporter. ✅\n\nDes questions ? Répondez ici ou appelez-moi.\n\n— Mohand 📸\nCapturAir · 514-446-6078\ncapturair.com`;
+  window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`,'_blank');
 }
 
 // ══ COURTIERS ══════════════════════════════════════════════════════════
@@ -2228,7 +1749,6 @@ async function chargerCourtiers(){
   renderHistoriqueCourtiers();
   updateStatsCourtiers();
 }
-
 function updateStatsCourtiers(){
   document.getElementById('stat-c-total').textContent=courtiers.length;
   document.getElementById('stat-c-actifs').textContent=courtiers.filter(c=>c.statut==='Actif').length;
@@ -2236,7 +1756,6 @@ function updateStatsCourtiers(){
   document.getElementById('stat-c-interesses').textContent=courtiers.filter(c=>c.statut==='Intéressé').length;
   document.getElementById('stat-c-clients').textContent=courtiers.filter(c=>c.statut==='Client').length;
 }
-
 function renderCourtiers(data){
   const list=data||courtiers;
   const tbody=document.getElementById('courtiers-tbody');
@@ -2245,152 +1764,72 @@ function renderCourtiers(data){
     const sel=courtiersSelectionnes.has(c.id);
     const doublon=c.doublon?'background:rgba(231,76,60,0.08);':'';
     const statutColor={'Actif':'var(--green)','Inactif':'var(--gray)','Désabonné':'var(--red)','Intéressé':'var(--orange)','Client':'var(--blue)'};
-    return `<tr style="${doublon}">
-      <td><input type="checkbox" ${sel?'checked':''} onchange="toggleCourtier('${c.id}',this)"></td>
-      <td><strong>${c.prenom||''} ${c.nom||''}</strong>${c.doublon?'<br><span style="font-size:10px;color:var(--red);">⚠️ Doublon</span>':''}</td>
-      <td style="font-size:12px;">${c.email}</td>
-      <td style="font-size:12px;">${c.agence||'—'}${c.banniere&&c.banniere!==c.agence?`<br><span style="color:var(--blue);font-size:10px;">${c.banniere}</span>`:''}</td>
-      <td style="font-size:12px;">${c.ville||'—'}</td>
-      <td style="font-size:11px;">${c.type_contact||'—'}</td>
-      <td><span style="color:${statutColor[c.statut]||'var(--gray)'};font-size:12px;font-weight:600;">${c.statut||'Actif'}</span></td>
-      <td style="text-align:center;font-size:13px;">${c.nb_envois||0}</td>
-      <td style="font-size:11px;">${c.dernier_envoi?new Date(c.dernier_envoi).toLocaleDateString('fr-CA'):'—'}</td>
-      <td>
-        <button class="btn-secondary" style="padding:4px 8px;font-size:11px;" onclick="ouvrirEditionCourtier('${c.id}')">✏️</button>
-        <button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="supprimerCourtier('${c.id}')">🗑️</button>
-      </td>
-    </tr>`;
+    return `<tr style="${doublon}"><td><input type="checkbox" ${sel?'checked':''} onchange="toggleCourtier('${c.id}',this)"></td><td><strong>${c.prenom||''} ${c.nom||''}</strong>${c.doublon?'<br><span style="font-size:10px;color:var(--red);">⚠️ Doublon</span>':''}</td><td style="font-size:12px;">${c.email}</td><td style="font-size:12px;">${c.agence||'—'}${c.banniere&&c.banniere!==c.agence?`<br><span style="color:var(--blue);font-size:10px;">${c.banniere}</span>`:''}</td><td style="font-size:12px;">${c.ville||'—'}</td><td style="font-size:11px;">${c.type_contact||'—'}</td><td><span style="color:${statutColor[c.statut]||'var(--gray)'};font-size:12px;font-weight:600;">${c.statut||'Actif'}</span></td><td style="text-align:center;font-size:13px;">${c.nb_envois||0}</td><td style="font-size:11px;">${c.dernier_envoi?new Date(c.dernier_envoi).toLocaleDateString('fr-CA'):'—'}</td><td><button class="btn-secondary" style="padding:4px 8px;font-size:11px;" onclick="ouvrirEditionCourtier('${c.id}')">✏️</button> <button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="supprimerCourtier('${c.id}')">🗑️</button></td></tr>`;
   }).join('');
   document.getElementById('courtiers-selection-count').textContent=`${courtiersSelectionnes.size} sélectionné(s)`;
 }
-
 function filtrerCourtiers(){
   const q=document.getElementById('search-courtiers').value.toLowerCase();
   const s=document.getElementById('filter-statut-courtier').value;
-  renderCourtiers(courtiers.filter(c=>{
-    const mq=!q||`${c.prenom} ${c.nom} ${c.email} ${c.agence} ${c.ville}`.toLowerCase().includes(q);
-    const ms=!s||c.statut===s;
-    return mq&&ms;
-  }));
+  renderCourtiers(courtiers.filter(c=>{const mq=!q||`${c.prenom} ${c.nom} ${c.email} ${c.agence} ${c.ville}`.toLowerCase().includes(q);const ms=!s||c.statut===s;return mq&&ms;}));
 }
-
-function toggleCourtier(id,el){
-  if(el.checked)courtiersSelectionnes.add(id);
-  else courtiersSelectionnes.delete(id);
-  document.getElementById('courtiers-selection-count').textContent=`${courtiersSelectionnes.size} sélectionné(s)`;
-}
-
-function toggleTousCourtiers(el){
-  if(el.checked)courtiers.forEach(c=>courtiersSelectionnes.add(c.id));
-  else courtiersSelectionnes.clear();
-  renderCourtiers();
-}
-
-function toutSelectionnerCourtiers(){
-  courtiers.forEach(c=>courtiersSelectionnes.add(c.id));
-  document.getElementById('check-all-courtiers').checked=true;
-  renderCourtiers();
-}
-
-function toutDeselectionnerCourtiers(){
-  courtiersSelectionnes.clear();
-  document.getElementById('check-all-courtiers').checked=false;
-  renderCourtiers();
-}
-
-async function supprimerCourtier(id){
-  if(!confirm('Supprimer ce courtier ?'))return;
-  const d=await apiDelete(`/api/crm/courtiers/${id}`);
-  if(d.success){showNotif('✅ Courtier supprimé','success');await chargerCourtiers();}
-  else showNotif('❌ '+d.error,'error');
-}
-
+function toggleCourtier(id,el){if(el.checked)courtiersSelectionnes.add(id);else courtiersSelectionnes.delete(id);document.getElementById('courtiers-selection-count').textContent=`${courtiersSelectionnes.size} sélectionné(s)`;}
+function toggleTousCourtiers(el){if(el.checked)courtiers.forEach(c=>courtiersSelectionnes.add(c.id));else courtiersSelectionnes.clear();renderCourtiers();}
+function toutSelectionnerCourtiers(){courtiers.forEach(c=>courtiersSelectionnes.add(c.id));document.getElementById('check-all-courtiers').checked=true;renderCourtiers();}
+function toutDeselectionnerCourtiers(){courtiersSelectionnes.clear();document.getElementById('check-all-courtiers').checked=false;renderCourtiers();}
+async function supprimerCourtier(id){if(!confirm('Supprimer ce courtier ?'))return;const d=await apiDelete(`/api/crm/courtiers/${id}`);if(d.success){showNotif('✅ Courtier supprimé','success');await chargerCourtiers();}else showNotif('❌ '+d.error,'error');}
 function ouvrirEditionCourtier(id){
-  const c=courtiers.find(x=>x.id===id);
-  if(!c)return;
+  const c=courtiers.find(x=>x.id===id);if(!c)return;
   document.getElementById('edit-courtier-id').value=c.id;
-  document.getElementById('edit-courtier-prenom').value=c.prenom||'';
-  document.getElementById('edit-courtier-nom').value=c.nom||'';
-  document.getElementById('edit-courtier-email').value=c.email||'';
-  document.getElementById('edit-courtier-telephone').value=c.telephone||'';
-  document.getElementById('edit-courtier-agence').value=c.agence||'';
-  document.getElementById('edit-courtier-banniere').value=c.banniere||'';
-  document.getElementById('edit-courtier-ville').value=c.ville||'';
-  document.getElementById('edit-courtier-type').value=c.type_contact||'';
-  document.getElementById('edit-courtier-statut').value=c.statut||'Actif';
-  document.getElementById('edit-courtier-notes').value=c.notes||'';
+  document.getElementById('edit-courtier-prenom').value=c.prenom||'';document.getElementById('edit-courtier-nom').value=c.nom||'';
+  document.getElementById('edit-courtier-email').value=c.email||'';document.getElementById('edit-courtier-telephone').value=c.telephone||'';
+  document.getElementById('edit-courtier-agence').value=c.agence||'';document.getElementById('edit-courtier-banniere').value=c.banniere||'';
+  document.getElementById('edit-courtier-ville').value=c.ville||'';document.getElementById('edit-courtier-type').value=c.type_contact||'';
+  document.getElementById('edit-courtier-statut').value=c.statut||'Actif';document.getElementById('edit-courtier-notes').value=c.notes||'';
   document.getElementById('modal-edit-courtier').classList.add('active');
 }
-
 async function sauverCourtier(){
   const id=document.getElementById('edit-courtier-id').value;
-  const body={
-    prenom:document.getElementById('edit-courtier-prenom').value,
-    nom:document.getElementById('edit-courtier-nom').value,
-    email:document.getElementById('edit-courtier-email').value,
-    telephone:document.getElementById('edit-courtier-telephone').value,
-    agence:document.getElementById('edit-courtier-agence').value,
-    banniere:document.getElementById('edit-courtier-banniere').value,
-    ville:document.getElementById('edit-courtier-ville').value,
-    type_contact:document.getElementById('edit-courtier-type').value,
-    statut:document.getElementById('edit-courtier-statut').value,
-    notes:document.getElementById('edit-courtier-notes').value,
-  };
+  const body={prenom:document.getElementById('edit-courtier-prenom').value,nom:document.getElementById('edit-courtier-nom').value,email:document.getElementById('edit-courtier-email').value,telephone:document.getElementById('edit-courtier-telephone').value,agence:document.getElementById('edit-courtier-agence').value,banniere:document.getElementById('edit-courtier-banniere').value,ville:document.getElementById('edit-courtier-ville').value,type_contact:document.getElementById('edit-courtier-type').value,statut:document.getElementById('edit-courtier-statut').value,notes:document.getElementById('edit-courtier-notes').value};
   const d=await apiPut(`/api/crm/courtiers/${id}`,body);
-  if(d.success){showNotif('✅ Courtier mis à jour','success');closeModal('modal-edit-courtier');await chargerCourtiers();}
-  else showNotif('❌ '+d.error,'error');
+  if(d.success){showNotif('✅ Courtier mis à jour','success');closeModal('modal-edit-courtier');await chargerCourtiers();}else showNotif('❌ '+d.error,'error');
 }
-
 function openModalNouveauCourtier(){
   ['nouveau-courtier-prenom','nouveau-courtier-nom','nouveau-courtier-email','nouveau-courtier-telephone','nouveau-courtier-agence','nouveau-courtier-banniere','nouveau-courtier-ville','nouveau-courtier-type','nouveau-courtier-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('modal-nouveau-courtier').classList.add('active');
 }
-
 async function creerCourtier(){
-  const body={
-    prenom:document.getElementById('nouveau-courtier-prenom').value,
-    nom:document.getElementById('nouveau-courtier-nom').value,
-    email:document.getElementById('nouveau-courtier-email').value,
-    telephone:document.getElementById('nouveau-courtier-telephone').value,
-    agence:document.getElementById('nouveau-courtier-agence').value,
-    banniere:document.getElementById('nouveau-courtier-banniere').value,
-    ville:document.getElementById('nouveau-courtier-ville').value,
-    type_contact:document.getElementById('nouveau-courtier-type').value,
-    notes:document.getElementById('nouveau-courtier-notes').value,
-    statut:'Actif'
-  };
+  const body={prenom:document.getElementById('nouveau-courtier-prenom').value,nom:document.getElementById('nouveau-courtier-nom').value,email:document.getElementById('nouveau-courtier-email').value,telephone:document.getElementById('nouveau-courtier-telephone').value,agence:document.getElementById('nouveau-courtier-agence').value,banniere:document.getElementById('nouveau-courtier-banniere').value,ville:document.getElementById('nouveau-courtier-ville').value,type_contact:document.getElementById('nouveau-courtier-type').value,notes:document.getElementById('nouveau-courtier-notes').value,statut:'Actif'};
   if(!body.email){showNotif('⚠️ Courriel obligatoire','warning');return;}
   const d=await apiPost('/api/crm/courtiers',body);
-  if(d.success){
-    showNotif(d.doublon?'⚠️ Courtier ajouté — doublon détecté':'✅ Courtier ajouté','success');
-    closeModal('modal-nouveau-courtier');
-    await chargerCourtiers();
-  } else showNotif('❌ '+d.error,'error');
+  if(d.success){showNotif(d.doublon?'⚠️ Courtier ajouté — doublon détecté':'✅ Courtier ajouté','success');closeModal('modal-nouveau-courtier');await chargerCourtiers();}else showNotif('❌ '+d.error,'error');
 }
 
-// ── IMPORT EXCEL ──
+// ══ IMPORT EXCEL — BUG FIX: "const obj:any={}" remplacé par "const obj = {}" ══
 function openModalImportCourtiers(){
   document.getElementById('modal-import-courtiers').classList.add('active');
   document.getElementById('import-resultats').style.display='none';
   document.getElementById('import-file-input').value='';
 }
-
 async function traiterImportExcel(){
   const file=document.getElementById('import-file-input').files[0];
   if(!file){showNotif('⚠️ Sélectionnez un fichier Excel','warning');return;}
   const btn=document.getElementById('btn-importer');
   btn.innerHTML='⏳ Lecture en cours...';btn.disabled=true;
   try{
-    const XLSX=window.XLSX;
+    const XLSX_LIB=window.XLSX;
     const data=await file.arrayBuffer();
-    const wb=XLSX.read(data,{type:'array'});
+    const wb=XLSX_LIB.read(data,{type:'array'});
     const ws=wb.Sheets[wb.SheetNames[0]];
-    const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
-    // Filtrer la ligne d'exemple (ligne 4 du fichier = index 0 si entêtes)
+    const rows=XLSX_LIB.utils.sheet_to_json(ws,{defval:''});
+    // FIX: Pas de syntaxe TypeScript ici — "const obj:any={}" → "const obj = {}"
     const mapping={'Prénom *':'prenom','Nom *':'nom','Courriel *':'email','Téléphone':'telephone','Agence':'agence','Bannière':'banniere','Ville':'ville','Type de contact':'type_contact','Autre 1':'autre_1','Autre 2':'autre_2','Notes':'notes','Statut':'statut'};
     const rowsMapped=rows.map(r=>{
-      const obj:any={};
-      Object.keys(r).forEach(k=>{const mapped=mapping[k];if(mapped)obj[mapped]=String(r[k]||'').trim();});
+      const obj = {};
+      Object.keys(r).forEach(k=>{
+        const mapped=mapping[k];
+        if(mapped) obj[mapped]=String(r[k]||'').trim();
+      });
       return obj;
     }).filter(r=>r.email&&r.email!=='jean.tremblay@remax.ca');
     if(!rowsMapped.length){showNotif('⚠️ Aucune donnée valide trouvée','warning');btn.innerHTML='📥 Importer';btn.disabled=false;return;}
@@ -2398,25 +1837,16 @@ async function traiterImportExcel(){
     const d=await apiPost('/api/crm/courtiers/import',{rows:rowsMapped});
     if(d.success){
       document.getElementById('import-resultats').style.display='block';
-      document.getElementById('import-resultats').innerHTML=`
-        <div style="background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:10px;padding:16px;margin-top:16px;">
-          <div style="font-weight:600;color:var(--green);margin-bottom:8px;">✅ Import terminé !</div>
-          <div style="font-size:13px;color:var(--navy);">
-            📥 Importés : <strong>${d.importes}</strong><br>
-            ⚠️ Doublons : <strong style="color:var(--orange);">${d.doublons}</strong><br>
-            ❌ Invalides : <strong style="color:var(--red);">${d.invalides}</strong><br>
-            📊 Total traités : <strong>${d.total}</strong>
-          </div>
-        </div>`;
+      document.getElementById('import-resultats').innerHTML=`<div style="background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:10px;padding:16px;margin-top:16px;"><div style="font-weight:600;color:var(--green);margin-bottom:8px;">✅ Import terminé !</div><div style="font-size:13px;color:var(--navy);">📥 Importés : <strong>${d.importes}</strong><br>⚠️ Doublons : <strong style="color:var(--orange);">${d.doublons}</strong><br>❌ Invalides : <strong style="color:var(--red);">${d.invalides}</strong><br>📊 Total traités : <strong>${d.total}</strong></div></div>`;
       await chargerCourtiers();
       showNotif(`✅ ${d.importes} courtiers importés !`,'success');
     } else showNotif('❌ '+d.error,'error');
-  }catch(e){showNotif('❌ Erreur lecture fichier','error');}
+  }catch(e){showNotif('❌ Erreur lecture fichier','error');console.error(e);}
   btn.innerHTML='📥 Importer';btn.disabled=false;
 }
 
-// ── ENVOI MASSIF ──
-let envoiMassifTemplate=1, envoiMassifConfig={};
+// ══ ENVOI MASSIF ══════════════════════════════════════════════════════
+let envoiMassifTemplate=1;
 
 function ouvrirEnvoiMassif(template){
   if(courtiersSelectionnes.size===0){showNotif('⚠️ Sélectionnez au moins un courtier','warning');return;}
@@ -2425,13 +1855,13 @@ function ouvrirEnvoiMassif(template){
   document.getElementById('envoi-template-nom').textContent=template===1?'Template 1 — Premier contact':template===2?'Template 2 — Relance':'Template 3 — Offre spéciale';
   const offreSection=document.getElementById('envoi-offre-section');
   offreSection.style.display=template===3?'block':'none';
-  // Prévisualisation
   const c=courtiers.find(x=>courtiersSelectionnes.has(x.id));
   if(c){
     const prenom=c.prenom||c.email.split('@')[0];
     const prenomCap=prenom.charAt(0).toUpperCase()+prenom.slice(1).toLowerCase();
     document.getElementById('envoi-apercu-prenom').textContent=prenomCap;
     document.getElementById('envoi-apercu-email').textContent=c.email;
+    // FIX BANNIERE: affiche banniere ou agence ou "Centris" comme fallback
     document.getElementById('envoi-apercu-banniere').textContent=c.banniere||c.agence||'Centris';
   }
   document.getElementById('modal-envoi-massif').classList.add('active');
@@ -2441,48 +1871,30 @@ async function envoyerMassif(){
   const btn=document.getElementById('btn-envoyer-massif');
   const rabais=document.getElementById('envoi-rabais')?.value||'15';
   const dateFin=document.getElementById('envoi-date-fin')?.value||'';
-  // Calculer les prix
   const r=parseInt(rabais)/100;
-  const prix1=Math.round(249*(1-r));
-  const prix2=Math.round(499*(1-r));
-  const prix3=Math.round(599*(1-r));
-  const prix4=Math.round(279*(1-r));
+  const prix1=Math.round(249*(1-r));const prix2=Math.round(499*(1-r));const prix3=Math.round(599*(1-r));const prix4=Math.round(279*(1-r));
   const dateFinStr=dateFin?new Date(dateFin).toLocaleDateString('fr-CA',{day:'numeric',month:'long',year:'numeric'}):'';
-  // Sujets
-  const sujets={
-    1:'CapturAir — Vos annonces méritent la hauteur 🚁',
-    2:'CapturAir — Ce que vos acheteurs voient avant même de visiter 👁️',
-    3:`CapturAir — Offre exclusive courtiers ${rabais}% de rabais, ${dateFinStr} 🔥`
-  };
-  // Templates HTML — récupérés depuis les fichiers
-  const templateUrls={
-    1:'https://jemarche.github.io/capturair/email_template1.html',
-    2:'https://jemarche.github.io/capturair/email_template2.html',
-    3:'https://jemarche.github.io/capturair/email_template3.html',
-  };
+  const sujets={1:'CapturAir — Vos annonces méritent la hauteur 🚁',2:'CapturAir — Ce que vos acheteurs voient avant même de visiter 👁️',3:`CapturAir — Offre exclusive courtiers ${rabais}% de rabais, ${dateFinStr} 🔥`};
+  const templateUrls={1:'https://jemarche.github.io/capturair/email_template1.html',2:'https://jemarche.github.io/capturair/email_template2.html',3:'https://jemarche.github.io/capturair/email_template3.html'};
   btn.innerHTML='<span class="spinner"></span> Envoi en cours...';btn.disabled=true;
-  // Barre de progression
   document.getElementById('envoi-progress').style.display='block';
   document.getElementById('envoi-progress-bar').style.width='0%';
   document.getElementById('envoi-progress-text').textContent='Préparation...';
   try{
     let html=await fetch(templateUrls[envoiMassifTemplate]).then(r=>r.text());
-    // Remplacer les variables globales
+    // FIX BANNIERE: {{BANNIERE}} est maintenant bien remplacé côté serveur (index.ts ligne 3719)
+    // Ici on remplace les variables globales non-personnalisées
     html=html.replace(/{{RABAIS}}/g,rabais).replace(/{{DATE_FIN}}/g,dateFinStr).replace(/{{PRIX_1}}/g,String(prix1)).replace(/{{PRIX_2}}/g,String(prix2)).replace(/{{PRIX_3}}/g,String(prix3)).replace(/{{PRIX_4}}/g,String(prix4));
     const ids=Array.from(courtiersSelectionnes);
-    const total=ids.length;
-    let envoyes=0;
-    // Envoi par batch de 10 avec progress
-    document.getElementById('envoi-progress-text').textContent=`Envoi 0/${total}...`;
     const d=await apiPost('/api/crm/courtiers/envoyer',{ids,template:envoiMassifTemplate,sujet:sujets[envoiMassifTemplate],contenu_html:html});
-    envoyes=d.envoyes||0;
+    const envoyes=d.envoyes||0;
     document.getElementById('envoi-progress-bar').style.width='100%';
-    document.getElementById('envoi-progress-text').textContent=`✅ ${envoyes}/${total} envoyés !`;
+    document.getElementById('envoi-progress-text').textContent=`✅ ${envoyes}/${ids.length} envoyés !`;
     showNotif(`✅ ${envoyes} emails envoyés !`,'success');
     closeModal('modal-envoi-massif');
     courtiersSelectionnes.clear();
     await chargerCourtiers();
-  }catch(e){showNotif('❌ Erreur envoi','error');}
+  }catch(e){showNotif('❌ Erreur envoi','error');console.error(e);}
   btn.innerHTML='📧 Envoyer';btn.disabled=false;
 }
 
@@ -2491,23 +1903,11 @@ async function renderHistoriqueCourtiers(){
   const historique=d.historique||[];
   const tbody=document.getElementById('historique-tbody');
   if(!historique.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--gray);">Aucun envoi pour l\'instant</td></tr>';return;}
-  tbody.innerHTML=historique.map(h=>`<tr>
-    <td style="font-size:12px;">${new Date(h.created_at).toLocaleDateString('fr-CA')}</td>
-    <td><span style="font-size:11px;background:rgba(26,143,209,0.1);color:var(--blue);padding:2px 8px;border-radius:100px;">Template ${h.template}</span></td>
-    <td style="font-size:12px;">${h.sujet||'—'}</td>
-    <td style="text-align:center;color:var(--green);font-weight:600;">${h.nb_envoyes}</td>
-    <td style="text-align:center;color:var(--red);">${h.nb_erreurs||0}</td>
-    <td style="font-size:11px;">${h.envoye_par||'—'}</td>
-  </tr>`).join('');
+  tbody.innerHTML=historique.map(h=>`<tr><td style="font-size:12px;">${new Date(h.created_at).toLocaleDateString('fr-CA')}</td><td><span style="font-size:11px;background:rgba(26,143,209,0.1);color:var(--blue);padding:2px 8px;border-radius:100px;">Template ${h.template}</span></td><td style="font-size:12px;">${h.sujet||'—'}</td><td style="text-align:center;color:var(--green);font-weight:600;">${h.nb_envoyes}</td><td style="text-align:center;color:var(--red);">${h.nb_erreurs||0}</td><td style="font-size:11px;">${h.envoye_par||'—'}</td></tr>`).join('');
 }
+
 // Vérifier token toutes les 5 minutes
-setInterval(()=>{
-  if(authToken && verifierTokenExpire()){
-    sessionExpired();
-  }
-}, 5 * 60 * 1000);
-
-
+setInterval(()=>{if(authToken&&verifierTokenExpire()){sessionExpired();}},5*60*1000);
 </script>
 </body>
 </html>
