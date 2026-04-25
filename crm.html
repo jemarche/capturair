@@ -256,6 +256,7 @@
       <div class="nav-section" id="nav-admin-section" style="display:none;">Admin</div>
       <a class="nav-item" id="nav-utilisateurs" style="display:none;" onclick="showPage('utilisateurs')" href="#"><span class="nav-icon">👥</span> Utilisateurs</a>
       <a class="nav-item" id="nav-courtiers" style="display:none;" onclick="showPage('courtiers')" href="#"><span class="nav-icon">🏢</span> Courtiers</a>
+      <a class="nav-item" id="nav-correspondances" style="display:none;" onclick="showPage('correspondances')" href="#"><span class="nav-icon">✉️</span> Correspondances</a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -803,6 +804,199 @@
           <tbody id="utilisateurs-tbody"></tbody>
         </table>
       </div>
+    <!-- CORRESPONDANCES -->
+    <div class="page" id="page-correspondances">
+      <div class="tabs" style="margin-bottom:20px;">
+        <div class="tab active" id="ctab-composer" onclick="switchCTab('composer')">✉️ Composer</div>
+        <div class="tab" id="ctab-contacts" onclick="switchCTab('contacts')">👥 Contacts</div>
+        <div class="tab" id="ctab-templates" onclick="switchCTab('templates')">📋 Templates</div>
+        <div class="tab" id="ctab-historique" onclick="switchCTab('historique')">📊 Historique</div>
+      </div>
+
+      <!-- COMPOSER -->
+      <div id="ctab-content-composer">
+        <div class="section-card">
+          <div class="section-card-title">✉️ Nouvelle correspondance</div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="form-label">À <span style="color:var(--red)">*</span></label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--offwhite);border:1px solid var(--border);border-radius:8px;padding:8px 12px;min-height:42px;" id="corr-to-chips"></div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <input type="text" class="search-input" id="corr-search-contact" placeholder="🔍 Rechercher un contact..." oninput="corrSearchContact()" style="flex:1;">
+              <button class="btn-secondary" onclick="corrToutSelectionner()" style="white-space:nowrap;">☑️ Tout sélectionner</button>
+              <button class="btn-secondary" onclick="corrToutDeselectionner()" style="white-space:nowrap;">□ Effacer</button>
+            </div>
+            <div id="corr-contact-results" style="background:white;border:1px solid var(--border);border-radius:8px;max-height:200px;overflow-y:auto;display:none;margin-top:4px;"></div>
+          </div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="form-label">Cci</label>
+            <input type="email" class="form-input" id="corr-cci" placeholder="cci@email.com (optionnel)">
+          </div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="form-label">Objet <span style="color:var(--red)">*</span></label>
+            <input type="text" class="form-input" id="corr-objet" placeholder="Objet du courriel...">
+          </div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="form-label">Charger un template</label>
+            <select class="form-input form-select" id="corr-template-select" onchange="corrChargerTemplate()">
+              <option value="">— Aucun (texte libre) —</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:16px;">
+            <label class="form-label" style="display:flex;align-items:center;justify-content:space-between;">
+              <span>Corps du message</span>
+              <span style="font-size:11px;color:var(--gray);font-weight:400;">Variables : {{SALUTATION}} {{PRENOM}} {{NOM}}</span>
+            </label>
+            <textarea class="form-input form-textarea" id="corr-corps" style="min-height:260px;font-family:monospace;font-size:13px;" placeholder="Bonjour {{PRENOM}},&#10;&#10;Votre message ici...&#10;&#10;Cordialement,&#10;Mohand Aïdi&#10;CapturAir"></textarea>
+          </div>
+          <div id="corr-apercu-section" style="display:none;background:rgba(26,143,209,0.06);border:1px solid rgba(26,143,209,0.2);border-radius:10px;padding:14px 18px;margin-bottom:16px;">
+            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin-bottom:8px;">👁️ Aperçu — 1er destinataire</div>
+            <div style="font-size:13px;color:var(--navy);" id="corr-apercu-salutation">Bonjour,</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:4px;">📧 <span id="corr-apercu-email">—</span></div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn-secondary" onclick="corrApercu()">👁️ Aperçu</button>
+            <button class="btn-primary" onclick="corrEnvoyer()" id="corr-btn-envoyer">📧 Envoyer</button>
+            <span id="corr-count-label" style="font-size:13px;color:var(--gray);align-self:center;">0 destinataire(s)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTACTS -->
+      <div id="ctab-content-contacts" style="display:none;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">
+          <button class="btn-primary" onclick="openModalNouveauContact()">+ Ajouter</button>
+          <button class="btn-secondary" onclick="corrSyncLeads()">🔄 Sync clients CRM</button>
+          <input type="text" class="search-input" id="search-corr-contacts" placeholder="🔍 Rechercher..." oninput="filtrerContacts()" style="width:220px;">
+          <select class="filter-select" id="filter-corr-type" onchange="filtrerContacts()">
+            <option value="">Tous types</option>
+            <option value="client">👤 Clients</option>
+            <option value="externe">🌐 Externes</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Prénom / Nom</th><th>Courriel</th><th>Entreprise</th><th>Type</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody id="corr-contacts-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TEMPLATES -->
+      <div id="ctab-content-templates" style="display:none;">
+        <div style="display:flex;gap:10px;margin-bottom:16px;">
+          <button class="btn-primary" onclick="openModalNouveauTemplate()">+ Nouveau template</button>
+        </div>
+        <div id="corr-templates-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;"></div>
+      </div>
+
+      <!-- HISTORIQUE -->
+      <div id="ctab-content-historique" style="display:none;">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Date</th><th>Objet</th><th>Envoyés</th><th>Erreurs</th><th>Par</th></tr></thead>
+            <tbody id="corr-historique-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODALS CORRESPONDANCES -->
+<div class="modal-overlay" id="modal-nouveau-contact">
+  <div class="modal-box" style="max-width:520px;">
+    <div class="modal-title">👤 Nouveau contact</div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Prénom</label><input type="text" class="form-input" id="nc-prenom" placeholder="Jean"></div>
+      <div class="form-group"><label class="form-label">Nom</label><input type="text" class="form-input" id="nc-nom" placeholder="Dupont"></div>
+      <div class="form-group"><label class="form-label">Courriel *</label><input type="email" class="form-input" id="nc-email" placeholder="jean@email.com"></div>
+      <div class="form-group"><label class="form-label">Téléphone</label><input type="text" class="form-input" id="nc-telephone" placeholder="514-555-1234"></div>
+      <div class="form-group"><label class="form-label">Entreprise</label><input type="text" class="form-input" id="nc-entreprise" placeholder="Entreprise"></div>
+      <div class="form-group"><label class="form-label">Type</label>
+        <select class="form-input form-select" id="nc-type">
+          <option value="externe">🌐 Externe</option>
+          <option value="client">👤 Client</option>
+        </select>
+      </div>
+      <div class="form-group form-full"><label class="form-label">Notes</label><textarea class="form-input form-textarea" id="nc-notes" style="min-height:60px;"></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-nouveau-contact')">Annuler</button>
+      <button class="btn-primary" onclick="creerContact()">Créer →</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-contact">
+  <div class="modal-box" style="max-width:520px;">
+    <div class="modal-title">✏️ Modifier le contact</div>
+    <input type="hidden" id="ec-id">
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Prénom</label><input type="text" class="form-input" id="ec-prenom"></div>
+      <div class="form-group"><label class="form-label">Nom</label><input type="text" class="form-input" id="ec-nom"></div>
+      <div class="form-group"><label class="form-label">Courriel *</label><input type="email" class="form-input" id="ec-email"></div>
+      <div class="form-group"><label class="form-label">Téléphone</label><input type="text" class="form-input" id="ec-telephone"></div>
+      <div class="form-group"><label class="form-label">Entreprise</label><input type="text" class="form-input" id="ec-entreprise"></div>
+      <div class="form-group"><label class="form-label">Type</label>
+        <select class="form-input form-select" id="ec-type">
+          <option value="externe">🌐 Externe</option>
+          <option value="client">👤 Client</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Statut</label>
+        <select class="form-input form-select" id="ec-statut">
+          <option value="Actif">🟢 Actif</option>
+          <option value="Inactif">⚫ Inactif</option>
+        </select>
+      </div>
+      <div class="form-group form-full"><label class="form-label">Notes</label><textarea class="form-input form-textarea" id="ec-notes" style="min-height:60px;"></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-edit-contact')">Annuler</button>
+      <button class="btn-primary" onclick="sauverContact()">💾 Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-nouveau-template">
+  <div class="modal-box" style="max-width:620px;">
+    <div class="modal-title" id="nt-modal-title">📋 Nouveau template</div>
+    <input type="hidden" id="nt-id">
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Nom *</label><input type="text" class="form-input" id="nt-nom" placeholder="Remerciement post-visite"></div>
+      <div class="form-group"><label class="form-label">Catégorie</label>
+        <select class="form-input form-select" id="nt-categorie">
+          <option value="client">👤 Clients</option>
+          <option value="courtier">🏢 Courtiers</option>
+          <option value="saisonnier">🎄 Saisonnier</option>
+          <option value="general">📋 Général</option>
+        </select>
+      </div>
+      <div class="form-group form-full"><label class="form-label">Objet</label><input type="text" class="form-input" id="nt-sujet" placeholder="Objet du courriel..."></div>
+      <div class="form-group form-full">
+        <label class="form-label" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>Corps</span>
+          <span style="font-size:11px;color:var(--gray);font-weight:400;">{{SALUTATION}} {{PRENOM}} {{NOM}}</span>
+        </label>
+        <textarea class="form-input form-textarea" id="nt-contenu" style="min-height:200px;font-family:monospace;font-size:13px;" placeholder="{{SALUTATION}}&#10;&#10;Votre message..."></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-nouveau-template')">Annuler</button>
+      <button class="btn-primary" onclick="sauverTemplate()">💾 Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-apercu-corr">
+  <div class="modal-box" style="max-width:640px;">
+    <div class="modal-title">👁️ Aperçu du courriel</div>
+    <div style="font-size:12px;color:var(--gray);margin-bottom:8px;">Objet : <strong id="apercu-corr-objet"></strong></div>
+    <div id="apercu-corr-content" style="border:1px solid var(--border);border-radius:10px;padding:20px;background:var(--offwhite);font-size:14px;line-height:1.8;max-height:400px;overflow-y:auto;white-space:pre-wrap;font-family:'DM Sans',sans-serif;"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-apercu-corr')">Fermer</button>
     </div>
   </div>
 </div>
@@ -1148,6 +1342,7 @@ async function initApp(){
     document.getElementById('nav-admin-section').style.display='block';
     document.getElementById('nav-utilisateurs').style.display='flex';
     document.getElementById('nav-courtiers').style.display='flex';
+    document.getElementById('nav-correspondances').style.display='flex';
   }
   await Promise.all([chargerLeads(),chargerSoumissions(),chargerFactures(),chargerProjets(),chargerUtilisateurs()]);
   renderDashboard();
@@ -1192,7 +1387,7 @@ function showPage(page){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById(`page-${page}`)?.classList.add('active');
   document.querySelector(`[onclick="showPage('${page}')"]`)?.classList.add('active');
-  const titles={dashboard:'Dashboard',leads:'Dossiers clients',soumissions:'Soumissions','projets-list':'Projets galerie',factures:'Factures',utilisateurs:'Utilisateurs',dossier:'Fiche dossier',courtiers:'Courtiers Immobiliers'};
+  const titles={dashboard:'Dashboard',leads:'Dossiers clients',soumissions:'Soumissions','projets-list':'Projets galerie',factures:'Factures',utilisateurs:'Utilisateurs',dossier:'Fiche dossier',courtiers:'Courtiers Immobiliers',correspondances:'Correspondances'};
   document.getElementById('topbar-title').textContent=titles[page]||page;
   if(page==='leads')renderLeads();
   if(page==='soumissions')renderSoumissions();
@@ -1200,6 +1395,7 @@ function showPage(page){
   if(page==='factures')renderFactures();
   if(page==='utilisateurs')renderUtilisateurs();
   if(page==='courtiers')chargerCourtiers();
+  if(page==='correspondances')initCorrespondances();
 }
 function confirmerRetour(){if(hasUnsaved){pendingNavigation=()=>{hasUnsaved=false;showPage('leads');};document.getElementById('modal-confirm-save').classList.add('active');}else showPage('leads');}
 function ignorerModifs(){hasUnsaved=false;closeModal('modal-confirm-save');if(pendingNavigation){pendingNavigation();pendingNavigation=null;}}
@@ -1908,6 +2104,345 @@ async function renderHistoriqueCourtiers(){
 
 // Vérifier token toutes les 5 minutes
 setInterval(()=>{if(authToken&&verifierTokenExpire()){sessionExpired();}},5*60*1000);
+
+// ══ CORRESPONDANCES ════════════════════════════════════════════════════
+let corrContacts=[], corrTemplates=[], corrSelectionnes=new Set();
+
+async function initCorrespondances(){
+  await Promise.all([chargerCorrContacts(), chargerCorrTemplates()]);
+  chargerCorrHistorique();
+  corrMajComposer();
+}
+
+async function chargerCorrContacts(){
+  const d=await apiGet('/api/crm/correspondances/contacts');
+  corrContacts=d.contacts||[];
+  renderCorrContacts();
+  peuplerCorrComposer();
+}
+
+async function chargerCorrTemplates(){
+  const d=await apiGet('/api/crm/correspondances/templates');
+  corrTemplates=d.templates||[];
+  renderCorrTemplates();
+  peuplerSelectTemplates();
+}
+
+async function chargerCorrHistorique(){
+  const d=await apiGet('/api/crm/correspondances/historique');
+  const historique=d.historique||[];
+  const tbody=document.getElementById('corr-historique-tbody');
+  if(!historique.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--gray);">Aucun envoi</td></tr>';return;}
+  tbody.innerHTML=historique.map(h=>`<tr>
+    <td style="font-size:12px;">${new Date(h.created_at).toLocaleDateString('fr-CA')}</td>
+    <td>${h.sujet||'—'}</td>
+    <td style="text-align:center;color:var(--green);font-weight:600;">${h.nb_envoyes}</td>
+    <td style="text-align:center;color:var(--red);">${h.nb_erreurs||0}</td>
+    <td style="font-size:11px;">${h.envoye_par||'—'}</td>
+  </tr>`).join('');
+}
+
+function switchCTab(tab){
+  ['composer','contacts','templates','historique'].forEach(t=>{
+    document.getElementById(`ctab-${t}`)?.classList.toggle('active',t===tab);
+    const el=document.getElementById(`ctab-content-${t}`);
+    if(el)el.style.display=t===tab?'block':'none';
+  });
+  if(tab==='historique')chargerCorrHistorique();
+}
+
+function peuplerSelectTemplates(){
+  const sel=document.getElementById('corr-template-select');
+  sel.innerHTML='<option value="">— Aucun (texte libre) —</option>';
+  const cats={'client':'👤 Clients','courtier':'🏢 Courtiers','saisonnier':'🎄 Saisonnier','general':'📋 Général'};
+  const grouped={};
+  corrTemplates.forEach(t=>{if(!grouped[t.categorie])grouped[t.categorie]=[];grouped[t.categorie].push(t);});
+  Object.keys(grouped).forEach(cat=>{
+    const og=document.createElement('optgroup');og.label=cats[cat]||cat;
+    grouped[cat].forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.nom;og.appendChild(o);});
+    sel.appendChild(og);
+  });
+}
+
+function corrChargerTemplate(){
+  const id=document.getElementById('corr-template-select').value;
+  if(!id){return;}
+  const t=corrTemplates.find(x=>x.id===id);
+  if(!t)return;
+  if(t.sujet)document.getElementById('corr-objet').value=t.sujet;
+  if(t.contenu_texte)document.getElementById('corr-corps').value=t.contenu_texte;
+  corrMajApercu();
+}
+
+// Chips destinataires
+function corrMajComposer(){
+  const chips=document.getElementById('corr-to-chips');
+  chips.innerHTML=[...corrSelectionnes].map(id=>{
+    const c=corrContacts.find(x=>x.id===id);
+    if(!c)return'';
+    const nom=`${c.prenom||''} ${c.nom||''}`.trim()||c.email;
+    return `<span style="display:inline-flex;align-items:center;gap:6px;background:rgba(26,143,209,0.12);color:var(--blue);padding:4px 10px;border-radius:100px;font-size:12px;margin:2px;">${nom}<span onclick="corrRetirerDest('${id}')" style="cursor:pointer;font-size:14px;opacity:0.6;">×</span></span>`;
+  }).join('');
+  const count=corrSelectionnes.size;
+  document.getElementById('corr-count-label').textContent=`${count} destinataire(s)`;
+  const apercu=document.getElementById('corr-apercu-section');
+  if(count>0){
+    apercu.style.display='block';
+    corrMajApercu();
+  } else {
+    apercu.style.display='none';
+  }
+}
+
+function corrMajApercu(){
+  const firstId=[...corrSelectionnes][0];
+  if(!firstId)return;
+  const c=corrContacts.find(x=>x.id===firstId);
+  if(!c)return;
+  const prenom=c.prenom||'';
+  const sal=prenom?`Bonjour ${prenom.charAt(0).toUpperCase()+prenom.slice(1).toLowerCase()},`:'Bonjour,';
+  document.getElementById('corr-apercu-salutation').textContent=sal;
+  document.getElementById('corr-apercu-email').textContent=c.email;
+}
+
+function corrRetirerDest(id){corrSelectionnes.delete(id);corrMajComposer();}
+
+function corrSearchContact(){
+  const q=document.getElementById('corr-search-contact').value.toLowerCase().trim();
+  const res=document.getElementById('corr-contact-results');
+  if(!q){res.style.display='none';return;}
+  const matches=corrContacts.filter(c=>`${c.prenom||''} ${c.nom||''} ${c.email}`.toLowerCase().includes(q)).slice(0,8);
+  if(!matches.length){res.style.display='none';return;}
+  res.innerHTML=matches.map(c=>{
+    const nom=`${c.prenom||''} ${c.nom||''}`.trim()||c.email;
+    const sel=corrSelectionnes.has(c.id);
+    return `<div style="padding:9px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);" onmousedown="corrToggleDest('${c.id}')">
+      <span style="font-size:16px;">${sel?'✅':'⬜'}</span>
+      <span><strong>${nom}</strong> <span style="color:var(--gray);font-size:11px;">${c.email}</span></span>
+    </div>`;
+  }).join('');
+  res.style.display='block';
+}
+
+function corrToggleDest(id){
+  if(corrSelectionnes.has(id))corrSelectionnes.delete(id);
+  else corrSelectionnes.add(id);
+  corrMajComposer();
+  corrSearchContact();
+}
+
+function corrToutSelectionner(){corrContacts.forEach(c=>corrSelectionnes.add(c.id));corrMajComposer();document.getElementById('corr-search-contact').value='';document.getElementById('corr-contact-results').style.display='none';}
+function corrToutDeselectionner(){corrSelectionnes.clear();corrMajComposer();}
+
+function peuplerCorrComposer(){corrMajComposer();}
+
+function corrApercu(){
+  const corps=document.getElementById('corr-corps').value;
+  const objet=document.getElementById('corr-objet').value;
+  const firstId=[...corrSelectionnes][0];
+  const c=firstId?corrContacts.find(x=>x.id===firstId):null;
+  const prenom=c?.prenom||'';
+  const sal=prenom?`Bonjour ${prenom.charAt(0).toUpperCase()+prenom.slice(1).toLowerCase()},`:'Bonjour,';
+  const preview=corps.replace(/{{SALUTATION}}/g,sal).replace(/{{PRENOM}}/g,prenom?prenom.charAt(0).toUpperCase()+prenom.slice(1).toLowerCase():'').replace(/{{NOM}}/g,c?.nom||'').replace(/{{EMAIL}}/g,c?.email||'');
+  document.getElementById('apercu-corr-objet').textContent=objet||'(aucun objet)';
+  document.getElementById('apercu-corr-content').textContent=preview;
+  document.getElementById('modal-apercu-corr').classList.add('active');
+}
+
+async function corrEnvoyer(){
+  if(corrSelectionnes.size===0){showNotif('⚠️ Sélectionnez au moins un destinataire','warning');return;}
+  const sujet=document.getElementById('corr-objet').value.trim();
+  const corps=document.getElementById('corr-corps').value.trim();
+  const cci=document.getElementById('corr-cci').value.trim();
+  if(!sujet){showNotif('⚠️ Objet requis','warning');return;}
+  if(!corps){showNotif('⚠️ Corps du message requis','warning');return;}
+  const btn=document.getElementById('corr-btn-envoyer');
+  btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
+  const templateId=document.getElementById('corr-template-select').value||null;
+  // Construire HTML avec style confirmation de visite
+  const htmlBody=`<p style="font-size:15px;color:#4A5568;line-height:1.8;white-space:pre-line;">${corps.replace(/{{SALUTATION}}/g,'{{SALUTATION}}')}</p>`;
+  const d=await apiPost('/api/crm/correspondances/envoyer',{
+    ids:Array.from(corrSelectionnes),
+    sujet,
+    contenu_html:corps,
+    cci:cci||null,
+    template_id:templateId
+  });
+  btn.innerHTML='📧 Envoyer';btn.disabled=false;
+  if(d.success){
+    showNotif(`✅ ${d.envoyes} courriel(s) envoyé(s) !`,'success');
+    corrSelectionnes.clear();
+    corrMajComposer();
+    document.getElementById('corr-objet').value='';
+    document.getElementById('corr-corps').value='';
+    document.getElementById('corr-cci').value='';
+    document.getElementById('corr-template-select').value='';
+  } else showNotif('❌ '+(d.error||'Erreur'),'error');
+}
+
+// ── CONTACTS ──
+function renderCorrContacts(data){
+  const list=data||corrContacts;
+  const tbody=document.getElementById('corr-contacts-tbody');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">👥</div><div>Aucun contact — ajoutez manuellement ou synchronisez vos clients</div></div></td></tr>';return;}
+  tbody.innerHTML=list.map(c=>{
+    const nom=`${c.prenom||''} ${c.nom||''}`.trim()||'—';
+    const typeBadge=c.type==='client'?'<span style="font-size:10px;background:rgba(26,143,209,0.12);color:var(--blue);padding:2px 8px;border-radius:100px;">👤 Client</span>':'<span style="font-size:10px;background:rgba(39,174,96,0.12);color:var(--green);padding:2px 8px;border-radius:100px;">🌐 Externe</span>';
+    return `<tr>
+      <td><strong>${nom}</strong></td>
+      <td style="font-size:12px;">${c.email}</td>
+      <td style="font-size:12px;">${c.entreprise||'—'}</td>
+      <td>${typeBadge}</td>
+      <td><span style="font-size:12px;color:${c.statut==='Actif'?'var(--green)':'var(--gray)'};">${c.statut||'Actif'}</span></td>
+      <td>
+        <button class="btn-secondary" style="padding:4px 8px;font-size:11px;" onclick="ouvrirEditionContact('${c.id}')">✏️</button>
+        <button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="supprimerContact('${c.id}')">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filtrerContacts(){
+  const q=document.getElementById('search-corr-contacts').value.toLowerCase();
+  const t=document.getElementById('filter-corr-type').value;
+  renderCorrContacts(corrContacts.filter(c=>{
+    const mq=!q||`${c.prenom||''} ${c.nom||''} ${c.email} ${c.entreprise||''}`.toLowerCase().includes(q);
+    const mt=!t||c.type===t;
+    return mq&&mt;
+  }));
+}
+
+function openModalNouveauContact(){
+  ['nc-prenom','nc-nom','nc-email','nc-telephone','nc-entreprise','nc-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('nc-type').value='externe';
+  document.getElementById('modal-nouveau-contact').classList.add('active');
+}
+
+async function creerContact(){
+  const email=document.getElementById('nc-email').value.trim();
+  if(!email){showNotif('⚠️ Courriel requis','warning');return;}
+  const d=await apiPost('/api/crm/correspondances/contacts',{
+    prenom:document.getElementById('nc-prenom').value,
+    nom:document.getElementById('nc-nom').value,
+    email,telephone:document.getElementById('nc-telephone').value,
+    entreprise:document.getElementById('nc-entreprise').value,
+    type:document.getElementById('nc-type').value,
+    notes:document.getElementById('nc-notes').value
+  });
+  if(d.success){showNotif('✅ Contact ajouté','success');closeModal('modal-nouveau-contact');await chargerCorrContacts();}
+  else showNotif('❌ '+(d.error||'Erreur'),'error');
+}
+
+function ouvrirEditionContact(id){
+  const c=corrContacts.find(x=>x.id===id);if(!c)return;
+  document.getElementById('ec-id').value=c.id;
+  document.getElementById('ec-prenom').value=c.prenom||'';
+  document.getElementById('ec-nom').value=c.nom||'';
+  document.getElementById('ec-email').value=c.email||'';
+  document.getElementById('ec-telephone').value=c.telephone||'';
+  document.getElementById('ec-entreprise').value=c.entreprise||'';
+  document.getElementById('ec-type').value=c.type||'externe';
+  document.getElementById('ec-statut').value=c.statut||'Actif';
+  document.getElementById('ec-notes').value=c.notes||'';
+  document.getElementById('modal-edit-contact').classList.add('active');
+}
+
+async function sauverContact(){
+  const id=document.getElementById('ec-id').value;
+  const d=await apiPut(`/api/crm/correspondances/contacts/${id}`,{
+    prenom:document.getElementById('ec-prenom').value,
+    nom:document.getElementById('ec-nom').value,
+    email:document.getElementById('ec-email').value,
+    telephone:document.getElementById('ec-telephone').value,
+    entreprise:document.getElementById('ec-entreprise').value,
+    type:document.getElementById('ec-type').value,
+    statut:document.getElementById('ec-statut').value,
+    notes:document.getElementById('ec-notes').value
+  });
+  if(d.success){showNotif('✅ Contact mis à jour','success');closeModal('modal-edit-contact');await chargerCorrContacts();}
+  else showNotif('❌ '+(d.error||'Erreur'),'error');
+}
+
+async function supprimerContact(id){
+  if(!confirm('Supprimer ce contact ?'))return;
+  const d=await apiDelete(`/api/crm/correspondances/contacts/${id}`);
+  if(d.success){showNotif('✅ Contact supprimé','success');corrSelectionnes.delete(id);await chargerCorrContacts();}
+  else showNotif('❌ '+d.error,'error');
+}
+
+async function corrSyncLeads(){
+  const btn=event.target;btn.innerHTML='⏳ Sync...';btn.disabled=true;
+  const d=await apiPost('/api/crm/correspondances/sync-leads',{});
+  btn.innerHTML='🔄 Sync clients CRM';btn.disabled=false;
+  if(d.success){showNotif(`✅ ${d.ajoutes} client(s) ajouté(s), ${d.ignores} déjà présent(s)`,'success');await chargerCorrContacts();}
+  else showNotif('❌ '+(d.error||'Erreur'),'error');
+}
+
+// ── TEMPLATES ──
+function renderCorrTemplates(){
+  const grid=document.getElementById('corr-templates-grid');
+  if(!corrTemplates.length){grid.innerHTML='<div class="empty-state"><div class="empty-state-icon">📋</div><div>Aucun template — créez-en un !</div></div>';return;}
+  const catColors={'client':'var(--blue)','courtier':'var(--purple)','saisonnier':'var(--orange)','general':'var(--gray)'};
+  const catLabels={'client':'👤 Clients','courtier':'🏢 Courtiers','saisonnier':'🎄 Saisonnier','general':'📋 Général'};
+  grid.innerHTML=corrTemplates.map(t=>`
+    <div style="background:white;border:1px solid var(--border);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${catColors[t.categorie]||'var(--gray)'}"></div>
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:${catColors[t.categorie]||'var(--gray)'};margin-bottom:8px;">${catLabels[t.categorie]||t.categorie}</div>
+      <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:6px;">${t.nom}</div>
+      <div style="font-size:12px;color:var(--gray);margin-bottom:12px;">${t.sujet||'(aucun objet)'}</div>
+      <div style="font-size:11px;color:var(--gray);background:var(--offwhite);border-radius:6px;padding:8px 10px;max-height:60px;overflow:hidden;margin-bottom:14px;white-space:pre-wrap;">${(t.contenu_texte||'').slice(0,120)}${t.contenu_texte?.length>120?'...':''}</div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn-primary" style="padding:6px 12px;font-size:11px;" onclick="corrUtiliserTemplate('${t.id}')">Utiliser</button>
+        <button class="btn-secondary" style="padding:6px 12px;font-size:11px;" onclick="ouvrirEditionTemplate('${t.id}')">✏️</button>
+        <button class="btn-danger" style="padding:6px 12px;font-size:11px;" onclick="supprimerTemplate('${t.id}')">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function openModalNouveauTemplate(){
+  document.getElementById('nt-modal-title').textContent='📋 Nouveau template';
+  document.getElementById('nt-id').value='';
+  ['nt-nom','nt-sujet','nt-contenu'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('nt-categorie').value='client';
+  document.getElementById('modal-nouveau-template').classList.add('active');
+}
+
+function ouvrirEditionTemplate(id){
+  const t=corrTemplates.find(x=>x.id===id);if(!t)return;
+  document.getElementById('nt-modal-title').textContent='✏️ Modifier le template';
+  document.getElementById('nt-id').value=t.id;
+  document.getElementById('nt-nom').value=t.nom||'';
+  document.getElementById('nt-sujet').value=t.sujet||'';
+  document.getElementById('nt-contenu').value=t.contenu_texte||'';
+  document.getElementById('nt-categorie').value=t.categorie||'general';
+  document.getElementById('modal-nouveau-template').classList.add('active');
+}
+
+async function sauverTemplate(){
+  const id=document.getElementById('nt-id').value;
+  const nom=document.getElementById('nt-nom').value.trim();
+  if(!nom){showNotif('⚠️ Nom requis','warning');return;}
+  const body={nom,sujet:document.getElementById('nt-sujet').value,contenu_texte:document.getElementById('nt-contenu').value,contenu_html:document.getElementById('nt-contenu').value,categorie:document.getElementById('nt-categorie').value};
+  const d=id?await apiPut(`/api/crm/correspondances/templates/${id}`,body):await apiPost('/api/crm/correspondances/templates',body);
+  if(d.success){showNotif('✅ Template sauvegardé','success');closeModal('modal-nouveau-template');await chargerCorrTemplates();}
+  else showNotif('❌ '+(d.error||'Erreur'),'error');
+}
+
+async function supprimerTemplate(id){
+  if(!confirm('Supprimer ce template ?'))return;
+  const d=await apiDelete(`/api/crm/correspondances/templates/${id}`);
+  if(d.success){showNotif('✅ Supprimé','success');await chargerCorrTemplates();}
+  else showNotif('❌ '+d.error,'error');
+}
+
+function corrUtiliserTemplate(id){
+  const t=corrTemplates.find(x=>x.id===id);if(!t)return;
+  switchCTab('composer');
+  document.getElementById('corr-template-select').value=id;
+  if(t.sujet)document.getElementById('corr-objet').value=t.sujet;
+  if(t.contenu_texte)document.getElementById('corr-corps').value=t.contenu_texte;
+  showNotif('✅ Template chargé','success');
+}
 </script>
 </body>
 </html>
