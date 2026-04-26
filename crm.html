@@ -2525,7 +2525,7 @@ async function corrSearchGif(query){
       }
 
       results.innerHTML = d.data.map(g=>{
-        const url = g.images?.fixed_width?.url || g.images?.original?.url || '';
+        const url = g.images?.fixed_height?.url || g.images?.original?.url || '';
         return `<img src="${url}" style="width:100%;border-radius:8px;cursor:pointer;object-fit:cover;height:100px;" onclick="corrInsererGif('${url}')" loading="lazy">`;
       }).join('');
 
