@@ -219,6 +219,14 @@
     @media(max-width:768px){:root{--sidebar-w:0px}.sidebar{transform:translateX(-100%);width:240px;transition:transform 0.3s}.sidebar.open{transform:none}.main-content{margin-left:0}.page{padding:16px}.topbar{padding:0 16px}.stats-grid{grid-template-columns:1fr 1fr}}
   </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+<style>
+  #corr-quill-toolbar{background:var(--offwhite);border:1px solid var(--border);border-radius:8px 8px 0 0;}
+  #corr-quill-editeur .ql-editor{min-height:240px;font-family:'DM Sans',sans-serif;font-size:13px;line-height:1.7;}
+  #corr-quill-editeur .ql-editor.ql-blank::before{color:rgba(107,124,147,0.5);font-style:normal;content:'Bonjour {{PRENOM}},\A\AVolez votre message ici...\A\ACordialement,\AMohand Aïdi\ACapturAir';}
+  .ql-snow .ql-picker.ql-font .ql-picker-label::before,.ql-snow .ql-picker.ql-font .ql-picker-item::before{content:attr(data-value)!important;}
+</style>
 </head>
 <body>
 
@@ -849,9 +857,65 @@
               <span style="display:flex;align-items:center;gap:8px;">Corps du message
                 <span id="corr-html-badge" style="display:none;background:rgba(26,143,209,0.12);color:var(--blue);font-size:10px;padding:2px 8px;border-radius:100px;font-weight:600;">📧 Template HTML</span>
               </span>
-              <span style="font-size:11px;color:var(--gray);font-weight:400;">Variables : {{SALUTATION}} {{PRENOM}} {{NOM}}</span>
+              <span style="font-size:11px;color:var(--gray);font-weight:400;">Variables : {{PRENOM}} {{NOM}}</span>
             </label>
-            <textarea class="form-input form-textarea" id="corr-corps" style="min-height:260px;font-family:monospace;font-size:13px;" placeholder="Bonjour {{PRENOM}},&#10;&#10;Votre message ici...&#10;&#10;Cordialement,&#10;Mohand Aïdi&#10;CapturAir"></textarea>
+            <!-- QUILL EDITOR -->
+            <div id="corr-quill-toolbar">
+              <span class="ql-formats">
+                <select class="ql-font">
+                  <option value="arial" selected>Arial</option>
+                  <option value="georgia">Georgia</option>
+                  <option value="verdana">Verdana</option>
+                  <option value="trebuchet">Trebuchet</option>
+                  <option value="courier">Courier</option>
+                </select>
+                <select class="ql-size">
+                  <option value="10px">10</option>
+                  <option value="12px" selected>12</option>
+                  <option value="14px">14</option>
+                  <option value="16px">16</option>
+                  <option value="18px">18</option>
+                  <option value="24px">24</option>
+                  <option value="32px">32</option>
+                </select>
+              </span>
+              <span class="ql-formats">
+                <button class="ql-bold"></button>
+                <button class="ql-italic"></button>
+                <button class="ql-underline"></button>
+                <button class="ql-strike"></button>
+              </span>
+              <span class="ql-formats">
+                <select class="ql-color"></select>
+                <select class="ql-background"></select>
+              </span>
+              <span class="ql-formats">
+                <button class="ql-align" value=""></button>
+                <button class="ql-align" value="center"></button>
+                <button class="ql-align" value="right"></button>
+                <button class="ql-align" value="justify"></button>
+              </span>
+              <span class="ql-formats">
+                <button class="ql-list" value="ordered"></button>
+                <button class="ql-list" value="bullet"></button>
+                <button class="ql-indent" value="-1"></button>
+                <button class="ql-indent" value="+1"></button>
+              </span>
+              <span class="ql-formats">
+                <button class="ql-link"></button>
+                <button class="ql-image"></button>
+              </span>
+              <span class="ql-formats">
+                <button class="ql-blockquote"></button>
+                <button class="ql-code-block"></button>
+              </span>
+              <span class="ql-formats">
+                <button class="ql-clean"></button>
+              </span>
+            </div>
+            <div id="corr-quill-editeur" style="min-height:260px;font-family:'DM Sans',sans-serif;font-size:13px;border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;"></div>
+            <!-- Textarea caché pour compatibilité -->
+            <textarea id="corr-corps" style="display:none;"></textarea>
           </div>
           <div id="corr-apercu-section" style="display:none;background:rgba(26,143,209,0.06);border:1px solid rgba(26,143,209,0.2);border-radius:10px;padding:14px 18px;margin-bottom:16px;">
             <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin-bottom:8px;">👁️ Aperçu — 1er destinataire</div>
@@ -2149,10 +2213,74 @@ async function renderHistoriqueCourtiers(){
 // Vérifier token toutes les 5 minutes
 setInterval(()=>{if(authToken&&verifierTokenExpire()){sessionExpired();}},5*60*1000);
 
-// ══ CORRESPONDANCES ════════════════════════════════════════════════════
+// ══ QUILL ÉDITEUR ═════════════════════════════════════════════════════
+let quillEditor = null;
+
+function initQuill(){
+  if(quillEditor)return;
+  // Enregistrer les polices
+  const Font = Quill.import('formats/font');
+  Font.whitelist = ['arial','georgia','verdana','trebuchet','courier'];
+  Quill.register(Font, true);
+  // Enregistrer les tailles
+  const Size = Quill.import('attributors/style/size');
+  Size.whitelist = ['10px','12px','14px','16px','18px','24px','32px'];
+  Quill.register(Size, true);
+  quillEditor = new Quill('#corr-quill-editeur', {
+    theme: 'snow',
+    modules: {
+      toolbar: '#corr-quill-toolbar',
+    },
+    placeholder: 'Bonjour {{PRENOM}},\n\nVotre message ici...\n\nCordialement,\nMohand Aïdi\nCapturAir',
+  });
+  // Sync vers textarea caché à chaque changement
+  quillEditor.on('text-change', ()=>{
+    document.getElementById('corr-corps').value = quillEditor.root.innerHTML;
+  });
+}
+
+function corrGetCorps(){
+  if(quillEditor) return quillEditor.root.innerHTML;
+  return document.getElementById('corr-corps').value;
+}
+
+function corrSetCorps(texte){
+  if(quillEditor){
+    quillEditor.root.innerHTML = texte||'';
+    document.getElementById('corr-corps').value = texte||'';
+  } else {
+    document.getElementById('corr-corps').value = texte||'';
+  }
+}
+
+function corrClearCorps(){
+  if(quillEditor){
+    quillEditor.setContents([]);
+    corrClearCorps();
+  } else {
+    corrClearCorps();
+  }
+}
+
+// Insérer lien via Quill
+function corrInsererLien(){
+  const url=prompt('URL du lien :','https://');
+  if(!url||url==='https://')return;
+  const texte=prompt('Texte du lien :','Cliquez ici');
+  if(!texte)return;
+  if(quillEditor){
+    const range=quillEditor.getSelection(true);
+    quillEditor.insertText(range.index, texte, 'link', url);
+    quillEditor.setSelection(range.index + texte.length);
+  }
+}
+
+// Init Quill quand on arrive sur la page Correspondances
+const _origInitCorrespondances = typeof initCorrespondances === 'function' ? initCorrespondances : null;
 let corrContacts=[], corrTemplates=[], corrSelectionnes=new Set();
 
 async function initCorrespondances(){
+  setTimeout(initQuill, 150);
   await Promise.all([chargerCorrContacts(), chargerCorrTemplates()]);
   chargerCorrHistorique();
   corrMajComposer();
@@ -2222,13 +2350,13 @@ function corrChargerTemplate(){
   if(t.sujet)document.getElementById('corr-objet').value=t.sujet;
   // Si le template a du HTML riche → mode aperçu HTML
   if(t.contenu_html && t.contenu_html.includes('<!DOCTYPE html')){
-    document.getElementById('corr-corps').value=t.contenu_texte||'';
+    corrSetCorps(t.contenu_texte||'');
     document.getElementById('corr-mode-html').value='1';
     document.getElementById('corr-html-badge').style.display='inline-flex';
     // Afficher info
     showNotif('📧 Template HTML chargé — le rendu sera identique à l\'aperçu','success');
   } else {
-    document.getElementById('corr-corps').value=t.contenu_texte||t.contenu_html||'';
+    corrSetCorps(t.contenu_texte||t.contenu_html||'');
     document.getElementById('corr-mode-html').value='0';
     document.getElementById('corr-html-badge').style.display='none';
   }
@@ -2349,7 +2477,7 @@ function corrToutDeselectionner(){corrSelectionnes.clear();corrMajComposer();}
 function peuplerCorrComposer(){corrMajComposer();}
 
 function corrApercu(){
-  const corps=document.getElementById('corr-corps').value;
+  const corps=corrGetCorps();
   const objet=document.getElementById('corr-objet').value;
   const modeHtml=document.getElementById('corr-mode-html')?.value==='1';
   const templateId=document.getElementById('corr-template-select').value||null;
@@ -2386,7 +2514,6 @@ function corrApercu(){
     <img src="${LOGO_HEADER}" alt="CapturAir" width="620" style="display:block;width:100%;max-width:620px;height:auto;">
   </div>
   <div style="background:white;padding:36px 40px;border:1px solid #DEE4EF;border-top:none;">
-    <h2 style="color:#0B1F3A;font-size:20px;margin:0 0 20px;">${sal}</h2>
     <div style="color:#4A5568;font-size:14px;line-height:1.8;white-space:pre-line;margin-bottom:28px;">${corpsPerso}</div>
     <table cellpadding="0" cellspacing="0" style="width:100%;margin-top:24px;border-top:1px solid #DEE4EF;padding-top:20px;">
       <tr>
@@ -2417,7 +2544,7 @@ function corrApercu(){
 async function corrEnvoyer(){
   if(corrSelectionnes.size===0){showNotif('⚠️ Sélectionnez au moins un destinataire','warning');return;}
   const sujet=document.getElementById('corr-objet').value.trim();
-  const corps=document.getElementById('corr-corps').value.trim();
+  const corps=corrGetCorps().replace(/<[^>]*>/g,'').trim()!==''?corrGetCorps():'';
   const cci=document.getElementById('corr-cci').value.trim();
   const modeHtml=document.getElementById('corr-mode-html')?.value==='1';
   const templateId=document.getElementById('corr-template-select').value||null;
@@ -2436,7 +2563,6 @@ async function corrEnvoyer(){
     <img src="${LOGO_HEADER}" alt="CapturAir" width="620" style="display:block;width:100%;max-width:620px;height:auto;">
   </div>
   <div style="background:white;padding:36px 40px;border:1px solid #DEE4EF;border-top:none;">
-    <h2 style="color:#0B1F3A;font-size:20px;margin:0 0 20px;">${salutation}</h2>
     <div style="color:#4A5568;font-size:14px;line-height:1.8;white-space:pre-line;margin-bottom:28px;">${corpsPerso}</div>
     <table cellpadding="0" cellspacing="0" style="width:100%;margin-top:24px;border-top:1px solid #DEE4EF;padding-top:20px;">
       <tr>
@@ -2464,7 +2590,7 @@ async function corrEnvoyer(){
     const t=corrTemplates.find(x=>x.id===templateId);
     contenuHtml=t?.contenu_html||corps;
   } else {
-    contenuHtml=buildHTML('{{SALUTATION}}',corps);
+    contenuHtml=buildHTML('',corps);
   }
   const d=await apiPost('/api/crm/correspondances/envoyer',{
     ids:Array.from(corrSelectionnes),sujet,contenu_html:contenuHtml,cci:cci||null,template_id:templateId
@@ -2475,7 +2601,7 @@ async function corrEnvoyer(){
     corrSelectionnes.clear();
     corrMajComposer();
     document.getElementById('corr-objet').value='';
-    document.getElementById('corr-corps').value='';
+    corrClearCorps();
     document.getElementById('corr-cci').value='';
     document.getElementById('corr-template-select').value='';
     if(document.getElementById('corr-mode-html'))document.getElementById('corr-mode-html').value='0';
@@ -2782,12 +2908,12 @@ function corrUtiliserTemplate(id){
   if(t.contenu_html && t.contenu_html.includes('<!DOCTYPE html')){
     document.getElementById('corr-mode-html').value='1';
     document.getElementById('corr-html-badge').style.display='inline-flex';
-    document.getElementById('corr-corps').value=t.contenu_texte||'(template HTML — voir aperçu)';
+    corrSetCorps(t.contenu_texte||'(template HTML — voir aperçu)');
     showNotif('📧 Template HTML chargé — cliquez Aperçu pour visualiser','success');
   } else {
     document.getElementById('corr-mode-html').value='0';
     document.getElementById('corr-html-badge').style.display='none';
-    if(t.contenu_texte)document.getElementById('corr-corps').value=t.contenu_texte;
+    if(t.contenu_texte)corrSetCorps(t.contenu_texte);
     showNotif('✅ Template chargé','success');
   }
 }
