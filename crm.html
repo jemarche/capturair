@@ -843,9 +843,12 @@
               <option value="">— Aucun (texte libre) —</option>
             </select>
           </div>
+          <input type="hidden" id="corr-mode-html" value="0">
           <div class="form-group" style="margin-bottom:16px;">
             <label class="form-label" style="display:flex;align-items:center;justify-content:space-between;">
-              <span>Corps du message</span>
+              <span style="display:flex;align-items:center;gap:8px;">Corps du message
+                <span id="corr-html-badge" style="display:none;background:rgba(26,143,209,0.12);color:var(--blue);font-size:10px;padding:2px 8px;border-radius:100px;font-weight:600;">📧 Template HTML</span>
+              </span>
               <span style="font-size:11px;color:var(--gray);font-weight:400;">Variables : {{SALUTATION}} {{PRENOM}} {{NOM}}</span>
             </label>
             <textarea class="form-input form-textarea" id="corr-corps" style="min-height:260px;font-family:monospace;font-size:13px;" placeholder="Bonjour {{PRENOM}},&#10;&#10;Votre message ici...&#10;&#10;Cordialement,&#10;Mohand Aïdi&#10;CapturAir"></textarea>
@@ -2207,11 +2210,28 @@ function peuplerSelectTemplates(){
 
 function corrChargerTemplate(){
   const id=document.getElementById('corr-template-select').value;
-  if(!id){return;}
+  if(!id){
+    // Vider — retour au mode texte libre
+    document.getElementById('corr-corps-wrapper').style.display='block';
+    document.getElementById('corr-html-preview').style.display='none';
+    document.getElementById('corr-mode-html').value='0';
+    return;
+  }
   const t=corrTemplates.find(x=>x.id===id);
   if(!t)return;
   if(t.sujet)document.getElementById('corr-objet').value=t.sujet;
-  if(t.contenu_texte)document.getElementById('corr-corps').value=t.contenu_texte;
+  // Si le template a du HTML riche → mode aperçu HTML
+  if(t.contenu_html && t.contenu_html.includes('<!DOCTYPE html')){
+    document.getElementById('corr-corps').value=t.contenu_texte||'';
+    document.getElementById('corr-mode-html').value='1';
+    document.getElementById('corr-html-badge').style.display='inline-flex';
+    // Afficher info
+    showNotif('📧 Template HTML chargé — le rendu sera identique à l\'aperçu','success');
+  } else {
+    document.getElementById('corr-corps').value=t.contenu_texte||t.contenu_html||'';
+    document.getElementById('corr-mode-html').value='0';
+    document.getElementById('corr-html-badge').style.display='none';
+  }
   corrMajApercu();
 }
 
@@ -2331,14 +2351,35 @@ function peuplerCorrComposer(){corrMajComposer();}
 function corrApercu(){
   const corps=document.getElementById('corr-corps').value;
   const objet=document.getElementById('corr-objet').value;
+  const modeHtml=document.getElementById('corr-mode-html')?.value==='1';
+  const templateId=document.getElementById('corr-template-select').value||null;
   const firstId=[...corrSelectionnes][0];
   const c=firstId?corrContacts.find(x=>x.id===firstId):null;
   const prenom=c?.prenom||'';
   const sal=prenom?`Bonjour ${prenom.charAt(0).toUpperCase()+prenom.slice(1).toLowerCase()},`:'Bonjour,';
-  const corpsPerso=corps.replace(/{{SALUTATION}}/g,sal).replace(/{{PRENOM}}/g,prenom?prenom.charAt(0).toUpperCase()+prenom.slice(1).toLowerCase():'').replace(/{{NOM}}/g,c?.nom||'').replace(/{{EMAIL}}/g,c?.email||'');
   const LOGO_HEADER='https://raw.githubusercontent.com/jemarche/capturair/main/images/Logo%20carr%C3%A9%20headers.png';
   const LOGO_SIG='https://raw.githubusercontent.com/jemarche/capturair/main/images/android-chrome-2048x2048.png';
-  const htmlPreview=`<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+  let htmlPreview;
+  if(modeHtml && templateId){
+    const t=corrTemplates.find(x=>x.id===templateId);
+    if(t?.contenu_html){
+      // Remplacer les variables pour l'aperçu
+      htmlPreview=t.contenu_html
+        .replace(/{{SALUTATION}}/g,sal)
+        .replace(/{{PRENOM}}/g,prenom?prenom.charAt(0).toUpperCase()+prenom.slice(1).toLowerCase():'')
+        .replace(/{{NOM}}/g,c?.nom||'')
+        .replace(/{{BANNIERE}}/g,'RE/MAX')
+        .replace(/{{RABAIS}}/g,'15')
+        .replace(/{{DATE_FIN}}/g,'30 mai 2026')
+        .replace(/{{PRIX_1}}/g,'212')
+        .replace(/{{PRIX_2}}/g,'424')
+        .replace(/{{PRIX_3}}/g,'509')
+        .replace(/{{PRIX_4}}/g,'237');
+    }
+  }
+  if(!htmlPreview){
+    const corpsPerso=corps.replace(/{{SALUTATION}}/g,sal).replace(/{{PRENOM}}/g,prenom?prenom.charAt(0).toUpperCase()+prenom.slice(1).toLowerCase():'').replace(/{{NOM}}/g,c?.nom||'').replace(/{{EMAIL}}/g,c?.email||'');
+    htmlPreview=`<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
 <body style="margin:0;padding:0;background:#F4F7FA;font-family:Arial,sans-serif;">
 <div style="max-width:620px;margin:0 auto;padding:20px 0;">
   <div style="border-radius:20px 20px 0 0;overflow:hidden;line-height:0;">
@@ -2349,11 +2390,9 @@ function corrApercu(){
     <div style="color:#4A5568;font-size:14px;line-height:1.8;white-space:pre-line;margin-bottom:28px;">${corpsPerso}</div>
     <table cellpadding="0" cellspacing="0" style="width:100%;margin-top:24px;border-top:1px solid #DEE4EF;padding-top:20px;">
       <tr>
-        <td style="padding-right:16px;vertical-align:top;width:80px;">
-          <img src="${LOGO_SIG}" alt="CapturAir" width="70" height="70" style="border-radius:12px;display:block;">
-        </td>
+        <td style="padding-right:16px;vertical-align:top;width:80px;"><img src="${LOGO_SIG}" alt="CapturAir" width="70" height="70" style="border-radius:12px;display:block;"></td>
         <td style="vertical-align:top;border-left:3px solid #1A8FD1;padding-left:16px;">
-          <strong style="color:#0B1F3A;font-size:15px;">Mohand Aidi</strong><br>
+          <strong style="color:#0B1F3A;font-size:15px;">Mohand Aïdi</strong><br>
           <span style="color:#1A8FD1;font-size:11px;letter-spacing:1px;text-transform:uppercase;">Fondateur · CapturAir</span><br>
           <span style="font-size:12px;color:#6B7C93;">✉️ info@capturair.com · 📞 514 446-6078 · capturair.com</span>
         </td>
@@ -2363,14 +2402,11 @@ function corrApercu(){
   <div style="background:#0B1F3A;padding:16px 40px;border-radius:0 0 20px 20px;text-align:center;">
     <p style="color:rgba(255,255,255,0.4);font-size:11px;margin:0;">CapturAir · Drone &amp; Photo Aérienne · info@capturair.com · 514 446-6078 · capturair.com</p>
   </div>
-</div>
-</body></html>`;
+</div></body></html>`;
+  }
   document.getElementById('apercu-corr-objet').textContent=objet||'(aucun objet)';
   const container=document.getElementById('apercu-corr-content');
-  container.innerHTML='';
-  container.style.whiteSpace='normal';
-  container.style.padding='0';
-  container.style.background='#F4F7FA';
+  container.innerHTML='';container.style.whiteSpace='normal';container.style.padding='0';container.style.background='#F4F7FA';
   const iframe=document.createElement('iframe');
   iframe.style.cssText='width:100%;height:500px;border:none;border-radius:10px;';
   iframe.srcdoc=htmlPreview;
@@ -2383,11 +2419,12 @@ async function corrEnvoyer(){
   const sujet=document.getElementById('corr-objet').value.trim();
   const corps=document.getElementById('corr-corps').value.trim();
   const cci=document.getElementById('corr-cci').value.trim();
+  const modeHtml=document.getElementById('corr-mode-html')?.value==='1';
+  const templateId=document.getElementById('corr-template-select').value||null;
   if(!sujet){showNotif('⚠️ Objet requis','warning');return;}
-  if(!corps){showNotif('⚠️ Corps du message requis','warning');return;}
+  if(!corps&&!modeHtml){showNotif('⚠️ Corps du message requis','warning');return;}
   const btn=document.getElementById('corr-btn-envoyer');
   btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
-  const templateId=document.getElementById('corr-template-select').value||null;
   const LOGO_HEADER='https://raw.githubusercontent.com/jemarche/capturair/main/images/Logo%20carr%C3%A9%20headers.png';
   const LOGO_SIG='https://raw.githubusercontent.com/jemarche/capturair/main/images/android-chrome-2048x2048.png';
   // Construire HTML dans le style confirmation de visite
@@ -2420,12 +2457,17 @@ async function corrEnvoyer(){
 </div>
 </body></html>`;
   }
+  // Si template HTML → utiliser son HTML (variables remplacées côté Worker)
+  // Si texte libre → construire le gabarit CapturAir
+  let contenuHtml;
+  if(modeHtml && templateId){
+    const t=corrTemplates.find(x=>x.id===templateId);
+    contenuHtml=t?.contenu_html||corps;
+  } else {
+    contenuHtml=buildHTML('{{SALUTATION}}',corps);
+  }
   const d=await apiPost('/api/crm/correspondances/envoyer',{
-    ids:Array.from(corrSelectionnes),
-    sujet,
-    contenu_html:buildHTML('{{SALUTATION}}',corps),
-    cci:cci||null,
-    template_id:templateId
+    ids:Array.from(corrSelectionnes),sujet,contenu_html:contenuHtml,cci:cci||null,template_id:templateId
   });
   btn.innerHTML='📧 Envoyer';btn.disabled=false;
   if(d.success){
@@ -2436,6 +2478,8 @@ async function corrEnvoyer(){
     document.getElementById('corr-corps').value='';
     document.getElementById('corr-cci').value='';
     document.getElementById('corr-template-select').value='';
+    if(document.getElementById('corr-mode-html'))document.getElementById('corr-mode-html').value='0';
+    if(document.getElementById('corr-html-badge'))document.getElementById('corr-html-badge').style.display='none';
   } else showNotif('❌ '+(d.error||'Erreur'),'error');
 }
 
