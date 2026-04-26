@@ -260,15 +260,34 @@
   </div>
 </nav>
 
-<!-- SCREEN: TOKEN INVALIDE -->
+<!-- SCREEN: TOKEN INVALIDE / RÉACTIVATION -->
 <div class="screen" id="screen-invalid">
   <div class="gate-wrap">
     <div class="gate-card">
-      <div class="gate-icon error">
+      <div class="gate-icon error" id="gate-icon-invalid">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       </div>
-      <h2 class="gate-title" id="invalid-title">Lien invalide</h2>
-      <p class="gate-text" id="invalid-text">Ce lien de prise de rendez-vous est invalide ou a expiré.<br><br>Contactez-nous à <a href="mailto:info@capturair.com">info@capturair.com</a></p>
+      <h2 class="gate-title" id="invalid-title">Ce lien n'est plus actif</h2>
+      <p class="gate-text" id="invalid-text" style="margin-bottom:24px;">Entrez votre courriel pour recevoir un nouveau lien de réservation.</p>
+      <div id="renouveler-form">
+        <input type="email" id="renouveler-email" placeholder="votre@courriel.com"
+          style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(200,216,232,0.2);border-radius:10px;padding:13px 16px;color:white;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:12px;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#1A8FD1'" onblur="this.style.borderColor='rgba(200,216,232,0.2)'"
+          onkeydown="if(event.key==='Enter')envoyerRenouveler()">
+        <div id="renouveler-error" style="color:#ef4444;font-size:12px;margin-bottom:10px;display:none;"></div>
+        <button onclick="envoyerRenouveler()" id="renouveler-btn"
+          style="width:100%;background:#1A8FD1;color:white;border:none;padding:13px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
+          📧 Recevoir mon lien →
+        </button>
+      </div>
+      <div id="renouveler-confirm" style="display:none;text-align:center;">
+        <img src="https://raw.githubusercontent.com/jemarche/capturair/main/images/android-chrome-2048x2048.png"
+          alt="CapturAir" width="72" height="72"
+          style="border-radius:16px;margin:0 auto 20px;display:block;">
+        <div style="font-size:48px;margin-bottom:16px;">✅</div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:white;margin-bottom:12px;">Un nouveau lien vous a été envoyé</h3>
+        <p style="font-size:14px;color:rgba(200,216,232,0.6);line-height:1.7;">Vérifiez votre boîte de réception.<br>Le lien est valide pendant <strong style="color:#3AABEF;">30 jours</strong>.</p>
+      </div>
     </div>
   </div>
 </div>
