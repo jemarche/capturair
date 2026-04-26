@@ -293,6 +293,8 @@
       <a class="nav-item" id="nav-utilisateurs" style="display:none;" onclick="showPage('utilisateurs')" href="#"><span class="nav-icon">👥</span> Utilisateurs</a>
       <a class="nav-item" id="nav-courtiers" style="display:none;" onclick="showPage('courtiers')" href="#"><span class="nav-icon">🏢</span> Courtiers</a>
       <a class="nav-item" id="nav-correspondances" style="display:none;" onclick="showPage('correspondances')" href="#"><span class="nav-icon">✉️</span> Correspondances</a>
+      <a class="nav-item" id="nav-prospection" style="display:none;" onclick="showPage('prospection')" href="#"><span class="nav-icon">🔍</span> Prospection</a>
+      <a class="nav-item" id="nav-prospection" style="display:none;" onclick="showPage('prospection')" href="#"><span class="nav-icon">🔍</span> Prospection</a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -842,6 +844,117 @@
       </div>
     </div>
 
+    <!-- PROSPECTION -->
+    <div class="page" id="page-prospection">
+
+      <!-- Statut serveur -->
+      <div id="prosp-statut-bar" style="display:flex;align-items:center;gap:12px;background:white;border:1px solid var(--border);border-radius:12px;padding:14px 20px;margin-bottom:20px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div id="prosp-statut-dot" style="width:10px;height:10px;border-radius:50%;background:var(--gray);"></div>
+          <span style="font-size:13px;font-weight:600;color:var(--navy);" id="prosp-statut-txt">Serveur non connecté</span>
+        </div>
+        <div style="font-size:12px;color:var(--gray);" id="prosp-prochain-run">—</div>
+        <button class="btn-secondary" onclick="verifierServeur()" style="padding:6px 14px;font-size:12px;margin-left:auto;">🔄 Vérifier connexion</button>
+        <div style="font-size:11px;color:var(--gray);">URL: <input type="text" id="prosp-url" value="https://prospection.capturair.com" style="border:1px solid var(--border);border-radius:5px;padding:3px 8px;font-size:11px;width:260px;font-family:monospace;"></div>
+        <div style="font-size:11px;color:var(--gray);">Token: <input type="password" id="prosp-token" placeholder="votre-local-token" style="border:1px solid var(--border);border-radius:5px;padding:3px 8px;font-size:11px;width:200px;font-family:monospace;"></div>
+      </div>
+
+      <!-- Section A — Lancement -->
+      <div class="section-card" style="margin-bottom:16px;">
+        <div class="section-card-title">🚀 Lancer une prospection</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
+          <button class="btn-secondary" onclick="lancerProspection('groupe1')" style="padding:14px;flex-direction:column;gap:4px;text-align:center;">
+            <div style="font-size:18px;">📍</div>
+            <div style="font-size:12px;font-weight:600;">Lavaltrie & alentours</div>
+            <div style="font-size:10px;color:var(--gray);">Lavaltrie, Lanoraie, Berthierville...</div>
+          </button>
+          <button class="btn-secondary" onclick="lancerProspection('groupe2')" style="padding:14px;flex-direction:column;gap:4px;text-align:center;">
+            <div style="font-size:18px;">🏘️</div>
+            <div style="font-size:12px;font-weight:600;">Rive-Nord</div>
+            <div style="font-size:10px;color:var(--gray);">Repentigny, Mascouche, Terrebonne...</div>
+          </button>
+          <button class="btn-secondary" onclick="lancerProspection('groupe3')" style="padding:14px;flex-direction:column;gap:4px;text-align:center;">
+            <div style="font-size:18px;">🌾</div>
+            <div style="font-size:12px;font-weight:600;">Joliette / Nord Lanaudière</div>
+            <div style="font-size:10px;color:var(--gray);">Joliette, Rawdon, Saint-Félix...</div>
+          </button>
+          <button class="btn-secondary" onclick="lancerProspection('groupe4')" style="padding:14px;flex-direction:column;gap:4px;text-align:center;">
+            <div style="font-size:18px;">🏙️</div>
+            <div style="font-size:12px;font-weight:600;">Grand Montréal / Laval</div>
+            <div style="font-size:10px;color:var(--gray);">Laval, Montréal, Longueuil...</div>
+          </button>
+          <button class="btn-secondary" onclick="lancerProspection('groupe4')" style="padding:14px;flex-direction:column;gap:4px;text-align:center;opacity:0.5;cursor:not-allowed;" disabled>
+            <div style="font-size:18px;">🗺️</div>
+            <div style="font-size:12px;font-weight:600;">Zone 5</div>
+            <div style="font-size:10px;color:var(--gray);">Bientôt disponible</div>
+          </button>
+          <button class="btn-primary" onclick="lancerProspection('global')" style="padding:14px;flex-direction:column;gap:4px;text-align:center;background:linear-gradient(135deg,var(--navy),#1A3A5C);">
+            <div style="font-size:18px;">🌐</div>
+            <div style="font-size:12px;font-weight:600;">GLOBAL — Toutes les zones</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.7);">Lance les 4 groupes</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section B — Progression temps réel -->
+      <div class="section-card" id="prosp-progression-card" style="display:none;margin-bottom:16px;">
+        <div class="section-card-title">
+          <span>⏳ Prospection en cours — <span id="prosp-groupe-label">—</span></span>
+          <button class="btn-danger" onclick="arreterProspection()" style="padding:6px 12px;font-size:12px;">⏹ Arrêter</button>
+        </div>
+        <div style="background:var(--border);border-radius:100px;height:8px;margin-bottom:12px;overflow:hidden;">
+          <div id="prosp-progress-bar" style="height:100%;background:linear-gradient(90deg,var(--blue),var(--blue-light));border-radius:100px;width:0%;transition:width 0.5s;"></div>
+        </div>
+        <div style="display:flex;gap:20px;margin-bottom:12px;flex-wrap:wrap;">
+          <div style="font-size:13px;color:var(--gray);">Contacts trouvés : <strong id="prosp-nb-trouves" style="color:var(--blue);">0</strong></div>
+          <div style="font-size:13px;color:var(--gray);">Durée : <strong id="prosp-duree">00:00</strong></div>
+        </div>
+        <!-- Logs live -->
+        <div id="prosp-logs" style="background:#0B1F3A;border-radius:10px;padding:14px;height:200px;overflow-y:auto;font-family:monospace;font-size:11px;color:#3AABEF;line-height:1.6;"></div>
+      </div>
+
+      <!-- Section C — Résultats -->
+      <div class="section-card" id="prosp-resultats-card" style="display:none;margin-bottom:16px;">
+        <div class="section-card-title">
+          <span>📊 Résultats — <span id="prosp-resultats-count">0</span> contacts</span>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-secondary" onclick="prospSelectionnerTout()" style="padding:6px 12px;font-size:12px;">☑️ Tout</button>
+            <button class="btn-primary" onclick="prospImporterSelection()" style="padding:6px 12px;font-size:12px;">📥 Importer sélection</button>
+            <button class="btn-teal" onclick="prospImporterTout()" style="padding:6px 12px;font-size:12px;">📥 Tout importer</button>
+            <button class="btn-danger" onclick="prospViderResultats()" style="padding:6px 12px;font-size:12px;">🗑️ Vider</button>
+          </div>
+        </div>
+        <!-- Filtres -->
+        <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+          <input type="text" class="search-input" id="prosp-search" placeholder="🔍 Filtrer..." oninput="filtrerResultatsProsp()" style="flex:1;min-width:200px;">
+          <select class="filter-select" id="prosp-filter-ville" onchange="filtrerResultatsProsp()"><option value="">Toutes villes</option></select>
+          <select class="filter-select" id="prosp-filter-banniere" onchange="filtrerResultatsProsp()"><option value="">Toutes bannières</option></select>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th><input type="checkbox" id="prosp-check-all" onchange="prospToggleTous(this)"></th>
+              <th>Prénom / Nom</th><th>Courriel</th><th>Agence / Bannière</th>
+              <th>Ville</th><th>Téléphone</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="prosp-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section D — Historique des runs -->
+      <div class="section-card">
+        <div class="section-card-title">📋 Historique des runs</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Date</th><th>Groupe</th><th>Contacts</th><th>Statut</th><th>Déclenchement</th><th>Actions</th></tr></thead>
+            <tbody id="prosp-historique-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
     <!-- CORRESPONDANCES -->
     <div class="page" id="page-correspondances">
       <div class="tabs" style="margin-bottom:20px;">
@@ -976,7 +1089,7 @@
                 <button onclick="document.getElementById('corr-gif-panel').style.display='none'" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--gray);">✕</button>
               </div>
               <div id="corr-gif-results" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:240px;overflow-y:auto;"></div>
-              <div style="font-size:10px;color:var(--gray);text-align:right;margin-top:6px;">Powered by GIPHY</div>
+              <div style="font-size:10px;color:var(--gray);text-align:right;margin-top:6px;">Powered by Tenor</div>
             </div>
             <!-- Textarea caché -->
             <textarea id="corr-corps" style="display:none;"></textarea>
@@ -1077,6 +1190,113 @@
       </div>
     </div>
   </div>
+
+    <!-- PROSPECTION -->
+    <div class="page" id="page-prospection">
+      <!-- STATUT SERVEUR -->
+      <div id="prosp-statut-bar" style="display:flex;align-items:center;gap:12px;background:white;border:1px solid var(--border);border-radius:12px;padding:14px 20px;margin-bottom:20px;">
+        <div id="prosp-statut-dot" style="width:10px;height:10px;border-radius:50%;background:var(--gray);flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <span style="font-size:13px;font-weight:600;color:var(--navy);" id="prosp-statut-texte">Vérification du serveur...</span>
+          <span style="font-size:11px;color:var(--gray);margin-left:8px;" id="prosp-serveur-url">https://prospection.capturair.com</span>
+        </div>
+        <button class="btn-secondary" onclick="prospVerifierStatut()" style="padding:6px 12px;font-size:12px;">🔄 Vérifier</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+        <!-- COLONNE GAUCHE -->
+        <div>
+          <!-- GROUPES -->
+          <div class="section-card" style="margin-bottom:16px;">
+            <div class="section-card-title">🗺️ Groupes de prospection</div>
+            <div id="prosp-groupes-grid" style="display:flex;flex-direction:column;gap:10px;">
+              <!-- Rempli dynamiquement -->
+              <div style="text-align:center;color:var(--gray);padding:20px;">⏳ Chargement...</div>
+            </div>
+          </div>
+
+          <!-- SCHEDULER -->
+          <div class="section-card">
+            <div class="section-card-title">⏰ Lancement automatique</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+              <label style="font-size:13px;color:var(--navy);font-weight:500;">Activer le scheduler</label>
+              <div onclick="prospToggleScheduler()" id="prosp-scheduler-toggle"
+                style="width:44px;height:24px;border-radius:100px;background:var(--gray);cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;">
+                <div id="prosp-scheduler-knob" style="width:20px;height:20px;border-radius:50%;background:white;position:absolute;top:2px;left:2px;transition:left 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.2);"></div>
+              </div>
+              <span id="prosp-scheduler-label" style="font-size:12px;color:var(--gray);">Désactivé</span>
+            </div>
+            <div class="form-grid" style="margin-bottom:14px;">
+              <div class="form-group">
+                <label class="form-label">Jour</label>
+                <select class="form-input form-select" id="prosp-scheduler-jour" onchange="prospSauverScheduler()">
+                  <option value="0">Lundi</option>
+                  <option value="1">Mardi</option>
+                  <option value="2">Mercredi</option>
+                  <option value="3">Jeudi</option>
+                  <option value="4">Vendredi</option>
+                  <option value="5">Samedi</option>
+                  <option value="6" selected>Dimanche</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Heure</label>
+                <select class="form-input form-select" id="prosp-scheduler-heure" onchange="prospSauverScheduler()">
+                  <option value="6">06:00</option>
+                  <option value="7">07:00</option>
+                  <option value="8">08:00</option>
+                  <option value="9">09:00</option>
+                  <option value="10">10:00</option>
+                  <option value="11">11:00</option>
+                  <option value="12">12:00</option>
+                  <option value="13">13:00</option>
+                  <option value="14">14:00</option>
+                  <option value="15">15:00</option>
+                  <option value="16">16:00</option>
+                  <option value="17">17:00</option>
+                  <option value="18">18:00</option>
+                  <option value="19">19:00</option>
+                  <option value="20" selected>20:00</option>
+                  <option value="21">21:00</option>
+                  <option value="22">22:00</option>
+                  <option value="23">23:00</option>
+                </select>
+              </div>
+            </div>
+            <div style="background:var(--offwhite);border-radius:8px;padding:12px;font-size:12px;color:var(--gray);">
+              ⏰ Prochain lancement : <strong id="prosp-prochain-lancement" style="color:var(--navy);">—</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLONNE DROITE -->
+        <div>
+          <!-- JOBS EN COURS -->
+          <div class="section-card" style="margin-bottom:16px;">
+            <div class="section-card-title">
+              📋 Jobs
+              <button class="btn-secondary" onclick="prospChargerJobs()" style="padding:5px 10px;font-size:11px;">🔄</button>
+            </div>
+            <div id="prosp-jobs-list" style="font-size:13px;color:var(--gray);text-align:center;padding:20px;">
+              Aucun job
+            </div>
+          </div>
+
+          <!-- TERMINAL LOGS SSE -->
+          <div class="section-card">
+            <div class="section-card-title">
+              🖥️ Terminal — Logs temps réel
+              <button class="btn-secondary" onclick="prospViderTerminal()" style="padding:5px 10px;font-size:11px;">🗑️ Vider</button>
+            </div>
+            <div id="prosp-terminal" style="background:#0B1F3A;border-radius:8px;padding:14px;min-height:200px;max-height:340px;overflow-y:auto;font-family:'Courier New',monospace;font-size:11px;color:#3AABEF;line-height:1.6;">
+              <div style="color:rgba(58,171,239,0.4);">$ CapturAir Prospection Terminal</div>
+              <div style="color:rgba(58,171,239,0.4);">$ En attente de lancement...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
 <!-- MODALS CORRESPONDANCES -->
 <div class="modal-overlay" id="modal-nouveau-contact">
@@ -1521,6 +1741,8 @@ async function initApp(){
     document.getElementById('nav-utilisateurs').style.display='flex';
     document.getElementById('nav-courtiers').style.display='flex';
     document.getElementById('nav-correspondances').style.display='flex';
+    document.getElementById('nav-prospection').style.display='flex';
+    document.getElementById('nav-prospection').style.display='flex';
   }
   await Promise.all([chargerLeads(),chargerSoumissions(),chargerFactures(),chargerProjets(),chargerUtilisateurs()]);
   renderDashboard();
@@ -1565,7 +1787,7 @@ function showPage(page){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById(`page-${page}`)?.classList.add('active');
   document.querySelector(`[onclick="showPage('${page}')"]`)?.classList.add('active');
-  const titles={dashboard:'Dashboard',leads:'Dossiers clients',soumissions:'Soumissions','projets-list':'Projets galerie',factures:'Factures',utilisateurs:'Utilisateurs',dossier:'Fiche dossier',courtiers:'Courtiers Immobiliers',correspondances:'Correspondances'};
+  const titles={dashboard:'Dashboard',leads:'Dossiers clients',soumissions:'Soumissions','projets-list':'Projets galerie',factures:'Factures',utilisateurs:'Utilisateurs',dossier:'Fiche dossier',courtiers:'Courtiers Immobiliers',correspondances:'Correspondances',prospection:'🔍 Prospection Courtiers'};
   document.getElementById('topbar-title').textContent=titles[page]||page;
   if(page==='leads')renderLeads();
   if(page==='soumissions')renderSoumissions();
@@ -1574,6 +1796,8 @@ function showPage(page){
   if(page==='utilisateurs')renderUtilisateurs();
   if(page==='courtiers')chargerCourtiers();
   if(page==='correspondances')initCorrespondances();
+  if(page==='prospection')initProspection();
+  if(page==='prospection')initProspection();
 }
 function confirmerRetour(){if(hasUnsaved){pendingNavigation=()=>{hasUnsaved=false;showPage('leads');};document.getElementById('modal-confirm-save').classList.add('active');}else showPage('leads');}
 function ignorerModifs(){hasUnsaved=false;closeModal('modal-confirm-save');if(pendingNavigation){pendingNavigation();pendingNavigation=null;}}
@@ -2500,62 +2724,48 @@ function corrOuvrirGifs(){
   panel.style.top=(rect.bottom+8)+'px';
   panel.style.left=Math.max(edRect.left,rect.left-180)+'px';
   if(panel.style.display==='block'&&!document.getElementById('corr-gif-search').value){
-    corrSearchGif('drone immobilier luxe');
+    corrSearchGif('capturair drone');
   }
 }
 
-let gifPageOffset = 0;
-let gifCurrentQuery = '';
-let gifLoading = false;
-
-async function corrSearchGif(query, append = false){
-  const q = typeof query === 'string' ? query : document.getElementById('corr-gif-search').value.trim();
-  if(!q) return;
-
+async function corrSearchGif(query, append=false){
+  const q = typeof query==='string'?query:document.getElementById('corr-gif-search').value.trim();
+  if(!q)return;
   clearTimeout(gifTimeout);
-
-  gifTimeout = setTimeout(async()=>{
-    const results = document.getElementById('corr-gif-results');
-    
-
+  gifTimeout=setTimeout(async()=>{
+    const results=document.getElementById('corr-gif-results');
     if(!append){
-      gifPageOffset = 0;
-      gifCurrentQuery = q;
-      results.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--gray);">⏳ Chargement...</div>';
+      gifPageOffset=0;
+      gifCurrentQuery=q;
+      results.innerHTML='<div style="font-size:12px;color:var(--gray);grid-column:1/-1;text-align:center;padding:20px;">⏳ Chargement...</div>';
     }
-
-    if(gifLoading) return;
-    gifLoading = true;
-
+    if(gifLoading)return;
+    gifLoading=true;
     try{
-      const r = await fetch(`${API}/api/gifs?q=${encodeURIComponent(gifCurrentQuery)}&offset=${gifPageOffset}`, {headers: hdrs()});
-      const d = await r.json();
-
-      if(!append) results.innerHTML = '';
-
-      if(!d.data?.length && gifPageOffset === 0){
-        results.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--gray);">Aucun GIF trouvé</div>';
+      const r=await fetch(`${API}/api/gifs?q=${encodeURIComponent(gifCurrentQuery)}&offset=${gifPageOffset}`,{headers:hdrs()});
+      const d=await r.json();
+      if(!append)results.innerHTML='';
+      if(!d.data?.length&&gifPageOffset===0){
+        results.innerHTML='<div style="font-size:12px;color:var(--gray);grid-column:1/-1;text-align:center;padding:20px;">Aucun GIF trouvé</div>';
         return;
       }
-
       d.data.forEach(g=>{
-        const url = g.images?.fixed_width?.url || g.images?.original?.url || '';
-        const img = document.createElement('img');
-        img.src = url;
-        img.style = "width:100%;border-radius:8px;cursor:pointer;object-fit:cover;height:100px;";
-        img.loading = "lazy";
-        img.onclick = () => corrInsererGif(url);
+        const url=g.images?.fixed_width?.url||g.images?.original?.url||'';
+        if(!url)return;
+        const img=document.createElement('img');
+        img.src=url;
+        img.style.cssText='width:100%;border-radius:8px;cursor:pointer;object-fit:cover;height:100px;';
+        img.loading='lazy';
+        img.onclick=()=>corrInsererGif(url);
         results.appendChild(img);
       });
-
-      gifPageOffset += 8;
-
+      gifPageOffset+=8;
     }catch(e){
-      results.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--gray);">Service GIF indisponible</div>';
+      results.innerHTML='<div style="font-size:12px;color:var(--gray);grid-column:1/-1;text-align:center;padding:20px;">Service GIF indisponible</div>';
     }finally{
-      gifLoading = false;
+      gifLoading=false;
     }
-  }, 350);
+  }, 400);
 }
 
 function corrInsererGif(url){
@@ -2575,6 +2785,208 @@ document.addEventListener('click',e=>{
     const p=document.getElementById('corr-gif-panel');if(p)p.style.display='none';
   }
 });
+
+// ══ PROSPECTION ═══════════════════════════════════════════════════════
+const PROSP_URL = 'https://prospection.capturair.com';
+let prospSchedulerActif = false;
+let prospSchedulerJour = 6;
+let prospSchedulerHeure = 20;
+let prospSSESource = null;
+
+async function initProspection(){
+  await prospVerifierStatut();
+  prospChargerJobs();
+  prospMajSchedulerUI();
+  prospCalculerProchain();
+  // Charger prefs scheduler
+  try{
+    const s = localStorage.getItem('prosp_scheduler');
+    if(s){
+      const p = JSON.parse(s);
+      prospSchedulerActif = p.actif||false;
+      prospSchedulerJour = p.jour??6;
+      prospSchedulerHeure = p.heure??20;
+      document.getElementById('prosp-scheduler-jour').value = prospSchedulerJour;
+      document.getElementById('prosp-scheduler-heure').value = prospSchedulerHeure;
+      prospMajSchedulerUI();
+      prospCalculerProchain();
+    }
+  }catch(e){}
+}
+
+async function prospVerifierStatut(){
+  const dot=document.getElementById('prosp-statut-dot');
+  const texte=document.getElementById('prosp-statut-texte');
+  try{
+    const r=await fetch(`${PROSP_URL}/api/statut`,{signal:AbortSignal.timeout(5000)});
+    if(r.ok){
+      dot.style.background='var(--green)';
+      texte.textContent='✅ Serveur en ligne';
+      prospRenderGroupes();
+    }else{
+      dot.style.background='var(--red)';
+      texte.textContent='❌ Serveur hors ligne';
+      prospRenderGroupes();
+    }
+  }catch(e){
+    dot.style.background='var(--red)';
+    texte.textContent='❌ Serveur inaccessible — démarrez capturair_serveur.bat';
+    prospRenderGroupes();
+  }
+}
+
+function prospRenderGroupes(){
+  const INFOS={
+    groupe1:{nom:'Groupe 1 — Lavaltrie proche',emoji:'📍',villes:'Lavaltrie, Lanoraie, Berthierville...',color:'var(--blue)'},
+    groupe2:{nom:'Groupe 2 — Rive-Nord',emoji:'🏙️',villes:'Repentigny, Mascouche, Terrebonne...',color:'var(--purple)'},
+    groupe3:{nom:'Groupe 3 — Joliette / Lanaudière',emoji:'🌿',villes:'Joliette, Rawdon, Saint-Félix...',color:'var(--teal)'},
+    groupe4:{nom:'Groupe 4 — Grand Montréal / Laval',emoji:'🌆',villes:'Laval, Montréal, Longueuil...',color:'var(--orange)'},
+    global:{nom:'🌐 GLOBAL — Tous les groupes',emoji:'🌐',villes:'Tous les 4 groupes combinés',color:'var(--green)'},
+  };
+  const grid=document.getElementById('prosp-groupes-grid');
+  if(!grid)return;
+  grid.innerHTML=['groupe1','groupe2','groupe3','groupe4','global'].map(g=>{
+    const info=INFOS[g];
+    return `<div style="background:var(--offwhite);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+      <div style="font-size:24px;">${info.emoji}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:600;color:var(--navy);">${info.nom}</div>
+        <div style="font-size:11px;color:var(--gray);margin-top:2px;">${info.villes}</div>
+      </div>
+      <button onclick="prospLancer('${g}')" class="btn-primary" style="padding:6px 14px;font-size:12px;background:${info.color};white-space:nowrap;">🚀 Lancer</button>
+    </div>`;
+  }).join('');
+}
+
+async function prospLancer(groupe){
+  if(!confirm(`Lancer la prospection ${groupe.toUpperCase()} ?\n\nCela peut prendre 30-60 minutes.`))return;
+  prospTerminalLog(`🚀 Lancement — ${groupe.toUpperCase()}`,'info');
+  try{
+    const r=await fetch(`${PROSP_URL}/api/lancer/${groupe}`,{method:'POST'});
+    const d=await r.json();
+    if(d.ok){
+      prospTerminalLog(`✅ Job démarré — ID: ${d.job_id}`,'success');
+      prospChargerJobs();
+      setTimeout(()=>prospConnecterSSE(d.job_id),500);
+    }else{
+      prospTerminalLog(`❌ Erreur: ${d.error}`,'error');
+    }
+  }catch(e){
+    prospTerminalLog('❌ Serveur inaccessible — démarrez capturair_serveur.bat','error');
+  }
+}
+
+function prospConnecterSSE(jobId){
+  if(prospSSESource)prospSSESource.close();
+  prospTerminalLog(`📡 Connexion SSE — job ${jobId}`,'info');
+  prospSSESource=new EventSource(`${PROSP_URL}/api/stream/${jobId}`);
+  prospSSESource.onmessage=(e)=>{
+    try{
+      const d=JSON.parse(e.data);
+      if(d.ping)return;
+      if(d.log&&d.log!=='__DONE__')prospTerminalLog(d.log,'log');
+      if(d.statut){
+        prospTerminalLog(`\n✅ Terminé — ${d.nb_resultats} contacts exportés`,'success');
+        prospChargerJobs();
+        prospSSESource.close();
+      }
+    }catch(err){}
+  };
+  prospSSESource.onerror=()=>{
+    prospTerminalLog('⚠️ Connexion SSE perdue','warning');
+    prospSSESource.close();
+  };
+}
+
+async function prospChargerJobs(){
+  try{
+    const r=await fetch(`${PROSP_URL}/api/jobs`);
+    const d=await r.json();
+    const jobs=d.jobs||[];
+    const container=document.getElementById('prosp-jobs-list');
+    if(!container)return;
+    if(!jobs.length){container.innerHTML='<div style="text-align:center;color:var(--gray);padding:20px;">Aucun job</div>';return;}
+    const statutColors={en_cours:'var(--orange)',termine:'var(--green)',erreur:'var(--red)',demarrage:'var(--blue)'};
+    const statutEmoji={en_cours:'⏳',termine:'✅',erreur:'❌',demarrage:'🔄'};
+    container.innerHTML=jobs.slice(0,5).map(j=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:16px;">${statutEmoji[j.statut]||'⚙️'}</span>
+        <div style="flex:1;">
+          <div style="font-size:12px;font-weight:600;color:var(--navy);">${j.groupe.toUpperCase()}</div>
+          <div style="font-size:10px;color:var(--gray);">${j.debut?.slice(11,19)||''} · ${j.nb_resultats} contacts</div>
+        </div>
+        <span style="font-size:11px;font-weight:600;color:${statutColors[j.statut]||'var(--gray)'};">${j.statut}</span>
+        ${j.statut==='en_cours'?`<button onclick="prospConnecterSSE('${j.job_id}')" class="btn-secondary" style="padding:4px 8px;font-size:10px;">📡 Logs</button>`:''}
+      </div>`).join('');
+  }catch(e){
+    const c=document.getElementById('prosp-jobs-list');
+    if(c)c.innerHTML='<div style="color:var(--gray);font-size:12px;padding:10px;">Serveur hors ligne</div>';
+  }
+}
+
+function prospTerminalLog(msg,type='log'){
+  const term=document.getElementById('prosp-terminal');
+  if(!term)return;
+  const colors={log:'#3AABEF',success:'#27AE60',error:'#E74C3C',info:'rgba(58,171,239,0.6)',warning:'#E67E22'};
+  const div=document.createElement('div');
+  div.style.color=colors[type]||'#3AABEF';
+  div.textContent=msg;
+  term.appendChild(div);
+  term.scrollTop=term.scrollHeight;
+}
+
+function prospViderTerminal(){
+  const t=document.getElementById('prosp-terminal');
+  if(t)t.innerHTML='<div style="color:rgba(58,171,239,0.4);">$ Terminal vidé</div>';
+}
+
+function prospToggleScheduler(){
+  prospSchedulerActif=!prospSchedulerActif;
+  prospMajSchedulerUI();
+  prospCalculerProchain();
+  prospSauverScheduler();
+}
+
+function prospMajSchedulerUI(){
+  const toggle=document.getElementById('prosp-scheduler-toggle');
+  const knob=document.getElementById('prosp-scheduler-knob');
+  const label=document.getElementById('prosp-scheduler-label');
+  if(!toggle)return;
+  if(prospSchedulerActif){
+    toggle.style.background='var(--green)';knob.style.left='22px';
+    label.textContent='Actif';label.style.color='var(--green)';
+  }else{
+    toggle.style.background='var(--gray)';knob.style.left='2px';
+    label.textContent='Désactivé';label.style.color='var(--gray)';
+  }
+}
+
+function prospSauverScheduler(){
+  const j=document.getElementById('prosp-scheduler-jour');
+  const h=document.getElementById('prosp-scheduler-heure');
+  if(j)prospSchedulerJour=parseInt(j.value);
+  if(h)prospSchedulerHeure=parseInt(h.value);
+  prospCalculerProchain();
+  localStorage.setItem('prosp_scheduler',JSON.stringify({
+    actif:prospSchedulerActif,jour:prospSchedulerJour,heure:prospSchedulerHeure
+  }));
+  showNotif('✅ Scheduler sauvegardé','success');
+}
+
+function prospCalculerProchain(){
+  const jours=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+  const el=document.getElementById('prosp-prochain-lancement');
+  if(!el)return;
+  if(!prospSchedulerActif){el.textContent='Scheduler désactivé';return;}
+  const now=new Date();
+  const cible=new Date();
+  const jouractuel=(now.getDay()+6)%7;
+  let diff=prospSchedulerJour-jouractuel;
+  if(diff<0||(diff===0&&now.getHours()>=prospSchedulerHeure))diff+=7;
+  cible.setDate(now.getDate()+diff);
+  cible.setHours(prospSchedulerHeure,0,0,0);
+  el.textContent=`${jours[prospSchedulerJour]} ${String(prospSchedulerHeure).padStart(2,'0')}:00 (${cible.toLocaleDateString('fr-CA')})`;
+}
 
 let corrContacts=[], corrTemplates=[], corrSelectionnes=new Set();
 
@@ -3208,7 +3620,7 @@ function corrUtiliserTemplate(id){
   switchCTab('composer');
   document.getElementById('corr-template-select').value=id;
   if(t.sujet)document.getElementById('corr-objet').value=t.sujet;
-
+  // Détecter si c'est un template HTML riche
   if(t.contenu_html && t.contenu_html.includes('<!DOCTYPE html')){
     document.getElementById('corr-mode-html').value='1';
     document.getElementById('corr-html-badge').style.display='inline-flex';
@@ -3221,26 +3633,6 @@ function corrUtiliserTemplate(id){
     showNotif('✅ Template chargé','success');
   }
 }
-
-/* UX GIF PRO */
-document.addEventListener('DOMContentLoaded', ()=>{
-  const input = document.getElementById('corr-gif-search');
-  const results = document.getElementById('corr-gif-results');
-
-  if(input){
-    input.addEventListener('input', ()=>{
-      corrSearchGif(input.value);
-    });
-  }
-
-  if(results){
-    results.addEventListener('scroll', ()=>{
-      if(results.scrollTop + results.clientHeight >= results.scrollHeight - 30){
-        corrSearchGif(gifCurrentQuery, true);
-      }
-    });
-  }
-});
 </script>
 </body>
 </html>
