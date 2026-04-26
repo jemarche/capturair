@@ -2309,12 +2309,42 @@ async function corrEnvoyer(){
   const btn=document.getElementById('corr-btn-envoyer');
   btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   const templateId=document.getElementById('corr-template-select').value||null;
-  // Construire HTML avec style confirmation de visite
-  const htmlBody=`<p style="font-size:15px;color:#4A5568;line-height:1.8;white-space:pre-line;">${corps.replace(/{{SALUTATION}}/g,'{{SALUTATION}}')}</p>`;
+  const LOGO_HEADER='https://raw.githubusercontent.com/jemarche/capturair/main/images/Logo%20carr%C3%A9%20headers.png';
+  const LOGO_SIG='https://raw.githubusercontent.com/jemarche/capturair/main/images/android-chrome-2048x2048.png';
+  // Construire HTML dans le style confirmation de visite
+  function buildHTML(salutation, corpsPerso){
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#F4F7FA;font-family:Arial,sans-serif;">
+<div style="max-width:620px;margin:0 auto;padding:20px 0;">
+  <div style="border-radius:20px 20px 0 0;overflow:hidden;line-height:0;">
+    <img src="${LOGO_HEADER}" alt="CapturAir" width="620" style="display:block;width:100%;max-width:620px;height:auto;">
+  </div>
+  <div style="background:white;padding:36px 40px;border:1px solid #DEE4EF;border-top:none;">
+    <h2 style="color:#0B1F3A;font-size:20px;margin:0 0 20px;">${salutation}</h2>
+    <div style="color:#4A5568;font-size:14px;line-height:1.8;white-space:pre-line;margin-bottom:28px;">${corpsPerso}</div>
+    <table cellpadding="0" cellspacing="0" style="width:100%;margin-top:24px;border-top:1px solid #DEE4EF;padding-top:20px;">
+      <tr>
+        <td style="padding-right:16px;vertical-align:top;width:80px;">
+          <img src="${LOGO_SIG}" alt="CapturAir" width="70" height="70" style="border-radius:12px;display:block;">
+        </td>
+        <td style="vertical-align:top;border-left:3px solid #1A8FD1;padding-left:16px;">
+          <strong style="color:#0B1F3A;font-size:15px;">Mohand Aidi</strong><br>
+          <span style="color:#1A8FD1;font-size:11px;letter-spacing:1px;text-transform:uppercase;">Fondateur · CapturAir</span><br>
+          <span style="font-size:12px;color:#6B7C93;">✉️ info@capturair.com · 📞 514 446-6078 · capturair.com</span>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div style="background:#0B1F3A;padding:16px 40px;border-radius:0 0 20px 20px;text-align:center;">
+    <p style="color:rgba(255,255,255,0.4);font-size:11px;margin:0;">CapturAir · Drone &amp; Photo Aérienne · info@capturair.com · 514 446-6078 · capturair.com</p>
+  </div>
+</div>
+</body></html>`;
+  }
   const d=await apiPost('/api/crm/correspondances/envoyer',{
     ids:Array.from(corrSelectionnes),
     sujet,
-    contenu_html:corps,
+    contenu_html:buildHTML('{{SALUTATION}}',corps),
     cci:cci||null,
     template_id:templateId
   });
