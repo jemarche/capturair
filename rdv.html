@@ -577,6 +577,45 @@ document.getElementById('w-temp').textContent = c+'°C · '+f+'°F · Vent '+win
 document.getElementById('w-temp-short').textContent = c+'°C · '+f+'°F';
     document.getElementById('w-temp-short').textContent = c+'°C · '+f+'°F';
   }).catch(() => {});
+async function envoyerRenouveler() {
+  const email = document.getElementById('renouveler-email').value.trim();
+  const errEl = document.getElementById('renouveler-error');
+  const btn = document.getElementById('renouveler-btn');
+  errEl.style.display = 'none';
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    errEl.textContent = 'Veuillez entrer un courriel valide.';
+    errEl.style.display = 'block';
+    return;
+  }
+  btn.innerHTML = '<span style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;"></span> Envoi en cours...';
+  btn.disabled = true;
+  try {
+    const r = await fetch(`${API}/api/rdv/renouveler`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const d = await r.json();
+    if (d.success) {
+      document.getElementById('renouveler-form').style.display = 'none';
+      document.getElementById('invalid-title').style.display = 'none';
+      document.getElementById('invalid-text').style.display = 'none';
+      document.getElementById('gate-icon-invalid').style.display = 'none';
+      document.getElementById('renouveler-confirm').style.display = 'block';
+    } else {
+      errEl.textContent = d.error || 'Une erreur est survenue. Réessayez.';
+      errEl.style.display = 'block';
+      btn.innerHTML = '📧 Recevoir mon lien →';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    errEl.textContent = 'Erreur de connexion. Réessayez.';
+    errEl.style.display = 'block';
+    btn.innerHTML = '📧 Recevoir mon lien →';
+    btn.disabled = false;
+  }
+}
+  
 </script>
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-44EB1JEJ2C"></script>
