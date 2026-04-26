@@ -2778,8 +2778,18 @@ function corrUtiliserTemplate(id){
   switchCTab('composer');
   document.getElementById('corr-template-select').value=id;
   if(t.sujet)document.getElementById('corr-objet').value=t.sujet;
-  if(t.contenu_texte)document.getElementById('corr-corps').value=t.contenu_texte;
-  showNotif('✅ Template chargé','success');
+  // Détecter si c'est un template HTML riche
+  if(t.contenu_html && t.contenu_html.includes('<!DOCTYPE html')){
+    document.getElementById('corr-mode-html').value='1';
+    document.getElementById('corr-html-badge').style.display='inline-flex';
+    document.getElementById('corr-corps').value=t.contenu_texte||'(template HTML — voir aperçu)';
+    showNotif('📧 Template HTML chargé — cliquez Aperçu pour visualiser','success');
+  } else {
+    document.getElementById('corr-mode-html').value='0';
+    document.getElementById('corr-html-badge').style.display='none';
+    if(t.contenu_texte)document.getElementById('corr-corps').value=t.contenu_texte;
+    showNotif('✅ Template chargé','success');
+  }
 }
 </script>
 </body>
