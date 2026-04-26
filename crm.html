@@ -222,6 +222,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Open+Sans:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/quill-image-resize-module@3.0.0/image-resize.min.js"></script>
 <style>
   #corr-quill-toolbar{background:var(--offwhite);border:1px solid var(--border);border-radius:8px 8px 0 0;}
   #corr-quill-editeur .ql-editor{min-height:240px;font-family:'DM Sans',sans-serif;font-size:13px;line-height:1.7;}
@@ -887,6 +888,7 @@
               <span style="font-size:11px;color:var(--gray);font-weight:400;">Variables : {{PRENOM}} {{NOM}}</span>
             </label>
             <!-- QUILL EDITOR -->
+            <!-- TOOLBAR QUILL COMPLET -->
             <div id="corr-quill-toolbar">
               <span class="ql-formats">
                 <select class="ql-font">
@@ -918,7 +920,7 @@
               </span>
               <span class="ql-formats">
                 <select class="ql-color"></select>
-                <select class="ql-background"></select>
+                <select class="ql-background" title="Surligneur"></select>
               </span>
               <span class="ql-formats">
                 <button class="ql-align" value=""></button>
@@ -934,7 +936,7 @@
               </span>
               <span class="ql-formats">
                 <button class="ql-link"></button>
-                <button class="ql-image"></button>
+                <button class="ql-image" title="Image inline (redimensionnable)"></button>
               </span>
               <span class="ql-formats">
                 <button class="ql-blockquote"></button>
@@ -943,9 +945,40 @@
               <span class="ql-formats">
                 <button class="ql-clean"></button>
               </span>
+              <!-- Boutons custom -->
+              <span class="ql-formats">
+                <button onclick="corrOuvrirEmojis()" title="Emojis" style="font-size:14px;">😀</button>
+                <button onclick="corrOuvrirGifs()" title="GIFs" style="font-size:11px;font-weight:700;color:#6366f1;">GIF</button>
+                <button onclick="corrAjouterPJ()" title="Pièce jointe" style="font-size:14px;">📎</button>
+              </span>
             </div>
             <div id="corr-quill-editeur" style="min-height:260px;font-family:'DM Sans',sans-serif;font-size:13px;border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;"></div>
-            <!-- Textarea caché pour compatibilité -->
+            <!-- Boutons navigation éditeur -->
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <button onclick="corrAnnulerModifs()" class="btn-secondary" style="padding:6px 12px;font-size:12px;">↩️ Annuler modifications</button>
+              <button onclick="corrViderEditeur()" class="btn-danger" style="padding:6px 12px;font-size:12px;">🗑️ Vider</button>
+            </div>
+            <!-- Pièces jointes -->
+            <div id="corr-pj-zone" style="display:none;background:var(--offwhite);border:1px solid var(--border);border-top:none;padding:10px 14px;border-radius:0 0 8px 8px;margin-top:-8px;">
+              <div style="font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📎 Pièces jointes <span id="corr-pj-size" style="color:var(--blue);">0 MB / 20 MB</span></div>
+              <div id="corr-pj-list" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+            </div>
+            <input type="file" id="corr-pj-input" multiple style="display:none;" onchange="corrHandlePJ(event)">
+            <!-- Panneau Emojis -->
+            <div id="corr-emoji-panel" style="display:none;position:absolute;z-index:500;background:white;border:1px solid var(--border);border-radius:12px;padding:12px;box-shadow:0 8px 24px rgba(0,0,0,0.15);width:320px;max-height:280px;overflow-y:auto;">
+              <div style="font-size:11px;color:var(--gray);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Emojis</div>
+              <div id="corr-emoji-grid" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
+            </div>
+            <!-- Panneau GIFs -->
+            <div id="corr-gif-panel" style="display:none;position:absolute;z-index:500;background:white;border:1px solid var(--border);border-radius:12px;padding:12px;box-shadow:0 8px 24px rgba(0,0,0,0.15);width:360px;">
+              <div style="display:flex;gap:8px;margin-bottom:10px;">
+                <input type="text" id="corr-gif-search" class="search-input" placeholder="🔍 Rechercher un GIF..." oninput="corrSearchGif()" style="flex:1;">
+                <button onclick="document.getElementById('corr-gif-panel').style.display='none'" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--gray);">✕</button>
+              </div>
+              <div id="corr-gif-results" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:240px;overflow-y:auto;"></div>
+              <div style="font-size:10px;color:var(--gray);text-align:right;margin-top:6px;">Powered by Tenor</div>
+            </div>
+            <!-- Textarea caché -->
             <textarea id="corr-corps" style="display:none;"></textarea>
           </div>
           <div id="corr-apercu-section" style="display:none;background:rgba(26,143,209,0.06);border:1px solid rgba(26,143,209,0.2);border-radius:10px;padding:14px 18px;margin-bottom:16px;">
@@ -953,10 +986,12 @@
             <div style="font-size:13px;color:var(--navy);" id="corr-apercu-salutation">Bonjour,</div>
             <div style="font-size:12px;color:var(--gray);margin-top:4px;">📧 <span id="corr-apercu-email">—</span></div>
           </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
             <button class="btn-secondary" onclick="corrApercu()">👁️ Aperçu</button>
             <button class="btn-primary" onclick="corrEnvoyer()" id="corr-btn-envoyer">📧 Envoyer</button>
-            <span id="corr-count-label" style="font-size:13px;color:var(--gray);align-self:center;">0 destinataire(s)</span>
+            <button class="btn-secondary" onclick="corrAnnulerModifs()" title="Revenir au template chargé">↩️ Annuler</button>
+            <button class="btn-danger" onclick="corrVider()" title="Vider complètement" style="padding:9px 14px;">🗑️ Vider</button>
+            <span id="corr-count-label" style="font-size:13px;color:var(--gray);align-self:center;margin-left:auto;">0 destinataire(s)</span>
           </div>
         </div>
       </div>
@@ -2247,27 +2282,33 @@ setInterval(()=>{if(authToken&&verifierTokenExpire()){sessionExpired();}},5*60*1
 // ══ QUILL ÉDITEUR ═════════════════════════════════════════════════════
 let quillEditor = null;
 
+let corrContenuSauvegarde = ''; // Pour ↩️ Annuler
+
 function initQuill(){
   if(quillEditor)return;
-  // Enregistrer les polices
   const Font = Quill.import('formats/font');
   Font.whitelist = ['arial','roboto','opensans','montserrat','playfair','georgia','verdana','trebuchet','courier'];
   Quill.register(Font, true);
-  // Enregistrer les tailles
   const Size = Quill.import('attributors/style/size');
   Size.whitelist = ['10px','12px','14px','16px','18px','24px','32px'];
   Quill.register(Size, true);
+  // Enregistrer ImageResize si disponible
+  if(typeof ImageResize !== 'undefined'){
+    Quill.register('modules/imageResize', ImageResize.default || ImageResize);
+  }
   quillEditor = new Quill('#corr-quill-editeur', {
     theme: 'snow',
     modules: {
       toolbar: '#corr-quill-toolbar',
+      ...(typeof ImageResize !== 'undefined' ? {imageResize:{displayStyles:{backgroundColor:'black',border:'none',color:'white'},modules:['Resize','DisplaySize','Toolbar']}} : {})
     },
     placeholder: 'Bonjour {{PRENOM}},\n\nVotre message ici...\n\nCordialement,\nMohand Aïdi\nCapturAir',
   });
-  // Sync vers textarea caché à chaque changement
   quillEditor.on('text-change', ()=>{
     document.getElementById('corr-corps').value = quillEditor.root.innerHTML;
   });
+  // Init emoji grid
+  corrInitEmojis();
 }
 
 function corrGetCorps(){
@@ -2279,35 +2320,206 @@ function corrSetCorps(texte){
   if(quillEditor){
     quillEditor.root.innerHTML = texte||'';
     document.getElementById('corr-corps').value = texte||'';
+    corrContenuSauvegarde = texte||'';
   } else {
     document.getElementById('corr-corps').value = texte||'';
+    corrContenuSauvegarde = texte||'';
   }
 }
 
 function corrClearCorps(){
   if(quillEditor){
     quillEditor.setContents([]);
-    corrClearCorps();
+    document.getElementById('corr-corps').value='';
   } else {
-    corrClearCorps();
+    document.getElementById('corr-corps').value='';
+  }
+  corrContenuSauvegarde='';
+}
+
+function corrAnnulerModifs(){
+  if(corrContenuSauvegarde){
+    corrSetCorps(corrContenuSauvegarde);
+    showNotif('↩️ Modifications annulées','success');
+  } else {
+    corrVider();
   }
 }
 
-// Insérer lien via Quill
-function corrInsererLien(){
-  const url=prompt('URL du lien :','https://');
-  if(!url||url==='https://')return;
-  const texte=prompt('Texte du lien :','Cliquez ici');
-  if(!texte)return;
-  if(quillEditor){
-    const range=quillEditor.getSelection(true);
-    quillEditor.insertText(range.index, texte, 'link', url);
-    quillEditor.setSelection(range.index + texte.length);
+function corrVider(){
+  if(!confirm('Vider le message ? Cette action est irréversible.'))return;
+  corrClearCorps();
+  document.getElementById('corr-objet').value='';
+  document.getElementById('corr-cci').value='';
+  document.getElementById('corr-template-select').value='';
+  document.getElementById('corr-mode-html').value='0';
+  document.getElementById('corr-html-badge').style.display='none';
+  corrPJFichiers=[];
+  corrMajPJZone();
+  showNotif('🗑️ Message vidé','success');
+}
+
+// ── PIÈCES JOINTES ──
+let corrPJFichiers = [];
+
+function corrAjouterPJ(){
+  document.getElementById('corr-pj-input').click();
+}
+
+function corrHandlePJ(e){
+  const files = Array.from(e.target.files);
+  const MAX_TOTAL = 20 * 1024 * 1024; // 20MB
+  for(const file of files){
+    const totalActuel = corrPJFichiers.reduce((s,f)=>s+f.size, 0);
+    if(totalActuel + file.size > MAX_TOTAL){
+      showNotif(`⚠️ Limite 20MB atteinte — ${file.name} ignoré`,'warning');
+      continue;
+    }
+    if(!corrPJFichiers.find(f=>f.name===file.name&&f.size===file.size)){
+      corrPJFichiers.push(file);
+    }
+  }
+  corrMajPJZone();
+  e.target.value='';
+}
+
+function corrMajPJZone(){
+  const zone = document.getElementById('corr-pj-zone');
+  const list = document.getElementById('corr-pj-list');
+  const sizeEl = document.getElementById('corr-pj-size');
+  if(!corrPJFichiers.length){zone.style.display='none';return;}
+  zone.style.display='block';
+  const totalMB = (corrPJFichiers.reduce((s,f)=>s+f.size,0)/1024/1024).toFixed(1);
+  sizeEl.textContent=`${totalMB} MB / 20 MB`;
+  // Icône selon type
+  function getIcon(name){
+    const ext=name.split('.').pop().toLowerCase();
+    if(['jpg','jpeg','png','gif','webp'].includes(ext))return'🖼️';
+    if(['pdf'].includes(ext))return'📄';
+    if(['doc','docx'].includes(ext))return'📝';
+    if(['xls','xlsx'].includes(ext))return'📊';
+    if(['zip','rar','7z'].includes(ext))return'🗜️';
+    if(['mp4','mov','avi'].includes(ext))return'🎬';
+    if(['mp3','wav'].includes(ext))return'🎵';
+    return'📎';
+  }
+  list.innerHTML=corrPJFichiers.map((f,i)=>{
+    const nomSansExt=f.name.replace(/\.[^/.]+$/,'');
+    const taille=(f.size/1024).toFixed(0);
+    return `<div style="display:inline-flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;">
+      <span style="font-size:16px;">${getIcon(f.name)}</span>
+      <span style="color:var(--navy);font-weight:500;">${nomSansExt}</span>
+      <span style="color:var(--gray);font-size:10px;">${taille}KB</span>
+      <span onclick="corrSupprimerPJ(${i})" style="cursor:pointer;color:var(--red);font-size:14px;margin-left:2px;">×</span>
+    </div>`;
+  }).join('');
+}
+
+function corrSupprimerPJ(i){
+  corrPJFichiers.splice(i,1);
+  corrMajPJZone();
+}
+
+// ── EMOJIS ──
+const EMOJIS_CATEGORIES = {
+  '😊 Visages': ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🤧','🥵','🥶','🥴','😵','🤯','🤠','🥳','😎','🤓','🧐','😕','😟','🙁','☹️','😮','😯','😲','😳','🥺','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿'],
+  '👋 Gestes': ['👋','🤚','🖐','✋','🖖','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','👍','👎','✊','👊','🤛','🤜','👏','🙌','👐','🤲','🤝','🙏'],
+  '❤️ Cœurs': ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','☮️','✝️','☪️'],
+  '🌟 Symboles': ['⭐','🌟','💫','✨','🌈','☀️','🌙','⚡','🔥','💧','🌊','🌺','🌸','🌼','🌻','🍀','🎉','🎊','🎈','🎁','🏆','🥇','👑','💎','🔑','🗝️','💡','🔔','📢','📣'],
+  '✅ Check': ['✅','❌','⚠️','ℹ️','🔴','🟡','🟢','🔵','⚪','⚫','🟤','🟠','🟣','📌','📍','🔖','🏷️','📋','📝','📊','📈','📉','💼','📁','📂','🗂️'],
+  '🚀 Divers': ['🚀','🚁','✈️','🛸','💻','📱','⌨️','🖥️','🖨️','📡','🔭','🔬','💊','🏠','🏢','🎵','🎶','🎸','🎹','⚽','🏀','🎯','🎮','🎲'],
+};
+
+function corrInitEmojis(){
+  const grid = document.getElementById('corr-emoji-grid');
+  if(!grid)return;
+  let html='';
+  for(const [cat, emojis] of Object.entries(EMOJIS_CATEGORIES)){
+    html+=`<div style="width:100%;font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin:6px 0 3px;">${cat}</div>`;
+    emojis.forEach(e=>{
+      html+=`<button onclick="corrInsererEmoji('${e}')" style="background:none;border:none;font-size:20px;cursor:pointer;padding:3px;border-radius:6px;line-height:1;" onmouseover="this.style.background='var(--offwhite)'" onmouseout="this.style.background='none'">${e}</button>`;
+    });
+  }
+  grid.innerHTML=html;
+}
+
+function corrOuvrirEmojis(){
+  const panel=document.getElementById('corr-emoji-panel');
+  const gifPanel=document.getElementById('corr-gif-panel');
+  if(gifPanel)gifPanel.style.display='none';
+  panel.style.display=panel.style.display==='none'?'block':'none';
+  // Positionner sous le bouton
+  const btn=event.target;
+  const rect=btn.getBoundingClientRect();
+  const edRect=document.getElementById('corr-quill-editeur').getBoundingClientRect();
+  panel.style.top=(rect.bottom+8)+'px';
+  panel.style.left=Math.max(edRect.left,rect.left-100)+'px';
+}
+
+function corrInsererEmoji(emoji){
+  if(!quillEditor)return;
+  const range=quillEditor.getSelection(true);
+  quillEditor.insertText(range?range.index:0, emoji);
+  document.getElementById('corr-emoji-panel').style.display='none';
+  quillEditor.focus();
+}
+
+// ── GIFs (Tenor) ──
+let gifTimeout=null;
+function corrOuvrirGifs(){
+  const panel=document.getElementById('corr-gif-panel');
+  const emojiPanel=document.getElementById('corr-emoji-panel');
+  if(emojiPanel)emojiPanel.style.display='none';
+  panel.style.display=panel.style.display==='none'?'block':'none';
+  const btn=event.target;
+  const rect=btn.getBoundingClientRect();
+  const edRect=document.getElementById('corr-quill-editeur').getBoundingClientRect();
+  panel.style.top=(rect.bottom+8)+'px';
+  panel.style.left=Math.max(edRect.left,rect.left-180)+'px';
+  if(panel.style.display==='block'&&!document.getElementById('corr-gif-search').value){
+    corrSearchGif('capturair drone');
   }
 }
 
-// Init Quill quand on arrive sur la page Correspondances
-const _origInitCorrespondances = typeof initCorrespondances === 'function' ? initCorrespondances : null;
+async function corrSearchGif(query){
+  const q = typeof query==='string'?query:document.getElementById('corr-gif-search').value;
+  if(!q)return;
+  clearTimeout(gifTimeout);
+  gifTimeout=setTimeout(async()=>{
+    try{
+      const r=await fetch(`https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(q)}&key=AIzaSyAyimkuYQYF_FXVALexPzpgwsQ6UupJxjw&limit=8&media_filter=gif`);
+      const d=await r.json();
+      const results=document.getElementById('corr-gif-results');
+      if(!d.results?.length){results.innerHTML='<div style="font-size:12px;color:var(--gray);grid-column:1/-1;text-align:center;padding:20px;">Aucun GIF trouvé</div>';return;}
+      results.innerHTML=d.results.map(g=>{
+        const url=g.media_formats?.tinygif?.url||g.media_formats?.gif?.url||'';
+        return `<img src="${url}" style="width:100%;border-radius:8px;cursor:pointer;object-fit:cover;height:100px;" onclick="corrInsererGif('${url}')" loading="lazy">`;
+      }).join('');
+    }catch(e){
+      // Fallback si API Tenor indispo
+      document.getElementById('corr-gif-results').innerHTML='<div style="font-size:12px;color:var(--gray);grid-column:1/-1;text-align:center;padding:20px;">Service GIF temporairement indisponible</div>';
+    }
+  }, 400);
+}
+
+function corrInsererGif(url){
+  if(!quillEditor)return;
+  const range=quillEditor.getSelection(true);
+  quillEditor.insertEmbed(range?range.index:0, 'image', url);
+  document.getElementById('corr-gif-panel').style.display='none';
+  quillEditor.focus();
+}
+
+// Fermer panneaux si clic extérieur
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#corr-emoji-panel')&&!e.target.closest('[onclick*="corrOuvrirEmojis"]')){
+    const p=document.getElementById('corr-emoji-panel');if(p)p.style.display='none';
+  }
+  if(!e.target.closest('#corr-gif-panel')&&!e.target.closest('[onclick*="corrOuvrirGifs"]')){
+    const p=document.getElementById('corr-gif-panel');if(p)p.style.display='none';
+  }
+});
+
 let corrContacts=[], corrTemplates=[], corrSelectionnes=new Set();
 
 async function initCorrespondances(){
