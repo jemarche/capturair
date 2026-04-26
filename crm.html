@@ -810,7 +810,7 @@
     <div class="page" id="page-correspondances">
       <div class="tabs" style="margin-bottom:20px;">
         <div class="tab active" id="ctab-composer" onclick="switchCTab('composer')">✉️ Composer</div>
-        <div class="tab" id="ctab-contacts" onclick="switchCTab('contacts')">👥 Contacts</div>
+        <div class="tab" id="ctab-contacts" onclick="switchCTab('contacts')">👥 Destinataires</div>
         <div class="tab" id="ctab-templates" onclick="switchCTab('templates')">📋 Templates</div>
         <div class="tab" id="ctab-historique" onclick="switchCTab('historique')">📊 Historique</div>
       </div>
@@ -863,22 +863,64 @@
         </div>
       </div>
 
-      <!-- CONTACTS -->
+      <!-- DESTINATAIRES (HUB UNIFIÉ) -->
       <div id="ctab-content-contacts" style="display:none;">
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">
+        <!-- Stats rapides -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px;">
+          <div class="stat-card" style="padding:12px 16px;cursor:pointer;" onclick="filtrerHub('','')"><div style="font-size:18px;font-weight:700;color:var(--navy);" id="hub-count-total">—</div><div style="font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;">Total</div></div>
+          <div class="stat-card" style="padding:12px 16px;cursor:pointer;" onclick="filtrerHub('client','')"><div style="font-size:18px;font-weight:700;color:var(--blue);" id="hub-count-clients">—</div><div style="font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;">👤 Clients</div></div>
+          <div class="stat-card" style="padding:12px 16px;cursor:pointer;" onclick="filtrerHub('courtier','')"><div style="font-size:18px;font-weight:700;color:var(--purple);" id="hub-count-courtiers">—</div><div style="font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;">🏢 Courtiers</div></div>
+          <div class="stat-card" style="padding:12px 16px;cursor:pointer;" onclick="filtrerHub('ami','')"><div style="font-size:18px;font-weight:700;color:var(--teal);" id="hub-count-amis">—</div><div style="font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;">⭐ Amis</div></div>
+          <div class="stat-card" style="padding:12px 16px;cursor:pointer;" onclick="filtrerHub('externe','')"><div style="font-size:18px;font-weight:700;color:var(--gray);" id="hub-count-externes">—</div><div style="font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;">🌐 Externes</div></div>
+        </div>
+
+        <!-- Barre d'outils -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
           <button class="btn-primary" onclick="openModalNouveauContact()">+ Ajouter</button>
-          <button class="btn-secondary" onclick="corrSyncLeads()">🔄 Sync clients CRM</button>
-          <input type="text" class="search-input" id="search-corr-contacts" placeholder="🔍 Rechercher..." oninput="filtrerContacts()" style="width:220px;">
-          <select class="filter-select" id="filter-corr-type" onchange="filtrerContacts()">
+          <button class="btn-secondary" onclick="hubSyncTout()">🔄 Sync tout</button>
+          <button class="btn-secondary" onclick="hubToutSelectionner()">☑️ Tout sélectionner</button>
+          <button class="btn-secondary" onclick="hubToutDeselectionner()">□ Désélectionner</button>
+          <input type="text" class="search-input" id="hub-search" placeholder="🔍 Nom, courriel, ville, bannière..." oninput="filtrerHub()" style="flex:1;min-width:180px;">
+          <select class="filter-select" id="hub-filter-type" onchange="filtrerHub()">
             <option value="">Tous types</option>
             <option value="client">👤 Clients</option>
+            <option value="courtier">🏢 Courtiers</option>
+            <option value="ami">⭐ Amis</option>
             <option value="externe">🌐 Externes</option>
           </select>
+          <select class="filter-select" id="hub-filter-ville" onchange="filtrerHub()">
+            <option value="">Toutes villes</option>
+          </select>
+          <select class="filter-select" id="hub-filter-statut" onchange="filtrerHub()">
+            <option value="">Tous statuts</option>
+            <option value="Actif">🟢 Actif</option>
+            <option value="Inactif">⚫ Inactif</option>
+          </select>
         </div>
+
+        <!-- Barre sélection + actions -->
+        <div id="hub-action-bar" style="display:none;background:rgba(26,143,209,0.08);border:1px solid rgba(26,143,209,0.2);border-radius:10px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <span style="font-size:13px;font-weight:600;color:var(--blue);" id="hub-selection-label">0 sélectionné(s)</span>
+          <button class="btn-primary" onclick="hubEnvoyerSelection()" style="padding:7px 14px;font-size:12px;">📧 Composer pour la sélection</button>
+          <button class="btn-secondary" onclick="hubToutDeselectionner()" style="padding:7px 14px;font-size:12px;">✕ Annuler</button>
+        </div>
+
+        <!-- Tableau unifié -->
         <div class="table-wrap">
           <table class="data-table">
-            <thead><tr><th>Prénom / Nom</th><th>Courriel</th><th>Entreprise</th><th>Type</th><th>Statut</th><th>Actions</th></tr></thead>
-            <tbody id="corr-contacts-tbody"></tbody>
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="hub-check-all" onchange="hubToggleTous(this)"></th>
+                <th>Prénom / Nom</th>
+                <th>Courriel</th>
+                <th>Ville</th>
+                <th>Type</th>
+                <th>Entreprise / Bannière</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="hub-tbody"></tbody>
           </table>
         </div>
       </div>
@@ -2397,37 +2439,172 @@ async function corrEnvoyer(){
   } else showNotif('❌ '+(d.error||'Erreur'),'error');
 }
 
-// ── CONTACTS ──
-function renderCorrContacts(data){
-  const list=data||corrContacts;
-  const tbody=document.getElementById('corr-contacts-tbody');
-  if(!list.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">👥</div><div>Aucun contact — ajoutez manuellement ou synchronisez vos clients</div></div></td></tr>';return;}
+// ══ HUB DESTINATAIRES UNIFIÉ ══════════════════════════════════════════
+let hubContacts=[], hubSelectionnes=new Set();
+
+async function chargerCorrContacts(){
+  const d=await apiGet('/api/crm/correspondances/contacts');
+  corrContacts=d.contacts||[];
+  await chargerHubTout();
+  peuplerCorrComposer();
+}
+
+async function chargerHubTout(){
+  // Charger contacts + courtiers + leads en parallèle
+  const [dc, dco, dl] = await Promise.all([
+    apiGet('/api/crm/correspondances/contacts'),
+    apiGet('/api/crm/courtiers'),
+    apiGet('/api/crm/leads')
+  ]);
+  const contacts = (dc.contacts||[]).map(c=>({...c, _source:'contact'}));
+  const courtiersList = (dco.courtiers||[]).filter(c=>c.statut!=='Désabonné').map(c=>({
+    id:'courtier_'+c.id, prenom:c.prenom||'', nom:c.nom||'',
+    email:c.email, telephone:c.telephone||'', entreprise:c.agence||'',
+    banniere:c.banniere||c.agence||'', ville:c.ville||'',
+    type:'courtier', statut:c.statut||'Actif', _source:'courtier', _orig_id:c.id
+  }));
+  const leadsList = (dl.leads||[]).filter(l=>l.courriel).map(l=>({
+    id:'lead_'+l.id, prenom:l.prenom||'', nom:l.nom||'',
+    email:l.courriel, telephone:l.telephone||'', entreprise:'',
+    banniere:'', ville:l.ville||'', type:'client',
+    statut:'Actif', _source:'lead', _orig_id:l.id
+  }));
+  // Fusionner en évitant doublons par email
+  const seen=new Set();
+  const all=[];
+  for(const c of [...contacts, ...courtiersList, ...leadsList]){
+    if(!c.email)continue;
+    const k=c.email.toLowerCase();
+    if(!seen.has(k)){seen.add(k);all.push(c);}
+  }
+  hubContacts=all;
+  corrContacts=dc.contacts||[];
+  renderHub();
+  updateHubStats();
+  peuplerHubVilles();
+}
+
+function updateHubStats(){
+  document.getElementById('hub-count-total').textContent=hubContacts.length;
+  document.getElementById('hub-count-clients').textContent=hubContacts.filter(c=>c.type==='client').length;
+  document.getElementById('hub-count-courtiers').textContent=hubContacts.filter(c=>c.type==='courtier').length;
+  document.getElementById('hub-count-amis').textContent=hubContacts.filter(c=>c.type==='ami').length;
+  document.getElementById('hub-count-externes').textContent=hubContacts.filter(c=>c.type==='externe').length;
+}
+
+function peuplerHubVilles(){
+  const sel=document.getElementById('hub-filter-ville');
+  const villes=[...new Set(hubContacts.map(c=>c.ville).filter(Boolean))].sort();
+  const val=sel.value;
+  sel.innerHTML='<option value="">Toutes villes</option>'+villes.map(v=>`<option value="${v}">${v}</option>`).join('');
+  if(val)sel.value=val;
+}
+
+function filtrerHub(typeForce, villeForce){
+  const q=(document.getElementById('hub-search')?.value||'').toLowerCase();
+  const t=typeForce!==undefined?typeForce:(document.getElementById('hub-filter-type')?.value||'');
+  const v=villeForce!==undefined?villeForce:(document.getElementById('hub-filter-ville')?.value||'');
+  const s=document.getElementById('hub-filter-statut')?.value||'';
+  if(typeForce!==undefined&&document.getElementById('hub-filter-type'))document.getElementById('hub-filter-type').value=typeForce;
+  if(villeForce!==undefined&&document.getElementById('hub-filter-ville'))document.getElementById('hub-filter-ville').value=villeForce;
+  const filtered=hubContacts.filter(c=>{
+    const mq=!q||`${c.prenom} ${c.nom} ${c.email} ${c.ville||''} ${c.entreprise||''} ${c.banniere||''}`.toLowerCase().includes(q);
+    const mt=!t||c.type===t;
+    const mv=!v||c.ville===v;
+    const ms=!s||c.statut===s;
+    return mq&&mt&&mv&&ms;
+  });
+  renderHub(filtered);
+}
+
+function renderHub(data){
+  const list=data||hubContacts;
+  const tbody=document.getElementById('hub-tbody');
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">👥</div><div>Aucun contact — cliquez sur Sync tout</div></div></td></tr>`;return;}
+  const typeColors={client:'var(--blue)',courtier:'var(--purple)',ami:'var(--teal)',externe:'var(--gray)'};
+  const typeLabels={client:'👤 Client',courtier:'🏢 Courtier',ami:'⭐ Ami',externe:'🌐 Externe'};
   tbody.innerHTML=list.map(c=>{
+    const sel=hubSelectionnes.has(c.id);
     const nom=`${c.prenom||''} ${c.nom||''}`.trim()||'—';
-    const typeBadge=c.type==='client'?'<span style="font-size:10px;background:rgba(26,143,209,0.12);color:var(--blue);padding:2px 8px;border-radius:100px;">👤 Client</span>':'<span style="font-size:10px;background:rgba(39,174,96,0.12);color:var(--green);padding:2px 8px;border-radius:100px;">🌐 Externe</span>';
-    return `<tr>
+    const bann=c.banniere||c.entreprise||'—';
+    return `<tr style="${sel?'background:rgba(26,143,209,0.06);':''}">
+      <td><input type="checkbox" ${sel?'checked':''} onchange="hubToggle('${c.id}',this)"></td>
       <td><strong>${nom}</strong></td>
       <td style="font-size:12px;">${c.email}</td>
-      <td style="font-size:12px;">${c.entreprise||'—'}</td>
-      <td>${typeBadge}</td>
+      <td style="font-size:12px;">${c.ville||'—'}</td>
+      <td><span style="font-size:10px;background:rgba(0,0,0,0.06);color:${typeColors[c.type]||'var(--gray)'};padding:2px 8px;border-radius:100px;font-weight:600;">${typeLabels[c.type]||c.type}</span></td>
+      <td style="font-size:12px;">${bann}</td>
       <td><span style="font-size:12px;color:${c.statut==='Actif'?'var(--green)':'var(--gray)'};">${c.statut||'Actif'}</span></td>
       <td>
-        <button class="btn-secondary" style="padding:4px 8px;font-size:11px;" onclick="ouvrirEditionContact('${c.id}')">✏️</button>
-        <button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="supprimerContact('${c.id}')">🗑️</button>
+        ${c._source==='contact'?`<button class="btn-secondary" style="padding:4px 8px;font-size:11px;" onclick="ouvrirEditionContact('${c.id}')">✏️</button>
+        <button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="supprimerContact('${c.id}')">🗑️</button>`:'<span style="font-size:11px;color:var(--gray);">—</span>'}
       </td>
     </tr>`;
   }).join('');
+  majHubActionBar();
 }
 
-function filtrerContacts(){
-  const q=document.getElementById('search-corr-contacts').value.toLowerCase();
-  const t=document.getElementById('filter-corr-type').value;
-  renderCorrContacts(corrContacts.filter(c=>{
-    const mq=!q||`${c.prenom||''} ${c.nom||''} ${c.email} ${c.entreprise||''}`.toLowerCase().includes(q);
-    const mt=!t||c.type===t;
-    return mq&&mt;
-  }));
+function hubToggle(id, el){
+  if(el.checked)hubSelectionnes.add(id);else hubSelectionnes.delete(id);
+  majHubActionBar();
 }
+function hubToggleTous(el){
+  const visible=[...document.querySelectorAll('#hub-tbody input[type=checkbox]')];
+  visible.forEach(cb=>{
+    const row=cb.closest('tr');
+    const id=cb.getAttribute('onchange').match(/'([^']+)'/)[1];
+    if(el.checked)hubSelectionnes.add(id);else hubSelectionnes.delete(id);
+  });
+  renderHub();
+}
+function hubToutSelectionner(){hubContacts.forEach(c=>hubSelectionnes.add(c.id));renderHub();majHubActionBar();}
+function hubToutDeselectionner(){hubSelectionnes.clear();renderHub();majHubActionBar();}
+
+function majHubActionBar(){
+  const bar=document.getElementById('hub-action-bar');
+  const n=hubSelectionnes.size;
+  if(n>0){bar.style.display='flex';document.getElementById('hub-selection-label').textContent=`${n} sélectionné(s)`;}
+  else bar.style.display='none';
+  // Sync avec le composeur
+  corrSelectionnes=new Set([...hubSelectionnes].filter(id=>{
+    const c=hubContacts.find(x=>x.id===id);return c&&c.email;
+  }));
+  corrMajComposer();
+}
+
+function hubEnvoyerSelection(){
+  if(hubSelectionnes.size===0){showNotif('⚠️ Sélectionnez au moins un contact','warning');return;}
+  // Transférer la sélection vers le composeur
+  corrSelectionnes=new Set();
+  [...hubSelectionnes].forEach(id=>{
+    const c=hubContacts.find(x=>x.id===id);
+    if(!c||!c.email)return;
+    // Si c'est un courtier ou lead, créer un objet temporaire dans corrContacts
+    if(!corrContacts.find(x=>x.email.toLowerCase()===c.email.toLowerCase())){
+      corrContacts.push({id:c.id,prenom:c.prenom,nom:c.nom,email:c.email,type:c.type});
+    }
+    const found=corrContacts.find(x=>x.email.toLowerCase()===c.email.toLowerCase());
+    if(found)corrSelectionnes.add(found.id);
+    else corrSelectionnes.add(c.id);
+  });
+  switchCTab('composer');
+  corrMajComposer();
+  showNotif(`✅ ${corrSelectionnes.size} destinataire(s) chargé(s) dans le composeur`,'success');
+}
+
+async function hubSyncTout(){
+  const btn=event.target;btn.innerHTML='⏳ Sync...';btn.disabled=true;
+  // Sync leads vers correspondances_contacts
+  const d=await apiPost('/api/crm/correspondances/sync-leads',{});
+  await chargerHubTout();
+  btn.innerHTML='🔄 Sync tout';btn.disabled=false;
+  showNotif(`✅ Synchronisation terminée — ${hubContacts.length} contacts au total`,'success');
+}
+
+// Garder renderCorrContacts pour compatibilité
+function renderCorrContacts(data){renderHub(data);}
+function filtrerContacts(){filtrerHub();}
+async function corrSyncLeads(){await hubSyncTout();}
 
 function openModalNouveauContact(){
   ['nc-prenom','nc-nom','nc-email','nc-telephone','nc-entreprise','nc-notes'].forEach(id=>document.getElementById(id).value='');
