@@ -2302,8 +2302,13 @@ function initQuill(){
       toolbar: '#corr-quill-toolbar',
       ...(typeof ImageResize !== 'undefined' ? {imageResize:{displayStyles:{backgroundColor:'black',border:'none',color:'white'},modules:['Resize','DisplaySize','Toolbar']}} : {})
     },
-    placeholder: 'Bonjour {{PRENOM}},\n\nVotre message ici...\n\nCordialement,\nMohand Aïdi\nCapturAir',
+    placeholder: '',
   });
+  // Texte par défaut pré-écrit (modifiable — pas un placeholder grisé)
+  const defaultHTML = '<p>Bonjour {{PRENOM}},</p><p><br></p><p>Votre message ici...</p><p><br></p><p>Cordialement,<br>Mohand Aïdi<br>CapturAir</p>';
+  quillEditor.root.innerHTML = defaultHTML;
+  document.getElementById('corr-corps').value = defaultHTML;
+  corrSavedContent = defaultHTML;
   quillEditor.on('text-change', ()=>{
     document.getElementById('corr-corps').value = quillEditor.root.innerHTML;
   });
@@ -2949,8 +2954,13 @@ function renderHub(data){
       <td style="font-size:12px;">${bann}</td>
       <td><span style="font-size:12px;color:${c.statut==='Actif'?'var(--green)':'var(--gray)'};">${c.statut||'Actif'}</span></td>
       <td>
-        ${c._source==='contact'?`<button class="btn-secondary" style="padding:4px 8px;font-size:11px;" onclick="ouvrirEditionContact('${c.id}')">✏️</button>
-        <button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="supprimerContact('${c.id}')">🗑️</button>`:'<span style="font-size:11px;color:var(--gray);">—</span>'}
+        ${c._source==='contact'?`
+          <button class="btn-secondary" style="padding:4px 8px;font-size:11px;" onclick="ouvrirEditionContact('${c.id}')">✏️</button>
+          <button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="supprimerContact('${c.id}')">🗑️</button>`
+        :c._source==='courtier'?`
+          <button class="btn-secondary" style="padding:4px 8px;font-size:11px;" onclick="ouvrirEditionCourtier('${c._orig_id}')">✏️</button>
+          <button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="supprimerCourtier('${c._orig_id}')">🗑️</button>`
+        :`<span style="font-size:11px;color:var(--gray);">—</span>`}
       </td>
     </tr>`;
   }).join('');
