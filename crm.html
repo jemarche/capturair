@@ -823,7 +823,7 @@
             <label class="form-label">À <span style="color:var(--red)">*</span></label>
             <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--offwhite);border:1px solid var(--border);border-radius:8px;padding:8px 12px;min-height:42px;" id="corr-to-chips"></div>
             <div style="display:flex;gap:8px;margin-top:8px;">
-              <input type="text" class="search-input" id="corr-search-contact" placeholder="🔍 Rechercher un contact..." oninput="corrSearchContact()" style="flex:1;">
+              <input type="text" class="search-input" id="corr-search-contact" placeholder="🔍 Rechercher ou taper un courriel + Entrée..." oninput="corrSearchContact()" onkeydown="corrSearchKeydown(event)" style="flex:1;">
               <button class="btn-secondary" onclick="corrToutSelectionner()" style="white-space:nowrap;">☑️ Tout sélectionner</button>
               <button class="btn-secondary" onclick="corrToutDeselectionner()" style="white-space:nowrap;">□ Effacer</button>
             </div>
@@ -2206,13 +2206,54 @@ function corrMajApercu(){
 
 function corrRetirerDest(id){corrSelectionnes.delete(id);corrMajComposer();}
 
+function corrSearchKeydown(e){
+  if(e.key!=='Enter')return;
+  const q=document.getElementById('corr-search-contact').value.trim();
+  if(!q)return;
+  const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  if(EMAIL_RE.test(q)){
+    corrAjouterEmailLibre(q);
+  }
+}
+
+async function corrAjouterEmailLibre(email){
+  // Vérifier si le contact existe déjà
+  const existing=corrContacts.find(c=>c.email.toLowerCase()===email.toLowerCase());
+  if(existing){
+    corrSelectionnes.add(existing.id);
+    corrMajComposer();
+    document.getElementById('corr-search-contact').value='';
+    document.getElementById('corr-contact-results').style.display='none';
+    return;
+  }
+  // Créer contact temporaire via API
+  const d=await apiPost('/api/crm/correspondances/contacts',{
+    prenom:'',nom:'',email:email.toLowerCase(),type:'externe',statut:'Actif'
+  });
+  if(d.success){
+    // Ajouter localement sans recharger toute la liste
+    const newContact={id:d.id,prenom:'',nom:'',email:email.toLowerCase(),type:'externe',statut:'Actif'};
+    corrContacts.push(newContact);
+    corrSelectionnes.add(d.id);
+    corrMajComposer();
+    document.getElementById('corr-search-contact').value='';
+    document.getElementById('corr-contact-results').style.display='none';
+    showNotif(`✅ ${email} ajouté comme destinataire`,'success');
+  } else {
+    showNotif('❌ '+(d.error||'Erreur'),'error');
+  }
+}
+
 function corrSearchContact(){
-  const q=document.getElementById('corr-search-contact').value.toLowerCase().trim();
+  const q=document.getElementById('corr-search-contact').value.trim();
+  const ql=q.toLowerCase();
   const res=document.getElementById('corr-contact-results');
   if(!q){res.style.display='none';return;}
-  const matches=corrContacts.filter(c=>`${c.prenom||''} ${c.nom||''} ${c.email}`.toLowerCase().includes(q)).slice(0,8);
-  if(!matches.length){res.style.display='none';return;}
-  res.innerHTML=matches.map(c=>{
+  const matches=corrContacts.filter(c=>`${c.prenom||''} ${c.nom||''} ${c.email}`.toLowerCase().includes(ql)).slice(0,8);
+  const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  const isEmail=EMAIL_RE.test(q);
+  const emailExiste=corrContacts.find(c=>c.email.toLowerCase()===ql);
+  let html=matches.map(c=>{
     const nom=`${c.prenom||''} ${c.nom||''}`.trim()||c.email;
     const sel=corrSelectionnes.has(c.id);
     return `<div style="padding:9px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);" onmousedown="corrToggleDest('${c.id}')">
@@ -2220,6 +2261,16 @@ function corrSearchContact(){
       <span><strong>${nom}</strong> <span style="color:var(--gray);font-size:11px;">${c.email}</span></span>
     </div>`;
   }).join('');
+  // Ajouter option "Envoyer à ce courriel" si c'est un email valide non existant
+  if(isEmail&&!emailExiste){
+    html+=`<div style="padding:10px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:10px;background:rgba(26,143,209,0.06);border-top:1px solid var(--border);" onmousedown="corrAjouterEmailLibre('${q}')">
+      <span style="font-size:16px;">➕</span>
+      <span style="color:var(--blue);font-weight:500;">Envoyer à <strong>${q}</strong></span>
+      <span style="font-size:11px;color:var(--gray);margin-left:auto;">Appuyer Entrée ou cliquer</span>
+    </div>`;
+  }
+  if(!html){res.style.display='none';return;}
+  res.innerHTML=html;
   res.style.display='block';
 }
 
