@@ -2528,7 +2528,7 @@ async function corrSearchGif(query, append = false){
     gifLoading = true;
 
     try{
-      const r = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(gifCurrentQuery)}&limit=8&offset=${gifPageOffset}&rating=g&lang=fr`);
+      const r = await fetch(`${API}/api/gifs?q=${encodeURIComponent(gifCurrentQuery)}&offset=${gifPageOffset}`, {headers: hdrs()});
       const d = await r.json();
 
       if(!append) results.innerHTML = '';
