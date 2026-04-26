@@ -426,8 +426,11 @@ let selectedDate = null, selectedSlot = null;
 
 (async function init() {
   const params = new URLSearchParams(window.location.search);
-  TOKEN = params.get('token') || '';
-  if (!TOKEN) { showScreen('invalid', 'Lien manquant', 'Aucun token de réservation trouvé.'); return; }
+TOKEN = params.get('token') || '';
+if (!TOKEN) { 
+  showScreen('invalid', 'Ce lien n\'est plus actif', 'Entrez votre courriel pour recevoir un nouveau lien de réservation.');
+  return; 
+}
   try {
     const resp = await fetch(`${API}/api/token/verify?token=${encodeURIComponent(TOKEN)}`);
     const data = await resp.json();
