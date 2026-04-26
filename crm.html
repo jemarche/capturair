@@ -2505,22 +2505,33 @@ function corrOuvrirGifs(){
 }
 
 async function corrSearchGif(query){
-  const q = typeof query==='string'?query:document.getElementById('corr-gif-search').value;
-  if(!q)return;
+  const q = typeof query==='string' ? query : document.getElementById('corr-gif-search').value;
+  if(!q) return;
+
   clearTimeout(gifTimeout);
-  gifTimeout=setTimeout(async()=>{
+
+  gifTimeout = setTimeout(async()=>{
     try{
-      const r=await fetch(`https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(q)}&key=AIzaSyAyimkuYQYF_FXVALexPzpgwsQ6UupJxjw&limit=8&media_filter=gif`);
-      const d=await r.json();
-      const results=document.getElementById('corr-gif-results');
-      if(!d.results?.length){results.innerHTML='<div style="font-size:12px;color:var(--gray);grid-column:1/-1;text-align:center;padding:20px;">Aucun GIF trouvé</div>';return;}
-      results.innerHTML=d.results.map(g=>{
-        const url=g.media_formats?.tinygif?.url||g.media_formats?.gif?.url||'';
+      const GIPHY_API_KEY = "DWnSoClPgZoB3V0GAquX1SbHPw2yQMCZ";
+
+      const r = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(q)}&limit=8&rating=g&lang=fr`);
+      const d = await r.json();
+
+      const results = document.getElementById('corr-gif-results');
+
+      if(!d.data?.length){
+        results.innerHTML = '<div style="font-size:12px;color:var(--gray);grid-column:1/-1;text-align:center;padding:20px;">Aucun GIF trouvé</div>';
+        return;
+      }
+
+      results.innerHTML = d.data.map(g=>{
+        const url = g.images?.fixed_width?.url || g.images?.original?.url || '';
         return `<img src="${url}" style="width:100%;border-radius:8px;cursor:pointer;object-fit:cover;height:100px;" onclick="corrInsererGif('${url}')" loading="lazy">`;
       }).join('');
+
     }catch(e){
-      // Fallback si API Tenor indispo
-      document.getElementById('corr-gif-results').innerHTML='<div style="font-size:12px;color:var(--gray);grid-column:1/-1;text-align:center;padding:20px;">Service GIF temporairement indisponible</div>';
+      document.getElementById('corr-gif-results').innerHTML =
+        '<div style="font-size:12px;color:var(--gray);grid-column:1/-1;text-align:center;padding:20px;">Service GIF temporairement indisponible</div>';
     }
   }, 400);
 }
