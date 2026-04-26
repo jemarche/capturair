@@ -3208,7 +3208,7 @@ function corrUtiliserTemplate(id){
   switchCTab('composer');
   document.getElementById('corr-template-select').value=id;
   if(t.sujet)document.getElementById('corr-objet').value=t.sujet;
-  // Détecter si c'est un template HTML riche
+
   if(t.contenu_html && t.contenu_html.includes('<!DOCTYPE html')){
     document.getElementById('corr-mode-html').value='1';
     document.getElementById('corr-html-badge').style.display='inline-flex';
@@ -3221,6 +3221,26 @@ function corrUtiliserTemplate(id){
     showNotif('✅ Template chargé','success');
   }
 }
+
+/* UX GIF PRO */
+document.addEventListener('DOMContentLoaded', ()=>{
+  const input = document.getElementById('corr-gif-search');
+  const results = document.getElementById('corr-gif-results');
+
+  if(input){
+    input.addEventListener('input', ()=>{
+      corrSearchGif(input.value);
+    });
+  }
+
+  if(results){
+    results.addEventListener('scroll', ()=>{
+      if(results.scrollTop + results.clientHeight >= results.scrollHeight - 30){
+        corrSearchGif(gifCurrentQuery, true);
+      }
+    });
+  }
+});
 </script>
 </body>
 </html>
