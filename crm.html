@@ -1090,8 +1090,10 @@
       <div class="form-group"><label class="form-label">Entreprise</label><input type="text" class="form-input" id="nc-entreprise" placeholder="Entreprise"></div>
       <div class="form-group"><label class="form-label">Type</label>
         <select class="form-input form-select" id="nc-type">
-          <option value="externe">🌐 Externe</option>
           <option value="client">👤 Client</option>
+          <option value="courtier">🏢 Courtier</option>
+          <option value="ami">⭐ Ami</option>
+          <option value="externe">🌐 Externe</option>
         </select>
       </div>
       <div class="form-group form-full"><label class="form-label">Notes</label><textarea class="form-input form-textarea" id="nc-notes" style="min-height:60px;"></textarea></div>
@@ -1115,8 +1117,10 @@
       <div class="form-group"><label class="form-label">Entreprise</label><input type="text" class="form-input" id="ec-entreprise"></div>
       <div class="form-group"><label class="form-label">Type</label>
         <select class="form-input form-select" id="ec-type">
-          <option value="externe">🌐 Externe</option>
           <option value="client">👤 Client</option>
+          <option value="courtier">🏢 Courtier</option>
+          <option value="ami">⭐ Ami</option>
+          <option value="externe">🌐 Externe</option>
         </select>
       </div>
       <div class="form-group"><label class="form-label">Statut</label>
@@ -2149,7 +2153,16 @@ function toutSelectionnerCourtiers(){courtiers.forEach(c=>courtiersSelectionnes.
 function toutDeselectionnerCourtiers(){courtiersSelectionnes.clear();document.getElementById('check-all-courtiers').checked=false;renderCourtiers();}
 async function supprimerCourtier(id){if(!confirm('Supprimer ce courtier ?'))return;const d=await apiDelete(`/api/crm/courtiers/${id}`);if(d.success){showNotif('✅ Courtier supprimé','success');await chargerCourtiers();}else showNotif('❌ '+d.error,'error');}
 function ouvrirEditionCourtier(id){
-  const c=courtiers.find(x=>x.id===id);if(!c)return;
+  // Chercher dans courtiers[] (page Courtiers) ou dans hubContacts (hub)
+  let c=courtiers.find(x=>x.id===id);
+  if(!c){
+    // Fallback: chercher dans hubContacts via _orig_id
+    const hubEntry=hubContacts.find(x=>x._orig_id===id||x.id==='courtier_'+id);
+    if(hubEntry){
+      c={id:hubEntry._orig_id||id,prenom:hubEntry.prenom,nom:hubEntry.nom,email:hubEntry.email,telephone:hubEntry.telephone||'',agence:hubEntry.entreprise||'',banniere:hubEntry.banniere||'',ville:hubEntry.ville||'',type_contact:'',statut:hubEntry.statut||'Actif',notes:''};
+    }
+  }
+  if(!c){showNotif('⚠️ Courtier non trouvé','warning');return;}
   document.getElementById('edit-courtier-id').value=c.id;
   document.getElementById('edit-courtier-prenom').value=c.prenom||'';document.getElementById('edit-courtier-nom').value=c.nom||'';
   document.getElementById('edit-courtier-email').value=c.email||'';document.getElementById('edit-courtier-telephone').value=c.telephone||'';
@@ -2343,25 +2356,30 @@ function corrClearCorps(){
 }
 
 function corrAnnulerModifs(){
-  if(corrContenuSauvegarde){
-    corrSetCorps(corrContenuSauvegarde);
-    showNotif('↩️ Modifications annulées','success');
-  } else {
-    corrVider();
-  }
+  const defaultHTML='<p>Bonjour {{PRENOM}},</p><p><br></p><p>Votre message ici...</p><p><br></p><p>Cordialement,<br>Mohand Aïdi<br>CapturAir</p>';
+  const cible=corrContenuSauvegarde||defaultHTML;
+  corrSetCorps(cible);
+  showNotif('↩️ Modifications annulées — texte restauré','success');
 }
 
 function corrVider(){
-  if(!confirm('Vider le message ? Cette action est irréversible.'))return;
-  corrClearCorps();
+  if(!confirm('Vider tous les champs ? Cette action est irréversible.'))return;
+  // Vider destinataires
+  corrSelectionnes.clear();
+  corrMajComposer();
+  // Vider champs
   document.getElementById('corr-objet').value='';
   document.getElementById('corr-cci').value='';
   document.getElementById('corr-template-select').value='';
-  document.getElementById('corr-mode-html').value='0';
-  document.getElementById('corr-html-badge').style.display='none';
+  if(document.getElementById('corr-mode-html'))document.getElementById('corr-mode-html').value='0';
+  if(document.getElementById('corr-html-badge'))document.getElementById('corr-html-badge').style.display='none';
+  // Vider pièces jointes
   corrPJFichiers=[];
   corrMajPJZone();
-  showNotif('🗑️ Message vidé','success');
+  // Remettre le texte par défaut dans Quill
+  const defaultHTML='<p>Bonjour {{PRENOM}},</p><p><br></p><p>Votre message ici...</p><p><br></p><p>Cordialement,<br>Mohand Aïdi<br>CapturAir</p>';
+  corrSetCorps(defaultHTML);
+  showNotif('🗑️ Tous les champs ont été vidés','success');
 }
 
 // ── PIÈCES JOINTES ──
