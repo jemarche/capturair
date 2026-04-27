@@ -795,6 +795,15 @@
             <option value="Intéressé">⭐ Intéressé</option>
             <option value="Client">🏆 Client</option>
           </select>
+          <select class="filter-select" id="filter-type-courtier" onchange="filtrerCourtiers()">
+  <option value="">Tous types</option>
+  <option value="Courtier résidentiel">🏠 Résidentiel</option>
+  <option value="Courtier commercial">🏢 Commercial</option>
+  <option value="Courtier industriel">🏭 Industriel</option>
+  <option value="Courtier terrain">🌿 Terrain</option>
+  <option value="Gestionnaire agence">👔 Gestionnaire</option>
+  <option value="Autre">📋 Autre</option>
+</select>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <span id="courtiers-selection-count" style="font-size:13px;color:var(--gray);align-self:center;">0 sélectionné(s)</span>
@@ -2369,7 +2378,13 @@ function renderCourtiers(data){
 function filtrerCourtiers(){
   const q=document.getElementById('search-courtiers').value.toLowerCase();
   const s=document.getElementById('filter-statut-courtier').value;
-  renderCourtiers(courtiers.filter(c=>{const mq=!q||`${c.prenom} ${c.nom} ${c.email} ${c.agence} ${c.ville}`.toLowerCase().includes(q);const ms=!s||c.statut===s;return mq&&ms;}));
+  const t=document.getElementById('filter-type-courtier').value;
+  renderCourtiers(courtiers.filter(c=>{
+    const mq=!q||`${c.prenom} ${c.nom} ${c.email} ${c.agence} ${c.ville}`.toLowerCase().includes(q);
+    const ms=!s||c.statut===s;
+    const mt=!t||c.type_contact===t;
+    return mq&&ms&&mt;
+  }));
 }
 function toggleCourtier(id,el){if(el.checked)courtiersSelectionnes.add(id);else courtiersSelectionnes.delete(id);document.getElementById('courtiers-selection-count').textContent=`${courtiersSelectionnes.size} sélectionné(s)`;}
 function toggleTousCourtiers(el){if(el.checked)courtiers.forEach(c=>courtiersSelectionnes.add(c.id));else courtiersSelectionnes.clear();renderCourtiers();}
