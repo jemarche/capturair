@@ -1547,7 +1547,16 @@
       <div class="form-group"><label class="form-label">Agence</label><input type="text" class="form-input" id="nouveau-courtier-agence" placeholder="RE/MAX"></div>
       <div class="form-group"><label class="form-label">Bannière</label><input type="text" class="form-input" id="nouveau-courtier-banniere" placeholder="RE/MAX"></div>
       <div class="form-group"><label class="form-label">Ville</label><input type="text" class="form-input" id="nouveau-courtier-ville" placeholder="Repentigny"></div>
-      <div class="form-group"><label class="form-label">Type de contact</label><input type="text" class="form-input" id="nouveau-courtier-type" placeholder="Courtier résidentiel"></div>
+      <div class="form-group"><label class="form-label">Type de contact</label>
+  <select class="form-input form-select" id="nouveau-courtier-type">
+    <option value="Courtier résidentiel">🏠 Courtier résidentiel</option>
+    <option value="Courtier commercial">🏢 Courtier commercial</option>
+    <option value="Courtier industriel">🏭 Courtier industriel</option>
+    <option value="Courtier terrain">🌿 Courtier terrain</option>
+    <option value="Gestionnaire agence">👔 Gestionnaire agence</option>
+    <option value="Autre">📋 Autre</option>
+  </select>
+</div>
       <div class="form-group form-full"><label class="form-label">Notes</label><textarea class="form-input form-textarea" id="nouveau-courtier-notes" style="min-height:60px;"></textarea></div>
     </div>
     <div class="modal-actions">
