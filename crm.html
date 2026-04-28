@@ -2529,7 +2529,7 @@ console.log('Template trouvé:', t?.id);
 console.log('contenu_html length:', t?.contenu_html?.length);
 console.log('Marqueur présent:', t?.contenu_html?.includes('<!--APRES_BADGES-->'));
 let html=t?.contenu_html||'';
-let html=t?.contenu_html||'';
+
     html=html.replace(/{{RABAIS}}/g,rabais).replace(/{{DATE_FIN}}/g,dateFinStr).replace(/{{PRIX_1}}/g,String(prix1)).replace(/{{PRIX_2}}/g,String(prix2)).replace(/{{PRIX_3}}/g,String(prix3)).replace(/{{PRIX_4}}/g,String(prix4));
     const ids=Array.from(courtiersSelectionnes);
     const d=await apiPost('/api/crm/courtiers/envoyer',{ids,template:envoiMassifTemplate,sujet:sujets[envoiMassifTemplate],contenu_html:html});
