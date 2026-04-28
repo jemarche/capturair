@@ -2508,6 +2508,7 @@ function ouvrirEnvoiMassif(template){
 }
 
 async function envoyerMassif(){
+  console.log('envoyerMassif démarré, template:', envoiMassifTemplate);
   const btn=document.getElementById('btn-envoyer-massif');
   const rabais=document.getElementById('envoi-rabais')?.value||'15';
   const dateFin=document.getElementById('envoi-date-fin')?.value||'';
