@@ -2520,9 +2520,10 @@ btn.innerHTML='<span class="spinner"></span> Envoi en cours...';btn.disabled=tru
   document.getElementById('envoi-progress-bar').style.width='0%';
   document.getElementById('envoi-progress-text').textContent='Préparation...';
   try{
-    const templateIds=['1c5583ae-4888-4202-82a4-55e984d0eaf6','330f9b9e-07d9-4282-9189-9424839f4ea2','38c2131c-ccd9-4917-b926-b3bc88c702e7'];
-    const t=corrTemplates.find(x=>x.id===templateIds[envoiMassifTemplate-1]);
-    let html=t?.contenu_html||'';
+const templateIds=['1c5583ae-4888-4202-82a4-55e984d0eaf6','330f9b9e-07d9-4282-9189-9424839f4ea2','38c2131c-ccd9-4917-b926-b3bc88c702e7'];
+if(!corrTemplates.length){await chargerCorrTemplates();}
+const t=corrTemplates.find(x=>x.id===templateIds[envoiMassifTemplate-1]);
+let html=t?.contenu_html||'';
     html=html.replace(/{{RABAIS}}/g,rabais).replace(/{{DATE_FIN}}/g,dateFinStr).replace(/{{PRIX_1}}/g,String(prix1)).replace(/{{PRIX_2}}/g,String(prix2)).replace(/{{PRIX_3}}/g,String(prix3)).replace(/{{PRIX_4}}/g,String(prix4));
     const ids=Array.from(courtiersSelectionnes);
     const d=await apiPost('/api/crm/courtiers/envoyer',{ids,template:envoiMassifTemplate,sujet:sujets[envoiMassifTemplate],contenu_html:html});
