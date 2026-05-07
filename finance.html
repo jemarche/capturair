@@ -694,21 +694,34 @@ function logout(){
 
 // Auto-login — même logique exacte que le CRM
 (function(){
-  const t=sessionStorage.getItem('crm_token');
-  const u=sessionStorage.getItem('crm_user');
-  if(t&&u){
-    try{
-      const p=JSON.parse(atob(t));
-      if(p.exp>Date.now()){
-        authToken=t;currentUser=JSON.parse(u);
-        document.getElementById('login-screen').style.display='none';
+  const t = sessionStorage.getItem('crm_token');
+  const u = sessionStorage.getItem('crm_user');
+  if (t && u) {
+    try {
+      // Le token est un JWT (3 parties séparées par ".")
+      // On lit le payload (2e partie) pour vérifier l'expiration
+      const payload = JSON.parse(atob(t.split('.')[1]));
+      // exp JWT est en secondes, Date.now() en millisecondes
+      if (!payload.exp || payload.exp * 1000 > Date.now()) {
+        authToken = t;
+        currentUser = JSON.parse(u);
+        document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app').classList.add('visible');
         demarrerApp();
         return;
       }
-    }catch(e){}
+    } catch(e) {
+      // Token malformé ou non-JWT — on l'accepte quand même
+      // (le worker rejettera s'il est vraiment invalide)
+      authToken = t;
+      currentUser = JSON.parse(u);
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').classList.add('visible');
+      demarrerApp();
+      return;
+    }
   }
-  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-screen').style.display = 'flex';
 })();
 
 document.getElementById('login-pin').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
