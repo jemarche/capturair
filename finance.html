@@ -693,16 +693,28 @@ function logout(){
 }
 
 // Auto-login — même logique exacte que le CRM
+// Auto-login — avec vérification expiration token
 (function(){
   const t = sessionStorage.getItem('crm_token');
   const u = sessionStorage.getItem('crm_user');
-  if (t && u && t.includes('.')) {
+
+  function tokenEstValide(token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000 > Date.now();
+    } catch(e) {
+      return false;
+    }
+  }
+
+  if (t && u && tokenEstValide(t)) {
     authToken = t;
     currentUser = JSON.parse(u);
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').classList.add('visible');
     demarrerApp();
   } else {
+    sessionStorage.clear();
     document.getElementById('login-screen').style.display = 'flex';
   }
 })();
