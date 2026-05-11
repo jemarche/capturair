@@ -330,6 +330,17 @@
       </div>
       <div class="pipeline-title">📊 Pipeline commercial — Flux complet</div>
       <div class="pipeline" id="pipeline-kanban"></div>
+    <!-- SMS EN ATTENTE -->
+<div style="margin-top:24px;">
+  <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;gap:10px;">
+    📱 SMS en attente d'approbation
+    <span id="badge-sms" style="background:var(--orange);color:white;font-size:11px;padding:2px 8px;border-radius:100px;font-weight:600;">0</span>
+    <button class="btn-secondary" onclick="chargerSMSQueue()" style="padding:5px 12px;font-size:12px;margin-left:auto;">🔄 Actualiser</button>
+  </div>
+  <div id="sms-queue-container">
+    <div style="text-align:center;padding:20px;color:var(--gray);font-size:13px;">⏳ Chargement...</div>
+  </div>
+</div>
     </div>
 
     <!-- LEADS LIST -->
