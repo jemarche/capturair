@@ -1762,7 +1762,7 @@ async function calcTrajet() {
   const dep = document.getElementById('carte-depart').value.trim();
   const dest = document.getElementById('carte-dest').value.trim();
   if (!dep || !dest) { alert('Remplis les deux adresses'); return; }
-  if (!leafletMap) initLeafletMap();
+  if (!leafletMap) await new Promise(r => { initMap(); setTimeout(r, 500); });
 
   document.getElementById('trajet-info').innerHTML = '<div class="alert alert-info">📡 Calcul en cours...</div>';
   try {
