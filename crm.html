@@ -3824,5 +3824,36 @@ initApp = async function() {
   setInterval(chargerSMSQueue, 60000);
 };
 </script>
+<!-- MODAL SMS MANUEL -->
+<div class="modal-overlay" id="modal-sms">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-title">📱 Envoyer un SMS</div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label class="form-label">Numéro de téléphone (format +1XXXXXXXXXX)</label>
+      <input type="text" class="form-input" id="sms-telephone" placeholder="+15141234567">
+    </div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label class="form-label">Template</label>
+      <select class="form-input form-select" id="sms-template" onchange="appliquerTemplateSMS()">
+        <option value="">— Texte libre —</option>
+        <option value="visite">✅ Visite confirmée</option>
+        <option value="galerie">📸 Galerie prête</option>
+        <option value="paiement">💰 Paiement reçu</option>
+        <option value="rappel">⏰ Rappel RDV</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:8px;">
+      <label class="form-label">Message</label>
+      <textarea class="form-input form-textarea" id="sms-message" oninput="majCompteurSMS()" style="min-height:100px;" placeholder="Votre message SMS..."></textarea>
+    </div>
+    <div style="font-size:11px;color:var(--gray);margin-bottom:16px;">
+      <span id="sms-compteur">0</span> caractères · <span id="sms-nb-sms">1 SMS</span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="fermerModalSMS()">Annuler</button>
+      <button class="btn-primary" id="btn-envoyer-sms" onclick="envoyerSMSManuel()">📱 Envoyer</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
