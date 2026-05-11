@@ -3672,6 +3672,146 @@ function corrUtiliserTemplate(id){
     showNotif('✅ Template chargé','success');
   }
 }
+// ══ SMS — FILE D'ATTENTE ET APPROBATION ══════════════════════════════
+const SMS_WORKER = 'https://capturair-sms.tumarchessurlatete.workers.dev';
+let smsQueue = [];
+
+async function chargerSMSQueue() {
+  try {
+    const r = await fetch(`${SMS_WORKER}/api/sms/queue`, { headers: hdrs() });
+    const d = await r.json();
+    smsQueue = d.queue || [];
+    renderSMSQueue();
+    const badge = document.getElementById('badge-sms');
+    if (badge) badge.textContent = smsQueue.length;
+  } catch(e) { console.error('SMS queue error:', e); }
+}
+
+function renderSMSQueue() {
+  const container = document.getElementById('sms-queue-container');
+  if (!container) return;
+  if (!smsQueue.length) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gray);font-size:13px;">✅ Aucun SMS en attente</div>';
+    return;
+  }
+  container.innerHTML = smsQueue.map(s => `
+    <div style="background:white;border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="font-size:11px;background:rgba(230,126,34,0.15);color:var(--orange);padding:2px 8px;border-radius:100px;font-weight:600;">${s.type||'manuel'}</span>
+        <span style="font-size:12px;color:var(--gray);">${s.telephone}</span>
+        <span style="font-size:11px;color:var(--gray);margin-left:auto;">${new Date(s.created_at).toLocaleString('fr-CA')}</span>
+      </div>
+      <textarea id="sms-msg-${s.id}" style="width:100%;background:var(--offwhite);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:13px;font-family:'DM Sans',sans-serif;resize:vertical;min-height:70px;">${s.message}</textarea>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button class="btn-primary" onclick="approuverSMS('${s.id}')" style="background:var(--green);">✅ Envoyer</button>
+        <button class="btn-danger" onclick="supprimerSMSQueue('${s.id}')">🗑️ Supprimer</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function approuverSMS(id) {
+  const message = document.getElementById(`sms-msg-${id}`)?.value?.trim();
+  if (!message) { showNotif('⚠️ Message vide', 'warning'); return; }
+  const btn = event.target;
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+  const r = await fetch(`${SMS_WORKER}/api/sms/approuver/${id}`, {
+    method: 'POST',
+    headers: hdrs(),
+    body: JSON.stringify({ message })
+  });
+  const d = await r.json();
+  btn.innerHTML = '✅ Envoyer';
+  btn.disabled = false;
+  if (d.success) { showNotif('✅ SMS envoyé !', 'success'); await chargerSMSQueue(); }
+  else showNotif('❌ ' + (d.error || 'Erreur'), 'error');
+}
+
+async function supprimerSMSQueue(id) {
+  if (!confirm('Supprimer ce SMS de la file ?')) return;
+  await fetch(`${SMS_WORKER}/api/sms/queue/${id}`, { method: 'DELETE', headers: hdrs() });
+  showNotif('🗑️ SMS supprimé', 'success');
+  await chargerSMSQueue();
+}
+
+// SMS Manuel depuis fiche lead
+let currentSMSLeadId = null;
+const SMS_TEMPLATES = {
+  'visite': 'CapturAir - Visite confirmee ! Nous avons bien recu votre reservation. Questions : 514-236-4950',
+  'galerie': 'CapturAir - Vos photos sont pretes ! Consultez votre galerie par courriel. Questions : 514-236-4950',
+  'paiement': 'CapturAir - Paiement recu ! Merci. Vos fichiers sont disponibles par courriel. Info : 514-236-4950',
+  'rappel': 'CapturAir - Rappel : votre seance photo est demain ! Questions : 514-236-4950'
+};
+
+function ouvrirModalSMS(leadId) {
+  currentSMSLeadId = leadId;
+  const lead = leads.find(l => l.id === leadId);
+  const tel = lead?.telephone ? lead.telephone.replace(/\D/g,'') : '';
+  const telFormate = tel.length === 10 ? `+1${tel}` : '';
+  document.getElementById('sms-telephone').value = telFormate;
+  document.getElementById('sms-message').value = '';
+  document.getElementById('sms-template').value = '';
+  document.getElementById('sms-compteur').textContent = '0';
+  document.getElementById('sms-nb-sms').textContent = '1 SMS';
+  document.getElementById('modal-sms').classList.add('active');
+}
+
+function fermerModalSMS() {
+  document.getElementById('modal-sms').classList.remove('active');
+  currentSMSLeadId = null;
+}
+
+function appliquerTemplateSMS() {
+  const template = document.getElementById('sms-template').value;
+  if (template && SMS_TEMPLATES[template]) {
+    document.getElementById('sms-message').value = SMS_TEMPLATES[template];
+    majCompteurSMS();
+  }
+}
+
+function majCompteurSMS() {
+  const msg = document.getElementById('sms-message').value;
+  const len = msg.length;
+  const nbSMS = Math.ceil(len / 160) || 1;
+  document.getElementById('sms-compteur').textContent = len;
+  document.getElementById('sms-nb-sms').textContent = `${nbSMS} SMS`;
+  document.getElementById('sms-compteur').style.color = len > 160 ? 'var(--orange)' : 'var(--gray)';
+}
+
+async function envoyerSMSManuel() {
+  const telephone = document.getElementById('sms-telephone').value.trim();
+  const message = document.getElementById('sms-message').value.trim();
+  if (!telephone) { showNotif('Numéro de téléphone requis', 'error'); return; }
+  if (!message) { showNotif('Message requis', 'error'); return; }
+  if (message.length > 480) { showNotif('Message trop long (max 480 caractères)', 'error'); return; }
+  const btn = document.getElementById('btn-envoyer-sms');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Envoi...';
+  try {
+    const r = await fetch(`${SMS_WORKER}/api/sms/envoyer`, {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({ telephone, message, lead_id: currentSMSLeadId })
+    });
+    const d = await r.json();
+    if (d.success) { showNotif('✅ SMS envoyé !', 'success'); fermerModalSMS(); }
+    else showNotif('Erreur : ' + (d.error || 'Inconnu'), 'error');
+  } catch(e) {
+    showNotif('Erreur de connexion', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '📱 Envoyer';
+  }
+}
+
+// Charger la queue SMS au démarrage et ajouter dans le dashboard
+const _initAppOrig = initApp;
+initApp = async function() {
+  await _initAppOrig();
+  chargerSMSQueue();
+  setInterval(chargerSMSQueue, 60000);
+};
 </script>
 </body>
 </html>
