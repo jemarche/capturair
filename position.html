@@ -1015,7 +1015,9 @@ async function autocompleteAdresse(inputId, listId) {
   const list=document.getElementById(listId);
   if(q.length<3){list.style.display='none';return;}
   try {
-    const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&countrycodes=ca&limit=5&accept-language=fr`);
+    const r=await fetch(`${API}/api/nav/geocode?q=${encodeURIComponent(q)}`, {headers:hdrs()});
+const data=await r.json();
+const d=data.results||[];
     const d=await r.json();
     if(!d.length){list.style.display='none';return;}
     list.innerHTML=d.map(p=>`<div onclick="selectionnerAdresse('${inputId}','${listId}','${p.display_name.replace(/'/g,"\\'")}',${p.lat},${p.lon})" style="padding:8px 12px;font-size:11px;cursor:pointer;border-bottom:1px solid var(--border);color:var(--navy);" onmouseover="this.style.background='var(--offwhite)'" onmouseout="this.style.background='white'">${p.display_name}</div>`).join('');
