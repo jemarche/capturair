@@ -725,11 +725,7 @@ function ouvrirModalMission() {
   renderTags('sms-wrap', 'sms-input', smsAlerte);
   renderTags('ha-wrap', 'ha-input', haAlerte);
 
-  // Peupler appareils
-  const sel = document.getElementById('mission-appareil');
-  sel.innerHTML = appareils.map(a => `<option value="${a.entite_ha}">${a.nom}</option>`).join('');
-
-  // Peupler appareils
+// Peupler appareils
   const sel = document.getElementById('mission-appareil');
   sel.innerHTML = appareils.map(a => `<option value="${a.entite_ha}">${a.nom}</option>`).join('');
   
@@ -738,7 +734,7 @@ function ouvrirModalMission() {
   haSel.innerHTML = '<option value="">— Sélectionner un appareil —</option>' +
     notifyHA.map(n => `<option value="${n.entity_id}">${n.nom}</option>`).join('');
   
-document.getElementById('modal-mission').classList.add('active');
+  document.getElementById('modal-mission').classList.add('active');
 }
 function fermerModalMission() {
   document.getElementById('modal-mission').classList.remove('active');
