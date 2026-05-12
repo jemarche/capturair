@@ -1044,8 +1044,7 @@ async function chargerMeteo() {
   document.getElementById('meteo-loading').style.display='none';
   document.getElementById('meteo-content').style.display='block';
 }
-    document.getElementById('meteo-loading').style.display='none';
-    document.getElementById('meteo-content').style.display='block';
+
   } catch(e) { document.getElementById('meteo-loading').textContent='❌ Erreur chargement météo'; console.error(e); }
 }
 
