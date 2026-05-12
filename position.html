@@ -1228,6 +1228,294 @@ function supprimerTagMission(wrapId, inputId, tableau, val) {
   if (idx > -1) tableau.splice(idx, 1);
   renderTagsMission(wrapId, inputId, tableau);
 }
+
+// ══ COUCHES CARTE — ZONES DRONE + BORNES RECHARGE ═════════════════════
+const OPENAIP_KEY = '75da2171911a2946a103b4de91ea12f7';
+const OCM_KEY = 'aa281858-16e4-43e8-954e-68ee7203b3af';
+
+let markersZones = [];
+let markersBornes = [];
+let zonesActives = false;
+let bornesActives = false;
+let filtreZone = 'tout';
+let filtreBorne = 'tout';
+
+// ── MENU DÉROULANT ZONES DRONE ──
+function toggleMenuZones() {
+  const menu = document.getElementById('menu-zones');
+  const menuBornes = document.getElementById('menu-bornes');
+  menuBornes.style.display = 'none';
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+
+function selectionnerFiltreZone(filtre, label) {
+  filtreZone = filtre;
+  document.getElementById('btn-zones-label').textContent = `🚁 ${label}`;
+  document.getElementById('menu-zones').style.display = 'none';
+  // Recharger
+  if (zonesActives) {
+    markersZones.forEach(m => map.removeLayer(m));
+    markersZones = [];
+    zonesActives = false;
+  }
+  chargerZonesDrone();
+}
+
+async function chargerZonesDrone() {
+  const btn = document.getElementById('btn-zones-drone');
+  btn.disabled = true;
+  document.getElementById('btn-zones-label').textContent = '⏳ Chargement...';
+
+  const bounds = map.getBounds();
+  const bbox = `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
+
+  try {
+    const r = await fetch(`https://api.core.openaip.net/api/airspaces?bbox=${bbox}&page=1&limit=200`, {
+      headers: { 'x-openaip-api-key': OPENAIP_KEY, 'Accept': 'application/json' }
+    });
+    const d = await r.json();
+    let items = d.items || d.data || [];
+
+    // Filtrer selon sélection
+    if (filtreZone === 'interdit') items = items.filter(z => z.category === 8 || z.category === 0 || z.type === 'CTR');
+    else if (filtreZone === 'restreint') items = items.filter(z => z.category === 11 || z.type === 'RESTRICTED');
+    else if (filtreZone === 'info') items = items.filter(z => z.category === 6 || z.category === 7);
+    else if (filtreZone === 'ctr') items = items.filter(z => z.type === 'CTR' || z.icaoClass === 'CTR');
+    else if (filtreZone === 'danger') items = items.filter(z => z.category === 8 || z.type === 'DANGER');
+
+    items.forEach(zone => {
+      if (!zone.geometry) return;
+      const coords = zone.geometry.coordinates;
+      const type = zone.type || zone.icaoClass || '';
+      const nom = zone.name || 'Zone aérienne';
+      const cat = zone.category || 0;
+
+      let couleur = '#3AABEF';
+      let opacity = 0.12;
+      if (cat === 0 || type === 'CTR') { couleur = '#E74C3C'; opacity = 0.18; }
+      else if (cat === 1 || type === 'ATZ') { couleur = '#E67E22'; opacity = 0.15; }
+      else if (cat === 8 || type === 'DANGER') { couleur = '#E74C3C'; opacity = 0.2; }
+      else if (cat === 11 || type === 'RESTRICTED') { couleur = '#E67E22'; opacity = 0.15; }
+      else if (cat === 2 || cat === 3) { couleur = '#9B59B6'; opacity = 0.12; }
+
+      try {
+        let poly;
+        if (zone.geometry.type === 'Polygon') {
+          poly = L.polygon(coords[0].map(c => [c[1], c[0]]), {
+            color: couleur, fillColor: couleur, fillOpacity: opacity, weight: 2
+          });
+        } else if (zone.geometry.type === 'MultiPolygon') {
+          poly = L.polygon(coords.map(p => p[0].map(c => [c[1], c[0]])), {
+            color: couleur, fillColor: couleur, fillOpacity: opacity, weight: 2
+          });
+        }
+        if (poly) {
+          const alt = zone.upperLimit ?
+            `${zone.lowerLimit?.value||0}${zone.lowerLimit?.unit||'ft'} — ${zone.upperLimit?.value||''}${zone.upperLimit?.unit||'ft'}` : '—';
+          const restriction = cat === 0 || cat === 8 ? '⛔ VOL DRONE INTERDIT' :
+            cat === 11 ? '⚠️ ZONE RESTREINTE' :
+            type === 'CTR' ? '🏙️ ZONE AÉROPORT' : 'ℹ️ INFORMATION';
+          poly.bindPopup(`
+            <div style="font-family:'DM Sans',sans-serif;min-width:220px;">
+              <div style="font-weight:700;color:#0B1F3A;font-size:14px;margin-bottom:8px;">🚁 ${nom}</div>
+              <div style="font-size:12px;color:#6B7C93;margin-bottom:3px;">📋 Type : ${type || '—'}</div>
+              <div style="font-size:12px;color:#6B7C93;margin-bottom:8px;">✈️ Altitude : ${alt}</div>
+              <div style="font-size:12px;padding:6px 10px;background:${couleur}22;border-radius:6px;color:${couleur};font-weight:700;text-align:center;">
+                ${restriction}
+              </div>
+            </div>
+          `);
+          poly.addTo(map);
+          markersZones.push(poly);
+        }
+      } catch(e) {}
+    });
+
+    zonesActives = true;
+    const btn2 = document.getElementById('btn-zones-drone');
+    btn2.style.background = 'rgba(231,76,60,0.25)';
+    btn2.style.borderColor = 'rgba(231,76,60,0.4)';
+    btn2.style.color = '#E74C3C';
+    document.getElementById('btn-zones-label').textContent =
+      `🚁 Zones (${markersZones.length}) ▾`;
+    if (!items.length) showNotif('ℹ️ Aucune zone dans cette région', '');
+    else showNotif(`✅ ${markersZones.length} zone(s) aérienne(s)`, 'success');
+  } catch(e) {
+    showNotif('❌ Erreur zones drone', 'error');
+    document.getElementById('btn-zones-label').textContent = '🚁 Zones ▾';
+  }
+  btn.disabled = false;
+}
+
+function effacerZones() {
+  markersZones.forEach(m => map.removeLayer(m));
+  markersZones = [];
+  zonesActives = false;
+  filtreZone = 'tout';
+  const btn = document.getElementById('btn-zones-drone');
+  btn.style.background = 'rgba(255,255,255,0.08)';
+  btn.style.borderColor = 'rgba(200,216,232,0.15)';
+  btn.style.color = 'rgba(200,216,232,0.7)';
+  document.getElementById('btn-zones-label').textContent = '🚁 Zones ▾';
+  document.getElementById('menu-zones').style.display = 'none';
+}
+
+// ── MENU DÉROULANT BORNES ──
+function toggleMenuBornes() {
+  const menu = document.getElementById('menu-bornes');
+  const menuZones = document.getElementById('menu-zones');
+  menuZones.style.display = 'none';
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+
+function selectionnerFiltreBorne(filtre, label) {
+  filtreBorne = filtre;
+  document.getElementById('btn-bornes-label').textContent = `⚡ ${label}`;
+  document.getElementById('menu-bornes').style.display = 'none';
+  if (bornesActives) {
+    markersBornes.forEach(m => map.removeLayer(m));
+    markersBornes = [];
+    bornesActives = false;
+  }
+  chargerBornes();
+}
+
+async function chargerBornes() {
+  const btn = document.getElementById('btn-bornes');
+  btn.disabled = true;
+  document.getElementById('btn-bornes-label').textContent = '⏳ Chargement...';
+
+  const centre = map.getCenter();
+  const bounds = map.getBounds();
+  const dist = Math.round(Math.max(10, Math.min(50,
+    distanceGPSClient(centre.lat, centre.lng, bounds.getNorth(), centre.lng) / 1000
+  )));
+
+  // Construire URL selon filtre
+  let urlExtra = '';
+  if (filtreBorne === 'niveau2') urlExtra = '&levelid=2';
+  else if (filtreBorne === 'rapide') urlExtra = '&levelid=3';
+  else if (filtreBorne === 'operationnel') urlExtra = '&statustype=50';
+  else if (filtreBorne === 'horsservice') urlExtra = '&statustype=100';
+  else if (filtreBorne === 'tesla') urlExtra = '&connectiontypeid=27';
+  else if (filtreBorne === 'chademo') urlExtra = '&connectiontypeid=2';
+  else if (filtreBorne === 'ccs') urlExtra = '&connectiontypeid=33';
+  else if (filtreBorne === 'j1772') urlExtra = '&connectiontypeid=1';
+
+  try {
+    const r = await fetch(
+      `https://api.openchargemap.io/v3/poi/?output=json&countrycode=CA&latitude=${centre.lat}&longitude=${centre.lng}&distance=${dist}&distanceunit=km&maxresults=150&compact=true&verbose=false${urlExtra}&key=${OCM_KEY}`
+    );
+    const bornes = await r.json();
+
+    bornes.forEach(b => {
+      const lat = b.AddressInfo?.Latitude;
+      const lon = b.AddressInfo?.Longitude;
+      if (!lat || !lon) return;
+
+      const nom = b.AddressInfo?.Title || 'Borne de recharge';
+      const adresse = b.AddressInfo?.AddressLine1 || '';
+      const ville = b.AddressInfo?.Town || '';
+      const nb = b.NumberOfPoints || 1;
+      const connexions = b.Connections || [];
+      const statut = b.StatusType?.IsOperational;
+      const network = b.OperatorInfo?.Title || '';
+
+      // Couleur selon statut
+      const couleur = statut === true ? '#27AE60' : statut === false ? '#E74C3C' : '#6B7C93';
+      const statutLabel = statut === true ? '🟢 Opérationnelle' :
+        statut === false ? '🔴 Hors service' : '⚫ Statut inconnu';
+
+      // Icône avec niveau
+      const niveau = connexions[0]?.LevelID || 2;
+      const niveauLabel = niveau === 3 ? '⚡⚡' : niveau === 2 ? '⚡' : '~';
+      const icone = L.divIcon({
+        html: `<div style="background:${couleur};width:26px;height:26px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;">${niveauLabel}</div>`,
+        className: '',
+        iconSize: [26, 26],
+        iconAnchor: [13, 13]
+      });
+
+      const connexionsHtml = connexions.slice(0,4).map(c =>
+        `<div style="font-size:11px;color:#6B7C93;margin-bottom:2px;">
+          🔌 ${c.ConnectionType?.Title || '—'} · ${c.PowerKW || '?'} kW · Niveau ${c.LevelID || '?'}
+        </div>`
+      ).join('');
+
+      const m = L.marker([lat, lon], { icon: icone });
+      m.bindPopup(`
+        <div style="font-family:'DM Sans',sans-serif;min-width:240px;">
+          <div style="font-weight:700;color:#0B1F3A;font-size:14px;margin-bottom:6px;">⚡ ${nom}</div>
+          ${network ? `<div style="font-size:11px;color:#1A8FD1;margin-bottom:4px;">🏢 ${network}</div>` : ''}
+          <div style="font-size:12px;color:#6B7C93;margin-bottom:4px;">📍 ${adresse}${ville ? ', ' + ville : ''}</div>
+          <div style="font-size:12px;margin-bottom:6px;">${statutLabel}</div>
+          <div style="font-size:12px;color:#0B1F3A;font-weight:600;margin-bottom:6px;">🔌 ${nb} point(s) de charge</div>
+          <div style="margin-bottom:8px;">${connexionsHtml}</div>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank"
+            style="display:block;text-align:center;background:#1A8FD1;color:white;padding:6px;border-radius:6px;font-size:12px;text-decoration:none;font-weight:600;">
+            🗺️ Itinéraire Google Maps
+          </a>
+        </div>
+      `);
+      m.addTo(map);
+      markersBornes.push(m);
+    });
+
+    bornesActives = true;
+    btn.style.background = 'rgba(39,174,96,0.25)';
+    btn.style.borderColor = 'rgba(39,174,96,0.4)';
+    btn.style.color = '#27AE60';
+    document.getElementById('btn-bornes-label').textContent =
+      `⚡ Bornes (${markersBornes.length}) ▾`;
+    if (!bornes.length) showNotif('ℹ️ Aucune borne dans cette région', '');
+    else showNotif(`✅ ${markersBornes.length} borne(s) trouvée(s)`, 'success');
+  } catch(e) {
+    showNotif('❌ Erreur bornes recharge', 'error');
+    document.getElementById('btn-bornes-label').textContent = '⚡ Bornes ▾';
+  }
+  btn.disabled = false;
+}
+
+function effacerBornes() {
+  markersBornes.forEach(m => map.removeLayer(m));
+  markersBornes = [];
+  bornesActives = false;
+  filtreBorne = 'tout';
+  const btn = document.getElementById('btn-bornes');
+  btn.style.background = 'rgba(255,255,255,0.08)';
+  btn.style.borderColor = 'rgba(200,216,232,0.15)';
+  btn.style.color = 'rgba(200,216,232,0.7)';
+  document.getElementById('btn-bornes-label').textContent = '⚡ Bornes ▾';
+  document.getElementById('menu-bornes').style.display = 'none';
+}
+
+// Fermer menus si clic ailleurs
+document.addEventListener('click', e => {
+  if (!e.target.closest('#btn-zones-drone') && !e.target.closest('#menu-zones')) {
+    const m = document.getElementById('menu-zones');
+    if (m) m.style.display = 'none';
+  }
+  if (!e.target.closest('#btn-bornes') && !e.target.closest('#menu-bornes')) {
+    const m = document.getElementById('menu-bornes');
+    if (m) m.style.display = 'none';
+  }
+});
+
+// Recharger si déplacement carte
+map.on('moveend', () => {
+  if (zonesActives) {
+    markersZones.forEach(m => map.removeLayer(m));
+    markersZones = [];
+    zonesActives = false;
+    chargerZonesDrone();
+  }
+  if (bornesActives) {
+    markersBornes.forEach(m => map.removeLayer(m));
+    markersBornes = [];
+    bornesActives = false;
+    chargerBornes();
+  }
+});  
   
 </script>
 </body>
