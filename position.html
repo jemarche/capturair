@@ -206,7 +206,93 @@
   </div>
 </div>
 
-<!-- MODAL AJOUT APPAREIL -->
+<!-- MODAL NOUVELLE MISSION -->
+<div class="modal-overlay" id="modal-mission">
+  <div class="modal-box" style="max-width:580px;max-height:90vh;overflow-y:auto;">
+    <div class="modal-title">🛡️ <span id="modal-mission-titre">Nouvelle mission</span></div>
+    <input type="hidden" id="mission-id">
+
+    <div class="form-group">
+      <label class="form-label">Nom de la mission *</label>
+      <input type="text" class="form-input" id="mission-nom" placeholder="ex: Vol Rawdon nord — 12 mai 2026">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Appareil GPS</label>
+      <select class="form-input" id="mission-appareil">
+        <option value="sensor.s24_geocoded_location">Samsung S24 — Mohand</option>
+      </select>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group">
+        <label class="form-label">Corridor de sécurité (mètres)</label>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input type="range" id="mission-corridor-slider" min="100" max="5000" step="100" value="500" oninput="document.getElementById('mission-corridor-val').textContent=this.value+'m'" style="flex:1;">
+          <span id="mission-corridor-val" style="font-size:13px;font-weight:600;color:var(--blue);min-width:50px;">500m</span>
+        </div>
+        <input type="number" class="form-input" id="mission-corridor" value="500" min="100" max="5000" step="100" oninput="document.getElementById('mission-corridor-slider').value=this.value;document.getElementById('mission-corridor-val').textContent=this.value+'m'" style="margin-top:6px;">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email position toutes les (min)</label>
+        <select class="form-input" id="mission-intervalle">
+          <option value="15">15 minutes</option>
+          <option value="30">30 minutes</option>
+          <option value="60">1 heure</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Alerte si immobile depuis (min)</label>
+        <select class="form-input" id="mission-immobile">
+          <option value="20">20 minutes</option>
+          <option value="30" selected>30 minutes</option>
+          <option value="60">1 heure</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Alerte si offline depuis (min)</label>
+        <select class="form-input" id="mission-offline">
+          <option value="15">15 minutes</option>
+          <option value="20" selected>20 minutes</option>
+          <option value="30">30 minutes</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">📧 Emails d'alerte (Entrée pour ajouter)</label>
+      <div class="tag-input-wrap" id="emails-wrap" onclick="document.getElementById('email-input').focus()">
+        <input type="email" class="tag-input" id="email-input" placeholder="email@exemple.com" onkeydown="ajouterTag(event,'emails-wrap','email-input',emailsAlerte)">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">📱 SMS d'alerte (Entrée pour ajouter, format +1XXXXXXXXXX)</label>
+      <div class="tag-input-wrap" id="sms-wrap" onclick="document.getElementById('sms-input').focus()">
+        <input type="text" class="tag-input" id="sms-input" placeholder="+15141234567" onkeydown="ajouterTag(event,'sms-wrap','sms-input',smsAlerte)">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">🔔 Push Home Assistant (Entrée pour ajouter, ex: s24_mohand)</label>
+      <div class="tag-input-wrap" id="ha-wrap" onclick="document.getElementById('ha-input').focus()">
+        <input type="text" class="tag-input" id="ha-input" placeholder="s24_mohand" onkeydown="ajouterTag(event,'ha-wrap','ha-input',haAlerte)">
+      </div>
+    </div>
+
+    <div style="background:rgba(26,143,209,0.06);border:1px solid rgba(26,143,209,0.15);border-radius:10px;padding:14px;margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:8px;">🗺️ Trajet sur la carte</div>
+      <p style="font-size:12px;color:var(--gray);margin-bottom:10px;">Après avoir sauvegardé la mission, clique <strong>Dessiner le trajet</strong> pour tracer ton itinéraire directement sur la carte.</p>
+      <div style="font-size:12px;color:var(--navy);">Points enregistrés : <strong id="nb-points-trajet">0</strong></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="fermerModalMission()">Annuler</button>
+      <button class="btn-primary" onclick="sauverMission()">💾 Sauvegarder</button>
+    </div>
+  </div>
+</div>
+  <!-- MODAL AJOUT APPAREIL -->
 <div class="modal-overlay" id="modal-ajout">
   <div class="modal-box">
     <div class="modal-title">📱 Ajouter un appareil</div>
