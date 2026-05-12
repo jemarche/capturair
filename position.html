@@ -1044,8 +1044,8 @@ async function calculerItineraire() {
 
   try {
     const profiles={car:'driving-car',bike:'cycling-regular',foot:'foot-walking'};
-    const r=await fetch(`https://api.openrouteservice.org/v2/directions/${profiles[modeNav]}?api_key=5b3ce3597851110001cf6248a4b0e77b30d84e3ab7b8b33b27432e59&start=${depLon},${depLat}&end=${destLon},${destLat}`);
-    const d=await r.json();
+    const r=await fetch(`${API}/api/nav/itineraire`, {method:'POST', headers:hdrs(), body:JSON.stringify({depLon,depLat,destLon,destLat,mode:modeNav})});
+const d=await r.json();
     const coords=d.features[0].geometry.coordinates.map(c=>[c[1],c[0]]);
     const props=d.features[0].properties.segments[0];
     const distKm=(props.distance/1000).toFixed(1);
