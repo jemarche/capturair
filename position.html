@@ -1002,18 +1002,29 @@ function toggleCoucheMeteo(type) {
   layerMeteo.addTo(map);
 }
 
+let debounceTimer = null;
 async function autocompleteAdresse(inputId, listId) {
+  clearTimeout(debounceTimer);
   const q=document.getElementById(inputId).value.trim();
   const list=document.getElementById(listId);
   if(q.length<3){list.style.display='none';return;}
-  try {
-    const r=await fetch(`${API}/api/nav/geocode?q=${encodeURIComponent(q)}`, {headers:hdrs()});
-    const data=await r.json();
-    const d=data.results||[];
-    if(!d.length){list.style.display='none';return;}
-    list.innerHTML=d.map(p=>`<div onclick="selectionnerAdresse('${inputId}','${listId}','${p.display_name.replace(/'/g,"\\'")}',${p.lat},${p.lon})" style="padding:8px 12px;font-size:11px;cursor:pointer;border-bottom:1px solid var(--border);color:var(--navy);" onmouseover="this.style.background='var(--offwhite)'" onmouseout="this.style.background='white'">${p.display_name}</div>`).join('');
-    list.style.display='block';
-  }catch(e){}
+  debounceTimer = setTimeout(async () => {
+    try {
+      const r=await fetch(`${API}/api/nav/geocode?q=${encodeURIComponent(q)}`, {headers:hdrs()});
+      const data=await r.json();
+      const d=data.results||[];
+      if(!d.length){list.style.display='none';return;}
+      list.style.cssText='display:block;background:white;border:1px solid var(--border);border-radius:8px;max-height:200px;overflow-y:auto;margin-top:4px;box-shadow:0 4px 12px rgba(0,0,0,0.1);position:relative;z-index:1000;';
+      list.innerHTML=d.map(p=>`
+        <div onclick="selectionnerAdresse('${inputId}','${listId}','${p.display_name.replace(/'/g,"\\'")}',${p.lat},${p.lon})"
+          style="padding:10px 12px;font-size:11px;cursor:pointer;border-bottom:1px solid var(--border);color:var(--navy);display:flex;align-items:flex-start;gap:8px;"
+          onmouseover="this.style.background='var(--offwhite)'"
+          onmouseout="this.style.background='white'">
+          <span style="color:var(--blue);flex-shrink:0;">📍</span>
+          <span>${p.display_name}</span>
+        </div>`).join('');
+    }catch(e){}
+  }, 400);
 }
 
 function selectionnerAdresse(inputId, listId, nom, lat, lon) {
