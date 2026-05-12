@@ -1030,8 +1030,11 @@ async function calculerItineraire() {
   const destLon=document.getElementById('nav-dest').getAttribute('data-lon');
   if(!depLat||!destLat){showNotif('⚠️ Sélectionnez départ et destination','error');return;}
 
-  effacerItineraire();
-  showNotif('⏳ Calcul de l\'itinéraire...','');
+if(polylineNav){map.removeLayer(polylineNav);polylineNav=null;}
+markersNav.forEach(m=>map.removeLayer(m));markersNav=[];
+if(polylineDessin){map.removeLayer(polylineDessin);polylineDessin=null;}
+markersDessin.forEach(m=>map.removeLayer(m));markersDessin=[];
+showNotif('⏳ Calcul de l\'itinéraire...','');
 
   try {
     const profiles={car:'driving-car',bike:'cycling-regular',foot:'foot-walking'};
