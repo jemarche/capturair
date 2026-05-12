@@ -432,7 +432,8 @@ const hdrs = () => ({ 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'a
 
 // ── CARTE ──────────────────────────────────────────────────────────────
 function initCarte() {
-  map = L.map('map', { zoomControl: true }).setView([45.87323, -73.30294], 13);
+  if (map) { map.remove(); map = null; }
+map = L.map('map', { zoomControl: true }).setView([45.87323, -73.30294], 13);
 
   layerOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap',
