@@ -1135,12 +1135,35 @@ function terminerDessin() {
   if(pointsDessin.length>=2){
     trajetsNav._currentCoords=pointsDessin;
     document.getElementById('btn-sauver-trajet').disabled=false;
-    // Calculer distance totale
+    // Calculer distance vol d'oiseau
     let dist=0;
     for(let i=0;i<pointsDessin.length-1;i++) dist+=distanceGPS(pointsDessin[i][0],pointsDessin[i][1],pointsDessin[i+1][0],pointsDessin[i+1][1]);
+    const distKm=(dist/1000).toFixed(1);
     document.getElementById('nav-result').style.display='block';
-    document.getElementById('nav-result').innerHTML=`<div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">📏 Distance</span><span style="font-weight:600;">${(dist/1000).toFixed(1)} km</span></div><div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">📍 Points</span><span style="font-weight:600;">${pointsDessin.length} points</span></div>`;
-    showNotif(`✅ Trajet tracé — ${(dist/1000).toFixed(1)} km`,'success');
+    document.getElementById('nav-result').innerHTML=`
+      <div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">🐦 Vol d'oiseau</span><span style="font-weight:600;">${distKm} km</span></div>
+      <div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">📍 Points</span><span style="font-weight:600;">${pointsDessin.length} points</span></div>`;
+    // Note 3 — 3 boutons d'action
+    let btns=document.getElementById('dessin-action-btns');
+    if(!btns){
+      btns=document.createElement('div');
+      btns.id='dessin-action-btns';
+      btns.style.cssText='display:flex;flex-direction:column;gap:6px;margin-top:10px;';
+      document.getElementById('nav-result').after(btns);
+    }
+    const dep=pointsDessin[0], arr=pointsDessin[pointsDessin.length-1];
+    btns.style.display='flex';
+    btns.innerHTML=`
+      <button class="btn-xs" onclick="afficherVolOiseau()" style="padding:8px;font-size:11px;display:flex;align-items:center;gap:6px;">
+        🐦 <span>Vol d'oiseau — ${distKm} km</span>
+      </button>
+      <button class="btn-xs" onclick="calculerDepuisDessin('car')" style="padding:8px;font-size:11px;display:flex;align-items:center;gap:6px;">
+        🚗 <span>Trajet voiture</span>
+      </button>
+      <button class="btn-xs green" onclick="calculerDepuisDessin('car',true)" style="padding:8px;font-size:11px;display:flex;align-items:center;gap:6px;">
+        🧭 <span>En route !</span>
+      </button>`;
+    showNotif(`✅ ${distKm} km à vol d'oiseau`,'success');
   }
 }
 
