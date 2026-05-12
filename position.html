@@ -1015,10 +1015,7 @@ function afficherDonneesMeteo(meteo, prev) {
   document.getElementById('meteo-content').style.display='block';
 }
 
-  } catch(e) { document.getElementById('meteo-loading').textContent='❌ Erreur chargement météo'; console.error(e); }
-}
-
-// Couches météo OWM sur la carte
+ 
 function toggleCoucheMeteo(type) {
   document.querySelectorAll('.meteo-couche-btn').forEach(b=>b.classList.remove('active'));
   if (layerMeteo) { map.removeLayer(layerMeteo); layerMeteo=null; }
