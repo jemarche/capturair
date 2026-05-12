@@ -348,11 +348,23 @@ let secondesRestantes = 900;
 
 // ── LOGIN ──────────────────────────────────────────────────────────────
 let loginStep = 1;
-
 async function login() {
   const btn = document.getElementById('login-btn-text');
   const err = document.getElementById('login-error');
   err.style.display = 'none';
+
+  // Vérifier blocage
+  const blocageKey = 'pos_blocage';
+  const tentativesKey = 'pos_tentatives';
+  const blocage = sessionStorage.getItem(blocageKey);
+  if (blocage && Date.now() < parseInt(blocage)) {
+    const restant = Math.ceil((parseInt(blocage) - Date.now()) / 60000);
+    showErr(`Trop de tentatives. Réessayez dans ${restant} minute(s).`);
+    return;
+  }
+
+  if (loginStep === 1) {
+  // ... reste du code existant
 
   if (loginStep === 1) {
     const pin = document.getElementById('login-pin').value.trim();
