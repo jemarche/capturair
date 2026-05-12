@@ -1011,6 +1011,64 @@ async function chargerMeteo() {
     }).join('');
     document.getElementById('previsions-list').innerHTML=prevHtml;
 
+    function afficherDonneesMeteo(meteo, prev) {
+  const temp=Math.round(meteo.main.temp);
+  const ressentie=Math.round(meteo.main.feels_like);
+  const desc=meteo.weather[0].description;
+  const weatherId=meteo.weather[0].id;
+  const ventMs=meteo.wind.speed, ventDir=meteo.wind.deg||0;
+  const ventKmh=Math.round(ventMs*3.6), ventNoeuds=Math.round(ventMs*1.944);
+  const humidite=meteo.main.humidity;
+  const pression=meteo.main.pressure;
+  const visibilite=meteo.visibility||10000;
+  const nuages=meteo.clouds.all;
+  const lever=new Date(meteo.sys.sunrise*1000).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
+  const coucher=new Date(meteo.sys.sunset*1000).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
+  const lieu=`${meteo.name||'Point sélectionné'}, ${meteo.sys?.country||''}`;
+
+  document.getElementById('meteo-temp').textContent=`${temp}°C`;
+  document.getElementById('meteo-desc').textContent=`${desc} (ressenti ${ressentie}°C)`;
+  document.getElementById('meteo-lieu').textContent=`📍 ${lieu}`;
+  document.getElementById('meteo-icone').textContent=iconeMeteo(weatherId);
+  document.getElementById('meteo-vent-vitesse').textContent=`${ventKmh} km/h · ${ventNoeuds} kt`;
+  document.getElementById('meteo-vent-dir').textContent=`${directionVent(ventDir)} ${ventDir}°`;
+  document.getElementById('meteo-humidite').textContent=`${humidite}%`;
+  document.getElementById('meteo-visibilite').textContent=`${(visibilite/1000).toFixed(1)} km`;
+  document.getElementById('meteo-pression').textContent=`${pression}`;
+  document.getElementById('meteo-nuages').textContent=`${nuages}%`;
+  document.getElementById('meteo-lever').textContent=lever;
+  document.getElementById('meteo-coucher').textContent=coucher;
+
+  const statut=statutDrone(ventMs, weatherId, visibilite);
+  const droneEl=document.getElementById('drone-status');
+  droneEl.className=`drone-status ${statut.classe}`;
+  droneEl.textContent=statut.msg;
+
+  const joursVus=new Set();
+  const prevHtml=prev.list.filter(p=>{
+    const jour=new Date(p.dt*1000).toLocaleDateString('fr-CA');
+    if(joursVus.has(jour)) return false;
+    joursVus.add(jour); return true;
+  }).slice(0,5).map(p=>{
+    const d=new Date(p.dt*1000);
+    const jour=d.toLocaleDateString('fr-CA',{weekday:'short',day:'numeric',month:'short'});
+    const t=Math.round(p.main.temp);
+    const v=Math.round(p.wind.speed*3.6);
+    const ico=iconeMeteo(p.weather[0].id);
+    const s=statutDrone(p.wind.speed, p.weather[0].id, 10000);
+    const couleur=s.classe==='drone-ok'?'#27AE60':s.classe==='drone-warn'?'#E67E22':'#E74C3C';
+    return `<div class="prevision-item">
+      <span style="font-size:11px;color:var(--navy);font-weight:500;">${jour}</span>
+      <span style="font-size:16px;">${ico}</span>
+      <span style="font-size:12px;color:var(--navy);font-weight:600;">${t}°C</span>
+      <span style="font-size:11px;color:var(--gray);">💨 ${v}km/h</span>
+      <span style="color:${couleur};font-size:16px;">●</span>
+    </div>`;
+  }).join('');
+  document.getElementById('previsions-list').innerHTML=prevHtml;
+  document.getElementById('meteo-loading').style.display='none';
+  document.getElementById('meteo-content').style.display='block';
+}
     document.getElementById('meteo-loading').style.display='none';
     document.getElementById('meteo-content').style.display='block';
   } catch(e) { document.getElementById('meteo-loading').textContent='❌ Erreur chargement météo'; console.error(e); }
