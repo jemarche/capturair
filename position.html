@@ -287,11 +287,16 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">🔔 Push Home Assistant (Entrée pour ajouter, ex: s24_mohand)</label>
-      <div class="tag-input-wrap" id="ha-wrap" onclick="document.getElementById('ha-input').focus()">
-        <input type="text" class="tag-input" id="ha-input" placeholder="s24_mohand" onkeydown="ajouterTag(event,'ha-wrap','ha-input',haAlerte)">
-      </div>
-    </div>
+  <label class="form-label">🔔 Push Home Assistant</label>
+  <div style="display:flex;gap:8px;margin-bottom:8px;">
+    <select class="form-input" id="ha-select" style="flex:1;">
+      <option value="">— Sélectionner un appareil —</option>
+    </select>
+    <button type="button" class="btn-primary" onclick="ajouterNotifyHA()" style="white-space:nowrap;padding:8px 14px;">+ Ajouter</button>
+  </div>
+  <div class="tag-input-wrap" id="ha-wrap" style="cursor:default;min-height:36px;">
+  </div>
+</div>
 
     <div style="background:rgba(26,143,209,0.06);border:1px solid rgba(26,143,209,0.15);border-radius:10px;padding:14px;margin-bottom:16px;">
       <div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:8px;">🗺️ Trajet sur la carte</div>
