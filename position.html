@@ -815,9 +815,17 @@ else if(filtre==='info') items=items.filter(z=>z.category===6||z.category===7||z
         else if(zone.geometry.type==='MultiPolygon') poly=L.polygon(coords.map(p=>p[0].map(c=>[c[1],c[0]])),{color:couleur,fillColor:couleur,fillOpacity:opacity,weight:2});
         if(poly){
           const alt=zone.upperLimit?`${zone.lowerLimit?.value||0}${zone.lowerLimit?.unit||'ft'} — ${zone.upperLimit?.value||''}${zone.upperLimit?.unit||'ft'}`:'—';
-          const restriction=cat===0||cat===8?'⛔ VOL DRONE INTERDIT':cat===11?'⚠️ ZONE RESTREINTE':type==='CTR'?'🏙️ ZONE AÉROPORT':'ℹ️ INFORMATION';
-          poly.bindPopup(`<div style="font-family:'DM Sans',sans-serif;min-width:200px;"><div style="font-weight:700;color:#0B1F3A;margin-bottom:6px;">🚁 ${nom}</div><div style="font-size:11px;color:#6B7C93;">Type : ${type||'—'}</div><div style="font-size:11px;color:#6B7C93;">Alt : ${alt}</div><div style="margin-top:6px;padding:4px 8px;background:${couleur}22;border-radius:4px;color:${couleur};font-weight:700;font-size:11px;">${restriction}</div></div>`);
-          poly.addTo(map);
+          const restriction=cat===0||cat===8?'⛔ VOL DRONE INTERDIT':cat===11?'⚠️ ZONE RESTREINTE':type==='CTR'||['A','B','C','D'].includes(zone.icaoClass)?'🏙️ ZONE AÉROPORT CONTRÔLÉE':'ℹ️ INFORMATION';
+const lat_c=zone.geometry.type==='Polygon'?coords[0][0][1]:coords[0][0][0][1];
+const lon_c=zone.geometry.type==='Polygon'?coords[0][0][0]:coords[0][0][0][0];
+poly.bindPopup(`<div style="font-family:'DM Sans',sans-serif;min-width:220px;">
+  <div style="font-weight:700;color:#0B1F3A;margin-bottom:6px;">🚁 ${nom}</div>
+  <div style="font-size:11px;color:#6B7C93;">Type : ${type||'—'} · Classe : ${zone.icaoClass||'—'}</div>
+  <div style="font-size:11px;color:#6B7C93;margin-bottom:6px;">Alt : ${alt}</div>
+  <div style="padding:4px 8px;background:${couleur}22;border-radius:4px;color:${couleur};font-weight:700;font-size:11px;margin-bottom:8px;">${restriction}</div>
+  <a href="https://portal.navdrone.ca" target="_blank" style="display:block;text-align:center;background:#0B1F3A;color:white;padding:6px;border-radius:6px;font-size:11px;text-decoration:none;font-weight:600;">🚁 Vérifier sur NavDrone →</a>
+  <div style="font-size:10px;color:#6B7C93;text-align:center;margin-top:4px;">⚠️ Toujours consulter NavDrone avant de voler</div>
+</div>`);
           markersZones.push(poly);
         }
       } catch(e){}
