@@ -1163,14 +1163,39 @@ function terminerDessin() {
       <button class="btn-xs green" onclick="calculerDepuisDessin('car',true)" style="padding:8px;font-size:11px;display:flex;align-items:center;gap:6px;">
         🧭 <span>En route !</span>
       </button>`;
-    showNotif(`✅ ${distKm} km à vol d'oiseau`,'success');
+showNotif(`✅ ${distKm} km à vol d'oiseau`,'success');
   }
 }
+
 function afficherVolOiseau() {
-  // Juste recentrer la carte sur le trajet dessiné
   if(polylineDessin) map.fitBounds(polylineDessin.getBounds(),{padding:[40,40]});
   showNotif('🐦 Trajet à vol d\'oiseau affiché','success');
 }
+
+async function calculerDepuisDessin(mode, enRoute=false) {
+  if(pointsDessin.length<2){showNotif('⚠️ Au moins 2 points requis','error');return;}
+  const dep=pointsDessin[0];
+  const arr=pointsDessin[pointsDessin.length-1];
+  document.getElementById('nav-depart').setAttribute('data-lat',dep[0]);
+  document.getElementById('nav-depart').setAttribute('data-lon',dep[1]);
+  document.getElementById('nav-dest').setAttribute('data-lat',arr[0]);
+  document.getElementById('nav-dest').setAttribute('data-lon',arr[1]);
+  document.getElementById('nav-depart').value=`📍 ${dep[0].toFixed(4)}, ${dep[1].toFixed(4)}`;
+  document.getElementById('nav-dest').value=`📍 ${arr[0].toFixed(4)}, ${arr[1].toFixed(4)}`;
+  if(polylineDessin){map.removeLayer(polylineDessin);polylineDessin=null;}
+  markersDessin.forEach(m=>map.removeLayer(m));markersDessin=[];
+  modeNav=mode;
+  await calculerItineraire();
+  if(enRoute && polylineNav){
+    showNotif('🧭 Mode En Route activé !','success');
+    if(refreshInterval)clearInterval(refreshInterval);
+    refreshInterval=setInterval(async()=>{
+      await actualiserPosition();
+      if(marker && polylineNav) map.setView(marker.getLatLng(),15);
+    },15000);
+  }
+}
+
 
 async function calculerDepuisDessin(mode, enRoute=false) {
   if(pointsDessin.length<2){showNotif('⚠️ Au moins 2 points requis','error');return;}
