@@ -620,6 +620,314 @@ function showNotif(msg, type = '') {
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 3500);
 }
+// ══ MISSIONS ══════════════════════════════════════════════════════════
+let missions = [];
+let missionActive = null;
+let emailsAlerte = [];
+let smsAlerte = [];
+let haAlerte = [];
+let dessinActif = false;
+let trajetsDessin = [];
+let polylineTrajet = null;
+let polylineCorridor = null;
+let markersTrajet = [];
+
+function toggleSidebarMissions() {
+  const sb = document.getElementById('sidebar-missions');
+  sb.style.display = sb.style.display === 'none' ? 'block' : 'none';
+  if (sb.style.display === 'block') chargerMissions();
+}
+
+async function chargerMissions() {
+  try {
+    const r = await fetch(`${API}/api/missions`, { headers: hdrs() });
+    const d = await r.json();
+    missions = d.missions || [];
+    renderMissions();
+  } catch(e) { console.error(e); }
+}
+
+function renderMissions() {
+  const list = document.getElementById('missions-list');
+  if (!missions.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gray);font-size:13px;">Aucune mission — cliquez + Nouvelle</div>';
+    return;
+  }
+  list.innerHTML = missions.map(m => {
+    const trajet = JSON.parse(m.trajet || '[]');
+    const emails = JSON.parse(m.contacts_email || '[]');
+    const statut = m.statut || 'PLANIFIEE';
+    const statutClass = statut === 'ACTIVE' ? 'statut-active' : statut === 'TERMINEE' ? 'statut-terminee' : 'statut-planifiee';
+    const statutLabel = statut === 'ACTIVE' ? '🟢 Active' : statut === 'TERMINEE' ? '⚫ Terminée' : '🔵 Planifiée';
+    return `
+      <div class="mission-card ${statut === 'ACTIVE' ? 'active' : statut === 'PLANIFIEE' ? 'planifiee' : ''}">
+        <div class="mission-card-nom">🛡️ ${m.nom}</div>
+        <div class="mission-card-meta">📍 ${trajet.length} points · ${m.corridor_metres}m · 📧 ${emails.length} contact(s)</div>
+        <div class="mission-card-statut ${statutClass}">${statutLabel}</div>
+        <div class="mission-card-actions">
+          ${statut === 'PLANIFIEE' ? `
+            <button class="btn-xs green" onclick="demarrerMission('${m.id}')">▶ Démarrer</button>
+            <button class="btn-xs" onclick="dessinerTrajet('${m.id}')">🗺️ Trajet</button>
+            <button class="btn-xs" onclick="editerMission('${m.id}')">✏️ Modifier</button>
+          ` : statut === 'ACTIVE' ? `
+            <button class="btn-xs orange" onclick="terminerMission('${m.id}')">⏹ Terminer</button>
+            <button class="btn-xs" onclick="afficherTrajetMission('${m.id}')">👁️ Voir</button>
+          ` : ''}
+          <button class="btn-xs red" onclick="supprimerMission('${m.id}')">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function ouvrirModalMission() {
+  document.getElementById('mission-id').value = '';
+  document.getElementById('mission-nom').value = '';
+  document.getElementById('mission-corridor').value = 500;
+  document.getElementById('mission-corridor-slider').value = 500;
+  document.getElementById('mission-corridor-val').textContent = '500m';
+  document.getElementById('mission-intervalle').value = '15';
+  document.getElementById('mission-immobile').value = '30';
+  document.getElementById('mission-offline').value = '20';
+  document.getElementById('modal-mission-titre').textContent = 'Nouvelle mission';
+  document.getElementById('nb-points-trajet').textContent = '0';
+  emailsAlerte = []; smsAlerte = []; haAlerte = [];
+  renderTags('emails-wrap', 'email-input', emailsAlerte);
+  renderTags('sms-wrap', 'sms-input', smsAlerte);
+  renderTags('ha-wrap', 'ha-input', haAlerte);
+
+  // Peupler appareils
+  const sel = document.getElementById('mission-appareil');
+  sel.innerHTML = appareils.map(a => `<option value="${a.entite_ha}">${a.nom}</option>`).join('');
+
+  document.getElementById('modal-mission').classList.add('active');
+}
+
+function fermerModalMission() {
+  document.getElementById('modal-mission').classList.remove('active');
+}
+
+function editerMission(id) {
+  const m = missions.find(x => x.id === id);
+  if (!m) return;
+  document.getElementById('mission-id').value = m.id;
+  document.getElementById('mission-nom').value = m.nom;
+  document.getElementById('mission-corridor').value = m.corridor_metres;
+  document.getElementById('mission-corridor-slider').value = m.corridor_metres;
+  document.getElementById('mission-corridor-val').textContent = m.corridor_metres + 'm';
+  document.getElementById('mission-intervalle').value = m.intervalle_email;
+  document.getElementById('mission-immobile').value = m.seuil_immobile;
+  document.getElementById('mission-offline').value = m.seuil_offline;
+  document.getElementById('modal-mission-titre').textContent = 'Modifier la mission';
+  const trajet = JSON.parse(m.trajet || '[]');
+  document.getElementById('nb-points-trajet').textContent = trajet.length;
+  emailsAlerte = JSON.parse(m.contacts_email || '[]');
+  smsAlerte = JSON.parse(m.contacts_sms || '[]');
+  haAlerte = JSON.parse(m.contacts_ha || '[]');
+  renderTags('emails-wrap', 'email-input', emailsAlerte);
+  renderTags('sms-wrap', 'sms-input', smsAlerte);
+  renderTags('ha-wrap', 'ha-input', haAlerte);
+
+  const sel = document.getElementById('mission-appareil');
+  sel.innerHTML = appareils.map(a => `<option value="${a.entite_ha}" ${a.entite_ha === m.appareil_entite ? 'selected' : ''}>${a.nom}</option>`).join('');
+
+  document.getElementById('modal-mission').classList.add('active');
+}
+
+async function sauverMission() {
+  const id = document.getElementById('mission-id').value;
+  const nom = document.getElementById('mission-nom').value.trim();
+  if (!nom) { showNotif('⚠️ Nom requis', 'error'); return; }
+
+  const body = {
+    nom,
+    appareil_entite: document.getElementById('mission-appareil').value,
+    corridor_metres: parseInt(document.getElementById('mission-corridor').value) || 500,
+    intervalle_email: parseInt(document.getElementById('mission-intervalle').value) || 15,
+    seuil_immobile: parseInt(document.getElementById('mission-immobile').value) || 30,
+    seuil_offline: parseInt(document.getElementById('mission-offline').value) || 20,
+    contacts_email: emailsAlerte,
+    contacts_sms: smsAlerte,
+    contacts_ha: haAlerte,
+    trajet: id ? JSON.parse(missions.find(m => m.id === id)?.trajet || '[]') : [],
+    statut: 'PLANIFIEE'
+  };
+
+  const url = id ? `${API}/api/missions/${id}` : `${API}/api/missions`;
+  const method = id ? 'PUT' : 'POST';
+  const r = await fetch(url, { method, headers: hdrs(), body: JSON.stringify(body) });
+  const d = await r.json();
+
+  if (d.success || d.id) {
+    showNotif(id ? '✅ Mission mise à jour' : '✅ Mission créée — dessine le trajet !', 'success');
+    fermerModalMission();
+    await chargerMissions();
+    if (!id && d.id) setTimeout(() => dessinerTrajet(d.id), 500);
+  } else showNotif('❌ ' + (d.error || 'Erreur'), 'error');
+}
+
+async function demarrerMission(id) {
+  if (!confirm('Démarrer cette mission ? Les alertes seront actives.')) return;
+  const r = await fetch(`${API}/api/missions/${id}/demarrer`, { method: 'POST', headers: hdrs() });
+  const d = await r.json();
+  if (d.success) { showNotif('✅ Mission démarrée — surveillance active !', 'success'); await chargerMissions(); afficherTrajetMission(id); }
+  else showNotif('❌ ' + (d.error || 'Erreur'), 'error');
+}
+
+async function terminerMission(id) {
+  if (!confirm('Terminer la mission ? Une notification de retour sera envoyée.')) return;
+  const r = await fetch(`${API}/api/missions/${id}/terminer`, { method: 'POST', headers: hdrs() });
+  const d = await r.json();
+  if (d.success) { showNotif('✅ Mission terminée — notification envoyée !', 'success'); await chargerMissions(); effacerTrajetCarte(); }
+  else showNotif('❌ ' + (d.error || 'Erreur'), 'error');
+}
+
+async function supprimerMission(id) {
+  if (!confirm('Supprimer cette mission ?')) return;
+  await fetch(`${API}/api/missions/${id}`, { method: 'DELETE', headers: hdrs() });
+  showNotif('🗑️ Mission supprimée', 'success');
+  await chargerMissions();
+}
+
+// ── DESSIN DU TRAJET ──
+function dessinerTrajet(missionId) {
+  fermerModalMission();
+  dessinActif = true;
+  trajetsDessin = [];
+  missionActive = missions.find(m => m.id === missionId) || { id: missionId };
+
+  // Charger trajet existant
+  const trajetExist = JSON.parse(missionActive.trajet || '[]');
+  if (trajetExist.length) {
+    trajetsDessin = trajetExist;
+    dessinerPolyline();
+  }
+
+  // Afficher barre de dessin
+  const bar = document.createElement('div');
+  bar.className = 'drawing-bar';
+  bar.id = 'drawing-bar';
+  bar.innerHTML = `
+    <span>🗺️ Mode dessin — <strong id="nb-pts-dessin">${trajetsDessin.length}</strong> points</span>
+    <button onclick="annulerDernierPoint()">↩ Annuler</button>
+    <button onclick="effacerTrajet()">🗑️ Effacer</button>
+    <button onclick="sauverTrajet('${missionId}')" style="background:rgba(39,174,96,0.3);border-color:rgba(39,174,96,0.5);">✅ Sauvegarder</button>
+    <button onclick="annulerDessin()">✕ Quitter</button>
+  `;
+  document.querySelector('.map-container').appendChild(bar);
+
+  map.getContainer().style.cursor = 'crosshair';
+  map.on('click', ajouterPointTrajet);
+  showNotif('🗺️ Clique sur la carte pour tracer ton trajet', 'success');
+}
+
+function ajouterPointTrajet(e) {
+  if (!dessinActif) return;
+  trajetsDessin.push([e.latlng.lat, e.latlng.lng]);
+  document.getElementById('nb-pts-dessin').textContent = trajetsDessin.length;
+  dessinerPolyline();
+}
+
+function dessinerPolyline() {
+  if (polylineTrajet) map.removeLayer(polylineTrajet);
+  markersTrajet.forEach(m => map.removeLayer(m));
+  markersTrajet = [];
+
+  if (trajetsDessin.length < 1) return;
+
+  polylineTrajet = L.polyline(trajetsDessin, { color: '#1A8FD1', weight: 3, opacity: 0.8 }).addTo(map);
+
+  // Marqueurs de points
+  trajetsDessin.forEach((pt, i) => {
+    const icone = L.divIcon({
+      html: `<div style="background:${i===0?'#27AE60':i===trajetsDessin.length-1?'#E74C3C':'#1A8FD1'};width:10px;height:10px;border-radius:50%;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.3);"></div>`,
+      className: '', iconSize: [10, 10], iconAnchor: [5, 5]
+    });
+    markersTrajet.push(L.marker(pt, { icon: icone }).addTo(map));
+  });
+
+  if (trajetsDessin.length > 1) map.fitBounds(polylineTrajet.getBounds(), { padding: [40, 40] });
+}
+
+function annulerDernierPoint() {
+  trajetsDessin.pop();
+  document.getElementById('nb-pts-dessin').textContent = trajetsDessin.length;
+  dessinerPolyline();
+}
+
+function effacerTrajet() {
+  trajetsDessin = [];
+  dessinerPolyline();
+  document.getElementById('nb-pts-dessin').textContent = '0';
+}
+
+async function sauverTrajet(missionId) {
+  if (trajetsDessin.length < 2) { showNotif('⚠️ Au moins 2 points requis', 'error'); return; }
+  const m = missions.find(x => x.id === missionId);
+  if (!m) return;
+  const body = { ...m, trajet: trajetsDessin, contacts_email: JSON.parse(m.contacts_email||'[]'), contacts_sms: JSON.parse(m.contacts_sms||'[]'), contacts_ha: JSON.parse(m.contacts_ha||'[]') };
+  const r = await fetch(`${API}/api/missions/${missionId}`, { method: 'PUT', headers: hdrs(), body: JSON.stringify(body) });
+  const d = await r.json();
+  if (d.success) {
+    showNotif(`✅ Trajet sauvegardé — ${trajetsDessin.length} points`, 'success');
+    annulerDessin();
+    await chargerMissions();
+  } else showNotif('❌ Erreur', 'error');
+}
+
+function annulerDessin() {
+  dessinActif = false;
+  map.off('click', ajouterPointTrajet);
+  map.getContainer().style.cursor = '';
+  const bar = document.getElementById('drawing-bar');
+  if (bar) bar.remove();
+}
+
+function afficherTrajetMission(missionId) {
+  const m = missions.find(x => x.id === missionId);
+  if (!m) return;
+  const trajet = JSON.parse(m.trajet || '[]');
+  if (!trajet.length) { showNotif('⚠️ Aucun trajet dessiné pour cette mission', 'error'); return; }
+  trajetsDessin = trajet;
+  dessinerPolyline();
+}
+
+function effacerTrajetCarte() {
+  if (polylineTrajet) map.removeLayer(polylineTrajet);
+  markersTrajet.forEach(m => map.removeLayer(m));
+  markersTrajet = [];
+  polylineTrajet = null;
+}
+
+// ── TAG INPUT ──
+function ajouterTag(event, wrapId, inputId, tableau) {
+  if (event.key !== 'Enter') return;
+  event.preventDefault();
+  const val = document.getElementById(inputId).value.trim();
+  if (!val || tableau.includes(val)) return;
+  tableau.push(val);
+  renderTags(wrapId, inputId, tableau);
+  document.getElementById(inputId).value = '';
+}
+
+function supprimerTag(wrapId, inputId, tableau, val) {
+  const idx = tableau.indexOf(val);
+  if (idx > -1) tableau.splice(idx, 1);
+  renderTags(wrapId, inputId, tableau);
+}
+
+function renderTags(wrapId, inputId, tableau) {
+  const wrap = document.getElementById(wrapId);
+  const input = document.getElementById(inputId);
+  wrap.innerHTML = '';
+  tableau.forEach(val => {
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.innerHTML = `${val}<span onclick="supprimerTag('${wrapId}','${inputId}',${wrapId==='emails-wrap'?'emailsAlerte':wrapId==='sms-wrap'?'smsAlerte':'haAlerte'},'${val}')">×</span>`;
+    wrap.appendChild(tag);
+  });
+  wrap.appendChild(input);
+}
 </script>
 </body>
 </html>
