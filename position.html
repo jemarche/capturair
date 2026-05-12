@@ -737,11 +737,8 @@ function ouvrirModalMission() {
   haSel.innerHTML = '<option value="">— Sélectionner un appareil —</option>' +
     notifyHA.map(n => `<option value="${n.entity_id}">${n.nom}</option>`).join('');
   
-  document.getElementById('modal-mission').classList.add('active');
+document.getElementById('modal-mission').classList.add('active');
 }
-  document.getElementById('modal-mission').classList.add('active');
-}
-
 function fermerModalMission() {
   document.getElementById('modal-mission').classList.remove('active');
 }
@@ -765,11 +762,12 @@ function editerMission(id) {
   haAlerte = JSON.parse(m.contacts_ha || '[]');
   renderTags('emails-wrap', 'email-input', emailsAlerte);
   renderTags('sms-wrap', 'sms-input', smsAlerte);
-  renderTags('ha-wrap', 'ha-input', haAlerte);
-
+renderTagsHA();
   const sel = document.getElementById('mission-appareil');
   sel.innerHTML = appareils.map(a => `<option value="${a.entite_ha}" ${a.entite_ha === m.appareil_entite ? 'selected' : ''}>${a.nom}</option>`).join('');
-
+  const haSel2 = document.getElementById('ha-select');
+  haSel2.innerHTML = '<option value="">— Sélectionner un appareil —</option>' +
+    notifyHA.map(n => `<option value="${n.entity_id}">${n.nom}</option>`).join('');
   document.getElementById('modal-mission').classList.add('active');
 }
 
