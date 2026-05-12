@@ -168,6 +168,48 @@
       <button class="btn-sm blue" onclick="ouvrirModalAjout()">+ Appareil</button>
       <button class="btn-sm" id="btn-missions" onclick="toggleSidebarMissions()" style="background:rgba(39,174,96,0.2);border-color:rgba(39,174,96,0.4);color:#27AE60;">🛡️ Missions</button>
       <button class="btn-sm" id="btn-en-mission" onclick="toggleModeMission()" style="background:rgba(231,76,60,0.15);border-color:rgba(231,76,60,0.3);color:#E74C3C;">🚨 En mission</button>
+     <!-- BOUTON ZONES DRONE -->
+<div style="position:relative;">
+  <button class="btn-sm" id="btn-zones-drone" onclick="toggleMenuZones()" style="gap:4px;">
+    <span id="btn-zones-label">🚁 Zones ▾</span>
+  </button>
+  <div id="menu-zones" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:#0B1F3A;border:1px solid rgba(200,216,232,0.15);border-radius:12px;padding:6px;min-width:220px;z-index:2000;box-shadow:0 8px 24px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(200,216,232,0.3);padding:6px 10px 4px;">Afficher</div>
+    <div onclick="selectionnerFiltreZone('tout','Toutes zones')" style="padding:8px 12px;font-size:12px;color:rgba(200,216,232,0.8);cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">🚁 Toutes les zones</div>
+    <div onclick="selectionnerFiltreZone('interdit','⛔ Interdites')" style="padding:8px 12px;font-size:12px;color:#E74C3C;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">⛔ Zones interdites</div>
+    <div onclick="selectionnerFiltreZone('restreint','⚠️ Restreintes')" style="padding:8px 12px;font-size:12px;color:#E67E22;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">⚠️ Zones restreintes</div>
+    <div onclick="selectionnerFiltreZone('ctr','🏙️ CTR Aéroport')" style="padding:8px 12px;font-size:12px;color:#9B59B6;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">🏙️ CTR Aéroport</div>
+    <div onclick="selectionnerFiltreZone('danger','⚡ Dangereuses')" style="padding:8px 12px;font-size:12px;color:#E74C3C;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">⚡ Zones dangereuses</div>
+    <div onclick="selectionnerFiltreZone('info','ℹ️ Information')" style="padding:8px 12px;font-size:12px;color:#3AABEF;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">ℹ️ Zones information</div>
+    <div style="border-top:1px solid rgba(200,216,232,0.1);margin:4px 0;"></div>
+    <div onclick="effacerZones()" style="padding:8px 12px;font-size:12px;color:rgba(200,216,232,0.4);cursor:pointer;border-radius:8px;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">✕ Effacer les zones</div>
+  </div>
+</div>
+
+<!-- BOUTON BORNES RECHARGE -->
+<div style="position:relative;">
+  <button class="btn-sm" id="btn-bornes" onclick="toggleMenuBornes()" style="gap:4px;">
+    <span id="btn-bornes-label">⚡ Bornes ▾</span>
+  </button>
+  <div id="menu-bornes" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:#0B1F3A;border:1px solid rgba(200,216,232,0.15);border-radius:12px;padding:6px;min-width:220px;z-index:2000;box-shadow:0 8px 24px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(200,216,232,0.3);padding:6px 10px 4px;">Filtrer par type</div>
+    <div onclick="selectionnerFiltreBorne('tout','Toutes bornes')" style="padding:8px 12px;font-size:12px;color:rgba(200,216,232,0.8);cursor:pointer;border-radius:8px;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">⚡ Toutes les bornes</div>
+    <div onclick="selectionnerFiltreBorne('niveau2','Niveau 2 (240V)')" style="padding:8px 12px;font-size:12px;color:#27AE60;cursor:pointer;border-radius:8px;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">⚡ Niveau 2 — 240V</div>
+    <div onclick="selectionnerFiltreBorne('rapide','Recharge rapide DC')" style="padding:8px 12px;font-size:12px;color:#1A8FD1;cursor:pointer;border-radius:8px;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">⚡⚡ Recharge rapide DC</div>
+    <div style="border-top:1px solid rgba(200,216,232,0.1);margin:4px 0;"></div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(200,216,232,0.3);padding:6px 10px 4px;">Filtrer par statut</div>
+    <div onclick="selectionnerFiltreBorne('operationnel','🟢 Opérationnelles')" style="padding:8px 12px;font-size:12px;color:#27AE60;cursor:pointer;border-radius:8px;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">🟢 Opérationnelles</div>
+    <div onclick="selectionnerFiltreBorne('horsservice','🔴 Hors service')" style="padding:8px 12px;font-size:12px;color:#E74C3C;cursor:pointer;border-radius:8px;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">🔴 Hors service</div>
+    <div style="border-top:1px solid rgba(200,216,232,0.1);margin:4px 0;"></div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(200,216,232,0.3);padding:6px 10px 4px;">Filtrer par connecteur</div>
+    <div onclick="selectionnerFiltreBorne('tesla','Tesla Supercharger')" style="padding:8px 12px;font-size:12px;color:#E74C3C;cursor:pointer;border-radius:8px;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">🔴 Tesla Supercharger</div>
+    <div onclick="selectionnerFiltreBorne('chademo','CHAdeMO')" style="padding:8px 12px;font-size:12px;color:#9B59B6;cursor:pointer;border-radius:8px;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">🔵 CHAdeMO</div>
+    <div onclick="selectionnerFiltreBorne('ccs','CCS Combo')" style="padding:8px 12px;font-size:12px;color:#1A8FD1;cursor:pointer;border-radius:8px;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">🔵 CCS Combo</div>
+    <div onclick="selectionnerFiltreBorne('j1772','J1772')" style="padding:8px 12px;font-size:12px;color:#27AE60;cursor:pointer;border-radius:8px;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">🟢 J1772</div>
+    <div style="border-top:1px solid rgba(200,216,232,0.1);margin:4px 0;"></div>
+    <div onclick="effacerBornes()" style="padding:8px 12px;font-size:12px;color:rgba(200,216,232,0.4);cursor:pointer;border-radius:8px;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">✕ Effacer les bornes</div>
+  </div>
+</div>
       <button class="btn-sm red" onclick="logout()">↪ Quitter</button>
     </div>
   </div>
