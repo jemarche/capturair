@@ -369,10 +369,7 @@ async function login() {
     return;
   }
 
-  if (loginStep === 1) {
-  // ... reste du code existant
-
-  if (loginStep === 1) {
+if (loginStep === 1) {
     const pin = document.getElementById('login-pin').value.trim();
     if (!pin) { showErr('Entrez votre PIN.'); return; }
     if (pin !== PIN_CORRECT) { showErr('PIN incorrect.'); return; }
