@@ -947,39 +947,14 @@ async function chargerMeteo() {
     const r=await fetch(`${API}/api/position/localisation/${encodeURIComponent(appareilActif.entite_ha)}`, {headers:hdrs()});
     const pos=await r.json();
     if (!pos.success) { document.getElementById('meteo-loading').textContent='Position non disponible'; return; }
-
     const [rMeteo, rPrev]=await Promise.all([
       fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${pos.latitude}&lon=${pos.longitude}&units=metric&lang=fr&appid=${OWM_KEY}`),
       fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${pos.latitude}&lon=${pos.longitude}&units=metric&lang=fr&cnt=40&appid=${OWM_KEY}`)
     ]);
     const meteo=await rMeteo.json(), prev=await rPrev.json();
-
-    const temp=Math.round(meteo.main.temp);
-    const ressentie=Math.round(meteo.main.feels_like);
-    const desc=meteo.weather[0].description;
-    const weatherId=meteo.weather[0].id;
-    const ventMs=meteo.wind.speed, ventDir=meteo.wind.deg||0;
-    const ventKmh=Math.round(ventMs*3.6), ventNoeuds=Math.round(ventMs*1.944);
-    const humidite=meteo.main.humidity;
-    const pression=meteo.main.pressure;
-    const visibilite=meteo.visibility||10000;
-    const nuages=meteo.clouds.all;
-    const lever=new Date(meteo.sys.sunrise*1000).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
-    const coucher=new Date(meteo.sys.sunset*1000).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
-    const lieu=`${meteo.name}, ${meteo.sys.country}`;
-
-    document.getElementById('meteo-temp').textContent=`${temp}°C`;
-    document.getElementById('meteo-desc').textContent=`${desc} (ressenti ${ressentie}°C)`;
-    document.getElementById('meteo-lieu').textContent=`📍 ${lieu}`;
-    document.getElementById('meteo-icone').textContent=iconeMeteo(weatherId);
-    document.getElementById('meteo-vent-vitesse').textContent=`${ventKmh} km/h\n${ventNoeuds} kt`;
-    document.getElementById('meteo-vent-dir').textContent=`${directionVent(ventDir)} ${ventDir}°`;
-    document.getElementById('meteo-humidite').textContent=`${humidite}%`;
-    document.getElementById('meteo-visibilite').textContent=`${(visibilite/1000).toFixed(1)} km`;
-    document.getElementById('meteo-pression').textContent=`${pression}`;
-    document.getElementById('meteo-nuages').textContent=`${nuages}%`;
-    document.getElementById('meteo-lever').textContent=lever;
-    document.getElementById('meteo-coucher').textContent=coucher;
+    afficherDonneesMeteo(meteo, prev);
+  } catch(e) { document.getElementById('meteo-loading').textContent='❌ Erreur chargement météo'; console.error(e); }
+}
 
     // Statut drone
     const statut=statutDrone(ventMs, weatherId, visibilite);
