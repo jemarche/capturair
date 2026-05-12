@@ -351,7 +351,7 @@ let satelliteMode = false;
 let countdownInterval = null;
 let refreshInterval = null;
 let secondesRestantes = 900;
-
+const hdrs = () => ({ 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' });
 // ── LOGIN ──────────────────────────────────────────────────────────────
 let loginStep = 1;
 async function login() {
@@ -443,7 +443,7 @@ async function initApp() {
   demarrerCountdown();
 }
 
-const hdrs = () => ({ 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' });
+
 
 // ── CARTE ──────────────────────────────────────────────────────────────
 function initCarte() {
