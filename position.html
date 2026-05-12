@@ -654,6 +654,24 @@ function initCarte() {
   layerOSM.addTo(map);
   clusterBornes = L.markerClusterGroup({ maxClusterRadius:40, showCoverageOnHover:false });
   map.addLayer(clusterBornes);
+  map.on('click', async (e) => {
+  if(dessinActif) return;
+  const ongletActif=document.querySelector('.sidebar-tab.active')?.id;
+  if(ongletActif !== 'tab-meteo') return;
+  const {lat, lng} = e.latlng;
+  switchOnglet('meteo');
+  document.getElementById('meteo-loading').style.display='block';
+  document.getElementById('meteo-loading').textContent='⏳ Chargement météo pour ce point...';
+  document.getElementById('meteo-content').style.display='none';
+  try {
+    const [rMeteo, rPrev]=await Promise.all([
+      fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&lang=fr&appid=${OWM_KEY}`),
+      fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lng}&units=metric&lang=fr&cnt=40&appid=${OWM_KEY}`)
+    ]);
+    const meteo=await rMeteo.json(), prev=await rPrev.json();
+    afficherDonneesMeteo(meteo, prev);
+  } catch(e) { document.getElementById('meteo-loading').textContent='❌ Erreur météo'; }
+});
   map.on('moveend', () => {
     if (zonesActives) { const f=document.querySelector('.filtre-btn.active-red,.filtre-btn.active'); if(f) f.click(); }
     if (bornesActives) { const f=document.querySelector('#content-bornes .filtre-btn.active-green'); if(f) f.click(); }
