@@ -728,6 +728,17 @@ function ouvrirModalMission() {
   const sel = document.getElementById('mission-appareil');
   sel.innerHTML = appareils.map(a => `<option value="${a.entite_ha}">${a.nom}</option>`).join('');
 
+  // Peupler appareils
+  const sel = document.getElementById('mission-appareil');
+  sel.innerHTML = appareils.map(a => `<option value="${a.entite_ha}">${a.nom}</option>`).join('');
+  
+  // Peupler notify HA
+  const haSel = document.getElementById('ha-select');
+  haSel.innerHTML = '<option value="">— Sélectionner un appareil —</option>' +
+    notifyHA.map(n => `<option value="${n.entity_id}">${n.nom}</option>`).join('');
+  
+  document.getElementById('modal-mission').classList.add('active');
+}
   document.getElementById('modal-mission').classList.add('active');
 }
 
