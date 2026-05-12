@@ -856,7 +856,7 @@ async function chargerBornes(filtre) {
   else if(filtre==='j1772') urlExtra='&connectiontypeid=1';
 
   try {
-    const r=await fetch(`https://api.openchargemap.io/v3/poi/?output=json&countrycode=CA&latitude=${centre.lat}&longitude=${centre.lng}&distance=${dist}&distanceunit=km&maxresults=100&compact=true&verbose=false${urlExtra}&key=${OCM_KEY}`);
+    const r=await fetch(`https://api.openchargemap.io/v3/poi/?output=json&countrycode=CA&latitude=${centre.lat}&longitude=${centre.lng}&distance=${dist}&distanceunit=km&maxresults=50&compact=false&verbose=false${urlExtra}&key=${OCM_KEY}`);
     const bornes=await r.json();
     bornes.forEach(b=>{
       const lat=b.AddressInfo?.Latitude, lon=b.AddressInfo?.Longitude;
