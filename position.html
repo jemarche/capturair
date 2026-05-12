@@ -1077,13 +1077,20 @@ function effacerItineraire() {
   if(polylineDessin){map.removeLayer(polylineDessin);polylineDessin=null;}
   markersDessin.forEach(m=>map.removeLayer(m));markersDessin=[];
   pointsDessin=[];
+  // Note 4 — vider les champs départ/destination
+  const dep=document.getElementById('nav-depart');
+  const dest=document.getElementById('nav-dest');
+  if(dep){dep.value='';dep.removeAttribute('data-lat');dep.removeAttribute('data-lon');}
+  if(dest){dest.value='';dest.removeAttribute('data-lat');dest.removeAttribute('data-lon');}
   document.getElementById('nav-result').style.display='none';
   document.getElementById('btn-sauver-trajet').disabled=true;
-  const bar=document.getElementById('drawing-bar');
-  if(bar)bar.remove();
+  const bar=document.getElementById('drawing-bar');if(bar)bar.remove();
   dessinActif=false;
   map.getContainer().style.cursor='';
   map.off('click',ajouterPointDessin);
+  // Cacher les boutons de conversion
+  const btns=document.getElementById('dessin-action-btns');
+  if(btns)btns.style.display='none';
 }
 
 function activerDessinLibre() {
