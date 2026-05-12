@@ -793,11 +793,11 @@ async function chargerZones(filtre) {
     });
     const d=await r.json();
     let items=d.items||d.data||[];
-    if(filtre==='interdit') items=items.filter(z=>z.category===8||z.category===0||z.type==='CTR');
-    else if(filtre==='restreint') items=items.filter(z=>z.category===11||z.type==='RESTRICTED');
-    else if(filtre==='ctr') items=items.filter(z=>z.type==='CTR'||z.icaoClass==='CTR');
-    else if(filtre==='danger') items=items.filter(z=>z.category===8||z.type==='DANGER');
-    else if(filtre==='info') items=items.filter(z=>z.category===6||z.category===7);
+if(filtre==='interdit') items=items.filter(z=>z.category===8||z.category===0||z.type==='CTR'||['A','B','C'].includes(z.icaoClass));
+else if(filtre==='restreint') items=items.filter(z=>z.category===11||z.type==='RESTRICTED'||z.icaoClass==='D');
+else if(filtre==='ctr') items=items.filter(z=>z.type==='CTR'||z.icaoClass==='CTR'||z.icaoClass==='C'||z.icaoClass==='D'||z.name?.toUpperCase().includes('TRUDEAU')||z.name?.toUpperCase().includes('MONTREAL')||z.name?.toUpperCase().includes('CYUL'));
+else if(filtre==='danger') items=items.filter(z=>z.category===8||z.type==='DANGER');
+else if(filtre==='info') items=items.filter(z=>z.category===6||z.category===7||z.icaoClass==='E'||z.icaoClass==='G');
 
     items.forEach(zone => {
       if(!zone.geometry) return;
