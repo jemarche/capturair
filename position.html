@@ -436,7 +436,7 @@ document.getElementById('login-pin').addEventListener('keydown', e => { if(e.key
 // ── INIT ───────────────────────────────────────────────────────────────
 async function initApp() {
   initCarte();
-  await chargerAppareils();
+  await Promise.all([chargerAppareils(), chargerNotifyHA()]);
   demarrerCountdown();
 }
 
