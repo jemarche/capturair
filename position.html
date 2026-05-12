@@ -633,6 +633,16 @@ function showNotif(msg, type = '') {
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 3500);
 }
+// ══ NOTIFY HA — liste déroulante ══════════════════════════════════════
+let notifyHA = [];
+
+async function chargerNotifyHA() {
+  try {
+    const r = await fetch(`${API}/api/position/notify`, { headers: hdrs() });
+    const d = await r.json();
+    notifyHA = d.notify || [];
+  } catch(e) {}
+}
 // ══ MISSIONS ══════════════════════════════════════════════════════════
 let missions = [];
 let missionActive = null;
