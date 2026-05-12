@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CapturAir — Position</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    :root{--navy:#0B1F3A;--blue:#1A8FD1;--blue-light:#3AABEF;--teal:#1ABC9C;--orange:#E67E22;--red:#E74C3C;--green:#27AE60;--offwhite:#F4F7FA;--white:#FFFFFF;--gray:#6B7C93;--border:#DEE4EF}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--offwhite);color:var(--navy);min-height:100vh}
+
+    /* ── LOGIN ── */
+    .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#060E18 0%,#0B1F3A 50%,#0D2B50 100%);position:relative;overflow:hidden}
+    .login-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(26,143,209,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(26,143,209,0.05) 1px,transparent 1px);background-size:50px 50px}
+    .login-box{background:rgba(255,255,255,0.04);backdrop-filter:blur(20px);border:1px solid rgba(200,216,232,0.12);border-radius:24px;padding:48px;width:420px;position:relative;z-index:2}
+    .login-logo{text-align:center;margin-bottom:32px}
+    .login-logo img{width:72px;height:72px;border-radius:16px;margin-bottom:12px}
+    .login-logo h1{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:white}
+    .login-logo p{color:var(--blue-light);font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+    .login-field{margin-bottom:16px}
+    .login-field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(200,216,232,0.5);margin-bottom:8px}
+    .login-field input{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(200,216,232,0.15);border-radius:10px;padding:13px 16px;color:white;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+    .login-field input:focus{border-color:var(--blue)}
+    .login-field input::placeholder{color:rgba(200,216,232,0.25)}
+    .btn-login{width:100%;background:linear-gradient(135deg,var(--blue),#0D5C8A);color:white;border:none;padding:14px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;font-family:'Syne',sans-serif;transition:all 0.2s}
+    .btn-login:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(26,143,209,0.4)}
+    .login-error{color:#E74C3C;font-size:13px;text-align:center;margin-top:12px;display:none}
+
+    /* ── APP ── */
+    .app{display:none;flex-direction:column;min-height:100vh}
+    .app.visible{display:flex}
+
+    /* ── TOPBAR ── */
+    .topbar{background:var(--navy);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .topbar-left{display:flex;align-items:center;gap:12px}
+    .topbar-logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:white}
+    .topbar-logo span{color:var(--blue-light)}
+    .topbar-subtitle{font-size:11px;color:rgba(200,216,232,0.4);text-transform:uppercase;letter-spacing:1.5px}
+    .topbar-right{display:flex;align-items:center;gap:10px}
+    .btn-sm{background:rgba(255,255,255,0.08);border:1px solid rgba(200,216,232,0.15);color:rgba(200,216,232,0.7);padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
+    .btn-sm:hover{background:rgba(255,255,255,0.14);color:white}
+    .btn-sm.blue{background:var(--blue);border-color:var(--blue);color:white}
+    .btn-sm.green{background:var(--green);border-color:var(--green);color:white}
+    .btn-sm.red{background:rgba(231,76,60,0.2);border-color:rgba(231,76,60,0.4);color:#E74C3C}
+
+    /* ── MAIN ── */
+    .main{display:flex;flex:1;overflow:hidden}
+
+    /* ── SIDEBAR ── */
+    .sidebar{width:320px;background:white;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+    .sidebar-section{padding:20px;border-bottom:1px solid var(--border)}
+    .sidebar-section-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+
+    /* ── APPAREIL CARD ── */
+    .appareil-card{background:var(--offwhite);border:2px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:all 0.2s;position:relative}
+    .appareil-card:hover{border-color:var(--blue-light)}
+    .appareil-card.active{border-color:var(--blue);background:rgba(26,143,209,0.06)}
+    .appareil-card-nom{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:4px}
+    .appareil-card-entity{font-size:11px;color:var(--gray);font-family:monospace}
+    .appareil-card-pos{font-size:11px;color:var(--teal);margin-top:6px}
+    .appareil-card-del{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--gray);cursor:pointer;font-size:14px;padding:4px;transition:color 0.2s}
+    .appareil-card-del:hover{color:var(--red)}
+
+    /* ── INFOS POSITION ── */
+    .pos-info{background:linear-gradient(135deg,rgba(26,143,209,0.08),rgba(26,143,209,0.03));border:1px solid rgba(26,143,209,0.2);border-radius:12px;padding:16px}
+    .pos-info-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px}
+    .pos-info-row:last-child{margin-bottom:0}
+    .pos-info-label{color:var(--gray);min-width:80px;font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+    .pos-info-value{color:var(--navy);font-weight:500}
+    .pos-update{font-size:11px;color:var(--gray);margin-top:10px;text-align:center}
+
+    /* ── CARTE ── */
+    .map-container{flex:1;position:relative}
+    #map{width:100%;height:100%}
+    .map-overlay{position:absolute;top:16px;right:16px;z-index:1000;display:flex;flex-direction:column;gap:8px}
+    .map-btn{background:white;border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:all 0.2s;color:var(--navy)}
+    .map-btn:hover{box-shadow:0 4px 16px rgba(0,0,0,0.15);transform:translateY(-1px)}
+    .refresh-badge{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(11,31,58,0.85);color:white;padding:8px 16px;border-radius:100px;font-size:12px;backdrop-filter:blur(8px);z-index:1000}
+
+    /* ── MODAL ── */
+    .modal-overlay{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+    .modal-overlay.active{display:flex}
+    .modal-box{background:white;border-radius:20px;padding:32px;width:480px;max-width:94vw}
+    .modal-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--navy);margin-bottom:20px}
+    .form-group{margin-bottom:14px}
+    .form-label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray);font-weight:600;margin-bottom:6px}
+    .form-input{width:100%;background:var(--offwhite);border:1px solid var(--border);border-radius:8px;padding:10px 13px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--navy);outline:none;transition:all 0.2s}
+    .form-input:focus{border-color:var(--blue);background:white}
+    .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+    .btn-primary{background:var(--blue);color:white;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif}
+    .btn-secondary{background:var(--offwhite);color:var(--navy);border:1px solid var(--border);padding:10px 20px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+    .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.6s linear infinite;display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .notif{position:fixed;top:80px;right:24px;z-index:10000;background:var(--navy);color:white;padding:12px 18px;border-radius:10px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,0.2);animation:slideIn 0.3s ease}
+    .notif.success{background:var(--green)}
+    .notif.error{background:var(--red)}
+    @keyframes slideIn{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+
+    @media(max-width:768px){
+      .sidebar{width:100%;max-height:40vh;border-right:none;border-bottom:1px solid var(--border)}
+      .main{flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div class="login-screen" id="login-screen">
+  <div class="login-grid"></div>
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="https://raw.githubusercontent.com/jemarche/capturair/main/images/android-chrome-2048x2048.png" alt="CapturAir">
+      <h1>Captur<span style="color:var(--blue-light)">Air</span></h1>
+      <p>📍 Localisation sécurisée</p>
+    </div>
+    <div class="login-field">
+      <label id="lbl-pin">PIN de sécurité</label>
+      <input type="password" id="login-pin" placeholder="••••" maxlength="6" autocomplete="current-password">
+    </div>
+    <button class="btn-login" onclick="login()"><span id="login-btn-text">Accéder →</span></button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div class="app" id="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div>
+        <div class="topbar-logo">Captur<span>Air</span></div>
+        <div class="topbar-subtitle">📍 Localisation en temps réel</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-sm" onclick="actualiserPosition()">🔄 Actualiser</button>
+      <button class="btn-sm blue" onclick="ouvrirModalAjout()">+ Appareil</button>
+      <button class="btn-sm red" onclick="logout()">↪ Quitter</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">
+          📱 Appareils
+          <span id="nb-appareils" style="background:var(--blue);color:white;font-size:10px;padding:2px 8px;border-radius:100px;">0</span>
+        </div>
+        <div id="appareils-list">
+          <div style="text-align:center;padding:20px;color:var(--gray);font-size:13px;">⏳ Chargement...</div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">📍 Position actuelle</div>
+        <div class="pos-info" id="pos-info">
+          <div style="text-align:center;color:var(--gray);font-size:13px;">Sélectionnez un appareil</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARTE -->
+    <div class="map-container">
+      <div id="map"></div>
+      <div class="map-overlay">
+        <button class="map-btn" onclick="centrerCarte()">🎯 Centrer</button>
+        <button class="map-btn" onclick="toggleSatellite()">🛰️ Satellite</button>
+      </div>
+      <div class="refresh-badge" id="refresh-badge">⏱️ Prochaine mise à jour dans <span id="countdown">15:00</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL AJOUT APPAREIL -->
+<div class="modal-overlay" id="modal-ajout">
+  <div class="modal-box">
+    <div class="modal-title">📱 Ajouter un appareil</div>
+    <div class="form-group">
+      <label class="form-label">Nom de l'appareil</label>
+      <input type="text" class="form-input" id="ajout-nom" placeholder="ex: Samsung S25 — Mohand">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Capteur Home Assistant</label>
+      <select class="form-input" id="ajout-capteur">
+        <option value="">⏳ Chargement des capteurs...</option>
+      </select>
+    </div>
+    <div id="ajout-apercu" style="display:none;background:var(--offwhite);border-radius:8px;padding:12px;font-size:12px;color:var(--gray);margin-top:8px;"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="fermerModal()">Annuler</button>
+      <button class="btn-primary" onclick="ajouterAppareil()">✅ Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
+const AUTH_API = 'https://capturair-carnet.tumarchessurlatete.workers.dev';
+const PIN_CORRECT = '1977';
+const OTP_EMAIL = 'mohand.aidi@mohand.ca';
+
+let authToken = '';
+let appareils = [];
+let appareilActif = null;
+let map = null;
+let marker = null;
+let cercle = null;
+let layerOSM = null;
+let layerSat = null;
+let satelliteMode = false;
+let countdownInterval = null;
+let refreshInterval = null;
+let secondesRestantes = 900;
+
+// ── LOGIN ──────────────────────────────────────────────────────────────
+let loginStep = 1;
+
+async function login() {
+  const btn = document.getElementById('login-btn-text');
+  const err = document.getElementById('login-error');
+  err.style.display = 'none';
+
+  if (loginStep === 1) {
+    const pin = document.getElementById('login-pin').value.trim();
+    if (!pin) { showErr('Entrez votre PIN.'); return; }
+    if (pin !== PIN_CORRECT) { showErr('PIN incorrect.'); return; }
+
+    btn.innerHTML = '<span class="spinner"></span>';
+    try {
+      const r = await fetch(`${AUTH_API}/api/carnet/auth/init`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: OTP_EMAIL, pin })
+      });
+      const d = await r.json();
+      if (!r.ok || !d.success) { showErr('Erreur envoi OTP.'); btn.textContent = 'Accéder →'; return; }
+
+      loginStep = 2;
+      document.getElementById('lbl-pin').textContent = 'Code OTP (reçu par email)';
+      document.getElementById('login-pin').value = '';
+      document.getElementById('login-pin').type = 'text';
+      document.getElementById('login-pin').placeholder = 'Code à 6 chiffres';
+      btn.textContent = 'Valider →';
+    } catch(e) { showErr('Erreur de connexion.'); btn.textContent = 'Accéder →'; }
+
+  } else {
+    const otp = document.getElementById('login-pin').value.trim();
+    if (!otp) { showErr('Entrez le code reçu.'); return; }
+    btn.innerHTML = '<span class="spinner"></span>';
+    try {
+      const r = await fetch(`${AUTH_API}/api/carnet/auth/otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: OTP_EMAIL, otp })
+      });
+      const d = await r.json();
+      if (!r.ok || !d.token) { showErr('Code OTP incorrect ou expiré.'); btn.textContent = 'Valider →'; return; }
+
+      authToken = d.token;
+      sessionStorage.setItem('pos_token', authToken);
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').classList.add('visible');
+      loginStep = 1;
+      initApp();
+    } catch(e) { showErr('Erreur de connexion.'); btn.textContent = 'Valider →'; }
+  }
+}
+
+function showErr(m) { const e = document.getElementById('login-error'); e.textContent = m; e.style.display = 'block'; }
+function logout() { sessionStorage.clear(); authToken = ''; document.getElementById('app').classList.remove('visible'); document.getElementById('login-screen').style.display = 'flex'; loginStep = 1; document.getElementById('login-pin').type = 'password'; document.getElementById('login-pin').value = ''; document.getElementById('lbl-pin').textContent = 'PIN de sécurité'; document.getElementById('login-btn-text').textContent = 'Accéder →'; if(refreshInterval) clearInterval(refreshInterval); if(countdownInterval) clearInterval(countdownInterval); }
+
+document.getElementById('login-pin').addEventListener('keydown', e => { if(e.key === 'Enter') login(); });
+
+// Auto-login
+(function() {
+  const t = sessionStorage.getItem('pos_token');
+  if (t && t.includes('.')) {
+    try {
+      const p = JSON.parse(atob(t.split('.')[0]));
+      if (p.exp > Date.now()) {
+        authToken = t;
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').classList.add('visible');
+        initApp();
+      }
+    } catch(e) {}
+  }
+})();
+
+// ── INIT ───────────────────────────────────────────────────────────────
+async function initApp() {
+  initCarte();
+  await chargerAppareils();
+  demarrerCountdown();
+}
+
+const hdrs = () => ({ 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' });
+
+// ── CARTE ──────────────────────────────────────────────────────────────
+function initCarte() {
+  map = L.map('map', { zoomControl: true }).setView([45.87323, -73.30294], 13);
+
+  layerOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 19
+  });
+
+  layerSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: '© Esri',
+    maxZoom: 19
+  });
+
+  layerOSM.addTo(map);
+}
+
+function toggleSatellite() {
+  satelliteMode = !satelliteMode;
+  if (satelliteMode) { map.removeLayer(layerOSM); layerSat.addTo(map); }
+  else { map.removeLayer(layerSat); layerOSM.addTo(map); }
+}
+
+function centrerCarte() {
+  if (marker) map.setView(marker.getLatLng(), 15);
+}
+
+function mettreAJourCarte(lat, lon, nom) {
+  if (marker) { map.removeLayer(marker); map.removeLayer(cercle); }
+
+  const icone = L.divIcon({
+    html: `<div style="background:var(--blue);width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>`,
+    className: '',
+    iconSize: [16, 16],
+    iconAnchor: [8, 8]
+  });
+
+  marker = L.marker([lat, lon], { icon: icone }).addTo(map);
+  marker.bindPopup(`<strong>${nom}</strong><br>${lat.toFixed(5)}, ${lon.toFixed(5)}`);
+
+  cercle = L.circle([lat, lon], {
+    radius: 50,
+    color: '#1A8FD1',
+    fillColor: '#1A8FD1',
+    fillOpacity: 0.12,
+    weight: 2
+  }).addTo(map);
+
+  map.setView([lat, lon], 15);
+}
+
+// ── APPAREILS ──────────────────────────────────────────────────────────
+async function chargerAppareils() {
+  try {
+    const r = await fetch(`${API}/api/position/appareils`, { headers: hdrs() });
+    const d = await r.json();
+    appareils = d.appareils || [];
+    renderAppareils();
+    if (appareils.length > 0) selectionnerAppareil(appareils[0]);
+  } catch(e) { console.error(e); }
+}
+
+function renderAppareils() {
+  const list = document.getElementById('appareils-list');
+  document.getElementById('nb-appareils').textContent = appareils.length;
+  if (!appareils.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gray);font-size:13px;">Aucun appareil — cliquez + Appareil</div>';
+    return;
+  }
+  list.innerHTML = appareils.map(a => `
+    <div class="appareil-card ${appareilActif?.id === a.id ? 'active' : ''}" onclick="selectionnerAppareil(${JSON.stringify(a).replace(/"/g, '&quot;')})">
+      <button class="appareil-card-del" onclick="event.stopPropagation();supprimerAppareil('${a.id}','${a.nom}')">✕</button>
+      <div class="appareil-card-nom">📱 ${a.nom}</div>
+      <div class="appareil-card-entity">${a.entite_ha}</div>
+    </div>
+  `).join('');
+}
+
+async function selectionnerAppareil(appareil) {
+  appareilActif = appareil;
+  renderAppareils();
+  await actualiserPosition();
+}
+
+async function actualiserPosition() {
+  if (!appareilActif) return;
+  try {
+    const r = await fetch(`${API}/api/position/localisation/${encodeURIComponent(appareilActif.entite_ha)}`, { headers: hdrs() });
+    const d = await r.json();
+    if (!d.success) { showNotif('Position non disponible', 'error'); return; }
+
+    mettreAJourCarte(d.latitude, d.longitude, appareilActif.nom);
+    afficherInfosPosition(d);
+    resetCountdown();
+  } catch(e) { showNotif('Erreur de connexion', 'error'); }
+}
+
+function afficherInfosPosition(d) {
+  const date = new Date(d.last_update);
+  const heure = date.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('pos-info').innerHTML = `
+    <div class="pos-info-row"><span class="pos-info-label">📍 Ville</span><span class="pos-info-value">${d.locality || '—'}, ${d.administrative_area || ''}</span></div>
+    <div class="pos-info-row"><span class="pos-info-label">🌐 Lat</span><span class="pos-info-value">${d.latitude.toFixed(5)}</span></div>
+    <div class="pos-info-row"><span class="pos-info-label">🌐 Lon</span><span class="pos-info-value">${d.longitude.toFixed(5)}</span></div>
+    <div class="pos-info-row"><span class="pos-info-label">📱 Appareil</span><span class="pos-info-value">${appareilActif.nom}</span></div>
+    <div class="pos-update">🕐 Dernière mise à jour HA : ${heure}</div>
+  `;
+}
+
+async function supprimerAppareil(id, nom) {
+  if (!confirm(`Supprimer "${nom}" ?`)) return;
+  await fetch(`${API}/api/position/appareils/${id}`, { method: 'DELETE', headers: hdrs() });
+  showNotif('✅ Appareil supprimé', 'success');
+  if (appareilActif?.id === id) { appareilActif = null; document.getElementById('pos-info').innerHTML = '<div style="text-align:center;color:var(--gray);font-size:13px;">Sélectionnez un appareil</div>'; }
+  await chargerAppareils();
+}
+
+// ── COUNTDOWN ──────────────────────────────────────────────────────────
+function demarrerCountdown() {
+  resetCountdown();
+  refreshInterval = setInterval(actualiserPosition, 900000);
+}
+
+function resetCountdown() {
+  secondesRestantes = 900;
+  if (countdownInterval) clearInterval(countdownInterval);
+  countdownInterval = setInterval(() => {
+    secondesRestantes--;
+    const m = Math.floor(secondesRestantes / 60);
+    const s = secondesRestantes % 60;
+    document.getElementById('countdown').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if (secondesRestantes <= 0) { clearInterval(countdownInterval); }
+  }, 1000);
+}
+
+// ── MODAL AJOUT ────────────────────────────────────────────────────────
+async function ouvrirModalAjout() {
+  document.getElementById('ajout-nom').value = '';
+  document.getElementById('ajout-apercu').style.display = 'none';
+  const sel = document.getElementById('ajout-capteur');
+  sel.innerHTML = '<option value="">⏳ Chargement...</option>';
+  document.getElementById('modal-ajout').classList.add('active');
+
+  try {
+    const r = await fetch(`${API}/api/position/capteurs`, { headers: hdrs() });
+    const d = await r.json();
+    if (d.success && d.capteurs.length) {
+      sel.innerHTML = '<option value="">— Sélectionner un capteur —</option>' +
+        d.capteurs.map(c => `<option value="${c.entity_id}" data-lat="${c.latitude}" data-lon="${c.longitude}" data-loc="${c.locality}">${c.nom} (${c.entity_id})</option>`).join('');
+      sel.onchange = () => {
+        const opt = sel.options[sel.selectedIndex];
+        const lat = opt.getAttribute('data-lat');
+        const loc = opt.getAttribute('data-loc');
+        const apercu = document.getElementById('ajout-apercu');
+        if (lat) { apercu.style.display = 'block'; apercu.textContent = `📍 Dernière position connue : ${loc || 'Inconnue'} (${lat})`; }
+        else { apercu.style.display = 'none'; }
+      };
+    } else {
+      sel.innerHTML = '<option value="">Aucun capteur GPS trouvé dans HA</option>';
+    }
+  } catch(e) { sel.innerHTML = '<option value="">Erreur chargement</option>'; }
+}
+
+function fermerModal() { document.getElementById('modal-ajout').classList.remove('active'); }
+
+async function ajouterAppareil() {
+  const nom = document.getElementById('ajout-nom').value.trim();
+  const entite = document.getElementById('ajout-capteur').value;
+  if (!nom) { showNotif('⚠️ Nom requis', 'error'); return; }
+  if (!entite) { showNotif('⚠️ Sélectionnez un capteur', 'error'); return; }
+
+  const r = await fetch(`${API}/api/position/appareils`, {
+    method: 'POST', headers: hdrs(),
+    body: JSON.stringify({ nom, entite_ha: entite })
+  });
+  const d = await r.json();
+  if (d.success) { showNotif('✅ Appareil ajouté !', 'success'); fermerModal(); await chargerAppareils(); }
+  else showNotif('❌ ' + (d.error || 'Erreur'), 'error');
+}
+
+document.getElementById('modal-ajout').addEventListener('click', e => { if(e.target === document.getElementById('modal-ajout')) fermerModal(); });
+
+// ── NOTIF ──────────────────────────────────────────────────────────────
+function showNotif(msg, type = '') {
+  const el = document.createElement('div');
+  el.className = `notif ${type}`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+</script>
+</body>
+</html>
