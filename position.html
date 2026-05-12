@@ -1166,7 +1166,46 @@ function terminerDessin() {
     showNotif(`✅ ${distKm} km à vol d'oiseau`,'success');
   }
 }
+function afficherVolOiseau() {
+  // Juste recentrer la carte sur le trajet dessiné
+  if(polylineDessin) map.fitBounds(polylineDessin.getBounds(),{padding:[40,40]});
+  showNotif('🐦 Trajet à vol d\'oiseau affiché','success');
+}
 
+async function calculerDepuisDessin(mode, enRoute=false) {
+  if(pointsDessin.length<2){showNotif('⚠️ Au moins 2 points requis','error');return;}
+  const dep=pointsDessin[0];
+  const arr=pointsDessin[pointsDessin.length-1];
+
+  // Pré-remplir les champs
+  document.getElementById('nav-depart').setAttribute('data-lat',dep[0]);
+  document.getElementById('nav-depart').setAttribute('data-lon',dep[1]);
+  document.getElementById('nav-dest').setAttribute('data-lat',arr[0]);
+  document.getElementById('nav-dest').setAttribute('data-lon',arr[1]);
+  document.getElementById('nav-depart').value=`📍 ${dep[0].toFixed(4)}, ${dep[1].toFixed(4)}`;
+  document.getElementById('nav-dest').value=`📍 ${arr[0].toFixed(4)}, ${arr[1].toFixed(4)}`;
+
+  // Effacer le dessin libre
+  if(polylineDessin){map.removeLayer(polylineDessin);polylineDessin=null;}
+  markersDessin.forEach(m=>map.removeLayer(m));markersDessin=[];
+
+  modeNav=mode;
+  await calculerItineraire();
+
+  if(enRoute && polylineNav) {
+    // Mode En Route — suivre la position en temps réel sur le trajet
+    showNotif('🧭 Mode En Route activé — position suivie sur le trajet','success');
+    // Activer le suivi temps réel
+    if(refreshInterval) clearInterval(refreshInterval);
+    refreshInterval=setInterval(async()=>{
+      await actualiserPosition();
+      if(marker && polylineNav) {
+        // Centrer la carte sur la position actuelle
+        map.setView(marker.getLatLng(), 15);
+      }
+    }, 15000);
+  }
+}
 function ouvrirModalSauverTrajet() {
   if(!trajetsNav._currentCoords?.length){showNotif('⚠️ Aucun trajet à sauvegarder','error');return;}
   document.getElementById('trajet-nom').value='';
