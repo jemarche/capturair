@@ -1096,7 +1096,8 @@ async function verifierPIN() {
 }
 
 async function verifierOTP() {
-  const otp = document.getElementById('otp-input').value;
+  const otp = document.getElementById('otp-input').value.trim();
+if(!otp || otp.length < 6){ document.getElementById('otp-error').textContent='Code OTP invalide'; return; }
   try {
     const r = await fetch(`${API_AUTH}/api/carnet/auth/otp`,{
       method:'POST',
