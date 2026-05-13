@@ -1004,7 +1004,8 @@ trajetsNav._currentCoords = result.routes[0].overview_path.map(p => [p.lat(), p.
           if (markerPosition) map.panTo(markerPosition.getPosition());
         }, 15000);
       }
-    } else {
+} else {
+      calculEnCours = false;
       showNotif('❌ Itinéraire non trouvé : ' + status, 'error');
     }
   });
