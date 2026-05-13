@@ -538,8 +538,9 @@ function initGoogleMaps() {
   // Clic carte → météo si onglet météo actif
   map.addListener('click', async (e) => {
     if (dessinActif) { ajouterPointDessin(e.latLng.lat(), e.latLng.lng()); return; }
-    const ongletActif = document.querySelector('.sidebar-tab.active')?.id;
-    if (ongletActif !== 'tab-meteo') return;
+const ongletActif = document.querySelector('.sidebar-tab.active')?.id;
+if (ongletActif !== 'tab-meteo') return;
+meteoPointManuel = true;
     document.getElementById('meteo-loading').style.display = 'block';
     document.getElementById('meteo-loading').textContent = '⏳ Chargement météo...';
     document.getElementById('meteo-content').style.display = 'none';
