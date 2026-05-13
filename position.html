@@ -7,11 +7,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css">
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBa_29f6i2nUKqTPepHFLYE_pEff8VfogY&libraries=places,geometry&callback=initGoogleMaps" async defer></script>
   <style>
     :root{--navy:#0B1F3A;--blue:#1A8FD1;--blue-light:#3AABEF;--teal:#1ABC9C;--orange:#E67E22;--red:#E74C3C;--green:#27AE60;--purple:#9B59B6;--offwhite:#F4F7FA;--white:#FFFFFF;--gray:#6B7C93;--border:#DEE4EF}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -45,7 +41,6 @@
     .topbar-right{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
     .btn-sm{background:rgba(255,255,255,0.08);border:1px solid rgba(200,216,232,0.15);color:rgba(200,216,232,0.7);padding:6px 12px;border-radius:8px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;white-space:nowrap}
     .btn-sm:hover{background:rgba(255,255,255,0.14);color:white}
-    .btn-sm.active-red{background:rgba(231,76,60,0.3);border-color:rgba(231,76,60,0.5);color:#E74C3C;}
 
     /* ── LAYOUT ── */
     .main{display:flex;flex:1;overflow:hidden}
@@ -53,14 +48,12 @@
     /* ── SIDEBAR ── */
     .sidebar{width:300px;background:white;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
 
-    /* ── ONGLETS SIDEBAR ── */
+    /* ── ONGLETS ── */
     .sidebar-tabs{display:flex;border-bottom:2px solid var(--border);flex-shrink:0;overflow-x:auto}
     .sidebar-tab{flex:1;padding:10px 4px;font-size:10px;font-weight:600;text-align:center;cursor:pointer;color:var(--gray);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;white-space:nowrap;min-width:52px}
     .sidebar-tab:hover{color:var(--navy)}
     .sidebar-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
     .sidebar-tab-icon{font-size:16px;display:block;margin-bottom:2px}
-
-    /* ── CONTENU ONGLETS ── */
     .tab-content{display:none;flex:1;overflow-y:auto;padding:16px}
     .tab-content.active{display:block}
     .section-title{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
@@ -74,7 +67,7 @@
     .appareil-card-del{position:absolute;top:6px;right:6px;background:none;border:none;color:var(--gray);cursor:pointer;font-size:13px;padding:3px}
     .appareil-card-del:hover{color:var(--red)}
 
-    /* ── POSITION INFO ── */
+    /* ── POSITION ── */
     .pos-info{background:linear-gradient(135deg,rgba(26,143,209,0.08),rgba(26,143,209,0.03));border:1px solid rgba(26,143,209,0.2);border-radius:10px;padding:14px;margin-bottom:12px}
     .pos-info-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-size:12px}
     .pos-info-label{color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:0.5px}
@@ -127,12 +120,12 @@
     .prevision-item:last-child{border-bottom:none}
 
     /* ── NAVIGATION ── */
-    .nav-input-group{margin-bottom:10px}
+    .nav-input-group{margin-bottom:10px;position:relative}
     .nav-input{width:100%;background:var(--offwhite);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--navy);outline:none;transition:all 0.2s}
     .nav-input:focus{border-color:var(--blue);background:white}
     .nav-result{background:var(--offwhite);border-radius:10px;padding:12px;margin-bottom:10px;font-size:12px}
     .nav-result-row{display:flex;justify-content:space-between;margin-bottom:4px}
-    .trajet-saved{background:white;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:pointer;transition:all 0.2s}
+    .trajet-saved{background:white;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;transition:all 0.2s}
     .trajet-saved:hover{border-color:var(--blue)}
     .trajet-saved-nom{font-size:12px;font-weight:600;color:var(--navy)}
     .trajet-saved-meta{font-size:10px;color:var(--gray);margin-top:2px}
@@ -176,6 +169,11 @@
     @keyframes spin{to{transform:rotate(360deg)}}
     @keyframes slideIn{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
 
+    /* Google Places autocomplete */
+    .pac-container{z-index:10001!important;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+    .pac-item{padding:8px 12px;cursor:pointer}
+    .pac-item:hover{background:var(--offwhite)}
+
     @media(max-width:768px){
       .sidebar{width:100%;max-height:45vh;border-right:none;border-bottom:1px solid var(--border)}
       .main{flex-direction:column}
@@ -186,7 +184,7 @@
 </head>
 <body>
 
-<!-- ── LOGIN ── -->
+<!-- LOGIN -->
 <div class="login-screen" id="login-screen">
   <div class="login-grid"></div>
   <div class="login-box">
@@ -204,10 +202,8 @@
   </div>
 </div>
 
-<!-- ── APP ── -->
+<!-- APP -->
 <div class="app" id="app">
-
-  <!-- TOPBAR -->
   <div class="topbar">
     <div class="topbar-logo">Captur<span>Air</span> <span style="font-size:10px;color:rgba(200,216,232,0.4);font-weight:400;">Navigation</span></div>
     <div class="topbar-right">
@@ -218,66 +214,45 @@
     </div>
   </div>
 
-  <!-- MAIN -->
   <div class="main">
-
-    <!-- SIDEBAR AVEC ONGLETS -->
     <div class="sidebar">
       <div class="sidebar-tabs">
-        <div class="sidebar-tab active" id="tab-position" onclick="switchOnglet('position')">
-          <span class="sidebar-tab-icon">📍</span>Position
-        </div>
-        <div class="sidebar-tab" id="tab-navigation" onclick="switchOnglet('navigation')">
-          <span class="sidebar-tab-icon">🗺️</span>Navigation
-        </div>
-        <div class="sidebar-tab" id="tab-zones" onclick="switchOnglet('zones')">
-          <span class="sidebar-tab-icon">🚁</span>Zones
-        </div>
-        <div class="sidebar-tab" id="tab-bornes" onclick="switchOnglet('bornes')">
-          <span class="sidebar-tab-icon">⚡</span>Bornes
-        </div>
-        <div class="sidebar-tab" id="tab-meteo" onclick="switchOnglet('meteo')">
-          <span class="sidebar-tab-icon">🌤️</span>Météo
-        </div>
+        <div class="sidebar-tab active" id="tab-position" onclick="switchOnglet('position')"><span class="sidebar-tab-icon">📍</span>Position</div>
+        <div class="sidebar-tab" id="tab-navigation" onclick="switchOnglet('navigation')"><span class="sidebar-tab-icon">🗺️</span>Navigation</div>
+        <div class="sidebar-tab" id="tab-zones" onclick="switchOnglet('zones')"><span class="sidebar-tab-icon">🚁</span>Zones</div>
+        <div class="sidebar-tab" id="tab-bornes" onclick="switchOnglet('bornes')"><span class="sidebar-tab-icon">⚡</span>Bornes</div>
+        <div class="sidebar-tab" id="tab-meteo" onclick="switchOnglet('meteo')"><span class="sidebar-tab-icon">🌤️</span>Météo</div>
       </div>
 
-      <!-- ONGLET POSITION -->
+      <!-- POSITION -->
       <div class="tab-content active" id="content-position">
-        <div class="section-title">
-          📱 Appareils
-          <span id="nb-appareils" style="background:var(--blue);color:white;font-size:10px;padding:2px 7px;border-radius:100px;">0</span>
-        </div>
+        <div class="section-title">📱 Appareils <span id="nb-appareils" style="background:var(--blue);color:white;font-size:10px;padding:2px 7px;border-radius:100px;">0</span></div>
         <div id="appareils-list"><div style="text-align:center;padding:20px;color:var(--gray);font-size:12px;">⏳ Chargement...</div></div>
         <div style="margin-top:14px;">
           <div class="section-title">📍 Position actuelle</div>
           <div id="pos-info" class="pos-info"><div style="text-align:center;color:var(--gray);font-size:12px;">Sélectionnez un appareil</div></div>
         </div>
         <div style="margin-top:14px;">
-          <div class="section-title">
-            🛡️ Missions
-            <button class="btn-xs green" onclick="ouvrirModalMission()">+ Nouvelle</button>
-          </div>
+          <div class="section-title">🛡️ Missions <button class="btn-xs green" onclick="ouvrirModalMission()">+ Nouvelle</button></div>
           <div id="missions-list"><div style="text-align:center;padding:16px;color:var(--gray);font-size:12px;">Aucune mission</div></div>
         </div>
       </div>
 
-      <!-- ONGLET NAVIGATION -->
+      <!-- NAVIGATION -->
       <div class="tab-content" id="content-navigation">
         <div class="section-title">🗺️ Itinéraire</div>
         <div class="nav-input-group">
           <label class="form-label">Départ</label>
-          <input type="text" class="nav-input" id="nav-depart" placeholder="Adresse de départ..." oninput="autocompleteAdresse('nav-depart','nav-depart-list')">
-          <div id="nav-depart-list" style="display:none;background:white;border:1px solid var(--border);border-radius:8px;max-height:150px;overflow-y:auto;margin-top:4px;"></div>
+          <input type="text" class="nav-input" id="nav-depart" placeholder="Adresse de départ...">
         </div>
         <div class="nav-input-group">
           <label class="form-label">Destination</label>
-          <input type="text" class="nav-input" id="nav-dest" placeholder="Adresse de destination..." oninput="autocompleteAdresse('nav-dest','nav-dest-list')">
-          <div id="nav-dest-list" style="display:none;background:white;border:1px solid var(--border);border-radius:8px;max-height:150px;overflow-y:auto;margin-top:4px;"></div>
+          <input type="text" class="nav-input" id="nav-dest" placeholder="Adresse de destination...">
         </div>
         <div style="display:flex;gap:6px;margin-bottom:12px;">
-          <button class="btn-xs" id="mode-voiture" onclick="setModeNav('car')" style="flex:1;padding:7px;">🚗 Auto</button>
-          <button class="btn-xs" id="mode-velo" onclick="setModeNav('bike')" style="flex:1;padding:7px;">🚲 Vélo</button>
-          <button class="btn-xs" id="mode-pieton" onclick="setModeNav('foot')" style="flex:1;padding:7px;">🚶 Piéton</button>
+          <button class="btn-xs" id="mode-voiture" onclick="setModeNav('DRIVING')" style="flex:1;padding:7px;">🚗 Auto</button>
+          <button class="btn-xs" id="mode-transit" onclick="setModeNav('TRANSIT')" style="flex:1;padding:7px;">🚌 Transit</button>
+          <button class="btn-xs" id="mode-pieton" onclick="setModeNav('WALKING')" style="flex:1;padding:7px;">🚶 Piéton</button>
         </div>
         <button class="btn-primary" onclick="calculerItineraire()" style="width:100%;margin-bottom:12px;">🗺️ Calculer l'itinéraire</button>
         <div id="nav-result" style="display:none;" class="nav-result"></div>
@@ -286,14 +261,11 @@
           <button class="btn-xs" style="flex:1;padding:7px;" onclick="ouvrirModalSauverTrajet()" id="btn-sauver-trajet" disabled>💾 Sauvegarder</button>
           <button class="btn-xs red" style="flex:1;padding:7px;" onclick="effacerItineraire()">🗑️ Effacer</button>
         </div>
-        <div class="section-title" style="margin-top:8px;">
-          💾 Trajets sauvegardés
-          <span id="nb-trajets" style="background:var(--gray);color:white;font-size:10px;padding:2px 7px;border-radius:100px;">0</span>
-        </div>
+        <div class="section-title" style="margin-top:8px;">💾 Trajets sauvegardés <span id="nb-trajets" style="background:var(--gray);color:white;font-size:10px;padding:2px 7px;border-radius:100px;">0</span></div>
         <div id="trajets-list"><div style="text-align:center;padding:16px;color:var(--gray);font-size:12px;">Aucun trajet sauvegardé</div></div>
       </div>
 
-      <!-- ONGLET ZONES DRONE -->
+      <!-- ZONES -->
       <div class="tab-content" id="content-zones">
         <div class="section-title">🚁 Zones aériennes</div>
         <div class="filtre-group">
@@ -316,7 +288,7 @@
         <div id="zones-count" style="font-size:11px;color:var(--gray);text-align:center;margin-top:8px;"></div>
       </div>
 
-      <!-- ONGLET BORNES -->
+      <!-- BORNES -->
       <div class="tab-content" id="content-bornes">
         <div class="section-title">⚡ Bornes de recharge</div>
         <div class="filtre-group">
@@ -347,12 +319,12 @@
         <div id="bornes-count" style="font-size:11px;color:var(--gray);text-align:center;margin-top:8px;"></div>
       </div>
 
-      <!-- ONGLET MÉTÉO -->
+      <!-- MÉTÉO -->
       <div class="tab-content" id="content-meteo">
-        <div id="meteo-loading" style="text-align:center;padding:30px;color:var(--gray);font-size:12px;">Sélectionnez un appareil pour voir la météo</div>
+        <div id="meteo-loading" style="text-align:center;padding:30px;color:var(--gray);font-size:12px;">Sélectionnez un appareil ou cliquez sur la carte</div>
         <div id="meteo-content" style="display:none;">
           <div id="drone-status" class="drone-status drone-ok">✅ Conditions favorables au vol</div>
-          <div class="meteo-card" id="meteo-card">
+          <div class="meteo-card">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;">
               <div>
                 <div class="meteo-temp" id="meteo-temp">—°</div>
@@ -362,67 +334,36 @@
               <div style="font-size:48px;" id="meteo-icone">🌤️</div>
             </div>
             <div class="meteo-grid">
-              <div class="meteo-item">
-                <div class="meteo-item-val" id="meteo-vent-vitesse">—</div>
-                <div class="meteo-item-label">💨 Vent km/h</div>
-              </div>
-              <div class="meteo-item">
-                <div class="meteo-item-val" id="meteo-vent-dir">—</div>
-                <div class="meteo-item-label">🧭 Direction</div>
-              </div>
-              <div class="meteo-item">
-                <div class="meteo-item-val" id="meteo-humidite">—</div>
-                <div class="meteo-item-label">💧 Humidité</div>
-              </div>
-              <div class="meteo-item">
-                <div class="meteo-item-val" id="meteo-visibilite">—</div>
-                <div class="meteo-item-label">👁️ Visibilité km</div>
-              </div>
-              <div class="meteo-item">
-                <div class="meteo-item-val" id="meteo-pression">—</div>
-                <div class="meteo-item-label">🌡️ Pression hPa</div>
-              </div>
-              <div class="meteo-item">
-                <div class="meteo-item-val" id="meteo-nuages">—</div>
-                <div class="meteo-item-label">☁️ Nuages %</div>
-              </div>
-              <div class="meteo-item">
-                <div class="meteo-item-val" id="meteo-lever">—</div>
-                <div class="meteo-item-label">🌅 Lever</div>
-              </div>
-              <div class="meteo-item">
-                <div class="meteo-item-val" id="meteo-coucher">—</div>
-                <div class="meteo-item-label">🌇 Coucher</div>
-              </div>
+              <div class="meteo-item"><div class="meteo-item-val" id="meteo-vent-vitesse">—</div><div class="meteo-item-label">💨 Vent km/h</div></div>
+              <div class="meteo-item"><div class="meteo-item-val" id="meteo-vent-dir">—</div><div class="meteo-item-label">🧭 Direction</div></div>
+              <div class="meteo-item"><div class="meteo-item-val" id="meteo-humidite">—</div><div class="meteo-item-label">💧 Humidité</div></div>
+              <div class="meteo-item"><div class="meteo-item-val" id="meteo-visibilite">—</div><div class="meteo-item-label">👁️ Visibilité km</div></div>
+              <div class="meteo-item"><div class="meteo-item-val" id="meteo-pression">—</div><div class="meteo-item-label">🌡️ Pression hPa</div></div>
+              <div class="meteo-item"><div class="meteo-item-val" id="meteo-nuages">—</div><div class="meteo-item-label">☁️ Nuages %</div></div>
+              <div class="meteo-item"><div class="meteo-item-val" id="meteo-lever">—</div><div class="meteo-item-label">🌅 Lever</div></div>
+              <div class="meteo-item"><div class="meteo-item-val" id="meteo-coucher">—</div><div class="meteo-item-label">🌇 Coucher</div></div>
             </div>
           </div>
-
-          <!-- Couches météo carte -->
           <div class="section-title" style="margin-bottom:10px;">🗺️ Couches sur la carte</div>
           <button class="meteo-couche-btn" id="couche-vent" onclick="toggleCoucheMeteo('wind')">💨 Vent</button>
           <button class="meteo-couche-btn" id="couche-pluie" onclick="toggleCoucheMeteo('precipitation')">🌧️ Précipitations</button>
           <button class="meteo-couche-btn" id="couche-temp" onclick="toggleCoucheMeteo('temp')">🌡️ Température</button>
           <button class="meteo-couche-btn" id="couche-nuages" onclick="toggleCoucheMeteo('clouds')">☁️ Nuages</button>
           <button class="meteo-couche-btn" id="couche-pression" onclick="toggleCoucheMeteo('pressure')">📊 Pression</button>
-
-          <!-- Prévisions -->
           <div class="section-title" style="margin-top:14px;margin-bottom:10px;">📅 Prévisions 5 jours</div>
           <div id="previsions-list"></div>
         </div>
       </div>
-
-    </div><!-- fin sidebar -->
+    </div>
 
     <!-- CARTE -->
     <div class="map-container">
       <div id="map"></div>
       <div class="map-overlay">
         <button class="map-btn" onclick="centrerCarte()">🎯 Centrer</button>
-        <button class="map-btn" onclick="toggleSatellite()">🛰️ Satellite</button>
       </div>
       <div class="refresh-badge">⏱️ Màj dans <span id="countdown">15:00</span></div>
     </div>
-
   </div>
 </div>
 
@@ -446,7 +387,7 @@
   </div>
 </div>
 
-<!-- MODAL NOUVELLE MISSION -->
+<!-- MODAL MISSION -->
 <div class="modal-overlay" id="modal-mission">
   <div class="modal-box">
     <div class="modal-title">🛡️ <span id="modal-mission-titre">Nouvelle mission</span></div>
@@ -504,7 +445,7 @@
       <div class="tag-input-wrap" id="ha-wrap" style="cursor:default;min-height:34px;"></div>
     </div>
     <div style="background:rgba(26,143,209,0.06);border:1px solid rgba(26,143,209,0.15);border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--gray);">
-      🗺️ Points trajet : <strong id="nb-points-trajet">0</strong> — Après sauvegarde, cliquez <strong>Dessiner trajet</strong>
+      🗺️ Points trajet : <strong id="nb-points-trajet">0</strong>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="fermerModal('modal-mission')">Annuler</button>
@@ -535,24 +476,102 @@ const OTP_EMAIL = 'mohand.aidi@mohand.ca';
 const OPENAIP_KEY = '75da2171911a2946a103b4de91ea12f7';
 const OCM_KEY = 'aa281858-16e4-43e8-954e-68ee7203b3af';
 const OWM_KEY = 'c873fb4bcda8757557d5027d12ae153b';
-const WINDY_KEY = 'dbxPN4PoNZWASl1Kp7WQOGVemsOvuK9O';
+const GOOGLE_KEY = 'AIzaSyBa_29f6i2nUKqTPepHFLYE_pEff8VfogY';
 
 const hdrs = () => ({ 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' });
 
 let authToken = '';
 let appareils = [], appareilActif = null;
-let map = null, marker = null, cercle = null;
-let layerOSM = null, layerSat = null, satelliteMode = false;
+let map = null, markerPosition = null;
 let countdownInterval = null, refreshInterval = null, secondesRestantes = 900;
 let notifyHA = [];
 let missions = [], emailsAlerte = [], smsAlerte = [], haAlerte = [];
-let markersZones = [], markersBornes = [], clusterBornes = null;
-let zonesActives = false, bornesActives = false;
+let markersZones = [], zonesActives = false;
+let bornesMarkers = [], bornesActives = false;
 let coucheMeteoActive = null, layerMeteo = null;
 let modeMissionActif = false, intervalMission = null;
 let configMission = { telephonesSurveilles:[], distanceMax:1000, contactsAlerte:[], contactsHA:[], contactsSMS:[] };
-let polylineNav = null, markersNav = [], trajetsNav = [], modeNav = 'car';
+let modeNav = 'DRIVING';
+let directionsService = null, directionsRenderer = null;
+let autocompleteDepart = null, autocompleteDest = null;
 let dessinActif = false, pointsDessin = [], polylineDessin = null, markersDessin = [];
+let trajetsNav = [];
+let infoWindow = null;
+
+// ══ GOOGLE MAPS INIT ══════════════════════════════════════════════════
+function initGoogleMaps() {
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: { lat: 45.87323, lng: -73.30294 },
+    zoom: 13,
+    mapTypeControl: true,
+    mapTypeControlOptions: {
+      style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+      position: google.maps.ControlPosition.TOP_RIGHT,
+      mapTypeIds: ['roadmap', 'satellite', 'hybrid', 'terrain']
+    },
+    streetViewControl: false,
+    fullscreenControl: false,
+    zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER }
+  });
+
+  directionsService = new google.maps.DirectionsService();
+  directionsRenderer = new google.maps.DirectionsRenderer({
+    map: map,
+    suppressMarkers: false,
+    polylineOptions: { strokeColor: '#1A8FD1', strokeWeight: 5, strokeOpacity: 0.8 }
+  });
+
+  infoWindow = new google.maps.InfoWindow();
+
+  // Autocomplete départ
+  autocompleteDepart = new google.maps.places.Autocomplete(
+    document.getElementById('nav-depart'),
+    { componentRestrictions: { country: 'ca' }, fields: ['geometry', 'formatted_address'] }
+  );
+
+  // Autocomplete destination
+  autocompleteDest = new google.maps.places.Autocomplete(
+    document.getElementById('nav-dest'),
+    { componentRestrictions: { country: 'ca' }, fields: ['geometry', 'formatted_address'] }
+  );
+
+  // Clic carte → météo si onglet météo actif
+  map.addListener('click', async (e) => {
+    if (dessinActif) { ajouterPointDessin(e.latLng.lat(), e.latLng.lng()); return; }
+    const ongletActif = document.querySelector('.sidebar-tab.active')?.id;
+    if (ongletActif !== 'tab-meteo') return;
+    document.getElementById('meteo-loading').style.display = 'block';
+    document.getElementById('meteo-loading').textContent = '⏳ Chargement météo...';
+    document.getElementById('meteo-content').style.display = 'none';
+    try {
+      const [rM, rP] = await Promise.all([
+        fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${e.latLng.lat()}&lon=${e.latLng.lng()}&units=metric&lang=fr&appid=${OWM_KEY}`),
+        fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${e.latLng.lat()}&lon=${e.latLng.lng()}&units=metric&lang=fr&cnt=40&appid=${OWM_KEY}`)
+      ]);
+      afficherDonneesMeteo(await rM.json(), await rP.json());
+    } catch(e) { document.getElementById('meteo-loading').textContent = '❌ Erreur météo'; }
+  });
+
+  // Recharger zones/bornes au déplacement
+  map.addListener('idle', () => {
+    if (zonesActives) { const f=document.querySelector('#content-zones .filtre-btn.active-red, #content-zones .filtre-btn.active-orange, #content-zones .filtre-btn.active'); if(f) f.click(); }
+    if (bornesActives) { const f=document.querySelector('#content-bornes .filtre-btn.active-green'); if(f) f.click(); }
+  });
+
+  // Auto-login si token valide
+  const t = sessionStorage.getItem('pos_token');
+  if (t && t.includes('.')) {
+    try {
+      const p = JSON.parse(atob(t.split('.')[0]));
+      if (p.exp > Date.now()) {
+        authToken = t;
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').classList.add('visible');
+        initApp();
+      }
+    } catch(e) {}
+  }
+}
 
 // ══ LOGIN ══════════════════════════════════════════════════════════════
 let loginStep = 1;
@@ -560,19 +579,17 @@ async function login() {
   const btn = document.getElementById('login-btn-text');
   const err = document.getElementById('login-error');
   err.style.display = 'none';
-  const blocageKey = 'pos_blocage', tentativesKey = 'pos_tentatives';
-  const blocage = sessionStorage.getItem(blocageKey);
+  const blocage = sessionStorage.getItem('pos_blocage');
   if (blocage && Date.now() < parseInt(blocage)) {
-    const restant = Math.ceil((parseInt(blocage) - Date.now()) / 60000);
-    showErr(`Trop de tentatives. Réessayez dans ${restant} min.`); return;
+    showErr(`Trop de tentatives. Réessayez dans ${Math.ceil((parseInt(blocage)-Date.now())/60000)} min.`); return;
   }
   if (loginStep === 1) {
     const pin = document.getElementById('login-pin').value.trim();
     if (!pin) { showErr('Entrez votre PIN.'); return; }
     if (pin !== PIN_CORRECT) {
-      const t = parseInt(sessionStorage.getItem(tentativesKey)||'0') + 1;
-      sessionStorage.setItem(tentativesKey, t);
-      if (t >= 3) { sessionStorage.setItem(blocageKey, Date.now()+30*60*1000); sessionStorage.removeItem(tentativesKey); showErr('3 tentatives échouées. Accès bloqué 30 min.'); }
+      const t = parseInt(sessionStorage.getItem('pos_tentatives')||'0') + 1;
+      sessionStorage.setItem('pos_tentatives', t);
+      if (t >= 3) { sessionStorage.setItem('pos_blocage', Date.now()+30*60*1000); sessionStorage.removeItem('pos_tentatives'); showErr('3 tentatives échouées. Accès bloqué 30 min.'); }
       else showErr(`PIN incorrect. ${3-t} tentative(s) restante(s).`);
       return;
     }
@@ -595,7 +612,7 @@ async function login() {
     try {
       const r = await fetch(`${AUTH_API}/api/carnet/auth/otp`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: OTP_EMAIL, otp }) });
       const d = await r.json();
-      if (!r.ok || !d.token) { showErr('Code OTP incorrect ou expiré.'); btn.textContent='Valider →'; return; }
+      if (!r.ok || !d.token) { showErr('Code OTP incorrect.'); btn.textContent='Valider →'; return; }
       authToken = d.token;
       sessionStorage.setItem('pos_token', authToken);
       document.getElementById('login-screen').style.display = 'none';
@@ -619,19 +636,9 @@ function logout() {
   if(countdownInterval) clearInterval(countdownInterval);
 }
 document.getElementById('login-pin').addEventListener('keydown', e => { if(e.key==='Enter') login(); });
-(function() {
-  const t = sessionStorage.getItem('pos_token');
-  if (t && t.includes('.')) {
-    try {
-      const p = JSON.parse(atob(t.split('.')[0]));
-      if (p.exp > Date.now()) { authToken=t; document.getElementById('login-screen').style.display='none'; document.getElementById('app').classList.add('visible'); initApp(); }
-    } catch(e) {}
-  }
-})();
 
 // ══ INIT ══════════════════════════════════════════════════════════════
 async function initApp() {
-  initCarte();
   await Promise.all([chargerAppareils(), chargerNotifyHA(), chargerMissions(), chargerTrajetsNav()]);
   demarrerCountdown();
 }
@@ -646,50 +653,35 @@ function switchOnglet(onglet) {
 }
 
 // ══ CARTE ═════════════════════════════════════════════════════════════
-function initCarte() {
-  if (map) { map.remove(); map=null; }
-  map = L.map('map', { zoomControl:true }).setView([45.87323, -73.30294], 13);
-  layerOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap', maxZoom:19 });
-  layerSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution:'© Esri', maxZoom:19 });
-  layerOSM.addTo(map);
-  clusterBornes = L.markerClusterGroup({ maxClusterRadius:40, showCoverageOnHover:false });
-  map.addLayer(clusterBornes);
-  map.on('click', async (e) => {
-  if(dessinActif) return;
-  const ongletActif=document.querySelector('.sidebar-tab.active')?.id;
-  if(ongletActif !== 'tab-meteo') return;
-  const {lat, lng} = e.latlng;
-  switchOnglet('meteo');
-  document.getElementById('meteo-loading').style.display='block';
-  document.getElementById('meteo-loading').textContent='⏳ Chargement météo pour ce point...';
-  document.getElementById('meteo-content').style.display='none';
-  try {
-    const [rMeteo, rPrev]=await Promise.all([
-      fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&lang=fr&appid=${OWM_KEY}`),
-      fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lng}&units=metric&lang=fr&cnt=40&appid=${OWM_KEY}`)
-    ]);
-    const meteo=await rMeteo.json(), prev=await rPrev.json();
-    afficherDonneesMeteo(meteo, prev);
-  } catch(e) { document.getElementById('meteo-loading').textContent='❌ Erreur météo'; }
-});
-  map.on('moveend', () => {
-    if (zonesActives) { const f=document.querySelector('.filtre-btn.active-red,.filtre-btn.active'); if(f) f.click(); }
-    if (bornesActives) { const f=document.querySelector('#content-bornes .filtre-btn.active-green'); if(f) f.click(); }
-  });
+function centrerCarte() {
+  if (markerPosition) map.panTo(markerPosition.getPosition());
 }
-function toggleSatellite() {
-  satelliteMode = !satelliteMode;
-  if (satelliteMode) { map.removeLayer(layerOSM); layerSat.addTo(map); }
-  else { map.removeLayer(layerSat); layerOSM.addTo(map); }
-}
-function centrerCarte() { if(marker) map.setView(marker.getLatLng(), 15); }
+
 function mettreAJourCarte(lat, lon, nom) {
-  if (marker) { map.removeLayer(marker); if(cercle) map.removeLayer(cercle); }
-  const icone = L.divIcon({ html:`<div style="background:var(--blue);width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>`, className:'', iconSize:[16,16], iconAnchor:[8,8] });
-  marker = L.marker([lat,lon], {icon:icone}).addTo(map);
-  marker.bindPopup(`<strong>${nom}</strong><br>${lat.toFixed(5)}, ${lon.toFixed(5)}`);
-  cercle = L.circle([lat,lon], { radius:50, color:'#1A8FD1', fillColor:'#1A8FD1', fillOpacity:0.12, weight:2 }).addTo(map);
-  map.setView([lat,lon], 15);
+  const pos = { lat, lng: lon };
+  if (markerPosition) {
+    markerPosition.setPosition(pos);
+  } else {
+    markerPosition = new google.maps.Marker({
+      position: pos,
+      map: map,
+      title: nom,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 10,
+        fillColor: '#1A8FD1',
+        fillOpacity: 1,
+        strokeColor: 'white',
+        strokeWeight: 3
+      }
+    });
+    markerPosition.addListener('click', () => {
+      infoWindow.setContent(`<div style="font-family:'DM Sans',sans-serif;padding:4px;"><strong>${nom}</strong><br>${lat.toFixed(5)}, ${lon.toFixed(5)}</div>`);
+      infoWindow.open(map, markerPosition);
+    });
+  }
+  map.panTo(pos);
+  if (map.getZoom() < 13) map.setZoom(15);
 }
 
 // ══ APPAREILS ═════════════════════════════════════════════════════════
@@ -705,7 +697,7 @@ async function chargerAppareils() {
 function renderAppareils() {
   const list = document.getElementById('appareils-list');
   document.getElementById('nb-appareils').textContent = appareils.length;
-  if (!appareils.length) { list.innerHTML='<div style="text-align:center;padding:16px;color:var(--gray);font-size:12px;">Aucun appareil — cliquez + Appareil</div>'; return; }
+  if (!appareils.length) { list.innerHTML='<div style="text-align:center;padding:16px;color:var(--gray);font-size:12px;">Aucun appareil</div>'; return; }
   list.innerHTML = appareils.map(a => `
     <div class="appareil-card ${appareilActif?.id===a.id?'active':''}" onclick="selectionnerAppareil(${JSON.stringify(a).replace(/"/g,'&quot;')})">
       <button class="appareil-card-del" onclick="event.stopPropagation();supprimerAppareil('${a.id}','${a.nom}')">✕</button>
@@ -714,9 +706,7 @@ function renderAppareils() {
     </div>`).join('');
 }
 async function selectionnerAppareil(appareil) {
-  appareilActif = appareil;
-  renderAppareils();
-  await actualiserPosition();
+  appareilActif = appareil; renderAppareils(); await actualiserPosition();
 }
 async function actualiserPosition() {
   if (!appareilActif) return;
@@ -727,8 +717,7 @@ async function actualiserPosition() {
     mettreAJourCarte(d.latitude, d.longitude, appareilActif.nom);
     afficherInfosPosition(d);
     resetCountdown();
-    const ongletActif = document.querySelector('.sidebar-tab.active')?.id;
-    if (ongletActif === 'tab-meteo') chargerMeteo();
+    if (document.querySelector('.sidebar-tab.active')?.id === 'tab-meteo') chargerMeteo();
   } catch(e) { showNotif('Erreur de connexion','error'); }
 }
 function afficherInfosPosition(d) {
@@ -743,7 +732,7 @@ function afficherInfosPosition(d) {
 async function supprimerAppareil(id, nom) {
   if (!confirm(`Supprimer "${nom}" ?`)) return;
   await fetch(`${API}/api/position/appareils/${id}`, {method:'DELETE', headers:hdrs()});
-  showNotif('✅ Appareil supprimé','success');
+  showNotif('✅ Supprimé','success');
   if (appareilActif?.id===id) { appareilActif=null; document.getElementById('pos-info').innerHTML='<div style="text-align:center;color:var(--gray);font-size:12px;">Sélectionnez un appareil</div>'; }
   await chargerAppareils();
 }
@@ -759,14 +748,13 @@ async function ouvrirModalAjout() {
     if (d.success && d.capteurs.length) {
       sel.innerHTML='<option value="">— Sélectionner —</option>'+d.capteurs.map(c=>`<option value="${c.entity_id}" data-lat="${c.latitude}" data-loc="${c.locality}">${c.nom} (${c.entity_id})</option>`).join('');
       sel.onchange = () => {
-        const opt=sel.options[sel.selectedIndex];
-        const lat=opt.getAttribute('data-lat'), loc=opt.getAttribute('data-loc');
+        const opt=sel.options[sel.selectedIndex], lat=opt.getAttribute('data-lat'), loc=opt.getAttribute('data-loc');
         const apercu=document.getElementById('ajout-apercu');
         if(lat){apercu.style.display='block';apercu.textContent=`📍 ${loc||'Inconnue'} (${lat})`;}
         else apercu.style.display='none';
       };
     } else sel.innerHTML='<option value="">Aucun capteur GPS trouvé</option>';
-  } catch(e) { sel.innerHTML='<option value="">Erreur chargement</option>'; }
+  } catch(e) { sel.innerHTML='<option value="">Erreur</option>'; }
 }
 async function ajouterAppareil() {
   const nom=document.getElementById('ajout-nom').value.trim(), entite=document.getElementById('ajout-capteur').value;
@@ -774,12 +762,12 @@ async function ajouterAppareil() {
   if (!entite) { showNotif('⚠️ Sélectionnez un capteur','error'); return; }
   const r=await fetch(`${API}/api/position/appareils`, {method:'POST', headers:hdrs(), body:JSON.stringify({nom, entite_ha:entite})});
   const d=await r.json();
-  if (d.success) { showNotif('✅ Appareil ajouté !','success'); fermerModal('modal-ajout'); await chargerAppareils(); }
+  if (d.success) { showNotif('✅ Ajouté !','success'); fermerModal('modal-ajout'); await chargerAppareils(); }
   else showNotif('❌ '+(d.error||'Erreur'),'error');
 }
 
 // ══ COUNTDOWN ═════════════════════════════════════════════════════════
-function demarrerCountdown() { resetCountdown(); refreshInterval=setInterval(actualiserPosition, 900000); }
+function demarrerCountdown() { resetCountdown(); refreshInterval=setInterval(actualiserPosition,900000); }
 function resetCountdown() {
   secondesRestantes=900;
   if(countdownInterval) clearInterval(countdownInterval);
@@ -788,370 +776,126 @@ function resetCountdown() {
     const m=Math.floor(secondesRestantes/60), s=secondesRestantes%60;
     document.getElementById('countdown').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     if(secondesRestantes<=0) clearInterval(countdownInterval);
-  }, 1000);
+  },1000);
 }
 
-// ══ ZONES DRONE ═══════════════════════════════════════════════════════
-async function chargerZones(filtre) {
-  // Reset boutons
-  document.querySelectorAll('#content-zones .filtre-btn').forEach(b => { b.classList.remove('active','active-red','active-orange'); });
-  const btn = document.getElementById(`zone-btn-${filtre}`);
-  if (btn) btn.classList.add(filtre==='interdit'||filtre==='danger'?'active-red':filtre==='restreint'||filtre==='ctr'?'active-orange':'active');
-
-  // Effacer existant
-  markersZones.forEach(m => map.removeLayer(m));
-  markersZones=[];
-  document.getElementById('zones-count').textContent='⏳ Chargement...';
-
-  const bounds=map.getBounds();
-  const bbox=`${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
-  try {
-    const r=await fetch(`https://api.core.openaip.net/api/airspaces?bbox=${bbox}&page=1&limit=200`, {
-      headers:{'x-openaip-api-key':OPENAIP_KEY,'Accept':'application/json'}
-    });
-    const d=await r.json();
-    let items=d.items||d.data||[];
-if(filtre==='interdit') items=items.filter(z=>z.category===8||z.category===0||z.type==='CTR'||['A','B','C'].includes(z.icaoClass));
-else if(filtre==='restreint') items=items.filter(z=>z.category===11||z.type==='RESTRICTED'||z.icaoClass==='D');
-else if(filtre==='ctr') items=items.filter(z=>z.type==='CTR'||z.icaoClass==='CTR'||z.icaoClass==='C'||z.icaoClass==='D'||z.name?.toUpperCase().includes('TRUDEAU')||z.name?.toUpperCase().includes('MONTREAL')||z.name?.toUpperCase().includes('CYUL'));
-else if(filtre==='danger') items=items.filter(z=>z.category===8||z.type==='DANGER');
-else if(filtre==='info') items=items.filter(z=>z.category===6||z.category===7||z.icaoClass==='E'||z.icaoClass==='G');
-
-    items.forEach(zone => {
-      if(!zone.geometry) return;
-      const coords=zone.geometry.coordinates;
-      const type=zone.type||zone.icaoClass||'', nom=zone.name||'Zone aérienne', cat=zone.category||0;
-      let couleur='#3AABEF', opacity=0.12;
-      if(cat===0||type==='CTR'){couleur='#E74C3C';opacity=0.18;}
-      else if(cat===8||type==='DANGER'){couleur='#E74C3C';opacity=0.2;}
-      else if(cat===11||type==='RESTRICTED'){couleur='#E67E22';opacity=0.15;}
-      else if(cat===1||type==='ATZ'){couleur='#E67E22';opacity=0.13;}
-      else if(cat===2||cat===3){couleur='#9B59B6';opacity=0.12;}
-      try {
-        let poly;
-        if(zone.geometry.type==='Polygon') poly=L.polygon(coords[0].map(c=>[c[1],c[0]]),{color:couleur,fillColor:couleur,fillOpacity:opacity,weight:2});
-        else if(zone.geometry.type==='MultiPolygon') poly=L.polygon(coords.map(p=>p[0].map(c=>[c[1],c[0]])),{color:couleur,fillColor:couleur,fillOpacity:opacity,weight:2});
-        if(poly){
-          const alt=zone.upperLimit?`${zone.lowerLimit?.value||0}${zone.lowerLimit?.unit||'ft'} — ${zone.upperLimit?.value||''}${zone.upperLimit?.unit||'ft'}`:'—';
-          const restriction=cat===0||cat===8?'⛔ VOL DRONE INTERDIT':cat===11?'⚠️ ZONE RESTREINTE':type==='CTR'||['A','B','C','D'].includes(zone.icaoClass)?'🏙️ ZONE AÉROPORT CONTRÔLÉE':'ℹ️ INFORMATION';
-const lat_c=zone.geometry.type==='Polygon'?coords[0][0][1]:coords[0][0][0][1];
-const lon_c=zone.geometry.type==='Polygon'?coords[0][0][0]:coords[0][0][0][0];
-poly.bindPopup(`<div style="font-family:'DM Sans',sans-serif;min-width:220px;">
-  <div style="font-weight:700;color:#0B1F3A;margin-bottom:6px;">🚁 ${nom}</div>
-  <div style="font-size:11px;color:#6B7C93;">Type : ${type||'—'} · Classe : ${zone.icaoClass||'—'}</div>
-  <div style="font-size:11px;color:#6B7C93;margin-bottom:6px;">Alt : ${alt}</div>
-  <div style="padding:4px 8px;background:${couleur}22;border-radius:4px;color:${couleur};font-weight:700;font-size:11px;margin-bottom:8px;">${restriction}</div>
-  <a href="https://portal.navdrone.ca" target="_blank" style="display:block;text-align:center;background:#0B1F3A;color:white;padding:6px;border-radius:6px;font-size:11px;text-decoration:none;font-weight:600;">🚁 Vérifier sur NavDrone →</a>
-  <div style="font-size:10px;color:#6B7C93;text-align:center;margin-top:4px;">⚠️ Toujours consulter NavDrone avant de voler</div>
-</div>`);
-          markersZones.push(poly);
-        }
-      } catch(e){}
-    });
-    zonesActives=true;
-    document.getElementById('zones-count').textContent=`${markersZones.length} zone(s) affichée(s)`;
-    showNotif(`✅ ${markersZones.length} zone(s) aérienne(s)`,'success');
-  } catch(e) { document.getElementById('zones-count').textContent='❌ Erreur chargement'; showNotif('❌ Erreur zones drone','error'); }
-}
-function effacerZones() {
-  markersZones.forEach(m=>map.removeLayer(m)); markersZones=[]; zonesActives=false;
-  document.querySelectorAll('#content-zones .filtre-btn').forEach(b=>b.classList.remove('active','active-red','active-orange'));
-  document.getElementById('zones-count').textContent='';
-  showNotif('Zones effacées','');
-}
-
-// ══ BORNES RECHARGE ═══════════════════════════════════════════════════
-async function chargerBornes(filtre) {
-  document.querySelectorAll('#content-bornes .filtre-btn').forEach(b=>b.classList.remove('active','active-green','active-red'));
-  const btn=document.getElementById(`borne-btn-${filtre}`);
-  if(btn) btn.classList.add(filtre==='horsservice'?'active-red':'active-green');
-  clusterBornes.clearLayers(); bornesActives=false;
-  document.getElementById('bornes-count').textContent='⏳ Chargement...';
-
-  const centre=map.getCenter();
-  const bounds=map.getBounds();
-  const dist=Math.round(Math.max(10,Math.min(50,distanceGPS(centre.lat,centre.lng,bounds.getNorth(),centre.lng)/1000)));
-  let urlExtra='';
-  if(filtre==='niveau2') urlExtra='&levelid=2';
-  else if(filtre==='rapide') urlExtra='&levelid=3';
-  else if(filtre==='operationnel') urlExtra='&statustype=50';
-  else if(filtre==='horsservice') urlExtra='&statustype=100';
-  else if(filtre==='tesla') urlExtra='&connectiontypeid=27';
-  else if(filtre==='chademo') urlExtra='&connectiontypeid=2';
-  else if(filtre==='ccs') urlExtra='&connectiontypeid=33';
-  else if(filtre==='j1772') urlExtra='&connectiontypeid=1';
-
-  try {
-    const r=await fetch(`https://api.openchargemap.io/v3/poi/?output=json&countrycode=CA&latitude=${centre.lat}&longitude=${centre.lng}&distance=${dist}&distanceunit=km&maxresults=50&compact=false&verbose=false${urlExtra}&key=${OCM_KEY}`);
-    const bornes=await r.json();
-    bornes.forEach(b=>{
-      const lat=b.AddressInfo?.Latitude, lon=b.AddressInfo?.Longitude;
-      if(!lat||!lon) return;
-      const nom=b.AddressInfo?.Title||'Borne', adresse=b.AddressInfo?.AddressLine1||'', ville=b.AddressInfo?.Town||'';
-      const nb=b.NumberOfPoints||1, connexions=b.Connections||[];
-      const statut=b.StatusType?.IsOperational, network=b.OperatorInfo?.Title||'';
-      const couleur=statut===true?'#27AE60':statut===false?'#E74C3C':'#6B7C93';
-      const statutLabel=statut===true?'🟢 Opérationnelle':statut===false?'🔴 Hors service':'⚫ Statut non disponible en temps réel';
-      const niveau=connexions[0]?.LevelID||2;
-      const niveauLabel=niveau===3?'⚡⚡':niveau===2?'⚡':'~';
-      const icone=L.divIcon({html:`<div style="background:${couleur};width:24px;height:24px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:9px;color:white;font-weight:700;">${niveauLabel}</div>`,className:'',iconSize:[24,24],iconAnchor:[12,12]});
-      const connHtml=connexions.slice(0,3).map(c=>`<div style="font-size:11px;color:#6B7C93;">🔌 ${c.ConnectionType?.Title||'—'} · ${c.PowerKW||'?'} kW</div>`).join('');
-      const m=L.marker([lat,lon],{icon:icone});
-      m.bindPopup(`<div style="font-family:'DM Sans',sans-serif;min-width:220px;"><div style="font-weight:700;color:#0B1F3A;margin-bottom:4px;">⚡ ${nom}</div>${network?`<div style="font-size:11px;color:#1A8FD1;margin-bottom:3px;">🏢 ${network}</div>`:''}<div style="font-size:11px;color:#6B7C93;margin-bottom:3px;">📍 ${adresse}${ville?', '+ville:''}</div><div style="font-size:12px;margin-bottom:5px;">${statutLabel}</div><div style="font-size:11px;color:#0B1F3A;font-weight:600;margin-bottom:4px;">🔌 ${nb} point(s)</div>${connHtml}<a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank" style="display:block;text-align:center;background:#1A8FD1;color:white;padding:5px;border-radius:6px;font-size:11px;text-decoration:none;margin-top:8px;">🗺️ Itinéraire</a></div>`);
-      clusterBornes.addLayer(m);
-    });
-    bornesActives=true;
-    const nb=clusterBornes.getLayers().length;
-    document.getElementById('bornes-count').textContent=`${nb} borne(s) trouvée(s)`;
-    showNotif(`✅ ${nb} borne(s)`,'success');
-  } catch(e) { document.getElementById('bornes-count').textContent='❌ Erreur'; showNotif('❌ Erreur bornes','error'); }
-}
-function effacerBornes() {
-  clusterBornes.clearLayers(); bornesActives=false;
-  document.querySelectorAll('#content-bornes .filtre-btn').forEach(b=>b.classList.remove('active','active-green','active-red'));
-  document.getElementById('bornes-count').textContent='';
-  showNotif('Bornes effacées','');
-}
-
-// ══ MÉTÉO ══════════════════════════════════════════════════════════════
-function directionVent(deg) {
-  const dirs=['N','NE','E','SE','S','SO','O','NO'];
-  return dirs[Math.round(deg/45)%8];
-}
-function iconeMeteo(id) {
-  if(id>=200&&id<300) return '⛈️';
-  if(id>=300&&id<400) return '🌦️';
-  if(id>=500&&id<600) return '🌧️';
-  if(id>=600&&id<700) return '🌨️';
-  if(id>=700&&id<800) return '🌫️';
-  if(id===800) return '☀️';
-  if(id===801) return '🌤️';
-  if(id<=804) return '☁️';
-  return '🌤️';
-}
-function statutDrone(vent, pluieId, visibilite) {
-  const ventKmh = vent * 3.6;
-  const pluie = pluieId >= 300 && pluieId < 700;
-  const brouillard = pluieId >= 700 && pluieId < 800;
-  const vis = visibilite / 1000;
-  if (ventKmh > 50 || pluie || brouillard || vis < 1) return { classe:'drone-nok', msg:'🔴 Vol déconseillé — Conditions défavorables' };
-  if (ventKmh > 30 || vis < 3) return { classe:'drone-warn', msg:'🟡 Vol avec précaution — Vérifiez les conditions' };
-  return { classe:'drone-ok', msg:'🟢 Conditions favorables au vol !' };
-}
-
-async function chargerMeteo() {
-  if (!appareilActif) return;
-  document.getElementById('meteo-loading').style.display='block';
-  document.getElementById('meteo-content').style.display='none';
-  try {
-    const r=await fetch(`${API}/api/position/localisation/${encodeURIComponent(appareilActif.entite_ha)}`, {headers:hdrs()});
-    const pos=await r.json();
-    if (!pos.success) { document.getElementById('meteo-loading').textContent='Position non disponible'; return; }
-    const [rMeteo, rPrev]=await Promise.all([
-      fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${pos.latitude}&lon=${pos.longitude}&units=metric&lang=fr&appid=${OWM_KEY}`),
-      fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${pos.latitude}&lon=${pos.longitude}&units=metric&lang=fr&cnt=40&appid=${OWM_KEY}`)
-    ]);
-    const meteo=await rMeteo.json(), prev=await rPrev.json();
-    afficherDonneesMeteo(meteo, prev);
-  } catch(e) { document.getElementById('meteo-loading').textContent='❌ Erreur chargement météo'; console.error(e); }
-}
-
-function afficherDonneesMeteo(meteo, prev) {
-  const temp=Math.round(meteo.main.temp);
-  const ressentie=Math.round(meteo.main.feels_like);
-  const desc=meteo.weather[0].description;
-  const weatherId=meteo.weather[0].id;
-  const ventMs=meteo.wind.speed, ventDir=meteo.wind.deg||0;
-  const ventKmh=Math.round(ventMs*3.6), ventNoeuds=Math.round(ventMs*1.944);
-  const humidite=meteo.main.humidity;
-  const pression=meteo.main.pressure;
-  const visibilite=meteo.visibility||10000;
-  const nuages=meteo.clouds.all;
-  const lever=new Date(meteo.sys.sunrise*1000).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
-  const coucher=new Date(meteo.sys.sunset*1000).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
-  const lieu=`${meteo.name||'Point sélectionné'}, ${meteo.sys?.country||''}`;
-
-  document.getElementById('meteo-temp').textContent=`${temp}°C`;
-  document.getElementById('meteo-desc').textContent=`${desc} (ressenti ${ressentie}°C)`;
-  document.getElementById('meteo-lieu').textContent=`📍 ${lieu}`;
-  document.getElementById('meteo-icone').textContent=iconeMeteo(weatherId);
-  document.getElementById('meteo-vent-vitesse').textContent=`${ventKmh} km/h · ${ventNoeuds} kt`;
-  document.getElementById('meteo-vent-dir').textContent=`${directionVent(ventDir)} ${ventDir}°`;
-  document.getElementById('meteo-humidite').textContent=`${humidite}%`;
-  document.getElementById('meteo-visibilite').textContent=`${(visibilite/1000).toFixed(1)} km`;
-  document.getElementById('meteo-pression').textContent=`${pression}`;
-  document.getElementById('meteo-nuages').textContent=`${nuages}%`;
-  document.getElementById('meteo-lever').textContent=lever;
-  document.getElementById('meteo-coucher').textContent=coucher;
-
-  const statut=statutDrone(ventMs, weatherId, visibilite);
-  const droneEl=document.getElementById('drone-status');
-  droneEl.className=`drone-status ${statut.classe}`;
-  droneEl.textContent=statut.msg;
-
-  const joursVus=new Set();
-  const prevHtml=prev.list.filter(p=>{
-    const jour=new Date(p.dt*1000).toLocaleDateString('fr-CA');
-    if(joursVus.has(jour)) return false;
-    joursVus.add(jour); return true;
-  }).slice(0,5).map(p=>{
-    const d=new Date(p.dt*1000);
-    const jour=d.toLocaleDateString('fr-CA',{weekday:'short',day:'numeric',month:'short'});
-    const t=Math.round(p.main.temp);
-    const v=Math.round(p.wind.speed*3.6);
-    const ico=iconeMeteo(p.weather[0].id);
-    const s=statutDrone(p.wind.speed, p.weather[0].id, 10000);
-    const couleur=s.classe==='drone-ok'?'#27AE60':s.classe==='drone-warn'?'#E67E22':'#E74C3C';
-    return `<div class="prevision-item">
-      <span style="font-size:11px;color:var(--navy);font-weight:500;">${jour}</span>
-      <span style="font-size:16px;">${ico}</span>
-      <span style="font-size:12px;color:var(--navy);font-weight:600;">${t}°C</span>
-      <span style="font-size:11px;color:var(--gray);">💨 ${v}km/h</span>
-      <span style="color:${couleur};font-size:16px;">●</span>
-    </div>`;
-  }).join('');
-  document.getElementById('previsions-list').innerHTML=prevHtml;
-  document.getElementById('meteo-loading').style.display='none';
-  document.getElementById('meteo-content').style.display='block';
-}
-
- 
-function toggleCoucheMeteo(type) {
-  document.querySelectorAll('.meteo-couche-btn').forEach(b=>b.classList.remove('active'));
-  if (layerMeteo) { map.removeLayer(layerMeteo); layerMeteo=null; }
-  if (coucheMeteoActive===type) { coucheMeteoActive=null; return; }
-  coucheMeteoActive=type;
-  document.getElementById(`couche-${type==='wind'?'vent':type==='precipitation'?'pluie':type==='temp'?'temp':type==='clouds'?'nuages':'pression'}`).classList.add('active');
-  const owmLayer={'wind':'WND','precipitation':'PAC0','temp':'TMP','clouds':'CL','pressure':'APM'};
-  layerMeteo=L.tileLayer(`https://tile.openweathermap.org/map/${owmLayer[type]||type}/{z}/{x}/{y}.png?appid=${OWM_KEY}`, {opacity:0.6,maxZoom:19,attribution:'© OpenWeatherMap'});
-  layerMeteo.addTo(map);
-}
-
-let debounceTimer = null;
-async function autocompleteAdresse(inputId, listId) {
-  clearTimeout(debounceTimer);
-  const q=document.getElementById(inputId).value.trim();
-  const list=document.getElementById(listId);
-  if(q.length<3){list.style.display='none';return;}
-  debounceTimer = setTimeout(async () => {
-    try {
-      const r=await fetch(`${API}/api/nav/geocode?q=${encodeURIComponent(q)}`, {headers:hdrs()});
-      const data=await r.json();
-      const d=data.results||[];
-      if(!d.length){list.style.display='none';return;}
-      list.style.cssText='display:block;background:white;border:1px solid var(--border);border-radius:8px;max-height:200px;overflow-y:auto;margin-top:4px;box-shadow:0 4px 12px rgba(0,0,0,0.1);position:relative;z-index:1000;';
-      list.innerHTML=d.map(p=>`
-        <div onclick="selectionnerAdresse('${inputId}','${listId}','${p.display_name.replace(/'/g,"\\'")}',${p.lat},${p.lon})"
-          style="padding:10px 12px;font-size:11px;cursor:pointer;border-bottom:1px solid var(--border);color:var(--navy);display:flex;align-items:flex-start;gap:8px;"
-          onmouseover="this.style.background='var(--offwhite)'"
-          onmouseout="this.style.background='white'">
-          <span style="color:var(--blue);flex-shrink:0;">📍</span>
-          <span>${p.display_name}</span>
-        </div>`).join('');
-    }catch(e){}
-  }, 400);
-}
-
-function selectionnerAdresse(inputId, listId, nom, lat, lon) {
-  document.getElementById(inputId).value=nom;
-  document.getElementById(listId).style.display='none';
-  document.getElementById(inputId).setAttribute('data-lat',lat);
-  document.getElementById(inputId).setAttribute('data-lon',lon);
+// ══ NAVIGATION GOOGLE ═════════════════════════════════════════════════
+function setModeNav(mode) {
+  modeNav = mode;
+  document.querySelectorAll('#content-navigation .btn-xs').forEach(b => b.style.borderColor='');
+  const ids={DRIVING:'mode-voiture',TRANSIT:'mode-transit',WALKING:'mode-pieton'};
+  if(document.getElementById(ids[mode])) document.getElementById(ids[mode]).style.borderColor='var(--blue)';
 }
 
 async function calculerItineraire() {
-  const depLat=document.getElementById('nav-depart').getAttribute('data-lat');
-  const depLon=document.getElementById('nav-depart').getAttribute('data-lon');
-  const destLat=document.getElementById('nav-dest').getAttribute('data-lat');
-  const destLon=document.getElementById('nav-dest').getAttribute('data-lon');
-  if(!depLat||!destLat){showNotif('⚠️ Sélectionnez départ et destination','error');return;}
+  const depPlace = autocompleteDepart.getPlace();
+  const destPlace = autocompleteDest.getPlace();
+  if (!depPlace?.geometry && !document.getElementById('nav-depart').getAttribute('data-lat')) {
+    showNotif('⚠️ Sélectionnez une adresse de départ','error'); return;
+  }
+  if (!destPlace?.geometry && !document.getElementById('nav-dest').getAttribute('data-lat')) {
+    showNotif('⚠️ Sélectionnez une destination','error'); return;
+  }
 
-if(polylineNav){map.removeLayer(polylineNav);polylineNav=null;}
-markersNav.forEach(m=>map.removeLayer(m));markersNav=[];
-if(polylineDessin){map.removeLayer(polylineDessin);polylineDessin=null;}
-markersDessin.forEach(m=>map.removeLayer(m));markersDessin=[];
-showNotif('⏳ Calcul de l\'itinéraire...','');
+  effacerItineraire();
+  showNotif('⏳ Calcul en cours...','');
 
-  try {
-    const profiles={car:'driving-car',bike:'cycling-regular',foot:'foot-walking'};
-    const r=await fetch(`${API}/api/nav/itineraire`, {method:'POST', headers:hdrs(), body:JSON.stringify({depLon,depLat,destLon,destLat,mode:modeNav})});
-const d=await r.json();
-    const coords=d.features[0].geometry.coordinates.map(c=>[c[1],c[0]]);
-    const props=d.features[0].properties.segments[0];
-    const distKm=(props.distance/1000).toFixed(1);
-    const dureeMin=Math.round(props.duration/60);
-    const dureeH=dureeMin>=60?`${Math.floor(dureeMin/60)}h${dureeMin%60?dureeMin%60+'min':''}`:`${dureeMin} min`;
+  let origin, destination;
+  if (depPlace?.geometry) {
+    origin = depPlace.geometry.location;
+  } else {
+    const lat=parseFloat(document.getElementById('nav-depart').getAttribute('data-lat'));
+    const lng=parseFloat(document.getElementById('nav-depart').getAttribute('data-lon'));
+    origin = new google.maps.LatLng(lat, lng);
+  }
+  if (destPlace?.geometry) {
+    destination = destPlace.geometry.location;
+  } else {
+    const lat=parseFloat(document.getElementById('nav-dest').getAttribute('data-lat'));
+    const lng=parseFloat(document.getElementById('nav-dest').getAttribute('data-lon'));
+    destination = new google.maps.LatLng(lat, lng);
+  }
 
-    polylineNav=L.polyline(coords, {color:'#1A8FD1',weight:5,opacity:0.8}).addTo(map);
-    map.fitBounds(polylineNav.getBounds(), {padding:[40,40]});
-
-    // Marqueurs départ/arrivée
-    const icD=L.divIcon({html:`<div style="background:#27AE60;width:14px;height:14px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>`,className:'',iconSize:[14,14],iconAnchor:[7,7]});
-    const icA=L.divIcon({html:`<div style="background:#E74C3C;width:14px;height:14px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>`,className:'',iconSize:[14,14],iconAnchor:[7,7]});
-    markersNav.push(L.marker([parseFloat(depLat),parseFloat(depLon)],{icon:icD}).addTo(map));
-    markersNav.push(L.marker([parseFloat(destLat),parseFloat(destLon)],{icon:icA}).addTo(map));
-
-    document.getElementById('nav-result').style.display='block';
-    document.getElementById('nav-result').innerHTML=`
-      <div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">📏 Distance</span><span style="font-weight:600;">${distKm} km</span></div>
-      <div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">⏱️ Durée estimée</span><span style="font-weight:600;">${dureeH}</span></div>
-      <div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">🚗 Mode</span><span style="font-weight:600;">${modeNav==='car'?'Voiture':modeNav==='bike'?'Vélo':'Piéton'}</span></div>`;
-
-    document.getElementById('btn-sauver-trajet').disabled=false;
-    trajetsNav._currentCoords=coords;
-    showNotif(`✅ ${distKm} km — ${dureeH}`,'success');
-  } catch(e) { showNotif('❌ Erreur calcul itinéraire','error'); console.error(e); }
+  directionsService.route({
+    origin, destination,
+    travelMode: google.maps.TravelMode[modeNav],
+    provideRouteAlternatives: false,
+    drivingOptions: modeNav==='DRIVING' ? { departureTime: new Date(), trafficModel: 'bestguess' } : undefined
+  }, (result, status) => {
+    if (status === 'OK') {
+      directionsRenderer.setDirections(result);
+      const leg = result.routes[0].legs[0];
+      document.getElementById('nav-result').style.display='block';
+      document.getElementById('nav-result').innerHTML=`
+        <div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">📏 Distance</span><span style="font-weight:600;">${leg.distance.text}</span></div>
+        <div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">⏱️ Durée</span><span style="font-weight:600;">${leg.duration.text}</span></div>
+        ${leg.duration_in_traffic ? `<div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">🚦 Avec trafic</span><span style="font-weight:600;">${leg.duration_in_traffic.text}</span></div>` : ''}
+        <div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">🚗 Mode</span><span style="font-weight:600;">${modeNav==='DRIVING'?'Voiture':modeNav==='TRANSIT'?'Transit':'Piéton'}</span></div>`;
+      document.getElementById('btn-sauver-trajet').disabled=false;
+      const path = result.routes[0].overview_path.map(p => [p.lat(), p.lng()]);
+      trajetsNav._currentCoords = path;
+      showNotif(`✅ ${leg.distance.text} — ${leg.duration.text}`,'success');
+    } else {
+      showNotif('❌ Itinéraire non trouvé','error');
+    }
+  });
 }
 
 function effacerItineraire() {
-  if(polylineNav){map.removeLayer(polylineNav);polylineNav=null;}
-  markersNav.forEach(m=>map.removeLayer(m));markersNav=[];
-  if(polylineDessin){map.removeLayer(polylineDessin);polylineDessin=null;}
-  markersDessin.forEach(m=>map.removeLayer(m));markersDessin=[];
+  if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
+  if (polylineDessin) { polylineDessin.setMap(null); polylineDessin=null; }
+  markersDessin.forEach(m => m.setMap(null)); markersDessin=[];
   pointsDessin=[];
-  // Note 4 — vider les champs départ/destination
-  const dep=document.getElementById('nav-depart');
-  const dest=document.getElementById('nav-dest');
-  if(dep){dep.value='';dep.removeAttribute('data-lat');dep.removeAttribute('data-lon');}
-  if(dest){dest.value='';dest.removeAttribute('data-lat');dest.removeAttribute('data-lon');}
+  document.getElementById('nav-depart').value='';
+  document.getElementById('nav-dest').value='';
+  document.getElementById('nav-depart').removeAttribute('data-lat');
+  document.getElementById('nav-depart').removeAttribute('data-lon');
+  document.getElementById('nav-dest').removeAttribute('data-lat');
+  document.getElementById('nav-dest').removeAttribute('data-lon');
   document.getElementById('nav-result').style.display='none';
   document.getElementById('btn-sauver-trajet').disabled=true;
   const bar=document.getElementById('drawing-bar');if(bar)bar.remove();
   dessinActif=false;
-  map.getContainer().style.cursor='';
-  map.off('click',ajouterPointDessin);
-  // Cacher les boutons de conversion
-  const btns=document.getElementById('dessin-action-btns');
-  if(btns)btns.style.display='none';
+  map.setOptions({draggableCursor:''});
+  const btns=document.getElementById('dessin-action-btns');if(btns)btns.style.display='none';
 }
 
+// ══ DESSIN LIBRE ══════════════════════════════════════════════════════
 function activerDessinLibre() {
   effacerItineraire();
   dessinActif=true;
-  map.getContainer().style.cursor='crosshair';
-  map.on('click',ajouterPointDessin);
+  map.setOptions({draggableCursor:'crosshair'});
   const bar=document.createElement('div');
   bar.className='drawing-bar';bar.id='drawing-bar';
-  bar.innerHTML=`<span>✏️ Dessin libre — <strong id="nb-pts">${pointsDessin.length}</strong> pts</span><button onclick="annulerDernierPt()">↩</button><button onclick="effacerItineraire()">🗑️ Effacer</button><button onclick="terminerDessin()" style="background:rgba(39,174,96,0.3);">✅ Terminer</button>`;
+  bar.innerHTML=`<span>✏️ Dessin libre — <strong id="nb-pts">0</strong> pts</span><button onclick="annulerDernierPt()">↩</button><button onclick="effacerItineraire()">🗑️</button><button onclick="terminerDessin()" style="background:rgba(39,174,96,0.3);">✅ Terminer</button>`;
   document.querySelector('.map-container').appendChild(bar);
   showNotif('✏️ Cliquez sur la carte pour tracer','success');
 }
 
-function ajouterPointDessin(e) {
+function ajouterPointDessin(lat, lng) {
   if(!dessinActif)return;
-  pointsDessin.push([e.latlng.lat,e.latlng.lng]);
+  pointsDessin.push({lat, lng});
   if(document.getElementById('nb-pts')) document.getElementById('nb-pts').textContent=pointsDessin.length;
   dessinerLigneDessin();
 }
 
 function dessinerLigneDessin() {
-  if(polylineDessin)map.removeLayer(polylineDessin);
-  markersDessin.forEach(m=>map.removeLayer(m));markersDessin=[];
+  if(polylineDessin){polylineDessin.setMap(null);polylineDessin=null;}
+  markersDessin.forEach(m=>m.setMap(null));markersDessin=[];
   if(pointsDessin.length<1)return;
-  polylineDessin=L.polyline(pointsDessin,{color:'#E67E22',weight:3,opacity:0.8,dashArray:'8,4'}).addTo(map);
+  polylineDessin=new google.maps.Polyline({
+    path:pointsDessin, strokeColor:'#E67E22', strokeWeight:3, strokeOpacity:0.8,
+    icons:[{icon:{path:'M 0,-1 0,1',strokeOpacity:1,scale:3},offset:'0',repeat:'15px'}],
+    map:map
+  });
   pointsDessin.forEach((pt,i)=>{
-    const ic=L.divIcon({html:`<div style="background:${i===0?'#27AE60':i===pointsDessin.length-1?'#E74C3C':'#E67E22'};width:8px;height:8px;border-radius:50%;border:2px solid white;"></div>`,className:'',iconSize:[8,8],iconAnchor:[4,4]});
-    markersDessin.push(L.marker(pt,{icon:ic}).addTo(map));
+    const m=new google.maps.Marker({
+      position:pt, map:map,
+      icon:{path:google.maps.SymbolPath.CIRCLE, scale:5,
+        fillColor:i===0?'#27AE60':i===pointsDessin.length-1?'#E74C3C':'#E67E22',
+        fillOpacity:1, strokeColor:'white', strokeWeight:2}
+    });
+    markersDessin.push(m);
   });
 }
 
@@ -1162,87 +906,57 @@ function annulerDernierPt() {
 }
 
 function terminerDessin() {
-  dessinActif=false;map.off('click',ajouterPointDessin);map.getContainer().style.cursor='';
+  dessinActif=false;map.setOptions({draggableCursor:''});
   const bar=document.getElementById('drawing-bar');if(bar)bar.remove();
   if(pointsDessin.length>=2){
-    trajetsNav._currentCoords=pointsDessin;
-    document.getElementById('btn-sauver-trajet').disabled=false;
-    // Calculer distance vol d'oiseau
     let dist=0;
-    for(let i=0;i<pointsDessin.length-1;i++) dist+=distanceGPS(pointsDessin[i][0],pointsDessin[i][1],pointsDessin[i+1][0],pointsDessin[i+1][1]);
+    for(let i=0;i<pointsDessin.length-1;i++) dist+=distanceGPS(pointsDessin[i].lat,pointsDessin[i].lng,pointsDessin[i+1].lat,pointsDessin[i+1].lng);
     const distKm=(dist/1000).toFixed(1);
+    trajetsNav._currentCoords=pointsDessin.map(p=>[p.lat,p.lng]);
+    document.getElementById('btn-sauver-trajet').disabled=false;
     document.getElementById('nav-result').style.display='block';
     document.getElementById('nav-result').innerHTML=`
       <div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">🐦 Vol d'oiseau</span><span style="font-weight:600;">${distKm} km</span></div>
-      <div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">📍 Points</span><span style="font-weight:600;">${pointsDessin.length} points</span></div>`;
-    // Note 3 — 3 boutons d'action
+      <div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">📍 Points</span><span style="font-weight:600;">${pointsDessin.length}</span></div>`;
     let btns=document.getElementById('dessin-action-btns');
-    if(!btns){
-      btns=document.createElement('div');
-      btns.id='dessin-action-btns';
-      btns.style.cssText='display:flex;flex-direction:column;gap:6px;margin-top:10px;';
-      document.getElementById('nav-result').after(btns);
-    }
-    const dep=pointsDessin[0], arr=pointsDessin[pointsDessin.length-1];
+    if(!btns){btns=document.createElement('div');btns.id='dessin-action-btns';btns.style.cssText='display:flex;flex-direction:column;gap:6px;margin-top:10px;';document.getElementById('nav-result').after(btns);}
     btns.style.display='flex';
     btns.innerHTML=`
-      <button class="btn-xs" onclick="afficherVolOiseau()" style="padding:8px;font-size:11px;display:flex;align-items:center;gap:6px;">
-        🐦 <span>Vol d'oiseau — ${distKm} km</span>
-      </button>
-      <button class="btn-xs" onclick="calculerDepuisDessin('car')" style="padding:8px;font-size:11px;display:flex;align-items:center;gap:6px;">
-        🚗 <span>Trajet voiture</span>
-      </button>
-      <button class="btn-xs green" onclick="calculerDepuisDessin('car',true)" style="padding:8px;font-size:11px;display:flex;align-items:center;gap:6px;">
-        🧭 <span>En route !</span>
-      </button>`;
-showNotif(`✅ ${distKm} km à vol d'oiseau`,'success');
+      <button class="btn-xs" onclick="afficherVolOiseau()" style="padding:8px;font-size:11px;">🐦 Vol d'oiseau — ${distKm} km</button>
+      <button class="btn-xs" onclick="calculerDepuisDessin('DRIVING')" style="padding:8px;font-size:11px;">🚗 Trajet voiture</button>
+      <button class="btn-xs green" onclick="calculerDepuisDessin('DRIVING',true)" style="padding:8px;font-size:11px;">🧭 En route !</button>`;
+    showNotif(`✅ ${distKm} km à vol d'oiseau`,'success');
   }
 }
 
 function afficherVolOiseau() {
-  if(polylineDessin) map.fitBounds(polylineDessin.getBounds(),{padding:[40,40]});
-  showNotif('🐦 Trajet à vol d\'oiseau affiché','success');
+  if(polylineDessin){ const bounds=new google.maps.LatLngBounds(); pointsDessin.forEach(p=>bounds.extend(p)); map.fitBounds(bounds,{padding:40}); }
+  showNotif('🐦 Vol d\'oiseau affiché','success');
 }
-
-
-
 
 async function calculerDepuisDessin(mode, enRoute=false) {
-  if(pointsDessin.length<2){showNotif('⚠️ Au moins 2 points requis','error');return;}
-  const dep=pointsDessin[0];
-  const arr=pointsDessin[pointsDessin.length-1];
-
-  // Pré-remplir les champs
-  document.getElementById('nav-depart').setAttribute('data-lat',dep[0]);
-  document.getElementById('nav-depart').setAttribute('data-lon',dep[1]);
-  document.getElementById('nav-dest').setAttribute('data-lat',arr[0]);
-  document.getElementById('nav-dest').setAttribute('data-lon',arr[1]);
-  document.getElementById('nav-depart').value=`📍 ${dep[0].toFixed(4)}, ${dep[1].toFixed(4)}`;
-  document.getElementById('nav-dest').value=`📍 ${arr[0].toFixed(4)}, ${arr[1].toFixed(4)}`;
-
-  // Effacer le dessin libre
-  if(polylineDessin){map.removeLayer(polylineDessin);polylineDessin=null;}
-  markersDessin.forEach(m=>map.removeLayer(m));markersDessin=[];
-
+  if(pointsDessin.length<2){showNotif('⚠️ Au moins 2 points','error');return;}
+  const dep=pointsDessin[0], arr=pointsDessin[pointsDessin.length-1];
+  document.getElementById('nav-depart').setAttribute('data-lat',dep.lat);
+  document.getElementById('nav-depart').setAttribute('data-lon',dep.lng);
+  document.getElementById('nav-dest').setAttribute('data-lat',arr.lat);
+  document.getElementById('nav-dest').setAttribute('data-lon',arr.lng);
+  document.getElementById('nav-depart').value=`📍 ${dep.lat.toFixed(4)}, ${dep.lng.toFixed(4)}`;
+  document.getElementById('nav-dest').value=`📍 ${arr.lat.toFixed(4)}, ${arr.lng.toFixed(4)}`;
+  if(polylineDessin){polylineDessin.setMap(null);polylineDessin=null;}
+  markersDessin.forEach(m=>m.setMap(null));markersDessin=[];
   modeNav=mode;
   await calculerItineraire();
-
-  if(enRoute && polylineNav) {
-    // Mode En Route — suivre la position en temps réel sur le trajet
-    showNotif('🧭 Mode En Route activé — position suivie sur le trajet','success');
-    // Activer le suivi temps réel
-    if(refreshInterval) clearInterval(refreshInterval);
-    refreshInterval=setInterval(async()=>{
-      await actualiserPosition();
-      if(marker && polylineNav) {
-        // Centrer la carte sur la position actuelle
-        map.setView(marker.getLatLng(), 15);
-      }
-    }, 15000);
+  if(enRoute){
+    showNotif('🧭 Mode En Route activé !','success');
+    if(refreshInterval)clearInterval(refreshInterval);
+    refreshInterval=setInterval(async()=>{ await actualiserPosition(); if(markerPosition) map.panTo(markerPosition.getPosition()); },15000);
   }
 }
+
+// ══ TRAJETS SAUVEGARDÉS ═══════════════════════════════════════════════
 function ouvrirModalSauverTrajet() {
-  if(!trajetsNav._currentCoords?.length){showNotif('⚠️ Aucun trajet à sauvegarder','error');return;}
+  if(!trajetsNav._currentCoords?.length){showNotif('⚠️ Aucun trajet','error');return;}
   document.getElementById('trajet-nom').value='';
   document.getElementById('modal-sauver-trajet').classList.add('active');
 }
@@ -1250,7 +964,7 @@ function ouvrirModalSauverTrajet() {
 async function sauverTrajetNav() {
   const nom=document.getElementById('trajet-nom').value.trim();
   if(!nom){showNotif('⚠️ Nom requis','error');return;}
-  const body={nom, trajet:JSON.stringify(trajetsNav._currentCoords), statut:'PLANIFIEE', corridor_metres:500, contacts_email:'[]', contacts_ha:'[]', contacts_sms:'[]', intervalle_email:15, seuil_immobile:30, seuil_offline:20, appareil_entite:appareilActif?.entite_ha||'sensor.s24_geocoded_location'};
+  const body={nom,trajet:JSON.stringify(trajetsNav._currentCoords),statut:'PLANIFIEE',corridor_metres:500,contacts_email:'[]',contacts_ha:'[]',contacts_sms:'[]',intervalle_email:15,seuil_immobile:30,seuil_offline:20,appareil_entite:appareilActif?.entite_ha||'sensor.s24_geocoded_location'};
   const r=await fetch(`${API}/api/missions`,{method:'POST',headers:hdrs(),body:JSON.stringify(body)});
   const d=await r.json();
   if(d.success||d.id){showNotif('✅ Trajet sauvegardé !','success');fermerModal('modal-sauver-trajet');await chargerTrajetsNav();}
@@ -1263,66 +977,222 @@ async function chargerTrajetsNav() {
     const d=await r.json();
     const list=d.missions||[];
     document.getElementById('nb-trajets').textContent=list.length;
-    if(!list.length){document.getElementById('trajets-list').innerHTML='<div style="text-align:center;padding:16px;color:var(--gray);font-size:12px;">Aucun trajet sauvegardé</div>';return;}
+    if(!list.length){document.getElementById('trajets-list').innerHTML='<div style="text-align:center;padding:16px;color:var(--gray);font-size:12px;">Aucun trajet</div>';return;}
     document.getElementById('trajets-list').innerHTML=list.map(t=>{
       const coords=JSON.parse(t.trajet||'[]');
       const date=new Date(t.created_at).toLocaleDateString('fr-CA');
-      return `<div class="trajet-saved">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <div>
-            <div class="trajet-saved-nom">🗺️ ${t.nom}</div>
-            <div class="trajet-saved-meta">${coords.length} points · ${date}</div>
-          </div>
-          <div style="display:flex;gap:4px;">
-            <button class="btn-xs" onclick="afficherTrajetSauvegarde('${t.id}')">👁️</button>
-            <button class="btn-xs red" onclick="supprimerTrajetNav('${t.id}')">🗑️</button>
-          </div>
-        </div>
-      </div>`;
+      return `<div class="trajet-saved"><div style="display:flex;align-items:center;justify-content:space-between;"><div><div class="trajet-saved-nom">🗺️ ${t.nom}</div><div class="trajet-saved-meta">${coords.length} points · ${date}</div></div><div style="display:flex;gap:4px;"><button class="btn-xs" onclick="afficherTrajetSauvegarde('${t.id}')">👁️</button><button class="btn-xs red" onclick="supprimerTrajetNav('${t.id}')">🗑️</button></div></div></div>`;
     }).join('');
   }catch(e){}
 }
 
 function afficherTrajetSauvegarde(id) {
-  const missions_list=document.getElementById('trajets-list');
-  const r=fetch(`${API}/api/missions`,{headers:hdrs()}).then(r=>r.json()).then(d=>{
-    const t=d.missions.find(x=>x.id===id);
-    if(!t)return;
-    const coords=JSON.parse(t.trajet||'[]');
-    if(!coords.length)return;
+  fetch(`${API}/api/missions`,{headers:hdrs()}).then(r=>r.json()).then(d=>{
+    const t=d.missions.find(x=>x.id===id);if(!t)return;
+    const coords=JSON.parse(t.trajet||'[]');if(!coords.length)return;
     effacerItineraire();
-    polylineDessin=L.polyline(coords,{color:'#1A8FD1',weight:4,opacity:0.8}).addTo(map);
-    coords.forEach((pt,i)=>{
-      const ic=L.divIcon({html:`<div style="background:${i===0?'#27AE60':i===coords.length-1?'#E74C3C':'#1A8FD1'};width:8px;height:8px;border-radius:50%;border:2px solid white;"></div>`,className:'',iconSize:[8,8],iconAnchor:[4,4]});
-      markersDessin.push(L.marker(pt,{icon:ic}).addTo(map));
+    const path=coords.map(c=>Array.isArray(c)?{lat:c[0],lng:c[1]}:{lat:c.lat,lng:c.lng});
+    polylineDessin=new google.maps.Polyline({path,strokeColor:'#1A8FD1',strokeWeight:4,strokeOpacity:0.8,map});
+    path.forEach((pt,i)=>{
+      const m=new google.maps.Marker({position:pt,map,icon:{path:google.maps.SymbolPath.CIRCLE,scale:5,fillColor:i===0?'#27AE60':i===path.length-1?'#E74C3C':'#1A8FD1',fillOpacity:1,strokeColor:'white',strokeWeight:2}});
+      markersDessin.push(m);
     });
-    map.fitBounds(polylineDessin.getBounds(),{padding:[40,40]});
-    showNotif(`✅ Trajet "${t.nom}" affiché`,'success');
+    const bounds=new google.maps.LatLngBounds();path.forEach(p=>bounds.extend(p));map.fitBounds(bounds,{padding:40});
+    showNotif(`✅ "${t.nom}" affiché`,'success');
   });
 }
 
 async function supprimerTrajetNav(id) {
-  if(!confirm('Supprimer ce trajet ?'))return;
+  if(!confirm('Supprimer ?'))return;
   await fetch(`${API}/api/missions/${id}`,{method:'DELETE',headers:hdrs()});
-  showNotif('🗑️ Trajet supprimé','success');
+  showNotif('🗑️ Supprimé','success');
   await chargerTrajetsNav();
 }
 
-// ══ MISSIONS SÉCURISÉES ════════════════════════════════════════════════
-async function chargerMissions() {
+// ══ ZONES DRONE ═══════════════════════════════════════════════════════
+async function chargerZones(filtre) {
+  document.querySelectorAll('#content-zones .filtre-btn').forEach(b=>b.classList.remove('active','active-red','active-orange'));
+  const btn=document.getElementById(`zone-btn-${filtre}`);
+  if(btn) btn.classList.add(filtre==='interdit'||filtre==='danger'?'active-red':filtre==='restreint'||filtre==='ctr'?'active-orange':'active');
+  markersZones.forEach(z=>z.setMap(null)); markersZones=[];
+  document.getElementById('zones-count').textContent='⏳ Chargement...';
+  const bounds=map.getBounds();
+  if(!bounds)return;
+  const bbox=`${bounds.getSouthWest().lng()},${bounds.getSouthWest().lat()},${bounds.getNorthEast().lng()},${bounds.getNorthEast().lat()}`;
   try {
-    const r=await fetch(`${API}/api/missions`,{headers:hdrs()});
+    const r=await fetch(`https://api.core.openaip.net/api/airspaces?bbox=${bbox}&page=1&limit=200`,{headers:{'x-openaip-api-key':OPENAIP_KEY,'Accept':'application/json'}});
     const d=await r.json();
-    missions=d.missions||[];
-    renderMissions();
-  }catch(e){}
+    let items=d.items||d.data||[];
+    if(filtre==='interdit') items=items.filter(z=>z.category===8||z.category===0||z.type==='CTR'||['A','B','C'].includes(z.icaoClass));
+    else if(filtre==='restreint') items=items.filter(z=>z.category===11||z.type==='RESTRICTED'||z.icaoClass==='D');
+    else if(filtre==='ctr') items=items.filter(z=>z.type==='CTR'||z.icaoClass==='CTR'||z.icaoClass==='C'||z.icaoClass==='D'||z.name?.toUpperCase().includes('TRUDEAU')||z.name?.toUpperCase().includes('MONTREAL'));
+    else if(filtre==='danger') items=items.filter(z=>z.category===8||z.type==='DANGER');
+    else if(filtre==='info') items=items.filter(z=>z.category===6||z.category===7||z.icaoClass==='E'||z.icaoClass==='G');
+    items.forEach(zone=>{
+      if(!zone.geometry)return;
+      const coords=zone.geometry.coordinates;
+      const cat=zone.category||0, type=zone.type||zone.icaoClass||'', nom=zone.name||'Zone';
+      let couleur='#3AABEF';
+      if(cat===0||type==='CTR'||['A','B','C'].includes(zone.icaoClass)){couleur='#E74C3C';}
+      else if(cat===8||type==='DANGER'){couleur='#E74C3C';}
+      else if(cat===11||type==='RESTRICTED'||zone.icaoClass==='D'){couleur='#E67E22';}
+      else if(cat===2||cat===3){couleur='#9B59B6';}
+      try {
+        let path=[];
+        if(zone.geometry.type==='Polygon') path=coords[0].map(c=>({lat:c[1],lng:c[0]}));
+        else if(zone.geometry.type==='MultiPolygon') path=coords[0][0].map(c=>({lat:c[1],lng:c[0]}));
+        if(!path.length)return;
+        const poly=new google.maps.Polygon({paths:path,strokeColor:couleur,strokeWeight:2,strokeOpacity:0.8,fillColor:couleur,fillOpacity:0.15,map});
+        const alt=zone.upperLimit?`${zone.lowerLimit?.value||0}${zone.lowerLimit?.unit||'ft'} — ${zone.upperLimit?.value||''}${zone.upperLimit?.unit||'ft'}`:'—';
+        const restriction=cat===0||cat===8?'⛔ VOL DRONE INTERDIT':cat===11?'⚠️ ZONE RESTREINTE':type==='CTR'||['A','B','C','D'].includes(zone.icaoClass)?'🏙️ ZONE AÉROPORT':'ℹ️ INFORMATION';
+        poly.addListener('click', e=>{
+          infoWindow.setContent(`<div style="font-family:'DM Sans',sans-serif;min-width:200px;padding:4px;"><strong>🚁 ${nom}</strong><br><span style="font-size:11px;color:#6B7C93;">Type: ${type||'—'} · Classe: ${zone.icaoClass||'—'}</span><br><span style="font-size:11px;color:#6B7C93;">Alt: ${alt}</span><br><div style="margin-top:6px;padding:4px 8px;background:${couleur}22;border-radius:4px;color:${couleur};font-weight:700;font-size:11px;">${restriction}</div><a href="https://portal.navdrone.ca" target="_blank" style="display:block;text-align:center;background:#0B1F3A;color:white;padding:5px;border-radius:4px;font-size:11px;text-decoration:none;margin-top:6px;font-weight:600;">🚁 Vérifier sur NavDrone →</a></div>`);
+          infoWindow.setPosition(e.latLng);
+          infoWindow.open(map);
+        });
+        markersZones.push(poly);
+      }catch(e){}
+    });
+    zonesActives=true;
+    document.getElementById('zones-count').textContent=`${markersZones.length} zone(s)`;
+    showNotif(`✅ ${markersZones.length} zone(s)`,'success');
+  }catch(e){document.getElementById('zones-count').textContent='❌ Erreur';showNotif('❌ Erreur zones','error');}
+}
+function effacerZones() {
+  markersZones.forEach(z=>z.setMap(null));markersZones=[];zonesActives=false;
+  document.querySelectorAll('#content-zones .filtre-btn').forEach(b=>b.classList.remove('active','active-red','active-orange'));
+  document.getElementById('zones-count').textContent='';
+}
+
+// ══ BORNES RECHARGE ═══════════════════════════════════════════════════
+async function chargerBornes(filtre) {
+  document.querySelectorAll('#content-bornes .filtre-btn').forEach(b=>b.classList.remove('active','active-green','active-red'));
+  const btn=document.getElementById(`borne-btn-${filtre}`);
+  if(btn) btn.classList.add(filtre==='horsservice'?'active-red':'active-green');
+  bornesMarkers.forEach(m=>m.setMap(null));bornesMarkers=[];bornesActives=false;
+  document.getElementById('bornes-count').textContent='⏳ Chargement...';
+  const centre=map.getCenter();
+  const bounds=map.getBounds();
+  const dist=Math.round(Math.max(10,Math.min(50,google.maps.geometry.spherical.computeDistanceBetween(centre,bounds.getNorthEast())/1000)));
+  let urlExtra='';
+  if(filtre==='niveau2') urlExtra='&levelid=2';
+  else if(filtre==='rapide') urlExtra='&levelid=3';
+  else if(filtre==='operationnel') urlExtra='&statustype=50';
+  else if(filtre==='horsservice') urlExtra='&statustype=100';
+  else if(filtre==='tesla') urlExtra='&connectiontypeid=27';
+  else if(filtre==='chademo') urlExtra='&connectiontypeid=2';
+  else if(filtre==='ccs') urlExtra='&connectiontypeid=33';
+  else if(filtre==='j1772') urlExtra='&connectiontypeid=1';
+  try {
+    const r=await fetch(`https://api.openchargemap.io/v3/poi/?output=json&countrycode=CA&latitude=${centre.lat()}&longitude=${centre.lng()}&distance=${dist}&distanceunit=km&maxresults=50&compact=false&verbose=false${urlExtra}&key=${OCM_KEY}`);
+    const bornes=await r.json();
+    bornes.forEach(b=>{
+      const lat=b.AddressInfo?.Latitude, lon=b.AddressInfo?.Longitude;
+      if(!lat||!lon)return;
+      const nom=b.AddressInfo?.Title||'Borne', adresse=b.AddressInfo?.AddressLine1||'', ville=b.AddressInfo?.Town||'';
+      const nb=b.NumberOfPoints||1, connexions=b.Connections||[], network=b.OperatorInfo?.Title||'';
+      const statut=b.StatusType?.IsOperational;
+      const couleur=statut===true?'#27AE60':statut===false?'#E74C3C':'#6B7C93';
+      const statutLabel=statut===true?'🟢 Opérationnelle':statut===false?'🔴 Hors service':'⚫ Statut non disponible';
+      const niveau=connexions[0]?.LevelID||2;
+      const niveauLabel=niveau===3?'⚡⚡':niveau===2?'⚡':'~';
+      const connHtml=connexions.slice(0,3).map(c=>`<div style="font-size:11px;color:#6B7C93;">🔌 ${c.ConnectionType?.Title||'—'} · ${c.PowerKW||'?'} kW</div>`).join('');
+      const marker=new google.maps.Marker({
+        position:{lat,lng:lon}, map,
+        icon:{path:google.maps.SymbolPath.CIRCLE, scale:10, fillColor:couleur, fillOpacity:1, strokeColor:'white', strokeWeight:3},
+        title:nom, label:{text:niveauLabel,color:'white',fontSize:'9px',fontWeight:'bold'}
+      });
+      marker.addListener('click',()=>{
+        infoWindow.setContent(`<div style="font-family:'DM Sans',sans-serif;min-width:220px;padding:4px;"><strong>⚡ ${nom}</strong>${network?`<br><span style="font-size:11px;color:#1A8FD1;">🏢 ${network}</span>`:''}<br><span style="font-size:11px;color:#6B7C93;">📍 ${adresse}${ville?', '+ville:''}</span><br><div style="margin:4px 0;">${statutLabel}</div><div style="font-size:11px;font-weight:600;">🔌 ${nb} point(s)</div>${connHtml}<a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank" style="display:block;text-align:center;background:#1A8FD1;color:white;padding:5px;border-radius:4px;font-size:11px;text-decoration:none;margin-top:6px;">🗺️ Itinéraire Google Maps</a></div>`);
+        infoWindow.open(map, marker);
+      });
+      bornesMarkers.push(marker);
+    });
+    bornesActives=true;
+    document.getElementById('bornes-count').textContent=`${bornesMarkers.length} borne(s)`;
+    showNotif(`✅ ${bornesMarkers.length} borne(s)`,'success');
+  }catch(e){document.getElementById('bornes-count').textContent='❌ Erreur';showNotif('❌ Erreur bornes','error');}
+}
+function effacerBornes() {
+  bornesMarkers.forEach(m=>m.setMap(null));bornesMarkers=[];bornesActives=false;
+  document.querySelectorAll('#content-bornes .filtre-btn').forEach(b=>b.classList.remove('active','active-green','active-red'));
+  document.getElementById('bornes-count').textContent='';
+}
+
+// ══ MÉTÉO ══════════════════════════════════════════════════════════════
+function directionVent(deg){const dirs=['N','NE','E','SE','S','SO','O','NO'];return dirs[Math.round(deg/45)%8];}
+function iconeMeteo(id){if(id>=200&&id<300)return '⛈️';if(id>=300&&id<400)return '🌦️';if(id>=500&&id<600)return '🌧️';if(id>=600&&id<700)return '🌨️';if(id>=700&&id<800)return '🌫️';if(id===800)return '☀️';if(id===801)return '🌤️';if(id<=804)return '☁️';return '🌤️';}
+function statutDrone(vent,pluieId,vis){const v=vent*3.6,p=pluieId>=300&&pluieId<700,b=pluieId>=700&&pluieId<800,vi=vis/1000;if(v>50||p||b||vi<1)return{classe:'drone-nok',msg:'🔴 Vol déconseillé'};if(v>30||vi<3)return{classe:'drone-warn',msg:'🟡 Vol avec précaution'};return{classe:'drone-ok',msg:'🟢 Conditions favorables au vol !'};}
+
+async function chargerMeteo() {
+  if(!appareilActif)return;
+  document.getElementById('meteo-loading').style.display='block';
+  document.getElementById('meteo-content').style.display='none';
+  try {
+    const r=await fetch(`${API}/api/position/localisation/${encodeURIComponent(appareilActif.entite_ha)}`,{headers:hdrs()});
+    const pos=await r.json();
+    if(!pos.success){document.getElementById('meteo-loading').textContent='Position non disponible';return;}
+    const [rM,rP]=await Promise.all([
+      fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${pos.latitude}&lon=${pos.longitude}&units=metric&lang=fr&appid=${OWM_KEY}`),
+      fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${pos.latitude}&lon=${pos.longitude}&units=metric&lang=fr&cnt=40&appid=${OWM_KEY}`)
+    ]);
+    afficherDonneesMeteo(await rM.json(),await rP.json());
+  }catch(e){document.getElementById('meteo-loading').textContent='❌ Erreur météo';}
+}
+
+function afficherDonneesMeteo(meteo,prev){
+  const temp=Math.round(meteo.main.temp),ressentie=Math.round(meteo.main.feels_like);
+  const weatherId=meteo.weather[0].id,ventMs=meteo.wind.speed,ventDir=meteo.wind.deg||0;
+  const ventKmh=Math.round(ventMs*3.6),ventNoeuds=Math.round(ventMs*1.944);
+  const visibilite=meteo.visibility||10000;
+  document.getElementById('meteo-temp').textContent=`${temp}°C`;
+  document.getElementById('meteo-desc').textContent=`${meteo.weather[0].description} (ressenti ${ressentie}°C)`;
+  document.getElementById('meteo-lieu').textContent=`📍 ${meteo.name||'—'}, ${meteo.sys?.country||''}`;
+  document.getElementById('meteo-icone').textContent=iconeMeteo(weatherId);
+  document.getElementById('meteo-vent-vitesse').textContent=`${ventKmh} km/h · ${ventNoeuds} kt`;
+  document.getElementById('meteo-vent-dir').textContent=`${directionVent(ventDir)} ${ventDir}°`;
+  document.getElementById('meteo-humidite').textContent=`${meteo.main.humidity}%`;
+  document.getElementById('meteo-visibilite').textContent=`${(visibilite/1000).toFixed(1)} km`;
+  document.getElementById('meteo-pression').textContent=`${meteo.main.pressure}`;
+  document.getElementById('meteo-nuages').textContent=`${meteo.clouds.all}%`;
+  document.getElementById('meteo-lever').textContent=new Date(meteo.sys.sunrise*1000).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('meteo-coucher').textContent=new Date(meteo.sys.sunset*1000).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
+  const statut=statutDrone(ventMs,weatherId,visibilite);
+  const droneEl=document.getElementById('drone-status');droneEl.className=`drone-status ${statut.classe}`;droneEl.textContent=statut.msg;
+  const joursVus=new Set();
+  document.getElementById('previsions-list').innerHTML=prev.list.filter(p=>{const j=new Date(p.dt*1000).toLocaleDateString('fr-CA');if(joursVus.has(j))return false;joursVus.add(j);return true;}).slice(0,5).map(p=>{
+    const d=new Date(p.dt*1000),jour=d.toLocaleDateString('fr-CA',{weekday:'short',day:'numeric',month:'short'});
+    const s=statutDrone(p.wind.speed,p.weather[0].id,10000);
+    const couleur=s.classe==='drone-ok'?'#27AE60':s.classe==='drone-warn'?'#E67E22':'#E74C3C';
+    return `<div class="prevision-item"><span style="font-size:11px;font-weight:500;">${jour}</span><span style="font-size:16px;">${iconeMeteo(p.weather[0].id)}</span><span style="font-weight:600;">${Math.round(p.main.temp)}°C</span><span style="font-size:11px;color:var(--gray);">💨 ${Math.round(p.wind.speed*3.6)}km/h</span><span style="color:${couleur};font-size:16px;">●</span></div>`;
+  }).join('');
+  document.getElementById('meteo-loading').style.display='none';
+  document.getElementById('meteo-content').style.display='block';
+}
+
+function toggleCoucheMeteo(type) {
+  document.querySelectorAll('.meteo-couche-btn').forEach(b=>b.classList.remove('active'));
+  if(layerMeteo){layerMeteo.setMap(null);layerMeteo=null;}
+  if(coucheMeteoActive===type){coucheMeteoActive=null;return;}
+  coucheMeteoActive=type;
+  document.getElementById(`couche-${type==='wind'?'vent':type==='precipitation'?'pluie':type==='temp'?'temp':type==='clouds'?'nuages':'pression'}`).classList.add('active');
+  const owmLayer={'wind':'WND','precipitation':'PAC0','temp':'TMP','clouds':'CL','pressure':'APM'};
+  layerMeteo=new google.maps.ImageMapType({
+    getTileUrl:(coord,zoom)=>`https://tile.openweathermap.org/map/${owmLayer[type]}/${zoom}/${coord.x}/${coord.y}.png?appid=${OWM_KEY}`,
+    tileSize:new google.maps.Size(256,256),opacity:0.6,name:'Météo'
+  });
+  map.overlayMapTypes.push(layerMeteo);
+}
+
+// ══ MISSIONS ══════════════════════════════════════════════════════════
+async function chargerMissions() {
+  try{const r=await fetch(`${API}/api/missions`,{headers:hdrs()});const d=await r.json();missions=d.missions||[];renderMissions();}catch(e){}
 }
 function renderMissions() {
   const list=document.getElementById('missions-list');
   if(!missions.length){list.innerHTML='<div style="text-align:center;padding:16px;color:var(--gray);font-size:12px;">Aucune mission</div>';return;}
   list.innerHTML=missions.map(m=>{
-    const trajet=JSON.parse(m.trajet||'[]');
-    const statut=m.statut||'PLANIFIEE';
+    const trajet=JSON.parse(m.trajet||'[]'),statut=m.statut||'PLANIFIEE';
     const sc=statut==='ACTIVE'?'statut-active':statut==='TERMINEE'?'statut-terminee':'statut-planifiee';
     const sl=statut==='ACTIVE'?'🟢 Active':statut==='TERMINEE'?'⚫ Terminée':'🔵 Planifiée';
     return `<div class="mission-card ${statut==='ACTIVE'?'active':statut==='PLANIFIEE'?'planifiee':''}">
@@ -1333,160 +1203,91 @@ function renderMissions() {
         ${statut==='PLANIFIEE'?`<button class="btn-xs green" onclick="demarrerMission('${m.id}')">▶</button><button class="btn-xs" onclick="dessinerTrajetMission('${m.id}')">🗺️</button><button class="btn-xs" onclick="editerMission('${m.id}')">✏️</button>`:''}
         ${statut==='ACTIVE'?`<button class="btn-xs orange" onclick="terminerMission('${m.id}')">⏹</button>`:''}
         <button class="btn-xs red" onclick="supprimerMission('${m.id}')">🗑️</button>
-      </div>
-    </div>`;
+      </div></div>`;
   }).join('');
 }
 
-async function chargerNotifyHA() {
-  try {
-    const r=await fetch(`${API}/api/position/notify`,{headers:hdrs()});
-    const d=await r.json();
-    notifyHA=d.notify||[];
-  }catch(e){}
-}
+async function chargerNotifyHA(){try{const r=await fetch(`${API}/api/position/notify`,{headers:hdrs()});const d=await r.json();notifyHA=d.notify||[];}catch(e){}}
 
-function ouvrirModalMission() {
-  document.getElementById('mission-id').value='';
-  document.getElementById('mission-nom').value='';
-  document.getElementById('mission-corridor').value=500;
-  document.getElementById('mission-intervalle').value='15';
-  document.getElementById('mission-immobile').value='30';
-  document.getElementById('mission-offline').value='20';
-  document.getElementById('modal-mission-titre').textContent='Nouvelle mission';
-  document.getElementById('nb-points-trajet').textContent='0';
+function ouvrirModalMission(){
+  document.getElementById('mission-id').value='';document.getElementById('mission-nom').value='';document.getElementById('mission-corridor').value=500;
+  document.getElementById('mission-intervalle').value='15';document.getElementById('mission-immobile').value='30';document.getElementById('mission-offline').value='20';
+  document.getElementById('modal-mission-titre').textContent='Nouvelle mission';document.getElementById('nb-points-trajet').textContent='0';
   emailsAlerte=[];smsAlerte=[];haAlerte=[];
-  renderTags('emails-wrap','email-input',emailsAlerte);
-  renderTags('sms-wrap','sms-input',smsAlerte);
-  renderTagsHA();
-  const sel=document.getElementById('mission-appareil');
-  sel.innerHTML=appareils.map(a=>`<option value="${a.entite_ha}">${a.nom}</option>`).join('');
-  const haSel=document.getElementById('ha-select');
-  haSel.innerHTML='<option value="">— Sélectionner —</option>'+notifyHA.map(n=>`<option value="${n.entity_id}">${n.nom}</option>`).join('');
+  renderTags('emails-wrap','email-input',emailsAlerte);renderTags('sms-wrap','sms-input',smsAlerte);renderTagsHA();
+  document.getElementById('mission-appareil').innerHTML=appareils.map(a=>`<option value="${a.entite_ha}">${a.nom}</option>`).join('');
+  document.getElementById('ha-select').innerHTML='<option value="">— Sélectionner —</option>'+notifyHA.map(n=>`<option value="${n.entity_id}">${n.nom}</option>`).join('');
   document.getElementById('modal-mission').classList.add('active');
 }
 
-function editerMission(id) {
+function editerMission(id){
   const m=missions.find(x=>x.id===id);if(!m)return;
-  document.getElementById('mission-id').value=m.id;
-  document.getElementById('mission-nom').value=m.nom;
-  document.getElementById('mission-corridor').value=m.corridor_metres;
-  document.getElementById('mission-intervalle').value=m.intervalle_email;
-  document.getElementById('mission-immobile').value=m.seuil_immobile;
-  document.getElementById('mission-offline').value=m.seuil_offline;
+  document.getElementById('mission-id').value=m.id;document.getElementById('mission-nom').value=m.nom;
+  document.getElementById('mission-corridor').value=m.corridor_metres;document.getElementById('mission-intervalle').value=m.intervalle_email;
+  document.getElementById('mission-immobile').value=m.seuil_immobile;document.getElementById('mission-offline').value=m.seuil_offline;
   document.getElementById('modal-mission-titre').textContent='Modifier la mission';
-  const trajet=JSON.parse(m.trajet||'[]');
-  document.getElementById('nb-points-trajet').textContent=trajet.length;
-  emailsAlerte=JSON.parse(m.contacts_email||'[]');
-  smsAlerte=JSON.parse(m.contacts_sms||'[]');
-  haAlerte=JSON.parse(m.contacts_ha||'[]');
-  renderTags('emails-wrap','email-input',emailsAlerte);
-  renderTags('sms-wrap','sms-input',smsAlerte);
-  renderTagsHA();
-  const sel=document.getElementById('mission-appareil');
-  sel.innerHTML=appareils.map(a=>`<option value="${a.entite_ha}" ${a.entite_ha===m.appareil_entite?'selected':''}>${a.nom}</option>`).join('');
-  const haSel=document.getElementById('ha-select');
-  haSel.innerHTML='<option value="">— Sélectionner —</option>'+notifyHA.map(n=>`<option value="${n.entity_id}">${n.nom}</option>`).join('');
+  document.getElementById('nb-points-trajet').textContent=JSON.parse(m.trajet||'[]').length;
+  emailsAlerte=JSON.parse(m.contacts_email||'[]');smsAlerte=JSON.parse(m.contacts_sms||'[]');haAlerte=JSON.parse(m.contacts_ha||'[]');
+  renderTags('emails-wrap','email-input',emailsAlerte);renderTags('sms-wrap','sms-input',smsAlerte);renderTagsHA();
+  document.getElementById('mission-appareil').innerHTML=appareils.map(a=>`<option value="${a.entite_ha}" ${a.entite_ha===m.appareil_entite?'selected':''}>${a.nom}</option>`).join('');
+  document.getElementById('ha-select').innerHTML='<option value="">— Sélectionner —</option>'+notifyHA.map(n=>`<option value="${n.entity_id}">${n.nom}</option>`).join('');
   document.getElementById('modal-mission').classList.add('active');
 }
 
-async function sauverMission() {
-  const id=document.getElementById('mission-id').value;
-  const nom=document.getElementById('mission-nom').value.trim();
+async function sauverMission(){
+  const id=document.getElementById('mission-id').value, nom=document.getElementById('mission-nom').value.trim();
   if(!nom){showNotif('⚠️ Nom requis','error');return;}
-  const body={nom, appareil_entite:document.getElementById('mission-appareil').value, corridor_metres:parseInt(document.getElementById('mission-corridor').value)||500, intervalle_email:parseInt(document.getElementById('mission-intervalle').value)||15, seuil_immobile:parseInt(document.getElementById('mission-immobile').value)||30, seuil_offline:parseInt(document.getElementById('mission-offline').value)||20, contacts_email:emailsAlerte, contacts_sms:smsAlerte, contacts_ha:haAlerte, trajet:id?JSON.parse(missions.find(m=>m.id===id)?.trajet||'[]'):[], statut:'PLANIFIEE'};
-  const url=id?`${API}/api/missions/${id}`:`${API}/api/missions`;
-  const r=await fetch(url,{method:id?'PUT':'POST',headers:hdrs(),body:JSON.stringify(body)});
+  const body={nom,appareil_entite:document.getElementById('mission-appareil').value,corridor_metres:parseInt(document.getElementById('mission-corridor').value)||500,intervalle_email:parseInt(document.getElementById('mission-intervalle').value)||15,seuil_immobile:parseInt(document.getElementById('mission-immobile').value)||30,seuil_offline:parseInt(document.getElementById('mission-offline').value)||20,contacts_email:emailsAlerte,contacts_sms:smsAlerte,contacts_ha:haAlerte,trajet:id?JSON.parse(missions.find(m=>m.id===id)?.trajet||'[]'):[],statut:'PLANIFIEE'};
+  const r=await fetch(id?`${API}/api/missions/${id}`:`${API}/api/missions`,{method:id?'PUT':'POST',headers:hdrs(),body:JSON.stringify(body)});
   const d=await r.json();
-  if(d.success||d.id){showNotif(id?'✅ Mission mise à jour':'✅ Mission créée !','success');fermerModal('modal-mission');await chargerMissions();if(!id&&d.id) setTimeout(()=>dessinerTrajetMission(d.id),500);}
+  if(d.success||d.id){showNotif(id?'✅ Mise à jour':'✅ Mission créée !','success');fermerModal('modal-mission');await chargerMissions();if(!id&&d.id)setTimeout(()=>dessinerTrajetMission(d.id),500);}
   else showNotif('❌ '+(d.error||'Erreur'),'error');
 }
 
-async function demarrerMission(id) {
-  if(!confirm('Démarrer cette mission ?'))return;
-  const r=await fetch(`${API}/api/missions/${id}/demarrer`,{method:'POST',headers:hdrs()});
-  const d=await r.json();
-  if(d.success){showNotif('✅ Mission démarrée !','success');await chargerMissions();}
-  else showNotif('❌ '+(d.error||'Erreur'),'error');
-}
+async function demarrerMission(id){if(!confirm('Démarrer ?'))return;const r=await fetch(`${API}/api/missions/${id}/demarrer`,{method:'POST',headers:hdrs()});const d=await r.json();if(d.success){showNotif('✅ Mission démarrée !','success');await chargerMissions();}else showNotif('❌ '+(d.error||'Erreur'),'error');}
+async function terminerMission(id){if(!confirm('Terminer ?'))return;const r=await fetch(`${API}/api/missions/${id}/terminer`,{method:'POST',headers:hdrs()});const d=await r.json();if(d.success){showNotif('✅ Terminée !','success');await chargerMissions();}else showNotif('❌ '+(d.error||'Erreur'),'error');}
+async function supprimerMission(id){if(!confirm('Supprimer ?'))return;await fetch(`${API}/api/missions/${id}`,{method:'DELETE',headers:hdrs()});showNotif('🗑️ Supprimée','success');await chargerMissions();}
 
-async function terminerMission(id) {
-  if(!confirm('Terminer la mission ?'))return;
-  const r=await fetch(`${API}/api/missions/${id}/terminer`,{method:'POST',headers:hdrs()});
-  const d=await r.json();
-  if(d.success){showNotif('✅ Mission terminée !','success');await chargerMissions();}
-  else showNotif('❌ '+(d.error||'Erreur'),'error');
-}
-
-async function supprimerMission(id) {
-  if(!confirm('Supprimer ?'))return;
-  await fetch(`${API}/api/missions/${id}`,{method:'DELETE',headers:hdrs()});
-  showNotif('🗑️ Supprimée','success');
-  await chargerMissions();
-}
-
-function dessinerTrajetMission(missionId) {
-  fermerModal('modal-mission');
-  effacerItineraire();
+function dessinerTrajetMission(missionId){
+  fermerModal('modal-mission');effacerItineraire();
   const m=missions.find(x=>x.id===missionId)||{id:missionId,trajet:'[]'};
   const existant=JSON.parse(m.trajet||'[]');
-  if(existant.length){pointsDessin=existant;dessinerLigneDessin();}
-  dessinActif=true;
-  map.getContainer().style.cursor='crosshair';
-  map.on('click',ajouterPointDessin);
-  const bar=document.createElement('div');
-  bar.className='drawing-bar';bar.id='drawing-bar';
+  if(existant.length){pointsDessin=existant.map(c=>Array.isArray(c)?{lat:c[0],lng:c[1]}:c);dessinerLigneDessin();}
+  dessinActif=true;map.setOptions({draggableCursor:'crosshair'});
+  const bar=document.createElement('div');bar.className='drawing-bar';bar.id='drawing-bar';
   bar.innerHTML=`<span>🗺️ Mission — <strong id="nb-pts">${pointsDessin.length}</strong> pts</span><button onclick="annulerDernierPt()">↩</button><button onclick="effacerItineraire()">🗑️</button><button onclick="sauverTrajetMission('${missionId}')" style="background:rgba(39,174,96,0.3);">✅ Sauver</button><button onclick="annulerDessin()">✕</button>`;
   document.querySelector('.map-container').appendChild(bar);
-  showNotif('🗺️ Cliquez sur la carte pour tracer','success');
+  showNotif('🗺️ Cliquez pour tracer','success');
 }
 
-async function sauverTrajetMission(missionId) {
+async function sauverTrajetMission(missionId){
   if(pointsDessin.length<2){showNotif('⚠️ Au moins 2 points','error');return;}
   const m=missions.find(x=>x.id===missionId);if(!m)return;
-  const body={...m,trajet:pointsDessin,contacts_email:JSON.parse(m.contacts_email||'[]'),contacts_sms:JSON.parse(m.contacts_sms||'[]'),contacts_ha:JSON.parse(m.contacts_ha||'[]')};
+  const body={...m,trajet:pointsDessin.map(p=>[p.lat,p.lng]),contacts_email:JSON.parse(m.contacts_email||'[]'),contacts_sms:JSON.parse(m.contacts_sms||'[]'),contacts_ha:JSON.parse(m.contacts_ha||'[]')};
   const r=await fetch(`${API}/api/missions/${missionId}`,{method:'PUT',headers:hdrs(),body:JSON.stringify(body)});
   const d=await r.json();
-  if(d.success){showNotif(`✅ Trajet sauvegardé — ${pointsDessin.length} points`,'success');annulerDessin();await chargerMissions();}
+  if(d.success){showNotif(`✅ Trajet sauvegardé !`,'success');annulerDessin();await chargerMissions();}
   else showNotif('❌ Erreur','error');
 }
 
-function annulerDessin() {
-  dessinActif=false;map.off('click',ajouterPointDessin);map.getContainer().style.cursor='';
-  const bar=document.getElementById('drawing-bar');if(bar)bar.remove();
-}
+function annulerDessin(){dessinActif=false;map.setOptions({draggableCursor:''});const bar=document.getElementById('drawing-bar');if(bar)bar.remove();}
 
 // ══ MODE EN MISSION ════════════════════════════════════════════════════
-function toggleModeMission() {
-  if(modeMissionActif) arreterModeMission();
-  else ouvrirModalModeMission();
-}
+function toggleModeMission(){if(modeMissionActif)arreterModeMission();else ouvrirModalModeMission();}
 
-function ouvrirModalModeMission() {
+function ouvrirModalModeMission(){
   const existing=document.getElementById('modal-mode-mission');if(existing)existing.remove();
   const capteursList=appareils.map(a=>`<label style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--offwhite);border-radius:8px;margin-bottom:6px;cursor:pointer;"><input type="checkbox" value="${a.entite_ha}" data-nom="${a.nom}" style="accent-color:var(--blue);width:15px;height:15px;"><span style="font-size:12px;">📱 ${a.nom}</span></label>`).join('');
   const notifyList=notifyHA.filter(n=>n.entity_id.includes('mobile_app')).map(n=>`<label style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--offwhite);border-radius:8px;margin-bottom:6px;cursor:pointer;"><input type="checkbox" value="${n.entity_id}" style="accent-color:var(--green);width:15px;height:15px;"><span style="font-size:12px;">🔔 ${n.nom}</span></label>`).join('');
-  const modal=document.createElement('div');
-  modal.className='modal-overlay active';modal.id='modal-mode-mission';
-  modal.innerHTML=`<div class="modal-box" style="max-width:500px;">
-    <div class="modal-title">🚨 Mode En Mission</div>
+  const modal=document.createElement('div');modal.className='modal-overlay active';modal.id='modal-mode-mission';
+  modal.innerHTML=`<div class="modal-box" style="max-width:500px;"><div class="modal-title">🚨 Mode En Mission</div>
     <div style="background:rgba(231,76,60,0.06);border:1px solid rgba(231,76,60,0.2);border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--red);font-weight:500;">⚠️ Alerte si téléphone > distance configurée du RAV4</div>
     <div class="form-group"><label class="form-label">📱 Téléphones à surveiller</label>${capteursList}</div>
-    <div class="form-group">
-      <label class="form-label">📏 Distance max du RAV4</label>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <input type="range" id="mission-dist-slider" min="100" max="5000" step="100" value="1000" oninput="document.getElementById('mission-dist-val').textContent=this.value+'m';document.getElementById('mission-dist-input').value=this.value" style="flex:1;">
-        <span id="mission-dist-val" style="font-size:13px;font-weight:700;color:var(--red);min-width:55px;">1000m</span>
-      </div>
-      <input type="number" class="form-input" id="mission-dist-input" value="1000" min="100" max="5000" step="100" oninput="document.getElementById('mission-dist-slider').value=this.value;document.getElementById('mission-dist-val').textContent=this.value+'m'" style="margin-top:6px;">
-    </div>
-    <div class="form-group"><label class="form-label">📧 Emails d'alerte (Entrée)</label><div class="tag-input-wrap" id="mission-emails-wrap" onclick="document.getElementById('mission-email-input').focus()"><input type="email" class="tag-input" id="mission-email-input" placeholder="email@exemple.com" onkeydown="ajouterTagMission(event,'mission-emails-wrap','mission-email-input',configMission.contactsAlerte)"></div></div>
+    <div class="form-group"><label class="form-label">📏 Distance max du RAV4</label><div style="display:flex;align-items:center;gap:10px;"><input type="range" id="mission-dist-slider" min="100" max="5000" step="100" value="1000" oninput="document.getElementById('mission-dist-val').textContent=this.value+'m';document.getElementById('mission-dist-input').value=this.value" style="flex:1;"><span id="mission-dist-val" style="font-size:13px;font-weight:700;color:var(--red);min-width:55px;">1000m</span></div><input type="number" class="form-input" id="mission-dist-input" value="1000" min="100" max="5000" step="100" oninput="document.getElementById('mission-dist-slider').value=this.value;document.getElementById('mission-dist-val').textContent=this.value+'m'" style="margin-top:6px;"></div>
+    <div class="form-group"><label class="form-label">📧 Emails (Entrée)</label><div class="tag-input-wrap" id="mission-emails-wrap" onclick="document.getElementById('mission-email-input').focus()"><input type="email" class="tag-input" id="mission-email-input" placeholder="email@exemple.com" onkeydown="ajouterTagMission(event,'mission-emails-wrap','mission-email-input',configMission.contactsAlerte)"></div></div>
     <div class="form-group"><label class="form-label">📱 SMS (Entrée)</label><div class="tag-input-wrap" id="mission-sms-wrap" onclick="document.getElementById('mission-sms-input').focus()"><input type="text" class="tag-input" id="mission-sms-input" placeholder="+15141234567" onkeydown="ajouterTagMission(event,'mission-sms-wrap','mission-sms-input',configMission.contactsSMS)"></div></div>
     <div class="form-group"><label class="form-label">🔔 Push HA</label>${notifyList}</div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="document.getElementById('modal-mode-mission').remove()">Annuler</button>
-      <button class="btn-primary" onclick="demarrerModeMission()" style="background:var(--red);">🚨 Activer</button>
-    </div>
+    <div class="modal-actions"><button class="btn-secondary" onclick="document.getElementById('modal-mode-mission').remove()">Annuler</button><button class="btn-primary" onclick="demarrerModeMission()" style="background:var(--red);">🚨 Activer</button></div>
   </div>`;
   document.body.appendChild(modal);
   configMission.contactsAlerte=[];configMission.contactsSMS=[];
@@ -1494,36 +1295,32 @@ function ouvrirModalModeMission() {
   renderTagsMission('mission-sms-wrap','mission-sms-input',configMission.contactsSMS);
 }
 
-function demarrerModeMission() {
+function demarrerModeMission(){
   const checkboxes=document.querySelectorAll('#modal-mode-mission input[type=checkbox][value*="sensor"],#modal-mode-mission input[type=checkbox][value*="device_tracker"]');
   configMission.telephonesSurveilles=Array.from(checkboxes).filter(cb=>cb.checked).map(cb=>({entite:cb.value,nom:cb.getAttribute('data-nom')}));
   if(!configMission.telephonesSurveilles.length){showNotif('⚠️ Sélectionnez au moins un téléphone','error');return;}
   const rav4=appareils.find(a=>a.entite_ha.includes('rav4')||a.nom.toLowerCase().includes('rav4'));
-  if(!rav4){showNotif('⚠️ RAV4 non trouvé dans vos appareils','error');return;}
+  if(!rav4){showNotif('⚠️ RAV4 non trouvé','error');return;}
   configMission.distanceMax=parseInt(document.getElementById('mission-dist-input').value)||1000;
-  const haCheckboxes=document.querySelectorAll('#modal-mode-mission input[type=checkbox][value*="mobile_app"]');
-  configMission.contactsHA=Array.from(haCheckboxes).filter(cb=>cb.checked).map(cb=>cb.value);
+  configMission.contactsHA=Array.from(document.querySelectorAll('#modal-mode-mission input[type=checkbox][value*="mobile_app"]')).filter(cb=>cb.checked).map(cb=>cb.value);
   document.getElementById('modal-mode-mission').remove();
   modeMissionActif=true;
-  const btn=document.getElementById('btn-en-mission');
-  btn.style.background='var(--red)';btn.style.color='white';btn.textContent='🚨 EN MISSION';
+  const btn=document.getElementById('btn-en-mission');btn.style.background='var(--red)';btn.style.color='white';btn.textContent='🚨 EN MISSION';
   showNotif(`✅ Mode mission actif — ${configMission.telephonesSurveilles.length} téléphone(s)`,'success');
   verifierProximiteMission();
-  intervalMission=setInterval(verifierProximiteMission, 2*60*1000);
+  intervalMission=setInterval(verifierProximiteMission,2*60*1000);
 }
 
-function arreterModeMission() {
-  if(!confirm('Désactiver le mode En Mission ?'))return;
+function arreterModeMission(){
+  if(!confirm('Désactiver ?'))return;
   modeMissionActif=false;if(intervalMission)clearInterval(intervalMission);
-  const btn=document.getElementById('btn-en-mission');
-  btn.style.background='';btn.style.color='';btn.textContent='🚨 Mission';
+  const btn=document.getElementById('btn-en-mission');btn.style.background='';btn.style.color='';btn.textContent='🚨 Mission';
   showNotif('Mode mission désactivé','');
 }
 
-async function verifierProximiteMission() {
+async function verifierProximiteMission(){
   if(!modeMissionActif)return;
-  const rav4=appareils.find(a=>a.entite_ha.includes('rav4')||a.nom.toLowerCase().includes('rav4'));
-  if(!rav4)return;
+  const rav4=appareils.find(a=>a.entite_ha.includes('rav4')||a.nom.toLowerCase().includes('rav4'));if(!rav4)return;
   let posRAV4=null;
   try{const r=await fetch(`${API}/api/position/localisation/${encodeURIComponent(rav4.entite_ha)}`,{headers:hdrs()});const d=await r.json();if(d.success)posRAV4={lat:d.latitude,lon:d.longitude};}catch(e){return;}
   if(!posRAV4)return;
@@ -1533,8 +1330,8 @@ async function verifierProximiteMission() {
       const d=await r.json();if(!d.success)continue;
       const dist=distanceGPS(posRAV4.lat,posRAV4.lon,d.latitude,d.longitude);
       if(dist>configMission.distanceMax){
-        const mapsUrl=`https://www.google.com/maps?q=${d.latitude},${d.longitude}`;
         const msg=`🚨 ALERTE — ${tel.nom} à ${Math.round(dist)}m du RAV4`;
+        const mapsUrl=`https://www.google.com/maps?q=${d.latitude},${d.longitude}`;
         for(const email of configMission.contactsAlerte){await fetch(`${API}/api/alertes/mission`,{method:'POST',headers:hdrs(),body:JSON.stringify({email,sujet:`🚨 ALERTE — ${tel.nom}`,message:msg,maps_url:mapsUrl,distance:Math.round(dist),distance_max:configMission.distanceMax,telephone_nom:tel.nom})}).catch(()=>{});}
         for(const num of configMission.contactsSMS){await fetch(`https://capturair-sms.tumarchessurlatete.workers.dev/api/sms/envoyer`,{method:'POST',headers:hdrs(),body:JSON.stringify({telephone:num,message:`CapturAir ALERTE: ${tel.nom} a ${Math.round(dist)}m du RAV4`,type:'alerte_proximite'})}).catch(()=>{});}
         for(const entite of configMission.contactsHA){await fetch(`${API}/api/position/notify-ha`,{method:'POST',headers:hdrs(),body:JSON.stringify({entite,message:msg,titre:'🚨 CapturAir ALERTE'})}).catch(()=>{});}
@@ -1546,13 +1343,9 @@ async function verifierProximiteMission() {
 
 // ══ HELPERS ════════════════════════════════════════════════════════════
 function distanceGPS(lat1,lon1,lat2,lon2){const R=6371000,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180,a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;return R*2*Math.asin(Math.sqrt(a));}
-
 function fermerModal(id){document.getElementById(id).classList.remove('active');}
 document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m&&m.id!=='modal-mode-mission')m.classList.remove('active');}));
-
 function showNotif(msg,type=''){const el=document.createElement('div');el.className=`notif ${type}`;el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),3500);}
-
-// Tags
 function ajouterTag(event,wrapId,inputId,tableau){if(event.key!=='Enter')return;event.preventDefault();const val=document.getElementById(inputId).value.trim();if(!val||tableau.includes(val))return;tableau.push(val);renderTags(wrapId,inputId,tableau);document.getElementById(inputId).value='';}
 function supprimerTag(wrapId,inputId,tableau,val){const idx=tableau.indexOf(val);if(idx>-1)tableau.splice(idx,1);renderTags(wrapId,inputId,tableau);}
 function renderTags(wrapId,inputId,tableau){const wrap=document.getElementById(wrapId);if(!wrap)return;const input=document.getElementById(inputId);wrap.innerHTML='';tableau.forEach(val=>{const tag=document.createElement('span');tag.className='tag';tag.innerHTML=`${val}<span onclick="supprimerTag('${wrapId}','${inputId}',${wrapId==='emails-wrap'?'emailsAlerte':wrapId==='sms-wrap'?'smsAlerte':'haAlerte'},'${val}')">×</span>`;wrap.appendChild(tag);});if(input)wrap.appendChild(input);}
