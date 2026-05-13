@@ -730,6 +730,57 @@ const ZONES = {
     {nom:"Parc Îles-de-Boucherville",lat:45.5833,lng:-73.4500,rayon_km:3,rayon_alerte_km:5,type:"parc_provincial",notes:"Drone interdit — Proche Montréal"},
     {nom:"Réserve biosphère Mont-Saint-Hilaire",lat:45.5500,lng:-73.1667,rayon_km:3,rayon_alerte_km:5,type:"reserve",notes:"Zone de recherche protégée"},
   ],
+  // ── NOUVEAUX AÉROPORTS CANADA (rayon élargi 2000km) ──
+  aeroports_extra:[
+    // Ontario
+    {icao:"CYYZ2",nom:"Billy Bishop Toronto City",lat:43.6272,lng:-79.3961,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"D",type:"regional",notes:"Aéroport centre-ville Toronto"},
+    {icao:"CYHM",nom:"Hamilton John C. Munro",lat:43.1736,lng:-79.9350,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"E",type:"regional",notes:"Aéroport Hamilton Ontario"},
+    {icao:"CYKF",nom:"Waterloo Region",lat:43.4608,lng:-80.3786,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"E",type:"regional",notes:"Aéroport Waterloo Ontario"},
+    {icao:"CYXU",nom:"London International (ON)",lat:43.0356,lng:-81.1528,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"D",type:"regional",notes:"Aéroport London Ontario"},
+    {icao:"CYWG",nom:"Winnipeg James Armstrong Richardson",lat:49.9100,lng:-97.2397,rayon_ctr_km:16.7,rayon_alerte_km:20,classe:"C",type:"international",notes:"Aéroport international Winnipeg"},
+    {icao:"CYYC",nom:"Calgary International",lat:51.1139,lng:-114.0195,rayon_ctr_km:16.7,rayon_alerte_km:20,classe:"C",type:"international",notes:"Aéroport international Calgary"},
+    {icao:"CYVR",nom:"Vancouver International",lat:49.1947,lng:-123.1792,rayon_ctr_km:16.7,rayon_alerte_km:20,classe:"C",type:"international",notes:"Aéroport international Vancouver"},
+    {icao:"CYEG",nom:"Edmonton International",lat:53.3097,lng:-113.5797,rayon_ctr_km:16.7,rayon_alerte_km:20,classe:"C",type:"international",notes:"Aéroport international Edmonton"},
+    {icao:"CYXE",nom:"Saskatoon John G. Diefenbaker",lat:52.1708,lng:-106.6997,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"D",type:"regional",notes:"Aéroport Saskatoon Saskatchewan"},
+    {icao:"CYQR",nom:"Regina International",lat:50.4319,lng:-104.6658,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"D",type:"regional",notes:"Aéroport Regina Saskatchewan"},
+    // Québec nord et régions
+    {icao:"CYVO",nom:"Val-d'Or",lat:48.0533,lng:-77.7828,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"E",type:"regional",notes:"Aéroport Val-d'Or Abitibi"},
+    {icao:"CYRJ",nom:"Roberval",lat:48.5219,lng:-72.2656,rayon_ctr_km:5,rayon_alerte_km:7,classe:"E",type:"regional",notes:"Aéroport Roberval Lac-Saint-Jean"},
+    {icao:"CYML",nom:"Charlevoix",lat:47.5975,lng:-70.2239,rayon_ctr_km:5,rayon_alerte_km:7,classe:"E",type:"regional",notes:"Aéroport Charlevoix"},
+    {icao:"CYGR",nom:"Îles-de-la-Madeleine",lat:47.4247,lng:-61.7781,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"E",type:"regional",notes:"Aéroport Îles-de-la-Madeleine"},
+    {icao:"CYBG",nom:"Bagotville",lat:48.3306,lng:-70.9964,rayon_ctr_km:16.7,rayon_alerte_km:20,classe:"C",type:"militaire_aeroport",notes:"Base aérienne NORAD — Accès très restreint"},
+    {icao:"CYMT",nom:"Chibougamau-Chapais",lat:49.7719,lng:-74.5281,rayon_ctr_km:5,rayon_alerte_km:7,classe:"E",type:"regional",notes:"Aéroport Chibougamau Nord-du-Québec"},
+    {icao:"CYSM",nom:"Fort Smith (TNO)",lat:60.0203,lng:-111.9619,rayon_ctr_km:5,rayon_alerte_km:7,classe:"E",type:"regional",notes:"Aéroport Fort Smith Territoires du Nord-Ouest"},
+    {icao:"CYYQ",nom:"Churchill (Manitoba)",lat:58.7392,lng:-94.0650,rayon_ctr_km:5,rayon_alerte_km:7,classe:"E",type:"regional",notes:"Aéroport Churchill Manitoba Nord"},
+    {icao:"CYMO",nom:"Moosonee (Ontario)",lat:51.2911,lng:-80.6078,rayon_ctr_km:5,rayon_alerte_km:7,classe:"E",type:"regional",notes:"Aéroport Moosonee Baie James Ontario"},
+    {icao:"CYSJ",nom:"Saint John (N.-B.)",lat:45.3161,lng:-65.8903,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"D",type:"regional",notes:"Aéroport Saint John Nouveau-Brunswick"},
+    {icao:"CYHZ",nom:"Halifax Stanfield",lat:44.8808,lng:-63.5086,rayon_ctr_km:16.7,rayon_alerte_km:20,classe:"C",type:"international",notes:"Aéroport international Halifax Nouvelle-Écosse"},
+    {icao:"CYYT",nom:"St. John's (T.-N.)",lat:47.6186,lng:-52.7519,rayon_ctr_km:16.7,rayon_alerte_km:20,classe:"C",type:"international",notes:"Aéroport international St. John's Terre-Neuve"},
+    {icao:"CYFC",nom:"Fredericton",lat:45.8689,lng:-66.5372,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"D",type:"regional",notes:"Aéroport Fredericton Nouveau-Brunswick"},
+    {icao:"CYYG",nom:"Charlottetown (Î.-P.-É.)",lat:46.2900,lng:-63.1211,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"D",type:"regional",notes:"Aéroport Charlottetown Île-du-Prince-Édouard"},
+    // États-Unis (frontaliers)
+    {icao:"KBGR",nom:"Bangor International (ME)",lat:44.8074,lng:-68.8281,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"D",type:"international",notes:"Aéroport Bangor Maine USA — Frontalier"},
+    {icao:"KBTV",nom:"Burlington (VT)",lat:44.4719,lng:-73.1533,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"D",type:"regional",notes:"Aéroport Burlington Vermont USA — Frontalier"},
+    {icao:"KPLB",nom:"Plattsburgh (NY)",lat:44.6908,lng:-73.4681,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"D",type:"regional",notes:"Aéroport Plattsburgh New York USA — Frontalier"},
+  ],
+  // ── PARCS NATIONAUX CANADA (Nord + Grands espaces) ──
+  parcs_nord:[
+    {nom:"Parc national de la Mauricie",lat:46.7500,lng:-73.0833,rayon_km:20,rayon_alerte_km:22,type:"parc_national",notes:"Drone interdit sans permis Parcs Canada"},
+    {nom:"Parc Forillon (Gaspésie)",lat:48.7833,lng:-64.2000,rayon_km:15,rayon_alerte_km:17,type:"parc_national",notes:"Drone interdit — Parc national Gaspésie"},
+    {nom:"Parc Bic (Rimouski)",lat:48.3167,lng:-68.7833,rayon_km:10,rayon_alerte_km:12,type:"parc_provincial",notes:"Parc provincial — Restrictions survol"},
+    {nom:"Réserve Assinica (Chibougamau)",lat:50.0000,lng:-74.5000,rayon_km:30,rayon_alerte_km:32,type:"reserve",notes:"Grande réserve faunique Nord-du-Québec"},
+    {nom:"Réserve Laurentides",lat:47.5000,lng:-71.5000,rayon_km:40,rayon_alerte_km:42,type:"reserve",notes:"Vaste réserve faunique Laurentides"},
+    {nom:"Réserve Rouge-Matawin",lat:46.7000,lng:-74.0000,rayon_km:25,rayon_alerte_km:27,type:"reserve",notes:"Réserve faunique Lanaudière"},
+    {nom:"Parc Plaisance (Outaouais)",lat:45.6167,lng:-75.1167,rayon_km:5,rayon_alerte_km:7,type:"parc_provincial",notes:"Parc provincial Outaouais"},
+    {nom:"Parc Aiguebelle (Abitibi)",lat:48.5000,lng:-78.7167,rayon_km:15,rayon_alerte_km:17,type:"parc_provincial",notes:"Parc provincial Abitibi-Témiscamingue"},
+    {nom:"Réserve Vérendrye",lat:47.5000,lng:-76.5000,rayon_km:50,rayon_alerte_km:52,type:"reserve",notes:"Très grande réserve — Survol réglementé"},
+    {nom:"Parc Jacques-Cartier",lat:47.2833,lng:-71.1333,rayon_km:10,rayon_alerte_km:12,type:"parc_provincial",notes:"Parc provincial Capitale-Nationale"},
+    {nom:"Parc des Grands-Jardins",lat:47.6833,lng:-70.8667,rayon_km:10,rayon_alerte_km:12,type:"parc_provincial",notes:"Parc provincial Charlevoix"},
+    {nom:"Parc National Kouchibouguac (N.-B.)",lat:46.8667,lng:-64.9667,rayon_km:12,rayon_alerte_km:14,type:"parc_national",notes:"Drone interdit — Parc national N.-B."},
+    {nom:"Parc National Fundy (N.-B.)",lat:45.6000,lng:-65.0000,rayon_km:12,rayon_alerte_km:14,type:"parc_national",notes:"Drone interdit — Parc national N.-B."},
+    {nom:"Parc National Cap-Breton (N.-É.)",lat:46.7500,lng:-60.6667,rayon_km:20,rayon_alerte_km:22,type:"parc_national",notes:"Drone interdit — Parc national Île Cap-Breton"},
+    {nom:"Parc National Terra Nova (T.-N.)",lat:48.5500,lng:-54.0000,rayon_km:15,rayon_alerte_km:17,type:"parc_national",notes:"Drone interdit — Parc national Terre-Neuve"},
+  ],
   sensibles:[
     {nom:"Parlement du Canada",lat:45.4236,lng:-75.7009,rayon_km:2,rayon_alerte_km:4,type:"gouvernemental",notes:"Zone sécurité maximale — GRC — Survol interdit"},
     {nom:"Assemblée nationale Québec",lat:46.8074,lng:-71.2148,rayon_km:1,rayon_alerte_km:2,type:"gouvernemental",notes:"Bâtiment gouvernemental — Zone sensible"},
@@ -884,9 +935,10 @@ function initMap() {
   });
 
   map.addListener('click', async e => {
+    // Ne rien faire si le portail n'est pas encore ouvert
+    if(document.getElementById('main').style.display==='none') return;
     const lat = e.latLng.lat();
     const lng = e.latLng.lng();
-    // MODIFICATION 3: Géocodage inverse au clic
     const nom = await obtenirNomVille(lat, lng);
     afficherVille(nom, lat, lng);
     placerPoint(lat, lng);
@@ -896,21 +948,26 @@ function initMap() {
 }
 
 function placerPoint(lat, lng) {
-  if(mode2Points && pointActif){
+  if(mode2Points && pointActif !== null){
+    // 2e point = atterrissage
     if(marker2) marker2.setMap(null);
     marker2 = new google.maps.Marker({position:{lat,lng},map,icon:{path:google.maps.SymbolPath.CIRCLE,scale:10,fillColor:'#1ABC9C',fillOpacity:1,strokeColor:'#fff',strokeWeight:2},title:'Atterrissage'});
     pointActif2={lat,lng};
     chargerMeteo(lat,lng);
+    showNotif('📍 Point atterrissage posé — météo chargée','success');
   } else {
+    // 1er point = décollage (toujours)
     if(marker1) marker1.setMap(null);
     marker1 = new google.maps.Marker({position:{lat,lng},map,icon:{path:google.maps.SymbolPath.CIRCLE,scale:12,fillColor:'#1A8FD1',fillOpacity:1,strokeColor:'#fff',strokeWeight:2},title:'Décollage'});
     pointActif={lat,lng};
     chargerMeteo(lat,lng);
+    if(mode2Points) showNotif('📍 Point décollage posé — cliquez pour le point atterrissage','info');
   }
   verifierZones(lat,lng);
-  // Activer les boutons
-  document.getElementById('btn-refresh').disabled=false;
-  document.getElementById('btn-pdf').disabled=false;
+  const btnR=document.getElementById('btn-refresh');
+  const btnP=document.getElementById('btn-pdf');
+  if(btnR) btnR.disabled=false;
+  if(btnP) btnP.disabled=false;
 }
 
 function setMapType(type){
@@ -1007,7 +1064,16 @@ function haversine(lat1,lng1,lat2,lng2){
 
 function dessinerZones(){
   const couleurs={international:'#E74C3C',regional:'#E67E22',militaire_civil:'#E74C3C',aeroport_regional:'#E67E22',militaire:'#9B59B6',militaire_aeroport:'#9B59B6',nucleaire:'#E74C3C',nucleaire_recherche:'#E74C3C',prison:'#E67E22',parc_national:'#27AE60',parc_provincial:'#27AE60',reserve:'#27AE60',gouvernemental:'#E74C3C',telecom:'#F1C40F',industriel:'#E67E22',infrastructure:'#E67E22',energie:'#F1C40F',heliport:'#3AABEF'};
-  const toutes=[...ZONES.aeroports.map(z=>({...z,rayon:z.rayon_ctr_km})),...ZONES.militaire.map(z=>({...z,rayon:z.rayon_km})),...ZONES.nucleaire.map(z=>({...z,rayon:z.rayon_km})),...ZONES.prisons.map(z=>({...z,rayon:z.rayon_km})),...ZONES.parcs.map(z=>({...z,rayon:z.rayon_km})),...ZONES.sensibles.map(z=>({...z,rayon:z.rayon_km}))];
+  const toutes=[
+    ...ZONES.aeroports.map(z=>({...z,rayon:z.rayon_ctr_km})),
+    ...(ZONES.aeroports_extra||[]).map(z=>({...z,rayon:z.rayon_ctr_km})),
+    ...ZONES.militaire.map(z=>({...z,rayon:z.rayon_km})),
+    ...ZONES.nucleaire.map(z=>({...z,rayon:z.rayon_km})),
+    ...ZONES.prisons.map(z=>({...z,rayon:z.rayon_km})),
+    ...ZONES.parcs.map(z=>({...z,rayon:z.rayon_km})),
+    ...(ZONES.parcs_nord||[]).map(z=>({...z,rayon:z.rayon_km})),
+    ...ZONES.sensibles.map(z=>({...z,rayon:z.rayon_km})),
+  ];
   toutes.forEach(z=>{
     if(!z.rayon) return;
     const couleur=couleurs[z.type]||'#6B7C93';
@@ -1018,7 +1084,16 @@ function dessinerZones(){
 }
 
 function verifierZones(lat,lng){
-  const toutes=[...ZONES.aeroports.map(z=>({...z,rayon:z.rayon_ctr_km,alerte:z.rayon_alerte_km})),...ZONES.militaire.map(z=>({...z,rayon:z.rayon_km,alerte:z.rayon_alerte_km})),...ZONES.nucleaire.map(z=>({...z,rayon:z.rayon_km,alerte:z.rayon_alerte_km})),...ZONES.prisons.map(z=>({...z,rayon:z.rayon_km,alerte:z.rayon_alerte_km})),...ZONES.parcs.map(z=>({...z,rayon:z.rayon_km,alerte:z.rayon_alerte_km})),...ZONES.sensibles.map(z=>({...z,rayon:z.rayon_km,alerte:z.rayon_alerte_km}))];
+  const toutes=[
+    ...ZONES.aeroports.map(z=>({...z,rayon:z.rayon_ctr_km,alerte:z.rayon_alerte_km})),
+    ...(ZONES.aeroports_extra||[]).map(z=>({...z,rayon:z.rayon_ctr_km,alerte:z.rayon_alerte_km})),
+    ...ZONES.militaire.map(z=>({...z,rayon:z.rayon_km,alerte:z.rayon_alerte_km})),
+    ...ZONES.nucleaire.map(z=>({...z,rayon:z.rayon_km,alerte:z.rayon_alerte_km})),
+    ...ZONES.prisons.map(z=>({...z,rayon:z.rayon_km,alerte:z.rayon_alerte_km})),
+    ...ZONES.parcs.map(z=>({...z,rayon:z.rayon_km,alerte:z.rayon_alerte_km})),
+    ...(ZONES.parcs_nord||[]).map(z=>({...z,rayon:z.rayon_km,alerte:z.rayon_alerte_km})),
+    ...ZONES.sensibles.map(z=>({...z,rayon:z.rayon_km,alerte:z.rayon_alerte_km})),
+  ];
   const critiques=[],vigilance=[],informatif=[],lointaines=[];
   toutes.forEach(z=>{
     const dist=haversine(lat,lng,z.lat,z.lng);
@@ -1027,7 +1102,7 @@ function verifierZones(lat,lng){
     if(dist<=r)critiques.push({...z,dist,nom});
     else if(dist<=a)vigilance.push({...z,dist,nom});
     else if(dist<=30)informatif.push({...z,dist,nom});
-    else if(dist<=500)lointaines.push({...z,dist,nom});
+    else if(dist<=2000)lointaines.push({...z,dist,nom});
   });
   critiques.sort((a,b)=>a.dist-b.dist);vigilance.sort((a,b)=>a.dist-b.dist);informatif.sort((a,b)=>a.dist-b.dist);
   const banner=document.getElementById('zones-banner');
@@ -1067,8 +1142,10 @@ function localTimeStr(isoStr){return isoStr?isoStr.substring(11,16):'--:--';}
 // CHARGEMENT DONNÉES MÉTÉO — MODIFICATION 5: Météo mondiale
 // ═══════════════════════════════════════════════════════
 async function chargerMeteo(lat,lng){
-  document.getElementById('empty-state') && (document.getElementById('empty-state').style.display='none');
-  document.getElementById('loading-overlay').classList.add('show');
+  const _emptyEl=document.getElementById('empty-state');
+  if(_emptyEl) _emptyEl.style.display='none';
+  const _loadEl=document.getElementById('loading-overlay');
+  if(_loadEl) _loadEl.classList.add('show');
   await getTZ(lat,lng);
   try {
     // MODIFICATION 5: Open-Meteo supporte déjà le monde entier avec timezone=auto
@@ -1085,7 +1162,8 @@ async function chargerMeteo(lat,lng){
     donneesPrev7=om;donneesPrev15=om;
     await chargerMETAR(lat,lng);
   } catch(e){showNotif('Erreur chargement données météo','error');}
-  document.getElementById('loading-overlay').classList.remove('show');
+  const _loadEl2=document.getElementById('loading-overlay');
+  if(_loadEl2) _loadEl2.classList.remove('show');
   afficherOnglet();
 }
 
@@ -1093,15 +1171,19 @@ async function chargerMETAR(lat,lng){
   const apNear=ZONES.aeroports.filter(a=>a.icao&&!a.icao.includes('_')).map(a=>({...a,dist:haversine(lat,lng,a.lat,a.lng)})).sort((a,b)=>a.dist-b.dist)[0];
   if(apNear&&apNear.dist<100){
     try {
-      const r=await fetch(`https://aviationweather.gov/api/data/metar?ids=${apNear.icao}&format=json`);
+      const r=await fetch(`${API}/api/metar/${apNear.icao}`);
       const d=await r.json();
       if(d&&d.length>0){if(!donneesMeteo)donneesMeteo={};donneesMeteo.metar=d[0];donneesMeteo.metar_aeroport=apNear;}
-    } catch(e){}
+    } catch(e){
+      try{const r2=await fetch(`https://aviationweather.gov/api/data/metar?ids=${apNear.icao}&format=json`);const d2=await r2.json();if(d2&&d2.length>0){if(!donneesMeteo)donneesMeteo={};donneesMeteo.metar=d2[0];donneesMeteo.metar_aeroport=apNear;}}catch(e2){}
+    }
     try {
-      const rn=await fetch(`https://aviationweather.gov/api/data/notam?location=${apNear.icao}&format=json`);
+      const rn=await fetch(`${API}/api/notam/${apNear.icao}`);
       const dn=await rn.json();
       if(dn&&dn.length>0)donneesMeteo.notams=dn.slice(0,5);
-    } catch(e){}
+    } catch(e){
+      try{const rn2=await fetch(`https://aviationweather.gov/api/data/notam?location=${apNear.icao}&format=json`);const dn2=await rn2.json();if(dn2&&dn2.length>0)donneesMeteo.notams=dn2.slice(0,5);}catch(e2){}
+    }
   }
 }
 
@@ -1447,13 +1529,13 @@ function afficherOnglet1(){
       ${donneesMeteo?.metar?`<div class="metar-raw">${donneesMeteo.metar.rawOb||JSON.stringify(donneesMeteo.metar)}</div><div class="metar-decoded">${decoderMETAR(donneesMeteo.metar.rawOb||donneesMeteo.metar).map(l=>`<div class="metar-line"><span class="metar-key">${l.key}</span><span class="metar-val">${l.val}</span></div>`).join('')}</div>${donneesMeteo.notams?.length?`<div style="margin-top:12px"><div class="card-title" style="margin-bottom:8px"><span class="icon">⚠️</span>NOTAMs actifs</div>${donneesMeteo.notams.map(n=>`<div style="font-size:11px;color:var(--orange);padding:4px 0;border-bottom:1px solid var(--border)">${n.notamTxt||n.icaoId||JSON.stringify(n).substring(0,80)}</div>`).join('')}</div>`:''}`:'<div style="color:var(--gray);font-size:12px">METAR non disponible pour cette zone</div>'}
     </div>
     <div class="card">
-      <div class="card-title"><span class="icon">🗺</span>Zones aériennes — Rayon 500km</div>
+      <div class="card-title"><span class="icon">🗺</span>Zones aériennes — Rayon 2000km</div>
       ${zones.critiques.length?`<div style="color:var(--red);font-weight:600;font-size:12px;margin-bottom:8px">🔴 CRITIQUE — Vous êtes dans une zone réglementée</div>`:''}
       <div class="zones-panel" style="background:transparent;border:none;padding:0">
         ${zones.critiques.map(z=>`<div class="zone-item"><div class="zone-dot rouge"></div><div class="zone-info"><div class="zone-name">🔴 ${z.nom}</div><div class="zone-dist">${z.dist.toFixed(1)}km — DANS LA ZONE</div><div class="zone-notes">${z.notes}</div></div></div>`).join('')}
         ${zones.vigilance.map(z=>`<div class="zone-item"><div class="zone-dot orange"></div><div class="zone-info"><div class="zone-name">🟠 ${z.nom}</div><div class="zone-dist">${z.dist.toFixed(1)}km</div><div class="zone-notes">${z.notes}</div></div></div>`).join('')}
         ${zones.informatif.slice(0,5).map(z=>`<div class="zone-item"><div class="zone-dot jaune"></div><div class="zone-info"><div class="zone-name">🟡 ${z.nom}</div><div class="zone-dist">${z.dist.toFixed(1)}km</div></div></div>`).join('')}
-        ${zones.lointaines?.length?`<div style="color:var(--gray);font-size:11px;padding:6px 0">+ ${zones.lointaines.length} zones dans un rayon de 500km</div>`:''}
+        ${zones.lointaines?.length?`<div style="color:var(--gray);font-size:11px;padding:6px 0">+ ${zones.lointaines.length} zones dans un rayon de 2000km</div>`:''}
       </div>
       <!-- MODIFICATION 8: URL NavDrone avec coordonnées dynamiques -->
       <a class="navdrone-btn" href="${navdroneURL}" target="_blank">
@@ -1689,7 +1771,7 @@ async function genererPDF() {
     const condNom=wmoNoms[wcode2]??'Inconnu';
 
     const secHead=(txt)=>{checkPage();doc.setFillColor(15,36,68);doc.rect(margin,y,W-2*margin,7,'F');doc.setTextColor(107,124,147);doc.setFont('helvetica','bold');doc.setFontSize(8);doc.text(txt,margin+3,y+5);y+=7;};
-    const row2=(k,v,s)=>{checkPage();doc.setFillColor(y%14<7?[11,31,58]:[15,36,68]);doc.rect(margin,y,W-2*margin,7,'F');doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(244,247,250);doc.text(k,margin+3,y+5);doc.setTextColor(58,171,239);doc.text(v,margin+80,y+5);if(s){const sc=s.includes('FORT')||s.includes('DANGER')||s.includes('ACTIVE')||s.includes('NOK')||s.includes('ORAGE')||s.includes('LIMITE')||s.includes('GEL')?[231,76,60]:s.includes('MODERE')||s.includes('ATTENTION')||s.includes('INSTABLE')||s.includes('ELEVE')?[230,126,34]:[39,174,96];doc.setTextColor(...sc);doc.text(s,margin+130,y+5);}y+=7;};
+    const row2=(k,v,s)=>{checkPage();if(y%14<7)doc.setFillColor(11,31,58);else doc.setFillColor(15,36,68);doc.rect(margin,y,W-2*margin,7,'F');doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(244,247,250);doc.text(k,margin+3,y+5);doc.setTextColor(58,171,239);doc.text(v,margin+80,y+5);if(s){const sc=s.includes('FORT')||s.includes('DANGER')||s.includes('ACTIVE')||s.includes('NOK')||s.includes('ORAGE')||s.includes('LIMITE')||s.includes('GEL')?[231,76,60]:s.includes('MODERE')||s.includes('ATTENTION')||s.includes('INSTABLE')||s.includes('ELEVE')?[230,126,34]:[39,174,96];doc.setTextColor(...sc);doc.text(s,margin+130,y+5);}y+=7;};
 
     if(sel.conditions){
       secHead('CONDITIONS ACTUELLES');
@@ -1803,7 +1885,7 @@ async function genererPDF() {
         const jr7=dt7.toLocaleDateString('fr-CA',{weekday:'short',day:'numeric',month:'short'});
         const s7=scoreJour(donneesPrev7,i);
         const clr7=s7.code==='vert'?[39,174,96]:s7.code==='orange'?[230,126,34]:[231,76,60];
-        doc.setFillColor(y%14<7?[11,31,58]:[15,36,68]);doc.rect(margin,y,W-2*margin,7,'F');
+        if(y%14<7)doc.setFillColor(11,31,58);else doc.setFillColor(15,36,68);doc.rect(margin,y,W-2*margin,7,'F');
         doc.setTextColor(...clr7);doc.setFont('helvetica','bold');doc.setFontSize(8);
         doc.text(jr7.replace(/[^ -]/g,'?'),margin+3,y+5);
         doc.setTextColor(244,247,250);doc.setFont('helvetica','normal');
@@ -1829,7 +1911,7 @@ async function genererPDF() {
         const jr15=dt15.toLocaleDateString('fr-CA',{weekday:'short',day:'numeric',month:'short'});
         const s15=scoreJour(donneesPrev15,i);
         const clr15=s15.code==='vert'?[39,174,96]:s15.code==='orange'?[230,126,34]:[231,76,60];
-        doc.setFillColor(y%14<7?[11,31,58]:[15,36,68]);doc.rect(margin,y,W-2*margin,6,'F');
+        if(y%14<7)doc.setFillColor(11,31,58);else doc.setFillColor(15,36,68);doc.rect(margin,y,W-2*margin,6,'F');
         doc.setTextColor(...clr15);doc.setFont('helvetica','bold');doc.setFontSize(7);
         doc.text(jr15.replace(/[^ -]/g,'?'),margin+3,y+4);
         doc.setTextColor(244,247,250);doc.setFont('helvetica','normal');
