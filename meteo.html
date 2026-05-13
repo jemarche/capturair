@@ -1136,9 +1136,10 @@ function afficherOnglet1(){
   const lng_nav = pointActif?.lng ?? donneesMeteo?.lng ?? -73.0;
   const navdroneURL = `https://portal.navdrone.ca/?lat=${lat_nav}&lng=${lng_nav}#/7503f919-9e0e-4b56-99d3-212e8288d5a5/uasoperation-creation`;
 
-  document.getElementById('tab-content').innerHTML=`
+document.getElementById('tab-content').innerHTML=`
     ${villeHTML}
-    // ── BLOC CONDITIONS ACTUELLES ──────────────────────────
+    ${blocConditions}
+    <div class="card verdict-card ${stat.code}" id="verdict-card">
 const wcode = om?.hourly?.weathercode?.[hi] ?? -1;
 const wmoTexte = {
   0:'☀️ Ciel dégagé', 1:'🌤 Principalement dégagé', 2:'⛅ Partiellement nuageux',
