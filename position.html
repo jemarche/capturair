@@ -809,7 +809,8 @@ async function calculerItineraire() {
     showNotif('⚠️ Coordonnées de destination invalides','error'); return;
   }
 
- effacerItineraire();
+if (calculEnCours) return; // bloque les appels parasites
+  effacerItineraire();
   showNotif('⏳ Calcul en cours...','');
 
   let origin, destination;
