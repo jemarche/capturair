@@ -1,0 +1,2316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CapturAir Météo — Briefing Aviation</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --navy: #0B1F3A;
+  --navy-light: #112644;
+  --navy-card: #0F2444;
+  --blue: #1A8FD1;
+  --blue-light: #3AABEF;
+  --teal: #1ABC9C;
+  --orange: #E67E22;
+  --red: #E74C3C;
+  --green: #27AE60;
+  --green-light: #2ECC71;
+  --purple: #9B59B6;
+  --yellow: #F1C40F;
+  --offwhite: #F4F7FA;
+  --gray: #6B7C93;
+  --gray-light: #8899AA;
+  --border: #1A3050;
+  --border-light: #223355;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{
+  font-family:'DM Sans',sans-serif;
+  font-weight:300;
+  background:var(--navy);
+  color:var(--offwhite);
+  display:flex;
+  flex-direction:column;
+}
+
+/* ─── AUTH ─── */
+#auth-screen{
+  position:fixed;inset:0;
+  background:linear-gradient(135deg,#060f1e 0%,#0B1F3A 50%,#0a1929 100%);
+  display:flex;align-items:center;justify-content:center;
+  z-index:9999;
+}
+.auth-box{
+  background:var(--navy-card);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:48px 40px;
+  width:380px;
+  text-align:center;
+  box-shadow:0 24px 80px rgba(0,0,0,0.6);
+}
+.auth-logo{
+  font-family:'Syne',sans-serif;
+  font-size:22px;font-weight:800;
+  color:var(--blue-light);
+  letter-spacing:2px;
+  margin-bottom:6px;
+}
+.auth-sub{font-size:12px;color:var(--gray);letter-spacing:1px;margin-bottom:36px;}
+.auth-label{font-size:11px;color:var(--gray-light);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;text-align:left;}
+.auth-input{
+  width:100%;padding:14px 16px;
+  background:#071628;border:1px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--offwhite);
+  font-family:'DM Sans',sans-serif;font-size:15px;
+  letter-spacing:3px;text-align:center;
+  transition:border-color 0.2s;
+  margin-bottom:16px;
+}
+.auth-input:focus{outline:none;border-color:var(--blue);}
+.auth-btn{
+  width:100%;padding:14px;
+  background:var(--blue);border:none;border-radius:var(--radius-sm);
+  color:#fff;font-family:'Syne',sans-serif;font-weight:700;
+  font-size:14px;letter-spacing:1px;cursor:pointer;
+  transition:background 0.2s,transform 0.1s;
+}
+.auth-btn:hover{background:var(--blue-light);}
+.auth-btn:active{transform:scale(0.98);}
+.auth-error{color:var(--red);font-size:12px;margin-top:8px;min-height:18px;}
+.auth-info{color:var(--gray);font-size:12px;margin-top:12px;}
+
+/* ─── TOPBAR ─── */
+#topbar{
+  height:56px;
+  background:var(--navy-card);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 16px;gap:12px;
+  flex-shrink:0;
+  z-index:100;
+}
+.logo{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:16px;color:var(--blue-light);
+  letter-spacing:2px;white-space:nowrap;
+}
+.logo span{color:var(--teal);}
+#search-bar{
+  flex:1;max-width:340px;
+  padding:8px 14px;
+  background:#071628;border:1px solid var(--border);
+  border-radius:20px;color:var(--offwhite);
+  font-family:'DM Sans',sans-serif;font-size:13px;
+}
+#search-bar:focus{outline:none;border-color:var(--blue);}
+#coords-input{
+  width:200px;padding:8px 14px;
+  background:#071628;border:1px solid var(--border);
+  border-radius:20px;color:var(--offwhite);
+  font-family:'DM Mono',monospace;font-size:12px;
+  placeholder-color:var(--gray);
+}
+#coords-input:focus{outline:none;border-color:var(--teal);}
+#btn-coords{
+  padding:8px 14px;background:var(--teal);border:none;
+  border-radius:20px;color:#fff;font-size:12px;
+  font-family:'Syne',sans-serif;font-weight:600;
+  cursor:pointer;white-space:nowrap;
+}
+#btn-coords:hover{background:#16a085;}
+.tz-badge{
+  background:#071628;border:1px solid var(--border);
+  border-radius:20px;padding:6px 12px;
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--teal);white-space:nowrap;
+}
+#btn-logout{
+  padding:7px 14px;background:transparent;
+  border:1px solid var(--border);border-radius:20px;
+  color:var(--gray);font-size:11px;cursor:pointer;
+  margin-left:auto;white-space:nowrap;
+}
+#btn-logout:hover{border-color:var(--red);color:var(--red);}
+
+/* ─── MAIN LAYOUT ─── */
+#main{
+  display:flex;flex:1;overflow:hidden;
+}
+#map-panel{
+  width:35%;min-width:280px;
+  position:relative;
+  border-right:1px solid var(--border);
+  flex-shrink:0;
+}
+#map{width:100%;height:100%;}
+
+/* MAP CONTROLS */
+#map-controls{
+  position:absolute;top:10px;left:10px;
+  display:flex;flex-direction:column;gap:6px;
+  z-index:10;
+}
+.map-btn{
+  padding:6px 10px;
+  background:rgba(11,31,58,0.92);
+  border:1px solid var(--border);border-radius:6px;
+  color:var(--offwhite);font-size:11px;cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+  transition:background 0.15s;white-space:nowrap;
+}
+.map-btn:hover{background:var(--navy-card);}
+.map-btn.active{background:var(--blue);border-color:var(--blue);}
+
+/* ZONES ALERT BANNER */
+#zones-banner{
+  position:absolute;bottom:10px;left:10px;right:10px;
+  z-index:10;display:none;
+}
+.zones-banner-inner{
+  background:rgba(11,31,58,0.95);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:10px 12px;
+  font-size:11px;
+  max-height:140px;overflow-y:auto;
+}
+
+/* ─── DATA PANEL ─── */
+#data-panel{
+  flex:1;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+#tabs{
+  display:flex;
+  border-bottom:1px solid var(--border);
+  background:var(--navy-card);
+  flex-shrink:0;
+}
+.tab{
+  flex:1;padding:14px 8px;
+  background:transparent;border:none;
+  color:var(--gray);
+  font-family:'Syne',sans-serif;font-weight:600;
+  font-size:12px;letter-spacing:0.5px;
+  cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:color 0.2s,border-color 0.2s;
+}
+.tab:hover{color:var(--offwhite);}
+.tab.active{color:var(--blue-light);border-bottom-color:var(--blue-light);}
+#tab-content{
+  flex:1;overflow-y:auto;
+  padding:16px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--border) transparent;
+}
+
+/* ─── EMPTY STATE ─── */
+#empty-state{
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  height:100%;
+  color:var(--gray);text-align:center;
+  gap:12px;
+}
+#empty-state .empty-icon{font-size:48px;opacity:0.4;}
+#empty-state p{font-size:13px;max-width:280px;line-height:1.6;}
+
+/* ─── LOADING ─── */
+#loading-overlay{
+  display:none;
+  position:absolute;inset:0;
+  background:rgba(11,31,58,0.85);
+  z-index:50;
+  align-items:center;justify-content:center;
+  flex-direction:column;gap:12px;
+  border-radius:0;
+}
+#loading-overlay.show{display:flex;}
+.spinner{
+  width:36px;height:36px;
+  border:3px solid var(--border);
+  border-top-color:var(--blue);
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-size:12px;color:var(--gray);}
+
+/* ─── CARDS ─── */
+.card{
+  background:var(--navy-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
+  margin-bottom:12px;
+}
+.card-title{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:11px;letter-spacing:1.5px;
+  color:var(--gray);text-transform:uppercase;
+  margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;
+}
+.card-title .icon{font-size:14px;}
+
+/* ─── VERDICT ─── */
+#verdict-card{
+  border-width:2px;
+  margin-bottom:12px;
+}
+#verdict-card.vert{border-color:var(--green);}
+#verdict-card.orange{border-color:var(--orange);}
+#verdict-card.rouge{border-color:var(--red);}
+.verdict-main{
+  display:flex;align-items:center;gap:16px;
+}
+.verdict-dot{
+  width:52px;height:52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;flex-shrink:0;
+}
+.verdict-dot.vert{background:rgba(39,174,96,0.2);box-shadow:0 0 20px rgba(39,174,96,0.3);}
+.verdict-dot.orange{background:rgba(230,126,34,0.2);box-shadow:0 0 20px rgba(230,126,34,0.3);}
+.verdict-dot.rouge{background:rgba(231,76,60,0.2);box-shadow:0 0 20px rgba(231,76,60,0.3);}
+.verdict-text{}
+.verdict-status{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:16px;
+}
+.verdict-status.vert{color:var(--green-light);}
+.verdict-status.orange{color:var(--orange);}
+.verdict-status.rouge{color:var(--red);}
+.verdict-reason{font-size:12px;color:var(--gray-light);margin-top:3px;}
+.verdict-score{
+  margin-left:auto;text-align:center;flex-shrink:0;
+}
+.score-num{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:28px;color:var(--blue-light);
+}
+.score-label{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;}
+.verdict-details{
+  margin-top:12px;padding-top:12px;
+  border-top:1px solid var(--border);
+  display:flex;flex-wrap:wrap;gap:6px;
+}
+.verdict-chip{
+  padding:3px 10px;border-radius:20px;
+  font-size:11px;font-weight:500;
+}
+.chip-ok{background:rgba(39,174,96,0.15);color:var(--green-light);border:1px solid rgba(39,174,96,0.3);}
+.chip-warn{background:rgba(230,126,34,0.15);color:var(--orange);border:1px solid rgba(230,126,34,0.3);}
+.chip-danger{background:rgba(231,76,60,0.15);color:var(--red);border:1px solid rgba(231,76,60,0.3);}
+
+/* ─── GRID METRICS ─── */
+.metrics-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.metric{
+  background:#071628;
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:12px;
+  cursor:pointer;
+  transition:border-color 0.2s;
+  position:relative;
+}
+.metric:hover{border-color:var(--blue);}
+.metric-label{
+  font-size:10px;color:var(--gray);
+  text-transform:uppercase;letter-spacing:1px;
+  margin-bottom:4px;
+  display:flex;align-items:center;gap:4px;
+}
+.metric-label .info-icon{
+  width:14px;height:14px;
+  background:var(--border);border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:8px;color:var(--gray-light);
+  cursor:pointer;flex-shrink:0;
+  transition:background 0.15s;
+}
+.metric:hover .info-icon{background:var(--blue);}
+.metric-value{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:20px;color:var(--offwhite);
+}
+.metric-sub{font-size:11px;color:var(--gray-light);margin-top:2px;}
+.metric-badge{
+  display:inline-block;
+  padding:2px 8px;border-radius:20px;
+  font-size:10px;font-weight:600;
+  margin-top:4px;
+}
+.badge-ok{background:rgba(39,174,96,0.2);color:var(--green-light);}
+.badge-warn{background:rgba(230,126,34,0.2);color:var(--orange);}
+.badge-danger{background:rgba(231,76,60,0.2);color:var(--red);}
+.badge-info{background:rgba(26,143,209,0.2);color:var(--blue-light);}
+
+/* Wind arrow */
+.wind-arrow{
+  display:inline-block;
+  font-size:20px;
+  transition:transform 0.5s ease;
+}
+
+/* ─── DRONE BLOCK ─── */
+.drone-block{
+  background:linear-gradient(135deg,rgba(26,143,209,0.08),rgba(26,188,156,0.05));
+  border:1px solid rgba(26,143,209,0.3);
+  border-radius:var(--radius);
+  padding:14px;
+  margin-bottom:12px;
+}
+.drone-title{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:12px;
+  color:var(--blue-light);letter-spacing:1px;margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;
+}
+.drone-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:6px;
+}
+.drone-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:6px 0;
+  border-bottom:1px solid var(--border);
+  font-size:12px;
+  grid-column:span 2;
+}
+.drone-row:last-child{border-bottom:none;}
+.drone-key{color:var(--gray);}
+.drone-val{font-weight:500;font-family:'DM Mono',monospace;font-size:11px;}
+.drone-tip{
+  margin-top:10px;padding:8px 10px;
+  background:rgba(241,196,15,0.08);
+  border-left:3px solid var(--yellow);
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+  font-size:11px;color:var(--yellow);
+  line-height:1.5;
+}
+
+/* ─── SOLEIL ─── */
+.sun-row{
+  display:flex;justify-content:space-between;
+  padding:6px 0;
+  border-bottom:1px solid var(--border);
+  font-size:12px;
+}
+.sun-row:last-child{border-bottom:none;}
+.sun-key{color:var(--gray);}
+.sun-val{font-weight:500;font-family:'DM Mono',monospace;font-size:12px;color:var(--yellow);}
+.sun-val.legal{color:var(--orange);}
+.sun-val.golden{color:#f39c12;}
+
+/* ─── METAR ─── */
+.metar-raw{
+  background:#050e1a;border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:10px 12px;
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--blue-light);line-height:1.6;
+  word-break:break-all;margin-bottom:10px;
+}
+.metar-decoded{}
+.metar-line{
+  display:flex;align-items:flex-start;gap:8px;
+  padding:5px 0;border-bottom:1px solid var(--border);
+  font-size:12px;
+}
+.metar-line:last-child{border-bottom:none;}
+.metar-key{
+  color:var(--gray);font-size:10px;
+  text-transform:uppercase;letter-spacing:0.5px;
+  min-width:80px;flex-shrink:0;
+}
+.metar-val{color:var(--offwhite);}
+
+/* ─── ZONES PANEL ─── */
+.zones-panel{
+  background:rgba(7,22,40,0.8);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:14px;
+  margin-bottom:12px;
+}
+.zone-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:8px 0;
+  border-bottom:1px solid var(--border);
+  font-size:12px;
+}
+.zone-item:last-child{border-bottom:none;}
+.zone-dot{
+  width:10px;height:10px;border-radius:50%;
+  flex-shrink:0;margin-top:3px;
+}
+.zone-dot.rouge{background:var(--red);}
+.zone-dot.orange{background:var(--orange);}
+.zone-dot.jaune{background:var(--yellow);}
+.zone-dot.bleu{background:var(--blue);}
+.zone-info{}
+.zone-name{font-weight:500;color:var(--offwhite);}
+.zone-dist{color:var(--gray);font-size:11px;}
+.zone-notes{color:var(--gray-light);font-size:11px;margin-top:2px;font-style:italic;}
+.navdrone-btn{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 16px;
+  background:rgba(26,143,209,0.1);
+  border:1px solid rgba(26,143,209,0.3);
+  border-radius:var(--radius-sm);
+  color:var(--blue-light);
+  font-size:12px;font-weight:500;
+  cursor:pointer;text-decoration:none;
+  margin-top:10px;
+  transition:background 0.2s;
+}
+.navdrone-btn:hover{background:rgba(26,143,209,0.2);}
+
+/* ─── GRAPHIQUE 24H ─── */
+.chart-container{
+  position:relative;height:160px;
+  margin-top:8px;
+}
+
+/* ─── ONGLET 2 — 7 jours ─── */
+.days-grid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+  margin-bottom:14px;
+}
+@media(max-width:900px){
+  .days-grid{grid-template-columns:repeat(4,1fr);}
+}
+.day-card{
+  background:var(--navy-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:10px 6px;
+  text-align:center;
+  cursor:pointer;
+  transition:border-color 0.2s,transform 0.1s;
+}
+.day-card:hover{border-color:var(--blue);transform:translateY(-1px);}
+.day-card.selected{border-color:var(--blue-light);background:#0f2a4a;}
+.day-card.vert{border-top:3px solid var(--green);}
+.day-card.orange{border-top:3px solid var(--orange);}
+.day-card.rouge{border-top:3px solid var(--red);}
+.day-name{font-size:10px;color:var(--gray);font-weight:600;letter-spacing:0.5px;}
+.day-date{font-size:9px;color:var(--gray);margin-bottom:4px;}
+.day-icon{font-size:20px;margin:4px 0;}
+.day-temp{font-size:11px;font-weight:600;color:var(--offwhite);}
+.day-wind{font-size:10px;color:var(--gray-light);margin-top:2px;}
+.day-score{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:14px;margin-top:4px;
+}
+.day-score.vert{color:var(--green-light);}
+.day-score.orange{color:var(--orange);}
+.day-score.rouge{color:var(--red);}
+.day-window{
+  font-size:9px;color:var(--teal);
+  margin-top:3px;line-height:1.3;
+}
+
+/* Heatmap vent */
+.heatmap{
+  display:grid;
+  grid-template-columns:60px repeat(8,1fr);
+  gap:2px;
+  font-size:10px;
+  margin-top:8px;
+}
+.hm-label{
+  color:var(--gray);
+  display:flex;align-items:center;
+  font-size:9px;
+  padding-left:2px;
+}
+.hm-time{
+  color:var(--gray);text-align:center;
+  font-family:'DM Mono',monospace;font-size:9px;
+  padding:2px 0;
+}
+.hm-cell{
+  height:24px;border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:500;color:rgba(255,255,255,0.8);
+  cursor:default;
+}
+
+/* ─── ONGLET 3 — 15 jours ─── */
+.days-list{}
+.list-header{
+  display:grid;
+  grid-template-columns:80px 1fr 80px 70px 60px 50px 80px;
+  gap:6px;padding:6px 10px;
+  font-size:10px;color:var(--gray);
+  text-transform:uppercase;letter-spacing:0.5px;
+  border-bottom:1px solid var(--border);
+}
+.list-row{
+  display:grid;
+  grid-template-columns:80px 1fr 80px 70px 60px 50px 80px;
+  gap:6px;padding:8px 10px;
+  font-size:12px;
+  border-bottom:1px solid var(--border);
+  align-items:center;
+  transition:background 0.15s;
+  cursor:pointer;
+}
+.list-row:hover{background:rgba(26,143,209,0.05);}
+.list-row.low-confidence{opacity:0.55;}
+.list-row.favorable{background:rgba(39,174,96,0.05);}
+.confidence-badge{
+  font-size:9px;padding:2px 6px;border-radius:10px;
+  background:rgba(230,126,34,0.15);color:var(--orange);
+}
+.window-favorable{
+  background:rgba(39,174,96,0.1);
+  border:1px solid rgba(39,174,96,0.3);
+  border-radius:var(--radius-sm);
+  padding:8px 12px;
+  margin-bottom:8px;
+  font-size:12px;
+}
+.window-favorable-title{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:11px;color:var(--green-light);
+  letter-spacing:0.5px;margin-bottom:4px;
+}
+
+/* ─── RÉSUMÉ HEBDO ─── */
+.weekly-summary{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  margin-bottom:14px;
+}
+.week-block{
+  background:var(--navy-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:12px;
+}
+.week-title{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.week-stat{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:22px;color:var(--blue-light);
+}
+.week-sub{font-size:11px;color:var(--gray-light);margin-top:2px;}
+
+/* ─── INFO POPUP ─── */
+#info-popup{
+  position:fixed;
+  background:var(--navy-card);
+  border:1px solid var(--border-light);
+  border-radius:var(--radius);
+  padding:20px;
+  width:320px;
+  z-index:1000;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);
+  display:none;
+  max-height:80vh;overflow-y:auto;
+}
+#info-popup.show{display:block;}
+.popup-title{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:14px;color:var(--blue-light);
+  margin-bottom:4px;
+}
+.popup-subtitle{font-size:11px;color:var(--gray);margin-bottom:14px;}
+.popup-section{margin-bottom:12px;}
+.popup-section-title{
+  font-size:10px;color:var(--teal);
+  text-transform:uppercase;letter-spacing:1px;
+  margin-bottom:5px;font-weight:600;
+}
+.popup-text{font-size:12px;color:var(--gray-light);line-height:1.6;}
+.popup-seuils{
+  display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;
+}
+.popup-close{
+  position:absolute;top:12px;right:12px;
+  background:none;border:none;color:var(--gray);
+  font-size:18px;cursor:pointer;
+  padding:2px 6px;border-radius:4px;
+}
+.popup-close:hover{color:var(--offwhite);background:var(--border);}
+.popup-error{
+  font-size:11px;color:var(--orange);
+  background:rgba(230,126,34,0.1);
+  border-left:3px solid var(--orange);
+  padding:6px 10px;border-radius:0 4px 4px 0;
+  margin-top:8px;
+}
+
+/* ─── NOTIF ─── */
+#notif{
+  position:fixed;bottom:20px;right:20px;
+  padding:12px 20px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:500;
+  z-index:9000;
+  transform:translateY(60px);opacity:0;
+  transition:all 0.3s;
+  max-width:320px;
+}
+#notif.show{transform:translateY(0);opacity:1;}
+#notif.success{background:var(--green);color:#fff;}
+#notif.error{background:var(--red);color:#fff;}
+#notif.info{background:var(--blue);color:#fff;}
+.auth-banner{margin-bottom:24px;border-radius:12px;overflow:hidden;}
+.auth-banner svg{display:block;border-radius:12px;}
+
+/* ─── SCROLLBAR ─── */
+#tab-content::-webkit-scrollbar{width:4px;}
+#tab-content::-webkit-scrollbar-track{background:transparent;}
+#tab-content::-webkit-scrollbar-thumb{background:var(--border);}
+
+/* ─── WINDY SECTION ─── */
+.windy-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+}
+.windy-level{
+  background:#071628;border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:10px 8px;
+  text-align:center;
+}
+.windy-hpa{font-size:10px;color:var(--gray);margin-bottom:4px;}
+.windy-alt{font-size:9px;color:var(--purple);margin-bottom:6px;}
+.windy-speed{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:16px;
+}
+.windy-dir{font-size:11px;color:var(--gray-light);margin-top:2px;}
+
+/* ─── 4 MÉTHODES SELECTION ─── */
+.selection-methods{
+  position:absolute;bottom:10px;left:10px;right:10px;
+  z-index:10;
+  display:flex;gap:4px;
+  flex-wrap:wrap;
+}
+.method-btn{
+  padding:5px 10px;
+  background:rgba(11,31,58,0.92);
+  border:1px solid var(--border);border-radius:20px;
+  color:var(--gray-light);font-size:10px;
+  cursor:pointer;transition:all 0.15s;
+}
+.method-btn:hover{border-color:var(--teal);color:var(--teal);}
+.method-btn.active{background:var(--teal);border-color:var(--teal);color:#fff;}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-box">
+<div class="auth-banner">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 200" width="280" height="112">
+    <defs>
+      <linearGradient id="skyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#1A8FD1;stop-opacity:1"/>
+        <stop offset="100%" style="stop-color:#0D5C8A;stop-opacity:1"/>
+      </linearGradient>
+      <linearGradient id="droneGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1"/>
+        <stop offset="100%" style="stop-color:#D0EEFF;stop-opacity:1"/>
+      </linearGradient>
+      <filter id="shadow">
+        <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0D5C8A" flood-opacity="0.3"/>
+      </filter>
+    </defs>
+    <rect x="0" y="0" width="500" height="200" rx="20" ry="20" fill="url(#skyGrad)"/>
+    <rect x="60" y="88" width="80" height="24" rx="6" ry="6" fill="url(#droneGrad)" filter="url(#shadow)"/>
+    <circle cx="100" cy="100" r="7" fill="#1A8FD1" stroke="white" stroke-width="2"/>
+    <circle cx="100" cy="100" r="3" fill="white" opacity="0.8"/>
+    <line x1="68" y1="90" x2="42" y2="68" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+    <line x1="132" y1="90" x2="158" y2="68" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+    <line x1="68" y1="110" x2="42" y2="132" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+    <line x1="132" y1="110" x2="158" y2="132" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+    <circle cx="42" cy="68" r="5" fill="white" opacity="0.95"/>
+    <circle cx="158" cy="68" r="5" fill="white" opacity="0.95"/>
+    <circle cx="42" cy="132" r="5" fill="white" opacity="0.95"/>
+    <circle cx="158" cy="132" r="5" fill="white" opacity="0.95"/>
+    <ellipse cx="42" cy="68" rx="18" ry="4" fill="white" opacity="0.75" transform="rotate(-30 42 68)"/>
+    <ellipse cx="42" cy="68" rx="18" ry="4" fill="white" opacity="0.75" transform="rotate(60 42 68)"/>
+    <ellipse cx="158" cy="68" rx="18" ry="4" fill="white" opacity="0.75" transform="rotate(30 158 68)"/>
+    <ellipse cx="158" cy="68" rx="18" ry="4" fill="white" opacity="0.75" transform="rotate(-60 158 68)"/>
+    <ellipse cx="42" cy="132" rx="18" ry="4" fill="white" opacity="0.75" transform="rotate(30 42 132)"/>
+    <ellipse cx="42" cy="132" rx="18" ry="4" fill="white" opacity="0.75" transform="rotate(-60 42 132)"/>
+    <ellipse cx="158" cy="132" rx="18" ry="4" fill="white" opacity="0.75" transform="rotate(-30 158 132)"/>
+    <ellipse cx="158" cy="132" rx="18" ry="4" fill="white" opacity="0.75" transform="rotate(60 158 132)"/>
+    <line x1="82" y1="112" x2="78" y2="126" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    <line x1="118" y1="112" x2="122" y2="126" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    <line x1="74" y1="126" x2="126" y2="126" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    <text x="195" y="115" font-family="Arial" font-size="58" font-weight="700" fill="white" letter-spacing="-1">Captur</text>
+    <text x="366" y="115" font-family="Arial" font-size="58" font-weight="300" fill="#D0EEFF" letter-spacing="-1">Air</text>
+    <text x="195" y="138" font-family="Arial" font-size="11" font-weight="400" fill="white" opacity="0.7" letter-spacing="2">PHOTOGRAPHIE AÉRIENNE · DRONE</text>
+  </svg>
+</div>
+<div class="auth-sub" style="margin-top:16px">MÉTÉO AVIATION · BRIEFING PRÉ-VOL</div>
+    <div id="auth-pin-step">
+      <div class="auth-label">Code PIN</div>
+      <input type="password" id="pin-input" class="auth-input" maxlength="4" placeholder="••••" autocomplete="off">
+      <button class="auth-btn" onclick="verifierPIN()">CONTINUER</button>
+      <div class="auth-error" id="pin-error"></div>
+    </div>
+    <div id="auth-otp-step" style="display:none">
+      <div class="auth-label">Code OTP envoyé par email</div>
+      <input type="text" id="otp-input" class="auth-input" maxlength="6" placeholder="000000" autocomplete="off">
+      <button class="auth-btn" onclick="verifierOTP()">ACCÉDER</button>
+      <div class="auth-error" id="otp-error"></div>
+      <div class="auth-info">Code envoyé à mohand.aidi@mohand.ca</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div id="topbar" style="display:none">
+  <div class="logo">CAPTUR<span>AIR</span> <span style="color:var(--gray);font-size:11px;font-weight:400;letter-spacing:1px;">MÉTÉO</span></div>
+  <input type="text" id="search-bar" placeholder="🔍 Adresse, ville, lieu...">
+  <input type="text" id="coords-input" placeholder="45.5931, -73.1234">
+  <button id="btn-coords" onclick="goToCoords()">→ GO</button>
+  <div class="tz-badge" id="tz-display">— Fuseau —</div>
+  <button id="btn-logout" onclick="deconnexion()">⏻ Déconnexion</button>
+</div>
+
+<!-- MAIN -->
+<div id="main" style="display:none">
+  <!-- CARTE -->
+  <div id="map-panel">
+    <div id="map"></div>
+    <div id="map-controls">
+      <button class="map-btn active" onclick="setMapType('roadmap')">🗺 Carte</button>
+      <button class="map-btn" onclick="setMapType('satellite')">🛰 Satellite</button>
+      <button class="map-btn" onclick="setMapType('hybrid')">🔀 Hybride</button>
+      <button class="map-btn" onclick="setMapType('terrain')">⛰ Terrain</button>
+      <button class="map-btn" id="btn-traffic" onclick="toggleTraffic()">🚗 Trafic</button>
+      <button class="map-btn" id="btn-zones" onclick="toggleZones()">⚠️ Zones</button>
+      <button class="map-btn" id="btn-2pts" onclick="toggle2Points()">📍 2 Points</button>
+    </div>
+    <div id="zones-banner">
+      <div class="zones-banner-inner" id="zones-banner-content"></div>
+    </div>
+  </div>
+
+  <!-- DONNÉES -->
+  <div id="data-panel">
+    <div id="tabs">
+      <button class="tab active" onclick="switchTab(0)">☀️ Aujourd'hui</button>
+      <button class="tab" onclick="switchTab(1)">📅 7 Jours</button>
+      <button class="tab" onclick="switchTab(2)">📆 15 Jours</button>
+    </div>
+    <div id="tab-content">
+      <div id="empty-state">
+        <div class="empty-icon">🎯</div>
+        <p>Cliquez sur la carte, entrez une adresse ou des coordonnées GPS pour obtenir le briefing météo de votre zone de vol.</p>
+      </div>
+      <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Chargement des données météo...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INFO POPUP -->
+<div id="info-popup">
+  <button class="popup-close" onclick="fermerPopup()">✕</button>
+  <div class="popup-title" id="popup-title"></div>
+  <div class="popup-subtitle" id="popup-subtitle"></div>
+  <div id="popup-body"></div>
+</div>
+
+<!-- NOTIF -->
+<div id="notif"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CONFIGURATION
+// ═══════════════════════════════════════════════════════
+const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
+const API_AUTH = 'https://capturair-carnet.tumarchessurlatete.workers.dev';
+const GOOGLE_KEY = 'AIzaSyBa_29f6i2nUKqTPepHFLYE_pEff8VfogY';
+const OWM_KEY = 'c873fb4bcda8757557d5027d12ae153b';
+const WINDY_KEY = 'dbxPN4PoNZWASl1Kp7WQOGVemsOvuK9O';
+
+// ═══════════════════════════════════════════════════════
+// ÉTAT GLOBAL
+// ═══════════════════════════════════════════════════════
+let jwt = null;
+let map = null;
+let autocomplete = null;
+let trafficLayer = null;
+let marker1 = null, marker2 = null;
+let mode2Points = false;
+let pointActif = null; // {lat, lng}
+let pointActif2 = null;
+let zonesVisibles = true;
+let zonesCircles = [];
+let zonesPolygons = [];
+let tabActif = 0;
+let donneesMeteo = null;
+let donneesPrev7 = null;
+let donneesPrev15 = null;
+let tzOffset = 0;
+let tzId = '';
+let chartVent = null, chartPluie = null, chartTemp = null;
+let chartVent7 = null;
+let pinTentatives = 0;
+
+// ═══════════════════════════════════════════════════════
+// BASE ZONES (inline, simplifiée pour les ~30 plus proches Lavaltrie)
+// ═══════════════════════════════════════════════════════
+const ZONES = {
+  aeroports:[
+    {icao:"CYUL",nom:"Montréal-Trudeau Int'l",lat:45.4706,lng:-73.7408,rayon_ctr_km:16.7,rayon_alerte_km:20,classe:"C",type:"international",notes:"Autorisation Nav Canada obligatoire"},
+    {icao:"CYHU",nom:"Saint-Hubert",lat:45.5175,lng:-73.4169,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"D",type:"regional",notes:"Zone CTR active — Contacter tour avant vol"},
+    {icao:"CYMX",nom:"Mirabel Int'l",lat:45.6795,lng:-74.0387,rayon_ctr_km:16.7,rayon_alerte_km:20,classe:"C",type:"international",notes:"Trafic cargo intense"},
+    {icao:"CYMB",nom:"Mascouche",lat:45.7483,lng:-73.7997,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"E",type:"regional",notes:"Aérodrome actif"},
+    {icao:"CYRQ",nom:"Trois-Rivières",lat:46.3528,lng:-72.6794,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"E",type:"regional",notes:"Aéroport régional Mauricie"},
+    {icao:"CYJN",nom:"Saint-Jean-sur-Richelieu",lat:45.2944,lng:-73.2811,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"D",type:"militaire_civil",notes:"Base militaire + civil — Restrictions renforcées"},
+    {icao:"CYQB",nom:"Québec Jean-Lesage",lat:46.7911,lng:-71.3933,rayon_ctr_km:16.7,rayon_alerte_km:20,classe:"C",type:"international",notes:"Aéroport international"},
+    {icao:"CYMB2",nom:"Joliette (CYJL)",lat:46.0667,lng:-73.4500,rayon_ctr_km:5,rayon_alerte_km:7,classe:"E",type:"aeroport_regional",notes:"Aérodrome actif Lanaudière — Proche Lavaltrie"},
+    {icao:"CSB3",nom:"Berthierville",lat:46.0833,lng:-73.1833,rayon_ctr_km:5,rayon_alerte_km:7,classe:"E",type:"aeroport_regional",notes:"⚠️ TRÈS PROCHE Lavaltrie — Vérifier activité"},
+    {icao:"CYSH",nom:"Sherbrooke",lat:45.4386,lng:-71.6914,rayon_ctr_km:9.3,rayon_alerte_km:12,classe:"E",type:"regional",notes:"Aéroport régional Estrie"},
+    {icao:"CYOW",nom:"Ottawa Macdonald-Cartier",lat:45.3225,lng:-75.6692,rayon_ctr_km:16.7,rayon_alerte_km:20,classe:"C",type:"international",notes:"Capitale fédérale — Restrictions renforcées"},
+    {icao:"CYYZ",nom:"Toronto Pearson",lat:43.6772,lng:-79.6306,rayon_ctr_km:16.7,rayon_alerte_km:20,classe:"C",type:"international",notes:"Aéroport le plus achalandé Canada"},
+  ],
+  militaire:[
+    {nom:"BFC Saint-Jean",lat:45.3000,lng:-73.2667,rayon_km:5,rayon_alerte_km:8,type:"militaire",notes:"Base de recrutement FAC — Survol interdit"},
+    {nom:"CFB Valcartier",lat:46.9200,lng:-71.4900,rayon_km:8,rayon_alerte_km:12,type:"militaire",notes:"Base militaire active QC — Zone CYR"},
+    {nom:"BFC Bagotville",lat:48.3306,lng:-70.9964,rayon_km:16.7,rayon_alerte_km:20,type:"militaire_aeroport",notes:"Base aérienne NORAD — Zone hautement restreinte"},
+  ],
+  nucleaire:[
+    {nom:"Centrale Gentilly-2",lat:46.3897,lng:-72.3894,rayon_km:3,rayon_alerte_km:5,type:"nucleaire",notes:"En démantèlement — Zone sécurisée — Survol interdit"},
+    {nom:"Centrale Pickering (ON)",lat:43.8103,lng:-79.0708,rayon_km:3,rayon_alerte_km:5,type:"nucleaire",notes:"Centrale active — Zone d'exclusion stricte"},
+    {nom:"Centrale Darlington (ON)",lat:43.8717,lng:-78.7181,rayon_km:3,rayon_alerte_km:5,type:"nucleaire",notes:"Centrale active — Zone stricte"},
+    {nom:"LNC Chalk River",lat:46.0500,lng:-77.3667,rayon_km:3,rayon_alerte_km:5,type:"nucleaire_recherche",notes:"Laboratoire nucléaire fédéral"},
+  ],
+  prisons:[
+    {nom:"Pénitencier Donnacona",lat:46.6833,lng:-71.7333,rayon_km:1,rayon_alerte_km:2,type:"prison",notes:"Sécurité maximale — Survol interdit"},
+    {nom:"Établissement Archambault",lat:45.7667,lng:-73.8167,rayon_km:1,rayon_alerte_km:2,type:"prison",notes:"Sécurité maximale — Survol interdit"},
+    {nom:"Établissement Bordeaux",lat:45.5500,lng:-73.7167,rayon_km:1,rayon_alerte_km:2,type:"prison",notes:"Prison provinciale MTL — Survol interdit"},
+    {nom:"Établissement Leclerc",lat:45.6000,lng:-73.7500,rayon_km:1,rayon_alerte_km:2,type:"prison",notes:"Pénitencier fédéral Laval"},
+    {nom:"Établissement Joliette (femmes)",lat:46.0167,lng:-73.4500,rayon_km:1,rayon_alerte_km:2,type:"prison",notes:"Établissement fédéral — Proche Lavaltrie"},
+  ],
+  parcs:[
+    {nom:"Parc national Mont-Tremblant",lat:46.4333,lng:-74.5833,rayon_km:25,rayon_alerte_km:27,type:"parc_national",notes:"Drone interdit sans permis Parcs Canada"},
+    {nom:"Parc national Mauricie",lat:46.7500,lng:-73.0833,rayon_km:20,rayon_alerte_km:22,type:"parc_national",notes:"Drone interdit sans permis Parcs Canada"},
+    {nom:"Parc Îles-de-Boucherville",lat:45.5833,lng:-73.4500,rayon_km:3,rayon_alerte_km:5,type:"parc_provincial",notes:"Drone interdit — Proche Montréal"},
+    {nom:"Réserve biosphère Mont-Saint-Hilaire",lat:45.5500,lng:-73.1667,rayon_km:3,rayon_alerte_km:5,type:"reserve",notes:"Zone de recherche protégée"},
+  ],
+  sensibles:[
+    {nom:"Parlement du Canada",lat:45.4236,lng:-75.7009,rayon_km:2,rayon_alerte_km:4,type:"gouvernemental",notes:"Zone sécurité maximale — GRC — Survol interdit"},
+    {nom:"Assemblée nationale Québec",lat:46.8074,lng:-71.2148,rayon_km:1,rayon_alerte_km:2,type:"gouvernemental",notes:"Bâtiment gouvernemental — Zone sensible"},
+    {nom:"Mont-Royal (antennes)",lat:45.5000,lng:-73.5875,rayon_km:0.5,rayon_alerte_km:1,type:"telecom",notes:"Forêt d'antennes — Interférences GPS importantes"},
+    {nom:"Raffinerie Valero Montréal-Est",lat:45.6167,lng:-73.5000,rayon_km:1,rayon_alerte_km:2,type:"industriel",notes:"Industrie pétrolière — Risque explosion"},
+    {nom:"Port de Montréal",lat:45.5167,lng:-73.5500,rayon_km:2,rayon_alerte_km:3,type:"infrastructure",notes:"Port commercial — Zone de sécurité"},
+    {nom:"Centrale Beauharnois",lat:45.3167,lng:-73.8667,rayon_km:1,rayon_alerte_km:2,type:"energie",notes:"Infrastructure Hydro-Québec — Restrictions survol"},
+    {nom:"Héliport CHUM",lat:45.5119,lng:-73.5541,rayon_km:1.5,rayon_alerte_km:3,type:"heliport",notes:"Héliport hospitalier — Centre-ville MTL"},
+    {nom:"Héliport Cité-de-la-Santé Laval",lat:45.5667,lng:-73.7500,rayon_km:1.5,rayon_alerte_km:3,type:"heliport",notes:"Héliport Laval"},
+    {nom:"Héliport Repentigny",lat:45.7500,lng:-73.4667,rayon_km:1,rayon_alerte_km:2,type:"heliport",notes:"Héliport hospitalier Repentigny"},
+    {nom:"Héliport Joliette",lat:46.0167,lng:-73.4333,rayon_km:1,rayon_alerte_km:2,type:"heliport",notes:"Héliport CHRDL Joliette — Proche Lavaltrie"},
+  ]
+};
+
+// ═══════════════════════════════════════════════════════
+// FICHES INDICATEURS
+// ═══════════════════════════════════════════════════════
+const FICHES = {
+  vent_10m:{
+    titre:"Vent au sol (10m)",
+    subtitle:"Source: Open-Meteo / OWM · Mise à jour: 1h",
+    cest_quoi:"Le vent mesuré à 10 mètres du sol. C'est la référence standard météorologique, mesurée sur une moyenne de 10 minutes.",
+    pour_ton_vol:"C'est le vent que ton Air 3S ressent au décollage et à l'atterrissage. Au-dessus de 20 km/h les corrections sont constantes et la batterie se vide plus vite.",
+    exemple:"Vent 22 km/h = vol normal mais surveiller. Vent 36 km/h = Air 3S en limite, risque dérive sur shot statique.",
+    erreur:"Confondre vent moyen et rafales. Le vent moyen à 18 km/h peut avoir des rafales à 35 km/h — toujours vérifier les deux.",
+    seuils:{vert:"< 20 km/h",orange:"20-35 km/h",rouge:"> 35 km/h"}
+  },
+  rafales:{
+    titre:"Rafales",
+    subtitle:"Source: Open-Meteo windgusts_10m · Mise à jour: 1h",
+    cest_quoi:"Une rafale est une augmentation soudaine de 2-3 secondes de la vitesse du vent. Peut dépasser le vent moyen de 50 à 100% en après-midi d'été.",
+    pour_ton_vol:"C'est le chiffre LE PLUS CRITIQUE pour ton Air 3S. Une rafale à 44 km/h peut déclencher le mode failsafe même si le vent moyen est raisonnable.",
+    exemple:"Vent moyen 22 km/h avec rafales 47 km/h à Lavaltrie un après-midi d'été = ORANGE. Même endroit le matin : vent 18, rafales 24 = VERT.",
+    erreur:"Voler parce que le vent moyen est faible sans vérifier les rafales. Les rafales d'après-midi peuvent être le double du vent moyen.",
+    seuils:{vert:"< 25 km/h",orange:"25-38 km/h",rouge:"> 38 km/h"}
+  },
+  vent_80m:{
+    titre:"Vent à 80m AGL",
+    subtitle:"Source: Open-Meteo windspeed_80m · Mise à jour: 1h",
+    cest_quoi:"Le vent à 80 mètres au-dessus du sol. C'est l'altitude de croisière typique d'un drone commercial.",
+    pour_ton_vol:"Le vent augmente souvent avec l'altitude. Tu peux avoir 15 km/h au sol et 30 km/h à 80m. Essentiel pour les vols de cartographie ou inspection.",
+    exemple:"Sol calme 12 km/h mais 80m = 28 km/h — la caméra bouge, les stabilisations tournent à fond, autonomie réduite.",
+    erreur:"Présumer que le vent au sol représente les conditions à altitude de vol.",
+    seuils:{vert:"< 20 km/h",orange:"20-30 km/h",rouge:"> 30 km/h"}
+  },
+  vent_120m:{
+    titre:"Vent à 120m AGL",
+    subtitle:"Source: Open-Meteo windspeed_120m · Mise à jour: 1h",
+    cest_quoi:"Le vent à 120 mètres, soit la limite réglementaire maximale de vol drone au Canada sans dérogation.",
+    pour_ton_vol:"Si tu dois voler à la limite légale (120m), ce chiffre est ta référence absolue. Au-dessus de 35 km/h à cette altitude, le vol est dangereux.",
+    exemple:"Mission de cartographie à 100m d'altitude — le vent à 120m est un indicateur plus représentatif que le vent sol.",
+    erreur:"Oublier que la limite légale canadienne est 120m AGL, pas 120m ASL (au-dessus du niveau de la mer).",
+    seuils:{vert:"< 25 km/h",orange:"25-35 km/h",rouge:"> 35 km/h"}
+  },
+  cisaillement:{
+    titre:"Cisaillement du vent",
+    subtitle:"Source: Calculé (80m - 10m) · Open-Meteo",
+    cest_quoi:"La différence de vitesse entre le vent à 10m et à 80m. Un cisaillement élevé crée de la turbulence en montée et descente.",
+    pour_ton_vol:"Quand tu montes de 10m à 80m, ton Air 3S traverse une zone où le vent change brusquement. Ça crée des instabilités difficiles à prévoir.",
+    exemple:"Vent 10m = 8 km/h, vent 80m = 32 km/h → cisaillement 24 km/h = ORANGE. Les shots de montée verticale seront instables.",
+    erreur:"Ignorer le cisaillement parce que le vent sol est calme. Un calme au sol peut cacher une couche ventée au-dessus.",
+    seuils:{vert:"< 10 km/h",orange:"10-20 km/h",rouge:"> 20 km/h"}
+  },
+  visibilite:{
+    titre:"Visibilité",
+    subtitle:"Source: Open-Meteo / OWM · Mise à jour: 1h",
+    cest_quoi:"La distance maximale à laquelle un objet peut être distingué à l'œil nu. Affectée par brume, brouillard, précipitations, fumée.",
+    pour_ton_vol:"Au Canada, la règle VLOS (Visual Line of Sight) exige de maintenir ton drone en vue directe et non obstruée à tout moment. Pratiquement, en dessous de 3 km de visibilité, les conditions se dégradent rapidement.",
+    exemple:"Visibilité 800m = brouillard matinal dense. Ton drone disparaît visuellement à 50m. Vol VLOS impossible légalement.",
+    erreur:"Confondre portée radio du contrôleur (10+ km) avec visibilité réglementaire. La loi dit VUE, pas signal.",
+    seuils:{vert:"> 8 km",orange:"3-8 km",rouge:"< 3 km"}
+  },
+  plafond:{
+    titre:"Plafond nuageux estimé",
+    subtitle:"Source: Open-Meteo cloudcover_low · Calculé",
+    cest_quoi:"La hauteur estimée de la base des nuages les plus bas. Calculé à partir de la couverture nuageuse basse et de l'humidité.",
+    pour_ton_vol:"Au Canada, tu dois maintenir 500 pieds (152m) sous la base des nuages. Avec un plafond à 800ft, tu peux voler mais la marge est mince. Nos seuils sont volontairement plus conservateurs.",
+    exemple:"Plafond estimé 600ft = tu as 100ft de marge légale. Un banc de brouillard peut réduire ça à zéro en minutes.",
+    erreur:"La valeur est ESTIMÉE — les modèles météo ne donnent pas directement le plafond. Toujours observer visuellement sur le terrain.",
+    seuils:{vert:"> 1500 ft",orange:"800-1500 ft",rouge:"< 800 ft"}
+  },
+  cape:{
+    titre:"CAPE — Énergie convective",
+    subtitle:"Source: Open-Meteo cape · Mise à jour: 1h",
+    cest_quoi:"Convective Available Potential Energy. L'énergie disponible dans l'atmosphère pour former des orages. Plus le chiffre est élevé, plus l'atmosphère est instable.",
+    pour_ton_vol:"Un CAPE élevé même sous ciel bleu signifie que des orages peuvent se former en moins de 30 minutes. Tu voles, le ciel semble bon, mais la machine météo sait ce qui arrive.",
+    exemple:"CAPE 600 J/kg un mardi de juillet à Lavaltrie à 10h = les cumulus exploseront en cumulonimbus entre 13h-15h. Voler le matin ou annuler l'après-midi.",
+    erreur:"Regarder seulement le ciel au moment du vol. Le CAPE prédit les prochaines heures, pas l'état actuel.",
+    seuils:{vert:"< 250 J/kg",orange:"250-750 J/kg",rouge:"> 750 J/kg"}
+  },
+  qnh:{
+    titre:"Pression QNH",
+    subtitle:"Source: OWM · Mise à jour: 1h",
+    cest_quoi:"La pression atmosphérique ajustée au niveau de la mer. QNH est le réglage altimétrique standard de l'aviation.",
+    pour_ton_vol:"Affecte indirectement les performances de ton drone via la densité de l'air. Une pression basse = air moins dense = portance réduite. En vol normal au Québec l'impact est mineur mais notable à haute altitude.",
+    exemple:"QNH 1013 hPa = standard. QNH 990 hPa (tempête) = air ~2% moins dense = légère réduction de performances.",
+    erreur:"Confondre QNH (niveau de la mer) et QFE (niveau du terrain). Pour les drones, QNH est la référence standard.",
+    seuils:{vert:"995-1025 hPa",orange:"980-995 ou 1025-1040 hPa",rouge:"< 980 hPa (tempête)"}
+  },
+  uv:{
+    titre:"Index UV",
+    subtitle:"Source: Open-Meteo uv_index · Mise à jour: 1h",
+    cest_quoi:"L'intensité du rayonnement ultraviolet solaire. Échelle de 0 (nuit) à 11+ (extrême).",
+    pour_ton_vol:"Impact direct sur ta caméra : UV > 6 crée un voile atmosphérique subtil qui réduit le contraste. Pour les shots avec soleil de face, un UV élevé amplifie l'éblouissement. Protection personnelle aussi.",
+    exemple:"UV 9 un midi de juillet = prévoir filtre ND renforcé, éviter les angles contre-jour, protéger l'écran de contrôle.",
+    erreur:"Ignorer l'UV pour la qualité d'image. Un UV 10 avec soleil de face = objectif ébloui même avec filtre.",
+    seuils:{vert:"0-5",orange:"6-8",rouge:"> 8"}
+  },
+  kp:{
+    titre:"Index Kp — Activité géomagnétique",
+    subtitle:"Source: NOAA SWPC · Mise à jour: 1min",
+    cest_quoi:"Mesure de l'activité géomagnétique causée par les éruptions solaires. Échelle 0-9. Un Kp élevé perturbe le champ magnétique terrestre.",
+    pour_ton_vol:"Un Kp > 4 peut dégrader la précision GPS de plusieurs mètres et perturber la boussole du drone. Critique pour les vols de cartographie précise où tu as besoin d'une précision centimétrique.",
+    exemple:"Kp 6 (tempête géomagnétique) = GPS imprécis de 3-10m, boussole déstabilisée. Recalibrer avant vol et éviter les vols de mapping.",
+    erreur:"Croire que le GPS est toujours précis. L'activité solaire est invisible mais ses effets sur la navigation sont réels.",
+    seuils:{vert:"0-1",orange:"2-4",rouge:"> 4"}
+  },
+  rosee:{
+    titre:"Point de rosée & Humidité",
+    subtitle:"Source: OWM · Calculé",
+    cest_quoi:"Le point de rosée est la température à laquelle l'air doit refroidir pour que la vapeur d'eau se condense. L'écart temp/rosée prédit la condensation.",
+    pour_ton_vol:"Si l'écart entre température et point de rosée est < 3°C, le risque de condensation sur l'objectif est élevé. En dessous de 0°C avec humidité > 70%, risque de givrage des hélices.",
+    exemple:"Matin de septembre : temp 8°C, rosée 6°C → écart 2°C → risque condensation élevé. Laisser le drone s'acclimater 10 min à l'extérieur.",
+    erreur:"Sortir le drone directement d'une voiture chaude dans l'air froid humide. La condensation se forme en secondes sur l'objectif.",
+    seuils:{vert:"Écart > 5°C",orange:"Écart 3-5°C",rouge:"Écart < 3°C"}
+  },
+  alt_densite:{
+    titre:"Altitude de densité",
+    subtitle:"Source: Calculé (temp + pression + humidité)",
+    cest_quoi:"L'altitude équivalente en termes de densité de l'air. Par temps chaud et humide, l'air est moins dense — le drone 'croit' voler plus haut qu'il ne l'est réellement.",
+    pour_ton_vol:"Ton Air 3S performe selon la densité de l'air, pas l'altitude réelle. En été chaud à Lavaltrie (35°C, 80% humidité), l'altitude de densité peut atteindre 1200m même à 30m du sol.",
+    exemple:"Été : 33°C, humidité 75%, pression 1008 hPa → altitude densité ~900m → réduction portance ~6% → surveiller la chaleur moteurs.",
+    erreur:"Croire que les performances sont toujours nominales car l'altitude réelle est faible. L'été québécois est traître.",
+    seuils:{vert:"< 800m",orange:"800-1500m",rouge:"> 1500m"}
+  },
+  autonomie:{
+    titre:"Autonomie estimée — Air 3S",
+    subtitle:"Source: Calculé selon température · DJI specs",
+    cest_quoi:"L'autonomie de vol estimée de ton DJI Air 3S basée sur la température actuelle et son effet sur les batteries LiPo Intelligent Flight.",
+    pour_ton_vol:"Les batteries LiPo perdent de la capacité chimique dans le froid. En dessous de 5°C, préchauffer OBLIGATOIREMENT 10 min à l'intérieur. En dessous de -10°C, le vol est dangereux.",
+    exemple:"Temp -5°C : autonomie ~25 min au lieu de 45 min. Si tu planifies 3 batteries pour 2h de tournage, tu n'en as plus que 1h15.",
+    erreur:"Partir avec l'autonomie nominale de 45 min sans tenir compte de la température. En hiver, toujours prendre une batterie de plus.",
+    seuils:{vert:"~45 min (> 20°C)",orange:"~30-40 min (0-20°C)",rouge:"< 25 min (< 0°C)"}
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════
+const PIN_CORRECT = '1977';
+
+async function verifierPIN() {
+  const pin = document.getElementById('pin-input').value;
+  if(pinTentatives >= 3){
+    document.getElementById('pin-error').textContent = 'Trop de tentatives. Réessayez dans 30 min.';
+    return;
+  }
+  if(pin !== PIN_CORRECT){
+    pinTentatives++;
+    document.getElementById('pin-error').textContent = `PIN incorrect (${pinTentatives}/3)`;
+    document.getElementById('pin-input').value='';
+    return;
+  }
+  // Envoyer OTP
+  try {
+    const r = await fetch(`${API_AUTH}/api/carnet/auth/init`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({pin})
+    });
+    const d = await r.json();
+    if(d.success || r.ok){
+      document.getElementById('auth-pin-step').style.display='none';
+      document.getElementById('auth-otp-step').style.display='block';
+    } else {
+      document.getElementById('pin-error').textContent = d.error || 'Erreur serveur';
+    }
+  } catch(e) {
+    // Mode offline / dev : passer directement
+    document.getElementById('auth-pin-step').style.display='none';
+    document.getElementById('auth-otp-step').style.display='block';
+  }
+}
+
+async function verifierOTP() {
+  const otp = document.getElementById('otp-input').value;
+  try {
+    const r = await fetch(`${API_AUTH}/api/carnet/auth/otp`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({otp})
+    });
+    const d = await r.json();
+    if(d.token){
+      jwt = d.token;
+      sessionStorage.setItem('capturair_jwt_meteo', jwt);
+      lancerPortail();
+    } else {
+      document.getElementById('otp-error').textContent = d.error || 'OTP invalide';
+    }
+  } catch(e) {
+    document.getElementById('otp-error').textContent = 'Erreur de connexion';
+  }
+}
+
+function deconnexion() {
+  sessionStorage.removeItem('capturair_jwt_meteo');
+  location.reload();
+}
+
+// Entrées clavier
+document.getElementById('pin-input').addEventListener('keydown', e => { if(e.key==='Enter') verifierPIN(); });
+document.getElementById('otp-input').addEventListener('keydown', e => { if(e.key==='Enter') verifierOTP(); });
+
+// Vérifier JWT existant
+const jwtExist = sessionStorage.getItem('capturair_jwt_meteo');
+if(jwtExist){ jwt = jwtExist; lancerPortail(); }
+
+// ═══════════════════════════════════════════════════════
+// LANCEMENT PORTAIL
+// ═══════════════════════════════════════════════════════
+function lancerPortail() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('topbar').style.display = 'flex';
+  document.getElementById('main').style.display = 'flex';
+}
+
+// ═══════════════════════════════════════════════════════
+// GOOGLE MAPS
+// ═══════════════════════════════════════════════════════
+function initMap() {
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: {lat: 45.8931, lng: -73.1284}, // Lavaltrie
+    zoom: 10,
+    mapTypeId: 'roadmap',
+    disableDefaultUI: true,
+    zoomControl: true,
+    styles: [
+      {elementType:'geometry',stylers:[{color:'#0a1929'}]},
+      {elementType:'labels.text.fill',stylers:[{color:'#6B7C93'}]},
+      {elementType:'labels.text.stroke',stylers:[{color:'#071628'}]},
+      {featureType:'road',elementType:'geometry',stylers:[{color:'#1A3050'}]},
+      {featureType:'road',elementType:'labels.text.fill',stylers:[{color:'#8899AA'}]},
+      {featureType:'water',elementType:'geometry',stylers:[{color:'#071628'}]},
+      {featureType:'water',elementType:'labels.text.fill',stylers:[{color:'#3AABEF'}]},
+      {featureType:'poi',stylers:[{visibility:'off'}]},
+      {featureType:'transit',stylers:[{visibility:'off'}]},
+    ]
+  });
+
+  trafficLayer = new google.maps.TrafficLayer();
+
+  // Autocomplete
+  autocomplete = new google.maps.places.Autocomplete(
+    document.getElementById('search-bar'),
+    {componentRestrictions:{country:'ca'}, fields:['geometry','name']}
+  );
+  autocomplete.addListener('place_changed', () => {
+    const place = autocomplete.getPlace();
+    if(!place.geometry) return;
+    const lat = place.geometry.location.lat();
+    const lng = place.geometry.location.lng();
+    placerPoint(lat, lng);
+    map.panTo({lat, lng});
+    map.setZoom(13);
+  });
+
+  // Clic carte
+  map.addListener('click', e => {
+    placerPoint(e.latLng.lat(), e.latLng.lng());
+  });
+
+  // Dessiner les zones
+  dessinerZones();
+}
+
+function placerPoint(lat, lng) {
+  if(mode2Points && pointActif){
+    // Poser le 2e point
+    if(marker2) marker2.setMap(null);
+    marker2 = new google.maps.Marker({
+      position:{lat,lng}, map,
+      icon:{path:google.maps.SymbolPath.CIRCLE,scale:10,fillColor:'#1ABC9C',fillOpacity:1,strokeColor:'#fff',strokeWeight:2},
+      title:'Atterrissage'
+    });
+    pointActif2 = {lat,lng};
+    chargerMeteo(lat, lng);
+  } else {
+    if(marker1) marker1.setMap(null);
+    marker1 = new google.maps.Marker({
+      position:{lat,lng}, map,
+      icon:{path:google.maps.SymbolPath.CIRCLE,scale:12,fillColor:'#1A8FD1',fillOpacity:1,strokeColor:'#fff',strokeWeight:2},
+      title:'Décollage'
+    });
+    pointActif = {lat,lng};
+    chargerMeteo(lat, lng);
+  }
+  verifierZones(lat, lng);
+}
+
+function setMapType(type) {
+  map.setMapTypeId(type);
+  document.querySelectorAll('#map-controls .map-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function toggleTraffic() {
+  const btn = document.getElementById('btn-traffic');
+  if(btn.classList.contains('active')){
+    trafficLayer.setMap(null);
+    btn.classList.remove('active');
+  } else {
+    trafficLayer.setMap(map);
+    btn.classList.add('active');
+  }
+}
+
+function toggleZones() {
+  zonesVisibles = !zonesVisibles;
+  const btn = document.getElementById('btn-zones');
+  zonesCircles.forEach(c => c.setMap(zonesVisibles ? map : null));
+  btn.classList.toggle('active', zonesVisibles);
+}
+
+function toggle2Points() {
+  mode2Points = !mode2Points;
+  document.getElementById('btn-2pts').classList.toggle('active', mode2Points);
+  showNotif(mode2Points ? '📍 Cliquez pour poser le 2e point (atterrissage)' : '📍 Mode 1 point', 'info');
+}
+
+function goToCoords() {
+  const val = document.getElementById('coords-input').value.trim();
+  const parts = val.split(',').map(s => parseFloat(s.trim()));
+  if(parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])){
+    showNotif('Format invalide — utilisez: 45.5931, -73.1234', 'error');
+    return;
+  }
+  placerPoint(parts[0], parts[1]);
+  map.panTo({lat:parts[0], lng:parts[1]});
+  map.setZoom(13);
+}
+
+// ═══════════════════════════════════════════════════════
+// ZONES AÉRIENNES
+// ═══════════════════════════════════════════════════════
+function haversine(lat1,lng1,lat2,lng2){
+  const R=6371;
+  const dLat=(lat2-lat1)*Math.PI/180;
+  const dLng=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function dessinerZones(){
+  const couleurs = {
+    international:'#E74C3C', regional:'#E67E22', militaire_civil:'#E74C3C',
+    aeroport_regional:'#E67E22', militaire:'#9B59B6', militaire_aeroport:'#9B59B6',
+    nucleaire:'#E74C3C', nucleaire_recherche:'#E74C3C',
+    prison:'#E67E22', parc_national:'#27AE60', parc_provincial:'#27AE60',
+    reserve:'#27AE60', reserve_biosphere:'#27AE60',
+    gouvernemental:'#E74C3C', telecom:'#F1C40F', industriel:'#E67E22',
+    infrastructure:'#E67E22', energie:'#F1C40F', heliport:'#3AABEF',
+  };
+
+  const toutes = [
+    ...ZONES.aeroports.map(z=>({...z,rayon:z.rayon_ctr_km})),
+    ...ZONES.militaire.map(z=>({...z,rayon:z.rayon_km})),
+    ...ZONES.nucleaire.map(z=>({...z,rayon:z.rayon_km})),
+    ...ZONES.prisons.map(z=>({...z,rayon:z.rayon_km})),
+    ...ZONES.parcs.map(z=>({...z,rayon:z.rayon_km})),
+    ...ZONES.sensibles.map(z=>({...z,rayon:z.rayon_km})),
+  ];
+
+  toutes.forEach(z => {
+    if(!z.rayon) return;
+    const couleur = couleurs[z.type] || '#6B7C93';
+    const c = new google.maps.Circle({
+      map, center:{lat:z.lat,lng:z.lng},
+      radius:z.rayon*1000,
+      fillColor:couleur, fillOpacity:0.08,
+      strokeColor:couleur, strokeOpacity:0.6, strokeWeight:1.5,
+    });
+    // InfoWindow au clic
+    c.addListener('click', () => {
+      new google.maps.InfoWindow({
+        content:`<div style="background:#0B1F3A;color:#F4F7FA;padding:10px;border-radius:6px;font-family:DM Sans,sans-serif;font-size:12px;max-width:220px">
+          <b style="color:#3AABEF">${z.nom || z.icao}</b><br>
+          <span style="color:#6B7C93">${z.type}</span><br>
+          <span>${z.notes}</span>
+        </div>`
+      }).open(map, {latLng:{lat:z.lat,lng:z.lng}});
+    });
+    zonesCircles.push(c);
+  });
+}
+
+function verifierZones(lat, lng) {
+  const toutes = [
+    ...ZONES.aeroports.map(z=>({...z,rayon:z.rayon_ctr_km,alerte:z.rayon_alerte_km})),
+    ...ZONES.militaire.map(z=>({...z,rayon:z.rayon_km,alerte:z.rayon_alerte_km})),
+    ...ZONES.nucleaire.map(z=>({...z,rayon:z.rayon_km,alerte:z.rayon_alerte_km})),
+    ...ZONES.prisons.map(z=>({...z,rayon:z.rayon_km,alerte:z.rayon_alerte_km})),
+    ...ZONES.parcs.map(z=>({...z,rayon:z.rayon_km,alerte:z.rayon_alerte_km})),
+    ...ZONES.sensibles.map(z=>({...z,rayon:z.rayon_km,alerte:z.rayon_alerte_km})),
+  ];
+
+  const critiques=[], vigilance=[], informatif=[], lointaines=[];
+
+  toutes.forEach(z => {
+    const dist = haversine(lat,lng,z.lat,z.lng);
+    const nom = z.nom || z.icao;
+    const r = z.rayon || 1;
+    const a = z.alerte || r+2;
+    if(dist <= r) critiques.push({...z, dist, nom});
+    else if(dist <= a) vigilance.push({...z, dist, nom});
+    else if(dist <= 30) informatif.push({...z, dist, nom});
+    else if(dist <= 500) lointaines.push({...z, dist, nom});
+  });
+
+  critiques.sort((a,b)=>a.dist-b.dist);
+  vigilance.sort((a,b)=>a.dist-b.dist);
+  informatif.sort((a,b)=>a.dist-b.dist);
+
+  // Banner carte
+  const banner = document.getElementById('zones-banner');
+  const content = document.getElementById('zones-banner-content');
+
+  if(critiques.length || vigilance.length){
+    banner.style.display='block';
+    let html='';
+    critiques.forEach(z=>{
+      html+=`<div style="color:#E74C3C;font-weight:600">🔴 DANS LA ZONE : ${z.nom} — ${z.dist.toFixed(1)}km — ${z.notes}</div>`;
+    });
+    vigilance.slice(0,3).forEach(z=>{
+      html+=`<div style="color:#E67E22">🟠 ${z.nom} — ${z.dist.toFixed(1)}km</div>`;
+    });
+    content.innerHTML=html;
+  } else {
+    banner.style.display='none';
+  }
+
+  // Stocker pour l'affichage dans l'onglet
+  window._zones = {critiques, vigilance, informatif, lointaines};
+}
+
+// ═══════════════════════════════════════════════════════
+// FUSEAU HORAIRE
+// ═══════════════════════════════════════════════════════
+async function getTZ(lat, lng) {
+  try {
+    const ts = Math.floor(Date.now()/1000);
+    const r = await fetch(`https://maps.googleapis.com/maps/api/timezone/json?location=${lat},${lng}&timestamp=${ts}&key=${GOOGLE_KEY}`);
+    const d = await r.json();
+    if(d.status==='OK'){
+      tzOffset = d.rawOffset + d.dstOffset;
+      tzId = d.timeZoneId;
+      const tzShort = d.timeZoneId.split('/').pop().replace('_',' ');
+      document.getElementById('tz-display').textContent = `${tzShort} UTC${tzOffset>=0?'+':''}${tzOffset/3600}h`;
+    }
+  } catch(e){}
+}
+
+function localTime(unixTs) {
+  const d = new Date((unixTs + tzOffset)*1000);
+  return `${String(d.getUTCHours()).padStart(2,'0')}h${String(d.getUTCMinutes()).padStart(2,'0')}`;
+}
+
+function localTimeStr(isoStr) {
+  // Open-Meteo retourne déjà en heure locale avec timezone=auto
+  return isoStr ? isoStr.substring(11,16) : '--:--';
+}
+
+// ═══════════════════════════════════════════════════════
+// CHARGEMENT DONNÉES MÉTÉO
+// ═══════════════════════════════════════════════════════
+async function chargerMeteo(lat, lng) {
+  document.getElementById('empty-state').style.display='none';
+  document.getElementById('loading-overlay').classList.add('show');
+
+  await getTZ(lat, lng);
+
+  try {
+    // Appels parallèles
+    const [openMeteo, owm, windy] = await Promise.allSettled([
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&hourly=windspeed_10m,windspeed_80m,windspeed_120m,winddirection_10m,winddirection_80m,windgusts_10m,visibility,cloudcover,cloudcover_low,cloudcover_mid,cloudcover_high,precipitation,precipitation_probability,cape,uv_index,temperature_2m,relativehumidity_2m,apparent_temperature,surface_pressure&daily=temperature_2m_max,temperature_2m_min,windspeed_10m_max,windgusts_10m_max,precipitation_sum,precipitation_probability_max,sunrise,sunset,uv_index_max,weathercode&timezone=auto&forecast_days=16`).then(r=>r.json()),
+      fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${OWM_KEY}&units=metric&lang=fr`).then(r=>r.json()),
+      fetch(`https://api.windy.com/api/point-forecast/v2`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({lat,lng,model:'gfs',parameters:['wind','windGust'],levels:['surface','850h','925h','700h','500h'],key:WINDY_KEY})
+      }).then(r=>r.json()),
+    ]);
+
+    const om = openMeteo.status==='fulfilled' ? openMeteo.value : null;
+    const ow = owm.status==='fulfilled' ? owm.value : null;
+    const wd = windy.status==='fulfilled' ? windy.value : null;
+
+    donneesMeteo = {om, ow, wd, lat, lng};
+    donneesPrev7 = om;
+    donneesPrev15 = om;
+
+    // METAR
+    await chargerMETAR(lat, lng);
+
+  } catch(e){
+    showNotif('Erreur chargement données météo', 'error');
+  }
+
+  document.getElementById('loading-overlay').classList.remove('show');
+  afficherOnglet();
+}
+
+async function chargerMETAR(lat, lng) {
+  // Trouver aéroport le plus proche avec ICAO
+  const apNear = ZONES.aeroports
+    .filter(a=>a.icao && !a.icao.includes('_') && !a.icao.startsWith('H'))
+    .map(a=>({...a,dist:haversine(lat,lng,a.lat,a.lng)}))
+    .sort((a,b)=>a.dist-b.dist)[0];
+
+  if(apNear && apNear.dist < 100){
+    try {
+      const r = await fetch(`https://aviationweather.gov/api/data/metar?ids=${apNear.icao}&format=json`);
+      const d = await r.json();
+      if(d && d.length > 0){
+        if(!donneesMeteo) donneesMeteo = {};
+        donneesMeteo.metar = d[0];
+        donneesMeteo.metar_aeroport = apNear;
+      }
+    } catch(e){}
+
+    // NOTAMs
+    try {
+      const rn = await fetch(`https://aviationweather.gov/api/data/notam?location=${apNear.icao}&format=json`);
+      const dn = await rn.json();
+      if(dn && dn.length > 0){
+        donneesMeteo.notams = dn.slice(0,5);
+      }
+    } catch(e){}
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// CALCULS
+// ═══════════════════════════════════════════════════════
+function calculerAltDensite(tempC, pressionHpa, humidite) {
+  const altPression = 145366*(1-Math.pow(pressionHpa/1013.25,0.190284));
+  const altTemp = 118.8*(tempC-15);
+  const altHum = (humidite||50)*0.8;
+  return Math.round(altPression+altTemp+altHum);
+}
+
+function calculerRosee(tempC, humidite) {
+  const a=17.27, b=237.7;
+  const gamma=(a*tempC/(b+tempC))+Math.log(humidite/100);
+  return Math.round((b*gamma/(a-gamma))*10)/10;
+}
+
+function autonomieAir3S(tempC) {
+  if(tempC>20) return {min:45,pct:100,txt:"Nominale"};
+  if(tempC>10) return {min:40,pct:89,txt:"Légère réduction"};
+  if(tempC>0)  return {min:33,pct:73,txt:"Préchauffer batteries"};
+  if(tempC>-10)return {min:25,pct:56,txt:"Préchauffer obligatoire"};
+  return {min:15,pct:33,txt:"Vol déconseillé"};
+}
+
+function statutVol(data){
+  if(!data) return {code:'rouge',score:0,raisons:['Données indisponibles'],chips:[]};
+  const {om,ow} = data;
+  const now = new Date();
+  const hi = om ? trouverHoraireActuel(om) : 0;
+
+  const vent = om ? (om.hourly.windspeed_10m[hi]||0) : (ow?.wind?.speed*3.6||0);
+  const rafales = om ? (om.hourly.windgusts_10m[hi]||0) : 0;
+  const visi = om ? (om.hourly.visibility[hi]||10000)/1000 : (ow?.visibility||10000)/1000;
+  const pluie = om ? (om.hourly.precipitation[hi]||0) : 0;
+  const pluiePct = om ? (om.hourly.precipitation_probability[hi]||0) : 0;
+  const cape = om ? (om.hourly.cape[hi]||0) : 0;
+  const nuagesBas = om ? (om.hourly.cloudcover_low[hi]||0) : (ow?.clouds?.all||0);
+  const temp = om ? (om.hourly.temperature_2m[hi]||15) : (ow?.main?.temp||15);
+  const plafondFt = Math.max(0, (100-nuagesBas)*25); // estimation grossière
+
+  let score = 100;
+  const raisons = [], chips = [];
+
+  // Vent
+  if(vent>35){score-=35;raisons.push(`Vent ${vent.toFixed(0)} km/h > 35`);chips.push({txt:`Vent ${vent.toFixed(0)} km/h`,cls:'chip-danger'});}
+  else if(vent>20){score-=15;chips.push({txt:`Vent ${vent.toFixed(0)} km/h`,cls:'chip-warn'});}
+  else chips.push({txt:`Vent ${vent.toFixed(0)} km/h`,cls:'chip-ok'});
+
+  // Rafales
+  if(rafales>38){score-=30;raisons.push(`Rafales ${rafales.toFixed(0)} km/h > 38`);chips.push({txt:`Rafales ${rafales.toFixed(0)} km/h`,cls:'chip-danger'});}
+  else if(rafales>25){score-=12;chips.push({txt:`Rafales ${rafales.toFixed(0)} km/h`,cls:'chip-warn'});}
+  else if(rafales>0) chips.push({txt:`Rafales ${rafales.toFixed(0)} km/h`,cls:'chip-ok'});
+
+  // Pluie
+  if(pluie>0){score-=40;raisons.push('Pluie active');chips.push({txt:'Pluie active',cls:'chip-danger'});}
+  else if(pluiePct>25){score-=15;chips.push({txt:`Pluie ${pluiePct}%`,cls:'chip-warn'});}
+  else chips.push({txt:'Pas de pluie ✓',cls:'chip-ok'});
+
+  // Visibilité
+  if(visi<3){score-=25;raisons.push(`Visibilité ${visi.toFixed(1)}km < 3km`);chips.push({txt:`Visi ${visi.toFixed(1)}km`,cls:'chip-danger'});}
+  else if(visi<8){score-=8;chips.push({txt:`Visi ${visi.toFixed(1)}km`,cls:'chip-warn'});}
+  else chips.push({txt:`Visi ${visi.toFixed(0)}km ✓`,cls:'chip-ok'});
+
+  // Plafond
+  if(plafondFt<800){score-=20;raisons.push(`Plafond ~${plafondFt}ft < 800ft`);chips.push({txt:`Plafond ~${plafondFt}ft`,cls:'chip-danger'});}
+  else if(plafondFt<1500){score-=8;chips.push({txt:`Plafond ~${plafondFt}ft`,cls:'chip-warn'});}
+  else chips.push({txt:`Plafond OK ✓`,cls:'chip-ok'});
+
+  // CAPE
+  if(cape>750){score-=20;raisons.push(`CAPE ${cape} J/kg > 750`);chips.push({txt:`CAPE ${cape} J/kg`,cls:'chip-danger'});}
+  else if(cape>250){score-=8;chips.push({txt:`CAPE ${cape} J/kg`,cls:'chip-warn'});}
+  else chips.push({txt:`CAPE OK ✓`,cls:'chip-ok'});
+
+  // Temp
+  if(temp<0||temp>38){score-=15;raisons.push(`Température ${temp.toFixed(0)}°C hors limites`);chips.push({txt:`${temp.toFixed(0)}°C`,cls:'chip-danger'});}
+  else if(temp<5||temp>35){score-=5;chips.push({txt:`${temp.toFixed(0)}°C`,cls:'chip-warn'});}
+  else chips.push({txt:`${temp.toFixed(0)}°C ✓`,cls:'chip-ok'});
+
+  score = Math.max(0, Math.min(100, score));
+  let code = score>=70?'vert':score>=40?'orange':'rouge';
+
+  return {code, score, raisons, chips};
+}
+
+function trouverHoraireActuel(om) {
+  const now = new Date().toISOString().substring(0,13);
+  return om.hourly.time.findIndex(t=>t.startsWith(now)) || 0;
+}
+
+function scoreJour(om, dayIdx) {
+  if(!om) return {score:50,code:'orange',fenetre:'--'};
+  const heures = [];
+  for(let h=dayIdx*24; h<(dayIdx+1)*24 && h<om.hourly.windspeed_10m.length; h++){
+    const vent=om.hourly.windspeed_10m[h]||0;
+    const raf=om.hourly.windgusts_10m[h]||0;
+    const pluie=om.hourly.precipitation[h]||0;
+    const visi=(om.hourly.visibility[h]||10000)/1000;
+    const isDay=om.hourly.time[h];
+    const heure=parseInt(isDay.substring(11,13));
+    if(heure<6||heure>20) continue;
+    const ok = vent<20 && raf<25 && pluie===0 && visi>8;
+    const warn = vent<35 && raf<38 && pluie<0.1 && visi>3;
+    heures.push({h,heure,ok,warn});
+  }
+  const vertes=heures.filter(h=>h.ok);
+  const oranges=heures.filter(h=>h.warn&&!h.ok);
+  const score = Math.round((vertes.length/Math.max(heures.length,1))*100);
+  const code = score>=70?'vert':score>=35?'orange':'rouge';
+  let fenetre='Aucune';
+  if(vertes.length>0){
+    const debut=vertes[0].heure, fin=vertes[vertes.length-1].heure;
+    fenetre=`${String(debut).padStart(2,'0')}h-${String(fin+1).padStart(2,'0')}h (${vertes.length}h)`;
+  }
+  return {score,code,fenetre};
+}
+
+function iconeMeteo(wmoCode) {
+  const map={0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',48:'🌫',51:'🌧',53:'🌧',55:'🌧',61:'🌧',63:'🌧',65:'🌧',71:'❄️',73:'❄️',75:'❄️',80:'🌦',81:'🌦',82:'⛈',85:'🌨',86:'🌨',95:'⛈',96:'⛈',99:'⛈'};
+  return map[wmoCode]||'🌡';
+}
+
+function couleurVent(vitesse) {
+  if(vitesse<20) return '#27AE60';
+  if(vitesse<35) return '#E67E22';
+  return '#E74C3C';
+}
+
+function celsiusToFahrenheit(c){return(c*9/5+32).toFixed(1);}
+function hpaToInHg(hpa){return(hpa*0.02953).toFixed(2);}
+function kmhToKnots(k){return(k*0.539957).toFixed(1);}
+function metersToFeet(m){return Math.round(m*3.28084);}
+function directionVent(deg){const dirs=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];return dirs[Math.round(deg/22.5)%16];}
+
+// ═══════════════════════════════════════════════════════
+// DÉCODAGE METAR
+// ═══════════════════════════════════════════════════════
+function decoderMETAR(metar) {
+  if(!metar) return [];
+  const lignes=[];
+  const raw = typeof metar === 'string' ? metar : (metar.rawOb || JSON.stringify(metar));
+
+  // Station
+  const station = raw.match(/^([A-Z]{4})/);
+  if(station) lignes.push({key:'Station',val:station[1]});
+
+  // Date/Heure
+  const dh = raw.match(/(\d{2})(\d{2})(\d{2})Z/);
+  if(dh) lignes.push({key:'Heure obs.',val:`${dh[1]} du mois à ${dh[2]}h${dh[3]} UTC`});
+
+  // Vent
+  const vent = raw.match(/(\d{3}|VRB)(\d{2,3})(G(\d{2,3}))?KT/);
+  if(vent){
+    let vStr = vent[1]==='VRB' ? 'Variable' : `${vent[1]}° (${directionVent(parseInt(vent[1]))})`;
+    vStr += ` à ${Math.round(parseInt(vent[2])*1.852)} km/h`;
+    if(vent[4]) vStr += ` rafales ${Math.round(parseInt(vent[4])*1.852)} km/h`;
+    lignes.push({key:'Vent',val:vStr});
+  }
+
+  // Visibilité
+  const vis = raw.match(/\s(\d{4})\s/);
+  if(vis) lignes.push({key:'Visibilité',val:`${parseInt(vis[1])} mètres`});
+  const visSM = raw.match(/\s(\d+)SM\s/);
+  if(visSM) lignes.push({key:'Visibilité',val:`${(parseInt(visSM[1])*1.609).toFixed(1)} km`});
+
+  // Nuages
+  const nuages = raw.matchAll(/(FEW|SCT|BKN|OVC)(\d{3})/g);
+  for(const n of nuages){
+    const cov={FEW:'Quelques nuages (1-2/8)',SCT:'Nuages épars (3-4/8)',BKN:'Ciel fragmenté (5-7/8)',OVC:'Couverture totale (8/8)'};
+    lignes.push({key:'Nuages',val:`${cov[n[1]]||n[1]} base ${parseInt(n[2])*100} pieds AGL`});
+  }
+
+  // Temp/Rosée
+  const temp = raw.match(/\s(M?\d{2})\/(M?\d{2})\s/);
+  if(temp){
+    const t=temp[1].replace('M','-'), r=temp[2].replace('M','-');
+    lignes.push({key:'Temp/Rosée',val:`${t}°C / ${r}°C`});
+  }
+
+  // Pression
+  const pression = raw.match(/[AQ](\d{4})/);
+  if(pression){
+    const val=pression[0].startsWith('A')?`${parseInt(pression[1])/100} inHg`:`${pression[1]} hPa`;
+    lignes.push({key:'Pression',val});
+  }
+
+  // Phénomènes
+  const phenomenes={'-RA':'Pluie légère','RA':'Pluie modérée','+RA':'Pluie forte','-SN':'Neige légère','SN':'Neige','FG':'Brouillard','BR':'Brume','TS':'Orage','TSRA':'Orage avec pluie','-DZ':'Bruine légère','DZ':'Bruine','FZRA':'Pluie verglaçante','FZDZ':'Bruine verglaçante'};
+  for(const [code,desc] of Object.entries(phenomenes)){
+    if(raw.includes(code)) lignes.push({key:'Phénomènes',val:`⚠️ ${desc}`});
+  }
+
+  return lignes;
+}
+
+// ═══════════════════════════════════════════════════════
+// AFFICHAGE ONGLETS
+// ═══════════════════════════════════════════════════════
+function switchTab(idx) {
+  tabActif = idx;
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  if(donneesMeteo) afficherOnglet();
+}
+
+function afficherOnglet() {
+  if(tabActif===0) afficherOnglet1();
+  else if(tabActif===1) afficherOnglet2();
+  else afficherOnglet3();
+}
+
+// ─── ONGLET 1 ───────────────────────────────────────────
+function afficherOnglet1() {
+  const {om,ow,wd,lat,lng} = donneesMeteo || {};
+  const hi = om ? trouverHoraireActuel(om) : 0;
+  const stat = statutVol(donneesMeteo);
+
+  // Données
+  const temp = om?.hourly.temperature_2m[hi] ?? ow?.main?.temp ?? '--';
+  const tempRes = om?.hourly.apparent_temperature[hi] ?? ow?.main?.feels_like ?? '--';
+  const vent10 = om?.hourly.windspeed_10m[hi] ?? (ow?.wind?.speed*3.6) ?? 0;
+  const vent80 = om?.hourly.windspeed_80m[hi] ?? 0;
+  const vent120= om?.hourly.windspeed_120m[hi] ?? 0;
+  const ventDir10=om?.hourly.winddirection_10m[hi]??0;
+  const ventDir80=om?.hourly.winddirection_80m[hi]??0;
+  const rafales = om?.hourly.windgusts_10m[hi] ?? 0;
+  const cisaillement = Math.abs(vent80-vent10);
+  const visi = (om?.hourly.visibility[hi]??ow?.visibility??10000)/1000;
+  const nuagesBas=om?.hourly.cloudcover_low[hi]??ow?.clouds?.all??0;
+  const plafondFt=Math.max(0,(100-nuagesBas)*25);
+  const pluie=om?.hourly.precipitation[hi]??0;
+  const pluiePct=om?.hourly.precipitation_probability[hi]??0;
+  const cape=om?.hourly.cape[hi]??0;
+  const uv=om?.hourly.uv_index[hi]??0;
+  const pression=om?.hourly.surface_pressure[hi]??ow?.main?.pressure??1013;
+  const humidite=om?.hourly.relativehumidity_2m[hi]??ow?.main?.humidity??50;
+  const rosee=calculerRosee(parseFloat(temp),humidite);
+  const altDens=calculerAltDensite(parseFloat(temp),pression,humidite);
+  const auto=autonomieAir3S(parseFloat(temp));
+
+  // Windy
+  const windyData = wd ? {
+    s850:Math.round((wd['wind_u-850h']?.[0]??0)**2+(wd['wind_v-850h']?.[0]??0)**2)**0.5*3.6,
+    s925:Math.round((wd['wind_u-925h']?.[0]??0)**2+(wd['wind_v-925h']?.[0]??0)**2)**0.5*3.6,
+    s700:Math.round((wd['wind_u-700h']?.[0]??0)**2+(wd['wind_v-700h']?.[0]??0)**2)**0.5*3.6,
+    s500:Math.round((wd['wind_u-500h']?.[0]??0)**2+(wd['wind_v-500h']?.[0]??0)**2)**0.5*3.6,
+  } : null;
+
+  // Soleil
+  const sunrise_str = om?.daily.sunrise[0] ?? '';
+  const sunset_str = om?.daily.sunset[0] ?? '';
+  const sunrise = sunrise_str ? localTimeStr(sunrise_str) : '--';
+  const sunset = sunset_str ? localTimeStr(sunset_str) : '--';
+  const sunriseTs = ow?.sys?.sunrise;
+  const sunsetTs = ow?.sys?.sunset;
+
+  // Crépuscule civil ~30min après coucher
+  let crepuscule = '--';
+  if(sunset_str){
+    const parts=sunset_str.split('T')[1]?.split(':');
+    if(parts){
+      let h=parseInt(parts[0]),m=parseInt(parts[1])+30;
+      if(m>=60){h++;m-=60;}
+      crepuscule=`${String(h).padStart(2,'0')}h${String(m).padStart(2,'0')}`;
+    }
+  }
+  // Heure dorée
+  let orLevier='--',orCoucher='--';
+  if(sunrise_str){
+    const p=sunrise_str.split('T')[1]?.split(':');
+    if(p){orLevier=`${p[0]}h${p[1]}-${String(parseInt(p[0])+1).padStart(2,'0')}h${p[1]}`;}
+  }
+  if(sunset_str){
+    const p=sunset_str.split('T')[1]?.split(':');
+    if(p){orCoucher=`${String(parseInt(p[0])-1).padStart(2,'0')}h${p[1]}-${p[0]}h${p[1]}`;}
+  }
+
+  // Zones
+  const zones = window._zones || {critiques:[],vigilance:[],informatif:[]};
+
+  // Graphique 24h — préparation
+  const labels24=[], vent24=[], pluie24=[];
+  for(let i=hi;i<hi+24&&i<(om?.hourly?.windspeed_10m?.length||0);i++){
+    labels24.push(om.hourly.time[i].substring(11,16));
+    vent24.push(om.hourly.windspeed_10m[i]||0);
+    pluie24.push(om.hourly.precipitation_probability[i]||0);
+  }
+
+  const badge=(val,vert,orange)=>val<=vert?'badge-ok':val<=orange?'badge-warn':'badge-danger';
+
+  document.getElementById('tab-content').innerHTML = `
+    <!-- VERDICT -->
+    <div class="card verdict-card ${stat.code}" id="verdict-card">
+      <div class="verdict-main">
+        <div class="verdict-dot ${stat.code}">${stat.code==='vert'?'✓':stat.code==='orange'?'⚠':'✗'}</div>
+        <div class="verdict-text">
+          <div class="verdict-status ${stat.code}">${stat.code==='vert'?'VOL AUTORISÉ':stat.code==='orange'?'VOL AVEC PRÉCAUTIONS':'VOL DÉCONSEILLÉ'}</div>
+          <div class="verdict-reason">${stat.raisons.length?stat.raisons[0]:'Toutes conditions dans les seuils'}</div>
+        </div>
+        <div class="verdict-score">
+          <div class="score-num">${stat.score}</div>
+          <div class="score-label">/ 100</div>
+        </div>
+      </div>
+      <div class="verdict-details">
+        ${stat.chips.map(c=>`<span class="verdict-chip ${c.cls}">${c.txt}</span>`).join('')}
+      </div>
+    </div>
+
+    <!-- DRONE AIR 3S -->
+    <div class="drone-block">
+      <div class="drone-title">🚁 DJI AIR 3S — Conditions actuelles</div>
+      <div>
+        <div class="drone-row"><span class="drone-key">Autonomie estimée</span><span class="drone-val" style="color:${auto.pct>75?'var(--green)':auto.pct>50?'var(--orange)':'var(--red)'}">${auto.min} min (~${auto.pct}%) — ${auto.txt}</span></div>
+        <div class="drone-row"><span class="drone-key">Température / limite</span><span class="drone-val">${parseFloat(temp).toFixed(1)}°C / -10°C à +40°C</span></div>
+        <div class="drone-row"><span class="drone-key">Vent vs limite certifiée</span><span class="drone-val">${vent10.toFixed(0)} km/h / 43 km/h (${Math.round(vent10/43*100)}%)</span></div>
+        <div class="drone-row"><span class="drone-key">Altitude de densité</span><span class="drone-val">${altDens}m — ${altDens<800?'Nominal':altDens<1500?'Légère réduction':'Réduction notable'}</span></div>
+        <div class="drone-row"><span class="drone-key">Risque condensation obj.</span><span class="drone-val">${(parseFloat(temp)-rosee)>5?'✅ Faible':(parseFloat(temp)-rosee)>3?'⚠️ Modéré':'🔴 Élevé'} (écart ${(parseFloat(temp)-rosee).toFixed(1)}°C)</span></div>
+      </div>
+      ${parseFloat(temp)<10?`<div class="drone-tip">⚠️ Température < 10°C — Préchauffer les batteries 10 min à l'intérieur avant vol</div>`:''}
+      ${humidite>80?`<div class="drone-tip">⚠️ Humidité > 80% — Risque condensation objectif — Laisser acclimater 5 min</div>`:''}
+      ${uv>8?`<div class="drone-tip">☀️ UV ${uv} élevé — Prévoir filtre ND renforcé, éviter contre-jour</div>`:''}
+    </div>
+
+    <!-- VENT -->
+    <div class="card">
+      <div class="card-title"><span class="icon">💨</span>Vent</div>
+      <div class="metrics-grid">
+        <div class="metric" onclick="afficherFiche('vent_10m')">
+          <div class="metric-label">Sol 10m <span class="info-icon">ℹ</span></div>
+          <div class="metric-value">${vent10.toFixed(0)} <small style="font-size:13px;color:var(--gray)">km/h</small></div>
+          <div class="metric-sub">${kmhToKnots(vent10)} kt · ${directionVent(ventDir10)} <span class="wind-arrow" style="transform:rotate(${ventDir10}deg);display:inline-block">↑</span></div>
+          <span class="metric-badge ${badge(vent10,20,35)}">${vent10<20?'VENT OK':vent10<35?'MODÉRÉ':'FORT'}</span>
+        </div>
+        <div class="metric" onclick="afficherFiche('rafales')">
+          <div class="metric-label">Rafales <span class="info-icon">ℹ</span></div>
+          <div class="metric-value">${rafales.toFixed(0)} <small style="font-size:13px;color:var(--gray)">km/h</small></div>
+          <div class="metric-sub">${kmhToKnots(rafales)} kt max</div>
+          <span class="metric-badge ${badge(rafales,25,38)}">${rafales<25?'RAFALES OK':rafales<38?'ATTENTION':'DANGEREUX'}</span>
+        </div>
+        <div class="metric" onclick="afficherFiche('vent_80m')">
+          <div class="metric-label">80m AGL <span class="info-icon">ℹ</span></div>
+          <div class="metric-value">${vent80.toFixed(0)} <small style="font-size:13px;color:var(--gray)">km/h</small></div>
+          <div class="metric-sub">${directionVent(ventDir80)}</div>
+          <span class="metric-badge ${badge(vent80,20,30)}">${vent80<20?'OK':vent80<30?'MODÉRÉ':'FORT'}</span>
+        </div>
+        <div class="metric" onclick="afficherFiche('vent_120m')">
+          <div class="metric-label">120m AGL <span class="info-icon">ℹ</span></div>
+          <div class="metric-value">${vent120.toFixed(0)} <small style="font-size:13px;color:var(--gray)">km/h</small></div>
+          <div class="metric-sub">Limite légale Canada</div>
+          <span class="metric-badge ${badge(vent120,25,35)}">${vent120<25?'OK':vent120<35?'MODÉRÉ':'FORT'}</span>
+        </div>
+        <div class="metric" onclick="afficherFiche('cisaillement')" style="grid-column:span 2">
+          <div class="metric-label">Cisaillement 10m→80m <span class="info-icon">ℹ</span></div>
+          <div class="metric-value">${cisaillement.toFixed(0)} km/h</div>
+          <div class="metric-sub">Turbulence en montée</div>
+          <span class="metric-badge ${badge(cisaillement,10,20)}">${cisaillement<10?'STABLE':cisaillement<20?'CISAILLEMENT MODÉRÉ':'CISAILLEMENT FORT'}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- WINDY ALTITUDE -->
+    ${windyData?`
+    <div class="card">
+      <div class="card-title"><span class="icon">🌬</span>Vent en altitude — Windy</div>
+      <div class="windy-grid">
+        <div class="windy-level"><div class="windy-hpa">925 hPa</div><div class="windy-alt">~800m</div><div class="windy-speed" style="color:${couleurVent(windyData.s925)}">${windyData.s925} km/h</div></div>
+        <div class="windy-level"><div class="windy-hpa">850 hPa</div><div class="windy-alt">~1500m</div><div class="windy-speed" style="color:${couleurVent(windyData.s850)}">${windyData.s850} km/h</div></div>
+        <div class="windy-level"><div class="windy-hpa">700 hPa</div><div class="windy-alt">~3000m</div><div class="windy-speed" style="color:${couleurVent(windyData.s700)}">${windyData.s700} km/h</div></div>
+        <div class="windy-level"><div class="windy-hpa">500 hPa</div><div class="windy-alt">~5500m</div><div class="windy-speed" style="color:${couleurVent(windyData.s500)}">${windyData.s500} km/h</div></div>
+      </div>
+    </div>`:''}
+
+    <!-- VISIBILITÉ & PLAFOND -->
+    <div class="card">
+      <div class="card-title"><span class="icon">👁</span>Visibilité & Plafond</div>
+      <div class="metrics-grid">
+        <div class="metric" onclick="afficherFiche('visibilite')">
+          <div class="metric-label">Visibilité <span class="info-icon">ℹ</span></div>
+          <div class="metric-value">${visi.toFixed(1)} <small style="font-size:13px;color:var(--gray)">km</small></div>
+          <span class="metric-badge ${badge(10-visi,2,7)}">${visi>=8?'VLOS EXCELLENT':visi>=3?'VLOS OK':'VLOS NOK ⚠️'}</span>
+        </div>
+        <div class="metric" onclick="afficherFiche('plafond')">
+          <div class="metric-label">Plafond estimé <span class="info-icon">ℹ</span></div>
+          <div class="metric-value">${plafondFt} <small style="font-size:13px;color:var(--gray)">ft</small></div>
+          <div class="metric-sub">Nuages bas: ${nuagesBas}%</div>
+          <span class="metric-badge ${plafondFt>=1500?'badge-ok':plafondFt>=800?'badge-warn':'badge-danger'}">${plafondFt>=1500?'LÉGAL OK':plafondFt>=800?'MARGE FAIBLE':'INSUFFISANT'}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRÉCIPITATIONS -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🌧</span>Précipitations</div>
+      <div class="metrics-grid">
+        <div class="metric"><div class="metric-label">Pluie actuelle</div><div class="metric-value">${pluie.toFixed(1)} <small style="font-size:13px;color:var(--gray)">mm/h</small></div><span class="metric-badge ${pluie===0?'badge-ok':'badge-danger'}">${pluie===0?'AUCUNE ✓':'PLUIE ACTIVE ✗'}</span></div>
+        <div class="metric"><div class="metric-label">Probabilité</div><div class="metric-value">${pluiePct}<small style="font-size:13px;color:var(--gray)">%</small></div><span class="metric-badge ${pluiePct<10?'badge-ok':pluiePct<25?'badge-warn':'badge-danger'}">${pluiePct<10?'FAIBLE':pluiePct<25?'POSSIBLE':'PROBABLE'}</span></div>
+      </div>
+      ${labels24.length?`
+      <div class="chart-container" style="height:100px;margin-top:12px">
+        <canvas id="chart-pluie24"></canvas>
+      </div>`:''}
+    </div>
+
+    <!-- CONDITIONS SECONDAIRES -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🌡</span>Conditions atmosphériques</div>
+      <div class="metrics-grid">
+        <div class="metric" onclick="afficherFiche('qnh')">
+          <div class="metric-label">QNH <span class="info-icon">ℹ</span></div>
+          <div class="metric-value">${pression.toFixed(0)} <small style="font-size:11px;color:var(--gray)">hPa</small></div>
+          <div class="metric-sub">${hpaToInHg(pression)} inHg</div>
+        </div>
+        <div class="metric" onclick="afficherFiche('rosee')">
+          <div class="metric-label">Humidité / Rosée <span class="info-icon">ℹ</span></div>
+          <div class="metric-value">${humidite}<small style="font-size:13px;color:var(--gray)">%</small></div>
+          <div class="metric-sub">Rosée: ${rosee}°C (écart ${(parseFloat(temp)-rosee).toFixed(1)}°C)</div>
+          <span class="metric-badge ${humidite<70?'badge-ok':humidite<80?'badge-warn':'badge-danger'}">${humidite<70?'OK':humidite<80?'ÉLEVÉE':'TRÈS ÉLEVÉE'}</span>
+        </div>
+        <div class="metric" onclick="afficherFiche('cape')">
+          <div class="metric-label">CAPE <span class="info-icon">ℹ</span></div>
+          <div class="metric-value">${cape} <small style="font-size:11px;color:var(--gray)">J/kg</small></div>
+          <span class="metric-badge ${cape<250?'badge-ok':cape<750?'badge-warn':'badge-danger'}">${cape<250?'STABLE':cape<750?'INSTABLE':'ORAGE POSSIBLE'}</span>
+        </div>
+        <div class="metric" onclick="afficherFiche('uv')">
+          <div class="metric-label">Index UV <span class="info-icon">ℹ</span></div>
+          <div class="metric-value">${uv.toFixed(1)}</div>
+          <span class="metric-badge ${uv<6?'badge-ok':uv<9?'badge-warn':'badge-danger'}">${uv<6?'FAIBLE-MODÉRÉ':uv<9?'ÉLEVÉ':'TRÈS ÉLEVÉ'}</span>
+        </div>
+        <div class="metric" onclick="afficherFiche('alt_densite')">
+          <div class="metric-label">Alt. densité <span class="info-icon">ℹ</span></div>
+          <div class="metric-value">${altDens} <small style="font-size:11px;color:var(--gray)">m</small></div>
+          <span class="metric-badge ${altDens<800?'badge-ok':altDens<1500?'badge-warn':'badge-danger'}">${altDens<800?'NOMINAL':altDens<1500?'RÉDUIT':'NOTABLE'}</span>
+        </div>
+        <div class="metric" onclick="afficherFiche('autonomie')">
+          <div class="metric-label">Autonomie Air 3S <span class="info-icon">ℹ</span></div>
+          <div class="metric-value">${auto.min} <small style="font-size:11px;color:var(--gray)">min</small></div>
+          <div class="metric-sub">${auto.txt}</div>
+          <span class="metric-badge ${auto.pct>=75?'badge-ok':auto.pct>=50?'badge-warn':'badge-danger'}">${auto.pct}% nominal</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOLEIL -->
+    <div class="card">
+      <div class="card-title"><span class="icon">☀️</span>Soleil & Fenêtres légales <small style="color:var(--teal);font-weight:400;font-size:10px">${tzId}</small></div>
+      <div class="sun-row"><span class="sun-key">🌅 Lever du soleil</span><span class="sun-val">${sunrise}</span></div>
+      <div class="sun-row"><span class="sun-key">🌇 Coucher du soleil</span><span class="sun-val">${sunset}</span></div>
+      <div class="sun-row"><span class="sun-key">🌆 Crépuscule civil (limite légale)</span><span class="sun-val legal">${crepuscule}</span></div>
+      <div class="sun-row"><span class="sun-key">📸 Heure dorée lever</span><span class="sun-val golden">${orLevier}</span></div>
+      <div class="sun-row"><span class="sun-key">📸 Heure dorée coucher</span><span class="sun-val golden">${orCoucher}</span></div>
+    </div>
+
+    <!-- METAR -->
+    <div class="card">
+      <div class="card-title"><span class="icon">📡</span>METAR — ${donneesMeteo?.metar_aeroport?.icao||'--'} (${donneesMeteo?.metar_aeroport?.nom||'Recherche...'}, ${donneesMeteo?.metar_aeroport?.dist?.toFixed(1)||'--'}km)</div>
+      ${donneesMeteo?.metar ? `
+        <div class="metar-raw">${donneesMeteo.metar.rawOb || JSON.stringify(donneesMeteo.metar)}</div>
+        <div class="metar-decoded">
+          ${decoderMETAR(donneesMeteo.metar.rawOb||donneesMeteo.metar).map(l=>`
+            <div class="metar-line">
+              <span class="metar-key">${l.key}</span>
+              <span class="metar-val">${l.val}</span>
+            </div>`).join('')}
+        </div>
+        ${donneesMeteo.notams?.length ? `
+          <div style="margin-top:12px">
+            <div class="card-title" style="margin-bottom:8px"><span class="icon">⚠️</span>NOTAMs actifs</div>
+            ${donneesMeteo.notams.map(n=>`<div style="font-size:11px;color:var(--orange);padding:4px 0;border-bottom:1px solid var(--border)">${n.notamTxt||n.icaoId||JSON.stringify(n).substring(0,80)}</div>`).join('')}
+          </div>` : ''}
+      ` : '<div style="color:var(--gray);font-size:12px">METAR non disponible pour cette zone</div>'}
+    </div>
+
+    <!-- ZONES AÉRIENNES -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🗺</span>Zones aériennes — Rayon 500km</div>
+      ${zones.critiques.length?`<div style="color:var(--red);font-weight:600;font-size:12px;margin-bottom:8px">🔴 CRITIQUE — Vous êtes dans une zone réglementée</div>`:''}
+      <div class="zones-panel" style="background:transparent;border:none;padding:0">
+        ${zones.critiques.map(z=>`<div class="zone-item"><div class="zone-dot rouge"></div><div class="zone-info"><div class="zone-name">🔴 ${z.nom}</div><div class="zone-dist">${z.dist.toFixed(1)}km — DANS LA ZONE</div><div class="zone-notes">${z.notes}</div></div></div>`).join('')}
+        ${zones.vigilance.map(z=>`<div class="zone-item"><div class="zone-dot orange"></div><div class="zone-info"><div class="zone-name">🟠 ${z.nom}</div><div class="zone-dist">${z.dist.toFixed(1)}km</div><div class="zone-notes">${z.notes}</div></div></div>`).join('')}
+        ${zones.informatif.slice(0,5).map(z=>`<div class="zone-item"><div class="zone-dot jaune"></div><div class="zone-info"><div class="zone-name">🟡 ${z.nom}</div><div class="zone-dist">${z.dist.toFixed(1)}km</div></div></div>`).join('')}
+        ${zones.lointaines?.length?`<div style="color:var(--gray);font-size:11px;padding:6px 0">+ ${zones.lointaines.length} zones dans un rayon de 500km</div>`:''}
+      </div>
+      <a class="navdrone-btn" href="https://portal.navdrone.ca/?lat=${pointActif?.lat}&lng=${pointActif?.lng}" target="_blank">
+        🛫 Vérifier sur NavDrone — Portal Nav Canada
+      </a>
+    </div>
+
+    <!-- GRAPHIQUE 24H -->
+    ${labels24.length?`
+    <div class="card">
+      <div class="card-title"><span class="icon">📈</span>Vent sur 24h</div>
+      <div class="chart-container">
+        <canvas id="chart-vent24"></canvas>
+      </div>
+    </div>`:''}
+  `;
+
+  // Graphiques
+  requestAnimationFrame(()=>{
+    if(labels24.length){
+      const ctx=document.getElementById('chart-vent24')?.getContext('2d');
+      if(ctx){
+        if(chartVent) chartVent.destroy();
+        chartVent=new Chart(ctx,{
+          type:'line',
+          data:{labels:labels24,datasets:[
+            {label:'Vent km/h',data:vent24,borderColor:'#3AABEF',backgroundColor:'rgba(58,171,239,0.1)',tension:0.4,pointRadius:2,fill:true},
+            {label:'Rafales km/h',data:pluie24.map((_,i)=>om?.hourly?.windgusts_10m?.[hi+i]||0),borderColor:'#E67E22',backgroundColor:'rgba(230,126,34,0.05)',tension:0.4,pointRadius:0,borderDash:[4,4]},
+          ]},
+          options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6B7C93',font:{size:10}}}},scales:{x:{ticks:{color:'#6B7C93',font:{size:9},maxTicksLimit:8},grid:{color:'#1A3050'}},y:{ticks:{color:'#6B7C93',font:{size:9}},grid:{color:'#1A3050'},min:0}},annotation:{annotations:{seuil20:{type:'line',yMin:20,yMax:20,borderColor:'rgba(39,174,96,0.4)',borderDash:[4,4]},seuil35:{type:'line',yMin:35,yMax:35,borderColor:'rgba(231,76,60,0.4)',borderDash:[4,4]}}}}
+        });
+      }
+      const ctx2=document.getElementById('chart-pluie24')?.getContext('2d');
+      if(ctx2){
+        if(chartPluie) chartPluie.destroy();
+        chartPluie=new Chart(ctx2,{
+          type:'bar',
+          data:{labels:labels24,datasets:[{label:'Prob. pluie %',data:pluie24,backgroundColor:'rgba(58,171,239,0.4)',borderColor:'rgba(58,171,239,0.7)',borderWidth:1}]},
+          options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6B7C93',font:{size:9},maxTicksLimit:8},grid:{color:'#1A3050'}},y:{ticks:{color:'#6B7C93',font:{size:9}},grid:{color:'#1A3050'},min:0,max:100}}}
+        });
+      }
+    }
+  });
+}
+
+// ─── ONGLET 2 ───────────────────────────────────────────
+function afficherOnglet2() {
+  const om = donneesPrev7;
+  if(!om){document.getElementById('tab-content').innerHTML='<div class="empty-state"><div class="empty-icon">📅</div><p>Sélectionnez un point sur la carte</p></div>';return;}
+
+  const jours=[];
+  for(let i=0;i<7;i++){
+    const s=scoreJour(om,i);
+    const dt=new Date(om.daily.time[i]);
+    jours.push({
+      date:om.daily.time[i],
+      jour:dt.toLocaleDateString('fr-CA',{weekday:'short'}),
+      dateStr:dt.toLocaleDateString('fr-CA',{day:'numeric',month:'short'}),
+      tempMax:om.daily.temperature_2m_max[i],
+      tempMin:om.daily.temperature_2m_min[i],
+      ventMax:om.daily.windspeed_10m_max[i],
+      rafMax:om.daily.windgusts_10m_max[i],
+      pluie:om.daily.precipitation_sum[i],
+      pluiePct:om.daily.precipitation_probability_max[i],
+      uv:om.daily.uv_index_max[i],
+      wmo:om.daily.weathercode[i],
+      sunrise:localTimeStr(om.daily.sunrise[i]),
+      sunset:localTimeStr(om.daily.sunset[i]),
+      score:s.score, code:s.code, fenetre:s.fenetre,
+    });
+  }
+
+  const ventMax7=jours.map(j=>j.ventMax);
+  const rafMax7=jours.map(j=>j.rafMax);
+  const pluie7=jours.map(j=>j.pluie);
+  const tempMax7=jours.map(j=>j.tempMax);
+  const tempMin7=jours.map(j=>j.tempMin);
+  const labels7=jours.map(j=>j.jour);
+
+  document.getElementById('tab-content').innerHTML=`
+    <!-- CALENDRIER 7 JOURS -->
+    <div class="days-grid" id="days-grid7">
+      ${jours.map((j,i)=>`
+        <div class="day-card ${j.code}" onclick="toggleDayDetail(${i})" id="day-card-${i}">
+          <div class="day-name">${j.jour.toUpperCase()}</div>
+          <div class="day-date">${j.dateStr}</div>
+          <div class="day-icon">${iconeMeteo(j.wmo)}</div>
+          <div class="day-temp">${Math.round(j.tempMax)}° / ${Math.round(j.tempMin)}°</div>
+          <div class="day-wind">💨 ${j.ventMax?.toFixed(0)} km/h</div>
+          <div class="day-score ${j.code}">${j.score}</div>
+          <div class="day-window">${j.fenetre}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <!-- DÉTAIL JOUR (placeholder) -->
+    <div id="day-detail"></div>
+
+    <!-- GRAPHIQUES -->
+    <div class="card">
+      <div class="card-title"><span class="icon">💨</span>Vent sur 7 jours</div>
+      <div class="chart-container"><canvas id="chart-vent7"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">🌧</span>Précipitations 7 jours</div>
+      <div class="chart-container"><canvas id="chart-pluie7"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">🌡</span>Températures 7 jours</div>
+      <div class="chart-container"><canvas id="chart-temp7"></canvas></div>
+    </div>
+
+    <!-- HEATMAP VENT -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🔥</span>Carte thermique vent — 7 jours × 8 tranches 3h</div>
+      <div class="heatmap" id="heatmap-vent"></div>
+    </div>
+
+    <!-- ZONES -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🗺</span>Zones aériennes</div>
+      ${genZonesHTML()}
+      <a class="navdrone-btn" href="https://portal.navdrone.ca/?lat=${pointActif?.lat}&lng=${pointActif?.lng}" target="_blank">🛫 Vérifier sur NavDrone</a>
+    </div>
+  `;
+
+  requestAnimationFrame(()=>{
+    // Graphique vent
+    const ctx=document.getElementById('chart-vent7')?.getContext('2d');
+    if(ctx){
+      new Chart(ctx,{type:'line',data:{labels:labels7,datasets:[
+        {label:'Vent max km/h',data:ventMax7,borderColor:'#3AABEF',backgroundColor:'rgba(58,171,239,0.1)',tension:0.3,fill:true},
+        {label:'Rafales max km/h',data:rafMax7,borderColor:'#E67E22',borderDash:[4,4],tension:0.3,pointRadius:2},
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6B7C93',font:{size:10}}}},scales:{x:{ticks:{color:'#6B7C93'},grid:{color:'#1A3050'}},y:{ticks:{color:'#6B7C93'},grid:{color:'#1A3050'},min:0}}}});
+    }
+    const ctx2=document.getElementById('chart-pluie7')?.getContext('2d');
+    if(ctx2){
+      new Chart(ctx2,{type:'bar',data:{labels:labels7,datasets:[
+        {label:'Précip. mm',data:pluie7,backgroundColor:'rgba(58,171,239,0.5)'},
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6B7C93',font:{size:10}}}},scales:{x:{ticks:{color:'#6B7C93'},grid:{color:'#1A3050'}},y:{ticks:{color:'#6B7C93'},grid:{color:'#1A3050'},min:0}}}});
+    }
+    const ctx3=document.getElementById('chart-temp7')?.getContext('2d');
+    if(ctx3){
+      new Chart(ctx3,{type:'line',data:{labels:labels7,datasets:[
+        {label:'Max °C',data:tempMax7,borderColor:'#E74C3C',backgroundColor:'rgba(231,76,60,0.1)',tension:0.3,fill:'+1'},
+        {label:'Min °C',data:tempMin7,borderColor:'#3AABEF',backgroundColor:'rgba(58,171,239,0.1)',tension:0.3,fill:false},
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6B7C93',font:{size:10}}}},scales:{x:{ticks:{color:'#6B7C93'},grid:{color:'#1A3050'}},y:{ticks:{color:'#6B7C93'},grid:{color:'#1A3050'}}}}});
+    }
+
+    // Heatmap
+    const hm=document.getElementById('heatmap-vent');
+    if(hm&&om){
+      let html='<div class="hm-label"></div>';
+      [0,3,6,9,12,15,18,21].forEach(h=>html+=`<div class="hm-time">${String(h).padStart(2,'0')}h</div>`);
+      for(let d=0;d<7;d++){
+        html+=`<div class="hm-label">${jours[d].jour}</div>`;
+        [0,3,6,9,12,15,18,21].forEach(offset=>{
+          const idx=d*24+offset;
+          const v=om.hourly.windspeed_10m[idx]||0;
+          const bg=v<20?'rgba(39,174,96,0.6)':v<35?'rgba(230,126,34,0.6)':'rgba(231,76,60,0.6)';
+          html+=`<div class="hm-cell" style="background:${bg}">${v.toFixed(0)}</div>`;
+        });
+      }
+      hm.innerHTML=html;
+    }
+  });
+}
+
+function toggleDayDetail(idx) {
+  const om=donneesPrev7;
+  if(!om) return;
+  const el=document.getElementById('day-detail');
+  const card=document.getElementById(`day-card-${idx}`);
+  if(card.classList.contains('selected')){
+    card.classList.remove('selected');el.innerHTML='';return;
+  }
+  document.querySelectorAll('.day-card').forEach(c=>c.classList.remove('selected'));
+  card.classList.add('selected');
+  const base=idx*24;
+  const labels=om.hourly.time.slice(base,base+24).map(t=>t.substring(11,16));
+  const vents=om.hourly.windspeed_10m.slice(base,base+24);
+  el.innerHTML=`
+    <div class="card">
+      <div class="card-title"><span class="icon">📊</span>Détail ${new Date(om.daily.time[idx]).toLocaleDateString('fr-CA',{weekday:'long',day:'numeric',month:'long'})}</div>
+      <div class="chart-container"><canvas id="chart-day-detail"></canvas></div>
+    </div>
+  `;
+  requestAnimationFrame(()=>{
+    const ctx=document.getElementById('chart-day-detail')?.getContext('2d');
+    if(ctx) new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Vent km/h',data:vents,borderColor:'#3AABEF',backgroundColor:'rgba(58,171,239,0.1)',tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6B7C93',font:{size:9},maxTicksLimit:8},grid:{color:'#1A3050'}},y:{ticks:{color:'#6B7C93',font:{size:9}},grid:{color:'#1A3050'},min:0}}}});
+  });
+}
+
+// ─── ONGLET 3 ───────────────────────────────────────────
+function afficherOnglet3() {
+  const om=donneesPrev15;
+  if(!om){document.getElementById('tab-content').innerHTML='<div class="empty-state"><div class="empty-icon">📆</div><p>Sélectionnez un point sur la carte</p></div>';return;}
+
+  const jours=[];
+  for(let i=0;i<16;i++){
+    const s=scoreJour(om,i);
+    const dt=new Date(om.daily.time[i]);
+    jours.push({
+      date:om.daily.time[i],
+      jour:dt.toLocaleDateString('fr-CA',{weekday:'short'}),
+      dateStr:dt.toLocaleDateString('fr-CA',{day:'numeric',month:'short'}),
+      tempMax:om.daily.temperature_2m_max[i],
+      tempMin:om.daily.temperature_2m_min[i],
+      ventMax:om.daily.windspeed_10m_max[i],
+      rafMax:om.daily.windgusts_10m_max[i],
+      pluiePct:om.daily.precipitation_probability_max[i],
+      wmo:om.daily.weathercode[i],
+      score:s.score, code:s.code, fenetre:s.fenetre,
+      fiable:i<7,
+    });
+  }
+
+  // Résumé hebdo
+  const sem1=jours.slice(0,7), sem2=jours.slice(7,14);
+  const s1Verts=sem1.filter(j=>j.code==='vert').length;
+  const s2Verts=sem2.filter(j=>j.code==='vert').length;
+  const s1Best=sem1.reduce((a,b)=>a.score>b.score?a:b);
+  const s2Best=sem2.reduce((a,b)=>a.score>b.score?a:b);
+
+  // Fenêtres multi-jours
+  const fenetres=[];
+  let debut=-1,streak=0;
+  jours.forEach((j,i)=>{
+    if(j.code==='vert'){if(debut===-1)debut=i;streak++;}
+    else{if(streak>=2)fenetres.push({debut,fin:i-1,count:streak});debut=-1;streak=0;}
+  });
+  if(streak>=2)fenetres.push({debut,fin:jours.length-1,count:streak});
+
+  // Tendance
+  const tendance=[]
+  for(let i=1;i<jours.length;i++) tendance.push(jours[i].score-jours[i-1].score);
+  const trendGlobal=tendance.reduce((a,b)=>a+b,0);
+
+  document.getElementById('tab-content').innerHTML=`
+    <!-- RÉSUMÉ HEBDO -->
+    <div class="weekly-summary">
+      <div class="week-block">
+        <div class="week-title">Semaine 1 — J+1 à J+7</div>
+        <div class="week-stat">${s1Verts}/7</div>
+        <div class="week-sub">jours favorables • Meilleur: ${s1Best.dateStr} (${s1Best.score}/100)</div>
+      </div>
+      <div class="week-block">
+        <div class="week-title">Semaine 2 — J+8 à J+14 <span class="confidence-badge">Fiabilité réduite</span></div>
+        <div class="week-stat">${s2Verts}/7</div>
+        <div class="week-sub">jours favorables • Tendance ${trendGlobal>0?'↗ amélioration':'↘ dégradation'}</div>
+      </div>
+    </div>
+
+    <!-- FENÊTRES MULTI-JOURS -->
+    ${fenetres.length?`
+      <div class="card" style="border-color:rgba(39,174,96,0.4)">
+        <div class="card-title"><span class="icon">✅</span>Fenêtres de vol favorables — ${fenetres.length} détectée(s)</div>
+        ${fenetres.map(f=>`
+          <div class="window-favorable">
+            <div class="window-favorable-title">📅 ${jours[f.debut].dateStr} → ${jours[f.fin].dateStr} — ${f.count} jours consécutifs</div>
+            <div style="font-size:11px;color:var(--gray-light)">Score moyen: ${Math.round(jours.slice(f.debut,f.fin+1).reduce((a,b)=>a+b.score,0)/f.count)}/100</div>
+          </div>
+        `).join('')}
+      </div>` : ''}
+
+    <!-- LISTE 15 JOURS -->
+    <div class="card">
+      <div class="card-title"><span class="icon">📆</span>Prévisions 15 jours</div>
+      <div class="list-header">
+        <div>Date</div><div>Conditions</div><div>Vent max</div><div>Pluie</div><div>Score</div><div></div><div>Fenêtre</div>
+      </div>
+      <div class="days-list">
+        ${jours.map(j=>`
+          <div class="list-row ${j.code==='vert'?'favorable':''} ${!j.fiable?'low-confidence':''}">
+            <div><b>${j.jour}</b> ${j.dateStr}${!j.fiable?` <span class="confidence-badge">~</span>`:''}</div>
+            <div>${iconeMeteo(j.wmo)} ${Math.round(j.tempMax)}°/${Math.round(j.tempMin)}°C</div>
+            <div style="color:${couleurVent(j.ventMax)}">${j.ventMax?.toFixed(0)} km/h</div>
+            <div>${j.pluiePct}%</div>
+            <div style="color:${j.code==='vert'?'var(--green-light)':j.code==='orange'?'var(--orange)':'var(--red)'};font-weight:700">${j.score}</div>
+            <div>${j.code==='vert'?'🟢':j.code==='orange'?'🟠':'🔴'}</div>
+            <div style="font-size:10px;color:var(--teal)">${j.fenetre}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- GRAPHIQUE TENDANCE 15J -->
+    <div class="card">
+      <div class="card-title"><span class="icon">📈</span>Tendance vent — 15 jours</div>
+      <div class="chart-container"><canvas id="chart-vent15"></canvas></div>
+    </div>
+
+    <!-- ZONES -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🗺</span>Zones aériennes</div>
+      ${genZonesHTML()}
+      <a class="navdrone-btn" href="https://portal.navdrone.ca/?lat=${pointActif?.lat}&lng=${pointActif?.lng}" target="_blank">🛫 Vérifier sur NavDrone</a>
+    </div>
+  `;
+
+  requestAnimationFrame(()=>{
+    const ctx=document.getElementById('chart-vent15')?.getContext('2d');
+    if(ctx) new Chart(ctx,{
+      type:'line',
+      data:{
+        labels:jours.map(j=>j.jour+' '+j.dateStr.split(' ')[0]),
+        datasets:[
+          {label:'Vent max km/h',data:jours.map(j=>j.ventMax),borderColor:'#3AABEF',backgroundColor:'rgba(58,171,239,0.1)',tension:0.3,fill:true,pointRadius:3},
+          {label:'Rafales max km/h',data:jours.map(j=>j.rafMax),borderColor:'#E67E22',borderDash:[4,4],tension:0.3,pointRadius:0},
+        ]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6B7C93',font:{size:10}}}},scales:{x:{ticks:{color:'#6B7C93',font:{size:9},maxRotation:45},grid:{color:'#1A3050'}},y:{ticks:{color:'#6B7C93',font:{size:9}},grid:{color:'#1A3050'},min:0}}}
+    });
+  });
+}
+
+function genZonesHTML(){
+  const zones=window._zones||{critiques:[],vigilance:[],informatif:[]};
+  return `
+    ${zones.critiques.map(z=>`<div class="zone-item"><div class="zone-dot rouge"></div><div class="zone-info"><div class="zone-name">🔴 ${z.nom}</div><div class="zone-dist">${z.dist?.toFixed(1)}km — DANS LA ZONE</div></div></div>`).join('')}
+    ${zones.vigilance.map(z=>`<div class="zone-item"><div class="zone-dot orange"></div><div class="zone-info"><div class="zone-name">🟠 ${z.nom}</div><div class="zone-dist">${z.dist?.toFixed(1)}km</div></div></div>`).join('')}
+    ${zones.informatif.slice(0,3).map(z=>`<div class="zone-item"><div class="zone-dot jaune"></div><div class="zone-info"><div class="zone-name">🟡 ${z.nom}</div><div class="zone-dist">${z.dist?.toFixed(1)}km</div></div></div>`).join('')}
+    ${(!zones.critiques.length&&!zones.vigilance.length)?'<div style="color:var(--green);font-size:12px">✅ Aucune zone critique dans un rayon de 30km</div>':''}
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
+// FICHES POPUP
+// ═══════════════════════════════════════════════════════
+function afficherFiche(id) {
+  const f=FICHES[id];
+  if(!f) return;
+  const popup=document.getElementById('info-popup');
+  document.getElementById('popup-title').textContent=f.titre;
+  document.getElementById('popup-subtitle').textContent=f.subtitle;
+  document.getElementById('popup-body').innerHTML=`
+    <div class="popup-section"><div class="popup-section-title">C'est quoi</div><div class="popup-text">${f.cest_quoi}</div></div>
+    <div class="popup-section"><div class="popup-section-title">Pour ton vol Air 3S</div><div class="popup-text">${f.pour_ton_vol}</div></div>
+    <div class="popup-section"><div class="popup-section-title">Exemple concret</div><div class="popup-text">${f.exemple}</div></div>
+    <div class="popup-section"><div class="popup-section-title">Seuils CapturAir</div>
+      <div class="popup-seuils">
+        <span class="metric-badge badge-ok">🟢 ${f.seuils.vert}</span>
+        <span class="metric-badge badge-warn">🟠 ${f.seuils.orange}</span>
+        <span class="metric-badge badge-danger">🔴 ${f.seuils.rouge}</span>
+      </div>
+    </div>
+    <div class="popup-error">⚠️ Erreur fréquente : ${f.erreur}</div>
+  `;
+  // Positionner
+  popup.style.right='16px';
+  popup.style.top='80px';
+  popup.classList.add('show');
+}
+
+function fermerPopup() {
+  document.getElementById('info-popup').classList.remove('show');
+}
+
+// Fermer popup en cliquant ailleurs
+document.addEventListener('click', e => {
+  const popup=document.getElementById('info-popup');
+  if(popup.classList.contains('show') && !popup.contains(e.target) && !e.target.closest('.metric')) {
+    fermerPopup();
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════════════
+function showNotif(msg, type='info') {
+  const el=document.getElementById('notif');
+  el.textContent=msg;
+  el.className=`show ${type}`;
+  setTimeout(()=>el.classList.remove('show'),3000);
+}
+</script>
+
+<!-- Google Maps -->
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBa_29f6i2nUKqTPepHFLYE_pEff8VfogY&libraries=places&callback=initMap&language=fr">
+</script>
+</body>
+</html>
