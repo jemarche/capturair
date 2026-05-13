@@ -717,7 +717,7 @@ async function actualiserPosition() {
     mettreAJourCarte(d.latitude, d.longitude, appareilActif.nom);
     afficherInfosPosition(d);
     resetCountdown();
-    if (document.querySelector('.sidebar-tab.active')?.id === 'tab-meteo') chargerMeteo();
+    if (document.querySelector('.sidebar-tab.active')?.id === 'tab-meteo' && !meteoPointManuel) chargerMeteo();
   } catch(e) { showNotif('Erreur de connexion','error'); }
 }
 function afficherInfosPosition(d) {
