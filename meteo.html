@@ -1101,7 +1101,7 @@ async function verifierOTP() {
     const r = await fetch(`${API_AUTH}/api/carnet/auth/otp`,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({otp})
+      body:JSON.stringify({email:'mohand.aidi@mohand.ca', otp})
     });
     const d = await r.json();
     if(d.token){
