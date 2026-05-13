@@ -924,7 +924,7 @@ async function chargerMeteo(lat,lng){
     // MODIFICATION 5: Open-Meteo supporte déjà le monde entier avec timezone=auto
     // OWM supporte aussi le monde entier — pas de restriction
     const [openMeteo,owm,windy]=await Promise.allSettled([
-      hourly=windspeed_10m,windspeed_80m,windspeed_120m,winddirection_10m,winddirection_80m,windgusts_10m,visibility,cloudcover,cloudcover_low,cloudcover_mid,cloudcover_high,precipitation,precipitation_probability,cape,uv_index,temperature_2m,apparent_temperature,surface_temperature,relativehumidity_2m,surface_pressure,weathercode,showers,rain,snowfall,snow_depth,dewpoint_2m,freezing_level_height
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&hourly=windspeed_10m,windspeed_80m,windspeed_120m,winddirection_10m,winddirection_80m,windgusts_10m,visibility,cloudcover,cloudcover_low,cloudcover_mid,cloudcover_high,precipitation,precipitation_probability,cape,uv_index,temperature_2m,relativehumidity_2m,apparent_temperature,surface_pressure,weathercode,showers,rain,snowfall,snow_depth,dewpoint_2m,freezing_level_height,surface_temperature&daily=temperature_2m_max,temperature_2m_min,windspeed_10m_max,windgusts_10m_max,precipitation_sum,precipitation_probability_max,sunrise,sunset,uv_index_max,weathercode&timezone=auto&forecast_days=16`).then(r=>r.json()),
       fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${OWM_KEY}&units=metric&lang=fr`).then(r=>r.json()),
       fetch(`https://api.windy.com/api/point-forecast/v2`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lat,lng,model:'gfs',parameters:['wind','windGust'],levels:['surface','850h','925h','700h','500h'],key:WINDY_KEY})}).then(r=>r.json()),
     ]);
@@ -1136,146 +1136,79 @@ function afficherOnglet1(){
   const lng_nav = pointActif?.lng ?? donneesMeteo?.lng ?? -73.0;
   const navdroneURL = `https://portal.navdrone.ca/?lat=${lat_nav}&lng=${lng_nav}#/7503f919-9e0e-4b56-99d3-212e8288d5a5/uasoperation-creation`;
 
-document.getElementById('tab-content').innerHTML=`
-    ${villeHTML}
-    ${blocConditions}
-    <div class="card verdict-card ${stat.code}" id="verdict-card">
-const wcode = om?.hourly?.weathercode?.[hi] ?? -1;
-const wmoTexte = {
-  0:'☀️ Ciel dégagé', 1:'🌤 Principalement dégagé', 2:'⛅ Partiellement nuageux',
-  3:'☁️ Couvert', 45:'🌫 Brouillard', 48:'🌫 Brouillard givrant',
-  51:'🌦 Bruine légère', 53:'🌦 Bruine modérée', 55:'🌦 Bruine dense',
-  61:'🌧 Pluie légère', 63:'🌧 Pluie modérée', 65:'🌧 Pluie forte',
-  66:'🌧 Pluie verglaçante légère', 67:'🌧 Pluie verglaçante forte',
-  71:'❄️ Neige légère', 73:'❄️ Neige modérée', 75:'❄️ Neige forte',
-  77:'🌨 Grains de neige', 80:'🌦 Averses légères', 81:'🌦 Averses modérées',
-  82:'⛈ Averses violentes', 85:'🌨 Averses de neige', 86:'🌨 Averses neige forte',
-  95:'⛈ Orage', 96:'⛈ Orage avec grêle', 99:'⛈ Orage grêle forte'
-};
-const conditionActuelle = wmoTexte[wcode] ?? '🌡 Données indisponibles';
-const isBrouillard = [45,48].includes(wcode);
-const isGivrant = [48,66,67].includes(wcode);
-const isNeige = [71,73,75,77,85,86].includes(wcode);
-const isOrage = [95,96,99].includes(wcode);
-const isAverse = [80,81,82].includes(wcode);
-const isPluie = [51,53,55,61,63,65].includes(wcode);
-
-const tempActuelle = om?.hourly?.temperature_2m?.[hi] ?? ow?.main?.temp ?? null;
-const tempRessentie = om?.hourly?.apparent_temperature?.[hi] ?? null;
-const tempSurface = om?.hourly?.surface_temperature?.[hi] ?? null;
-const gelAuSol = tempSurface !== null && tempSurface <= 0;
-const freezingLevel = om?.hourly?.freezing_level_height?.[hi] ?? null;
-const pluieCont = om?.hourly?.rain?.[hi] ?? 0;
-const averses = om?.hourly?.showers?.[hi] ?? 0;
-const neige = om?.hourly?.snowfall?.[hi] ?? 0;
-const neigeAuSol = om?.hourly?.snow_depth?.[hi] ?? 0;
-const roseeDirecte = om?.hourly?.dewpoint_2m?.[hi] ?? null;
-
-// ── PRÉVISIONS NUIT & PETIT MATIN ─────────────────────
-// Trouver les heures 20h→08h en heure locale
-const prevNuit = [];
-if(om?.hourly?.time){
-  for(let i = 0; i < om.hourly.time.length; i++){
-    if(!om.hourly.time[i]) continue;
-    const heure = parseInt(om.hourly.time[i].substring(11,13));
-    const isNuitMatin = heure >= 20 || heure <= 8;
-    // Seulement les prochaines 12h de nuit/matin
-    if(isNuitMatin && i >= hi && i <= hi + 36 && prevNuit.length < 7){
-      prevNuit.push({
-        heure: om.hourly.time[i].substring(11,16),
-        temp: om.hourly.temperature_2m?.[i] ?? '--',
-        wcode: om.hourly.weathercode?.[i] ?? 0,
-        pluie: om.hourly.precipitation?.[i] ?? 0,
-        icone: wmoTexte[om.hourly.weathercode?.[i]] ?? '🌡',
-      });
+  // ── BLOC CONDITIONS ACTUELLES ──────────────────────────
+  const wmoTexte = {
+    0:'☀️ Ciel dégagé', 1:'🌤 Principalement dégagé', 2:'⛅ Partiellement nuageux',
+    3:'☁️ Couvert', 45:'🌫 Brouillard', 48:'🌫 Brouillard givrant',
+    51:'🌦 Bruine légère', 53:'🌦 Bruine modérée', 55:'🌦 Bruine dense',
+    61:'🌧 Pluie légère', 63:'🌧 Pluie modérée', 65:'🌧 Pluie forte',
+    66:'🌧 Pluie verglaçante légère', 67:'🌧 Pluie verglaçante forte',
+    71:'❄️ Neige légère', 73:'❄️ Neige modérée', 75:'❄️ Neige forte',
+    77:'🌨 Grains de neige', 80:'🌦 Averses légères', 81:'🌦 Averses modérées',
+    82:'⛈ Averses violentes', 85:'🌨 Averses de neige', 86:'🌨 Averses neige forte',
+    95:'⛈ Orage', 96:'⛈ Orage avec grêle', 99:'⛈ Orage grêle forte'
+  };
+  const wcode = om?.hourly?.weathercode?.[hi] ?? -1;
+  const conditionActuelle = wmoTexte[wcode] ?? '🌡 Données indisponibles';
+  const isBrouillard = [45,48].includes(wcode);
+  const isGivrant = [48,66,67].includes(wcode);
+  const isNeige = [71,73,75,77,85,86].includes(wcode);
+  const isOrage = [95,96,99].includes(wcode);
+  const isAverse = [80,81,82].includes(wcode);
+  const isPluie = [51,53,55,61,63,65].includes(wcode);
+  const tempActuelle = om?.hourly?.temperature_2m?.[hi] ?? ow?.main?.temp ?? null;
+  const tempRessentie = om?.hourly?.apparent_temperature?.[hi] ?? null;
+  const tempSurface = om?.hourly?.surface_temperature?.[hi] ?? null;
+  const gelAuSol = tempSurface !== null && tempSurface <= 0;
+  const freezingLevel = om?.hourly?.freezing_level_height?.[hi] ?? null;
+  const pluieCont = om?.hourly?.rain?.[hi] ?? 0;
+  const averses = om?.hourly?.showers?.[hi] ?? 0;
+  const neige = om?.hourly?.snowfall?.[hi] ?? 0;
+  const neigeAuSol = om?.hourly?.snow_depth?.[hi] ?? 0;
+  const roseeDirecte = om?.hourly?.dewpoint_2m?.[hi] ?? null;
+  const prevNuit = [];
+  if(om?.hourly?.time){
+    for(let i=0;i<om.hourly.time.length;i++){
+      if(!om.hourly.time[i]) continue;
+      const heure=parseInt(om.hourly.time[i].substring(11,13));
+      if((heure>=20||heure<=8)&&i>=hi&&i<=hi+36&&prevNuit.length<7){
+        prevNuit.push({heure:om.hourly.time[i].substring(11,16),temp:om.hourly.temperature_2m?.[i]??'--',wcode:om.hourly.weathercode?.[i]??0,pluie:om.hourly.precipitation?.[i]??0,icone:wmoTexte[om.hourly.weathercode?.[i]]??'🌡'});
+      }
     }
   }
-}
+  const bord = isOrage?'var(--red)':isGivrant||isBrouillard?'var(--orange)':'var(--border)';
+  const blocConditions = '<div class="card" style="margin-bottom:12px;border-color:'+bord+'">'+
+    '<div class="card-title"><span class="icon">🔭</span>Conditions actuelles</div>'+
+    '<div style="font-size:20px;font-weight:700;font-family:Syne,sans-serif;margin-bottom:12px;color:var(--offwhite)">'+conditionActuelle+
+    (isGivrant?'<span style="color:var(--red);font-size:12px;margin-left:8px">⚠️ GIVRANT</span>':'')+
+    (isOrage?'<span style="color:var(--red);font-size:12px;margin-left:8px">⚠️ ORAGE</span>':'')+'</div>'+
+    '<div class="metrics-grid" style="margin-bottom:10px">'+
+    (tempActuelle!==null?'<div class="metric"><div class="metric-label">🌡 Température</div><div class="metric-value">'+parseFloat(tempActuelle).toFixed(1)+'<small style="font-size:13px;color:var(--gray)"> °C</small></div>'+
+    (tempRessentie!==null?'<div class="metric-sub">Ressentie '+parseFloat(tempRessentie).toFixed(1)+'°C</div>':'')+
+    '<span class="metric-badge '+( parseFloat(tempActuelle)>=0&&parseFloat(tempActuelle)<=38?'badge-ok':parseFloat(tempActuelle)<0?'badge-danger':'badge-warn')+'">'+
+    (parseFloat(tempActuelle)<0?'❄️ GEL':parseFloat(tempActuelle)>38?'🔴 TROP CHAUD':'✅ OK')+'</span></div>':'')+
+    (freezingLevel!==null?'<div class="metric"><div class="metric-label">🧊 Niveau de gel</div><div class="metric-value">'+Math.round(freezingLevel)+'<small style="font-size:13px;color:var(--gray)"> m</small></div><div class="metric-sub">Altitude où T° = 0°C</div><span class="metric-badge '+
+    (freezingLevel>500?'badge-ok':freezingLevel>200?'badge-warn':'badge-danger')+'">'+
+    (freezingLevel>500?'✅ OK drone':'⚠️ Givrage possible')+'</span></div>':'')+
+    (gelAuSol?'<div class="metric" style="grid-column:span 2;border-color:var(--red)"><div class="metric-label">🧊 Surface du sol</div><div class="metric-value" style="color:var(--red)">'+parseFloat(tempSurface).toFixed(1)+' °C</div><span class="metric-badge badge-danger">🔴 GEL AU SOL — Décollage glissant</span></div>':'')+
+    '</div>'+
+    ((pluieCont>0||averses>0||neige>0||neigeAuSol>0)?
+    '<div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px"><div style="font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Précipitations actives</div><div style="display:flex;flex-wrap:wrap;gap:8px">'+
+    (pluieCont>0?'<div style="background:rgba(58,171,239,0.1);border:1px solid rgba(58,171,239,0.3);border-radius:8px;padding:6px 12px;font-size:12px">🌧 Pluie continue: <b>'+pluieCont.toFixed(1)+' mm/h</b></div>':'')+
+    (averses>0?'<div style="background:rgba(230,126,34,0.1);border:1px solid rgba(230,126,34,0.3);border-radius:8px;padding:6px 12px;font-size:12px">⛈ Averses: <b>'+averses.toFixed(1)+' mm/h</b></div>':'')+
+    (neige>0?'<div style="background:rgba(155,89,182,0.1);border:1px solid rgba(155,89,182,0.3);border-radius:8px;padding:6px 12px;font-size:12px">❄️ Neige: <b>'+neige.toFixed(1)+' cm/h</b></div>':'')+
+    (neigeAuSol>0?'<div style="background:rgba(155,89,182,0.1);border:1px solid rgba(155,89,182,0.3);border-radius:8px;padding:6px 12px;font-size:12px">🌨 Neige au sol: <b>'+neigeAuSol.toFixed(0)+' cm</b></div>':'')+
+    '</div></div>':
+    '<div style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;font-size:12px;color:var(--green-light)">✅ Aucune précipitation active</div>')+
+    (roseeDirecte!==null&&tempActuelle!==null?'<div style="margin-top:10px;font-size:12px;color:var(--gray-light)">💧 Point de rosée: <b style="color:var(--offwhite)">'+parseFloat(roseeDirecte).toFixed(1)+'°C</b> — Écart: <b style="color:'+(( parseFloat(tempActuelle)-parseFloat(roseeDirecte))>5?'var(--green-light)':(parseFloat(tempActuelle)-parseFloat(roseeDirecte))>3?'var(--orange)':'var(--red)')+'">'+( parseFloat(tempActuelle)-parseFloat(roseeDirecte)).toFixed(1)+'°C'+(( parseFloat(tempActuelle)-parseFloat(roseeDirecte))<3?' ⚠️ Risque condensation':'')+'</b></div>':'')+
+    (prevNuit.length>0?'<div style="border-top:1px solid var(--border);padding-top:10px;margin-top:10px"><div style="font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">🌙 Nuit & Petit matin</div><div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px">'+
+    prevNuit.map(p=>'<div style="flex-shrink:0;background:#071628;border:1px solid var(--border);border-radius:8px;padding:8px 10px;text-align:center;min-width:58px"><div style="font-size:10px;color:var(--gray);font-family:DM Mono,monospace">'+p.heure+'</div><div style="font-size:15px;margin:3px 0">'+( p.icone||'')+'</div><div style="font-size:11px;font-weight:600;color:'+(parseFloat(p.temp)<0?'var(--red)':parseFloat(p.temp)<5?'var(--orange)':'var(--offwhite)')+'">'+( typeof p.temp==='number'?parseFloat(p.temp).toFixed(0)+'°':'--')+'</div>'+(p.pluie>0?'<div style="font-size:9px;color:var(--blue-light)">'+p.pluie.toFixed(1)+'mm</div>':'')+'</div>').join('')+
+    '</div></div>':'')+
+    '</div>';
 
-const blocConditions = `
-<div class="card" style="margin-bottom:12px;border-color:${isOrage?'var(--red)':isBrouillard||isGivrant?'var(--orange)':'var(--border)'}">
-  <div class="card-title"><span class="icon">🔭</span>Conditions actuelles</div>
-
-  <!-- Condition principale -->
-  <div style="font-size:22px;font-weight:700;font-family:'Syne',sans-serif;margin-bottom:12px;color:var(--offwhite)">
-    ${conditionActuelle}
-    ${isGivrant?'<span style="color:var(--red);font-size:13px;margin-left:8px">⚠️ GIVRANT</span>':''}
-    ${isOrage?'<span style="color:var(--red);font-size:13px;margin-left:8px">⚠️ ORAGE</span>':''}
-  </div>
-
-  <!-- Température -->
-  <div class="metrics-grid" style="margin-bottom:10px">
-    ${tempActuelle !== null ? `
-    <div class="metric">
-      <div class="metric-label">🌡 Température</div>
-      <div class="metric-value">${parseFloat(tempActuelle).toFixed(1)}<small style="font-size:13px;color:var(--gray)"> °C</small></div>
-      ${tempRessentie !== null ? `<div class="metric-sub">Ressentie ${parseFloat(tempRessentie).toFixed(1)}°C</div>` : ''}
-      <span class="metric-badge ${parseFloat(tempActuelle)>=0&&parseFloat(tempActuelle)<=38?'badge-ok':parseFloat(tempActuelle)<0?'badge-danger':'badge-warn'}">
-        ${parseFloat(tempActuelle)<0?'❄️ GEL':parseFloat(tempActuelle)>38?'🔴 TROP CHAUD':'✅ OK'}
-      </span>
-    </div>` : ''}
-
-    ${freezingLevel !== null ? `
-    <div class="metric">
-      <div class="metric-label">🧊 Niveau de gel</div>
-      <div class="metric-value">${Math.round(freezingLevel)}<small style="font-size:13px;color:var(--gray)"> m</small></div>
-      <div class="metric-sub">Altitude où T° = 0°C</div>
-      <span class="metric-badge ${freezingLevel>500?'badge-ok':freezingLevel>200?'badge-warn':'badge-danger'}">
-        ${freezingLevel>500?'✅ OK drone':'⚠️ Givrage possible'}
-      </span>
-    </div>` : ''}
-
-    ${gelAuSol ? `
-    <div class="metric" style="grid-column:span 2;border-color:var(--red)">
-      <div class="metric-label">🧊 Surface du sol</div>
-      <div class="metric-value" style="color:var(--red)">${parseFloat(tempSurface).toFixed(1)} °C</div>
-      <span class="metric-badge badge-danger">🔴 GEL AU SOL — Décollage glissant</span>
-    </div>` : ''}
-  </div>
-
-  <!-- Précipitations détaillées -->
-  ${(pluieCont>0||averses>0||neige>0||neigeAuSol>0) ? `
-  <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
-    <div style="font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Précipitations</div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px">
-      ${pluieCont>0?`<div style="background:rgba(58,171,239,0.1);border:1px solid rgba(58,171,239,0.3);border-radius:8px;padding:6px 12px;font-size:12px">🌧 Pluie continue: <b>${pluieCont.toFixed(1)} mm/h</b></div>`:''}
-      ${averses>0?`<div style="background:rgba(230,126,34,0.1);border:1px solid rgba(230,126,34,0.3);border-radius:8px;padding:6px 12px;font-size:12px">⛈ Averses: <b>${averses.toFixed(1)} mm/h</b></div>`:''}
-      ${neige>0?`<div style="background:rgba(155,89,182,0.1);border:1px solid rgba(155,89,182,0.3);border-radius:8px;padding:6px 12px;font-size:12px">❄️ Neige: <b>${neige.toFixed(1)} cm/h</b></div>`:''}
-      ${neigeAuSol>0?`<div style="background:rgba(155,89,182,0.1);border:1px solid rgba(155,89,182,0.3);border-radius:8px;padding:6px 12px;font-size:12px">🌨 Neige au sol: <b>${neigeAuSol.toFixed(0)} cm</b></div>`:''}
-    </div>
-  </div>` : `
-  <div style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;font-size:12px;color:var(--green-light)">
-    ✅ Aucune précipitation active
-  </div>`}
-
-  <!-- Point de rosée direct -->
-  ${roseeDirecte !== null ? `
-  <div style="margin-top:10px;font-size:12px;color:var(--gray-light)">
-    💧 Point de rosée: <b style="color:var(--offwhite)">${parseFloat(roseeDirecte).toFixed(1)}°C</b>
-    — Écart temp/rosée: <b style="color:${(parseFloat(tempActuelle)-parseFloat(roseeDirecte))>5?'var(--green-light)':(parseFloat(tempActuelle)-parseFloat(roseeDirecte))>3?'var(--orange)':'var(--red)'}">
-      ${(parseFloat(tempActuelle)-parseFloat(roseeDirecte)).toFixed(1)}°C
-      ${(parseFloat(tempActuelle)-parseFloat(roseeDirecte))<3?'⚠️ Risque condensation':''}
-    </b>
-  </div>` : ''}
-
-  <!-- NUIT & PETIT MATIN -->
-  ${prevNuit.length > 0 ? `
-  <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:10px">
-    <div style="font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">🌙 Nuit & Petit matin</div>
-    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px">
-      ${prevNuit.map(p=>`
-        <div style="flex-shrink:0;background:#071628;border:1px solid var(--border);border-radius:8px;padding:8px 10px;text-align:center;min-width:60px">
-          <div style="font-size:10px;color:var(--gray);font-family:'DM Mono',monospace">${p.heure}</div>
-          <div style="font-size:16px;margin:4px 0">${(p.icone||'').substring(0,2)}</div>
-          <div style="font-size:11px;font-weight:600;color:${parseFloat(p.temp)<0?'var(--red)':parseFloat(p.temp)<5?'var(--orange)':'var(--offwhite)'}">${typeof p.temp==='number'?parseFloat(p.temp).toFixed(0)+'°':'--'}</div>
-          ${p.pluie>0?`<div style="font-size:9px;color:var(--blue-light)">${p.pluie.toFixed(1)}mm</div>`:''}
-        </div>
-      `).join('')}
-    </div>
-  </div>` : ''}
-
-</div>
-`;
+  document.getElementById('tab-content').innerHTML=`
+    ${villeHTML}
+    ${blocConditions}
     <div class="card verdict-card ${stat.code}" id="verdict-card">
       <div class="verdict-main">
         <div class="verdict-dot ${stat.code}">${stat.code==='vert'?'✓':stat.code==='orange'?'⚠':'✗'}</div>
