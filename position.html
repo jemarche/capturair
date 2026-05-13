@@ -971,7 +971,8 @@ async function calculerDepuisDessin(mode, enRoute=false) {
   document.getElementById('nav-dest').setAttribute('data-lat', arrLat);
   document.getElementById('nav-dest').setAttribute('data-lon', arrLng);
 
-  modeNav = mode;
+modeNav = mode;
+  calculEnCours = true;
   showNotif('⏳ Calcul en cours...', '');
 
   // Appeler directement directionsService sans passer par calculerItineraire()
