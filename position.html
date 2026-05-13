@@ -1173,14 +1173,17 @@ function afficherDonneesMeteo(meteo,prev){
 
 function toggleCoucheMeteo(type) {
   document.querySelectorAll('.meteo-couche-btn').forEach(b=>b.classList.remove('active'));
-  if(layerMeteo){layerMeteo.setMap(null);layerMeteo=null;}
-  if(coucheMeteoActive===type){coucheMeteoActive=null;return;}
-  coucheMeteoActive=type;
+  map.overlayMapTypes.clear();
+  layerMeteo = null;
+  if (coucheMeteoActive === type) { coucheMeteoActive = null; return; }
+  coucheMeteoActive = type;
   document.getElementById(`couche-${type==='wind'?'vent':type==='precipitation'?'pluie':type==='temp'?'temp':type==='clouds'?'nuages':'pression'}`).classList.add('active');
-  const owmLayer={'wind':'WND','precipitation':'PAC0','temp':'TMP','clouds':'CL','pressure':'APM'};
-  layerMeteo=new google.maps.ImageMapType({
-    getTileUrl:(coord,zoom)=>`https://tile.openweathermap.org/map/${owmLayer[type]}/${zoom}/${coord.x}/${coord.y}.png?appid=${OWM_KEY}`,
-    tileSize:new google.maps.Size(256,256),opacity:0.6,name:'Météo'
+  const owmLayer = {'wind':'WND','precipitation':'PAC0','temp':'TMP','clouds':'CL','pressure':'APM'};
+  layerMeteo = new google.maps.ImageMapType({
+    getTileUrl: (coord, zoom) => `https://tile.openweathermap.org/map/${owmLayer[type]}/${zoom}/${coord.x}/${coord.y}.png?appid=${OWM_KEY}`,
+    tileSize: new google.maps.Size(256, 256),
+    opacity: 0.6,
+    name: 'Météo'
   });
   map.overlayMapTypes.push(layerMeteo);
 }
