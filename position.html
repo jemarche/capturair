@@ -497,7 +497,7 @@ let autocompleteDepart = null, autocompleteDest = null;
 let dessinActif = false, pointsDessin = [], polylineDessin = null, markersDessin = [];
 let trajetsNav = [];
 let infoWindow = null;
-
+let meteoPointManuel = false;
 // ══ GOOGLE MAPS INIT ══════════════════════════════════════════════════
 function initGoogleMaps() {
   map = new google.maps.Map(document.getElementById('map'), {
