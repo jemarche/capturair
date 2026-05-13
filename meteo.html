@@ -1079,7 +1079,7 @@ async function verifierPIN() {
     const r = await fetch(`${API_AUTH}/api/carnet/auth/init`,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({pin})
+     body:JSON.stringify({email:'mohand.aidi@mohand.ca', pin})
     });
     const d = await r.json();
     if(d.success || r.ok){
