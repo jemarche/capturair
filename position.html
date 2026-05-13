@@ -938,9 +938,9 @@ function afficherVolOiseau() {
 async function calculerDepuisDessin(mode, enRoute=false) {
   if (pointsDessin.length < 2) { showNotif('⚠️ Au moins 2 points', 'error'); return; }
 
-  // Sauvegarder les coordonnées AVANT tout effacement
-  const depLat = pointsDessin[0].lat, depLng = pointsDessin[0].lng;
-  const arrLat = pointsDessin[pointsDessin.length-1].lat, arrLng = pointsDessin[pointsDessin.length-1].lng;
+// Sauvegarder les coordonnées AVANT tout effacement (parseFloat = sécurité)
+  const depLat = parseFloat(pointsDessin[0].lat), depLng = parseFloat(pointsDessin[0].lng);
+  const arrLat = parseFloat(pointsDessin[pointsDessin.length-1].lat), arrLng = parseFloat(pointsDessin[pointsDessin.length-1].lng);
 
   // Effacer SEULEMENT le dessin, pas les champs
   if (polylineDessin) { polylineDessin.setMap(null); polylineDessin = null; }
