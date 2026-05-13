@@ -327,6 +327,119 @@ body{
 .auth-banner{margin-bottom:24px;border-radius:12px;overflow:hidden;}
 .auth-banner svg{display:block;border-radius:12px;}
 
+
+/* ─── TIMELINE 24H DÉFILANTE ─── */
+.timeline-scroll{
+  display:flex;gap:6px;
+  overflow-x:auto;
+  padding:4px 2px 10px 2px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--teal) transparent;
+}
+.timeline-scroll::-webkit-scrollbar{height:4px;}
+.timeline-scroll::-webkit-scrollbar-track{background:transparent;}
+.timeline-scroll::-webkit-scrollbar-thumb{background:var(--teal);border-radius:4px;}
+.tl-card{
+  flex-shrink:0;
+  background:#071628;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:8px 8px;
+  text-align:center;
+  min-width:58px;
+  cursor:default;
+  transition:all 0.2s;
+  position:relative;
+}
+.tl-card:hover{
+  border-color:var(--teal);
+  background:#0a1f38;
+  box-shadow:0 0 12px rgba(26,188,156,0.5),0 0 24px rgba(26,188,156,0.2),inset 0 0 8px rgba(26,188,156,0.05);
+  transform:translateY(-2px);
+}
+.tl-card.tl-now{
+  border-color:var(--blue-light);
+  background:rgba(58,171,239,0.12);
+  box-shadow:0 0 14px rgba(58,171,239,0.5),0 0 28px rgba(58,171,239,0.2);
+}
+.tl-card.tl-now .tl-heure{color:var(--blue-light);font-weight:700;}
+.tl-heure{font-size:10px;color:var(--gray);font-family:'DM Mono',monospace;margin-bottom:3px;}
+.tl-icone{font-size:16px;margin:3px 0;}
+.tl-temp{font-size:12px;font-weight:600;}
+.tl-pluie{font-size:9px;color:var(--blue-light);margin-top:2px;}
+.tl-vent{font-size:9px;color:var(--gray-light);}
+.tl-now-badge{
+  position:absolute;top:-8px;left:50%;transform:translateX(-50%);
+  background:var(--blue-light);color:#fff;
+  font-size:8px;font-weight:700;
+  padding:1px 5px;border-radius:4px;
+  white-space:nowrap;
+}
+
+/* ─── MODAL PDF ─── */
+#pdf-modal{
+  position:fixed;inset:0;
+  background:rgba(6,15,30,0.85);
+  z-index:9500;
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+#pdf-modal.show{display:flex;}
+.pdf-modal-box{
+  background:var(--navy-card);
+  border:1px solid var(--border-light);
+  border-radius:16px;
+  padding:28px 32px;
+  width:440px;
+  max-height:85vh;
+  overflow-y:auto;
+  box-shadow:0 24px 80px rgba(0,0,0,0.7);
+}
+.pdf-modal-title{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:16px;color:var(--blue-light);
+  margin-bottom:4px;
+}
+.pdf-modal-sub{font-size:12px;color:var(--gray);margin-bottom:20px;}
+.pdf-section-label{
+  font-size:10px;color:var(--teal);
+  text-transform:uppercase;letter-spacing:1px;
+  margin:14px 0 8px 0;font-weight:600;
+}
+.pdf-check-row{
+  display:flex;align-items:center;gap:10px;
+  padding:7px 10px;
+  border-radius:8px;
+  cursor:pointer;
+  transition:background 0.15s;
+  margin-bottom:4px;
+}
+.pdf-check-row:hover{background:rgba(26,143,209,0.08);}
+.pdf-check-row input[type=checkbox]{
+  width:16px;height:16px;
+  accent-color:var(--teal);
+  cursor:pointer;flex-shrink:0;
+}
+.pdf-check-label{font-size:13px;color:var(--offwhite);cursor:pointer;}
+.pdf-modal-btns{
+  display:flex;gap:10px;margin-top:20px;
+}
+.pdf-btn-gen{
+  flex:1;padding:12px;
+  background:var(--green);border:none;border-radius:10px;
+  color:#fff;font-family:'Syne',sans-serif;font-weight:700;
+  font-size:13px;cursor:pointer;transition:background 0.2s;
+}
+.pdf-btn-gen:hover{background:var(--green-light);}
+.pdf-btn-cancel{
+  padding:12px 20px;
+  background:transparent;border:1px solid var(--border);border-radius:10px;
+  color:var(--gray);font-size:13px;cursor:pointer;
+  transition:all 0.2s;
+}
+.pdf-btn-cancel:hover{border-color:var(--red);color:var(--red);}
+
 /* ─── SCROLLBAR ─── */
 #tab-content::-webkit-scrollbar{width:4px;}
 #tab-content::-webkit-scrollbar-track{background:transparent;}
@@ -443,7 +556,7 @@ body{
   <div class="topbar-actions">
     <button id="btn-refresh" onclick="actualiserDonnees()" title="Actualiser les données météo" disabled>🔄 Actualiser</button>
     <button id="btn-clear" onclick="effacerTout()" title="Effacer toutes les données">✕ Effacer</button>
-    <button id="btn-pdf" onclick="exporterPDF()" title="Exporter le briefing en PDF" disabled>📄 PDF</button>
+    <button id="btn-pdf" onclick="ouvrirModalPDF()" title="Exporter le briefing en PDF" disabled>📄 PDF</button>
   </div>
 
   <button id="btn-logout" onclick="deconnexion()">⏻ Déconnexion</button>
@@ -501,6 +614,40 @@ body{
   <div class="popup-title" id="popup-title"></div>
   <div class="popup-subtitle" id="popup-subtitle"></div>
   <div id="popup-body"></div>
+</div>
+
+
+<!-- MODAL SÉLECTION PDF -->
+<div id="pdf-modal">
+  <div class="pdf-modal-box">
+    <div class="pdf-modal-title">📄 Exporter en PDF</div>
+    <div class="pdf-modal-sub">Sélectionnez les sections à inclure dans le briefing</div>
+
+    <div class="pdf-section-label">Identification</div>
+    <label class="pdf-check-row"><input type="checkbox" id="pdf-lieu" checked><span class="pdf-check-label">📍 Lieu & coordonnées GPS</span></label>
+
+    <div class="pdf-section-label">Conditions du jour</div>
+    <label class="pdf-check-row"><input type="checkbox" id="pdf-verdict" checked><span class="pdf-check-label">🎯 Verdict de vol & Score</span></label>
+    <label class="pdf-check-row"><input type="checkbox" id="pdf-conditions" checked><span class="pdf-check-label">🔭 Conditions actuelles (météo, température, précipitations)</span></label>
+    <label class="pdf-check-row"><input type="checkbox" id="pdf-vent" checked><span class="pdf-check-label">💨 Vent (sol, 80m, 120m, rafales, cisaillement)</span></label>
+    <label class="pdf-check-row"><input type="checkbox" id="pdf-visi" checked><span class="pdf-check-label">👁 Visibilité & Plafond nuageux</span></label>
+    <label class="pdf-check-row"><input type="checkbox" id="pdf-atmo" checked><span class="pdf-check-label">🌡 Atmosphère (QNH, humidité, CAPE, UV, altitude densité)</span></label>
+    <label class="pdf-check-row"><input type="checkbox" id="pdf-drone" checked><span class="pdf-check-label">🚁 DJI Air 3S — Autonomie & Limites</span></label>
+    <label class="pdf-check-row"><input type="checkbox" id="pdf-soleil" checked><span class="pdf-check-label">☀️ Soleil, crépuscule & Heures dorées</span></label>
+    <label class="pdf-check-row"><input type="checkbox" id="pdf-metar"><span class="pdf-check-label">📡 METAR & NOTAMs</span></label>
+
+    <div class="pdf-section-label">Zones & Réglementation</div>
+    <label class="pdf-check-row"><input type="checkbox" id="pdf-zones" checked><span class="pdf-check-label">🗺 Zones aériennes & Lien NavDrone</span></label>
+
+    <div class="pdf-section-label">Prévisions</div>
+    <label class="pdf-check-row"><input type="checkbox" id="pdf-7j"><span class="pdf-check-label">📅 Prévisions 7 jours (tableau)</span></label>
+    <label class="pdf-check-row"><input type="checkbox" id="pdf-15j"><span class="pdf-check-label">📆 Prévisions 15 jours (tableau)</span></label>
+
+    <div class="pdf-modal-btns">
+      <button class="pdf-btn-cancel" onclick="fermerModalPDF()">Annuler</button>
+      <button class="pdf-btn-gen" onclick="genererPDF()">Générer le PDF</button>
+    </div>
+  </div>
 </div>
 
 <!-- NOTIF -->
@@ -905,8 +1052,11 @@ async function getTZ(lat,lng){
     const d=await r.json();
     if(d.status==='OK'){
       tzOffset=d.rawOffset+d.dstOffset;tzId=d.timeZoneId;
-      const tzShort=d.timeZoneId.split('/').pop().replace('_',' ');
-      document.getElementById('tz-display').textContent=`${tzShort} UTC${tzOffset>=0?'+':''}${tzOffset/3600}h`;
+      const tzShort=d.timeZoneId.split('/').pop().replace(/_/g,' ');
+      const heures=tzOffset/3600;
+      const signe=heures>=0?'+':'';
+      const hStr=Number.isInteger(heures)?signe+heures+'h':signe+(heures>0?Math.floor(heures):Math.ceil(heures))+'h'+(Math.abs(heures%1)*60)+'min';
+      document.getElementById('tz-display').textContent=tzShort+' UTC'+hStr;
     }
   } catch(e){}
 }
@@ -1166,14 +1316,20 @@ function afficherOnglet1(){
   const neige = om?.hourly?.snowfall?.[hi] ?? 0;
   const neigeAuSol = om?.hourly?.snow_depth?.[hi] ?? 0;
   const roseeDirecte = om?.hourly?.dewpoint_2m?.[hi] ?? null;
-  const prevNuit = [];
+  // Timeline 24h complète défilante
+  const timeline24 = [];
   if(om?.hourly?.time){
-    for(let i=0;i<om.hourly.time.length;i++){
+    for(let i=hi;i<hi+24&&i<(om.hourly.time?.length||0);i++){
       if(!om.hourly.time[i]) continue;
-      const heure=parseInt(om.hourly.time[i].substring(11,13));
-      if((heure>=20||heure<=8)&&i>=hi&&i<=hi+36&&prevNuit.length<7){
-        prevNuit.push({heure:om.hourly.time[i].substring(11,16),temp:om.hourly.temperature_2m?.[i]??'--',wcode:om.hourly.weathercode?.[i]??0,pluie:om.hourly.precipitation?.[i]??0,icone:wmoTexte[om.hourly.weathercode?.[i]]??'🌡'});
-      }
+      timeline24.push({
+        heure:om.hourly.time[i].substring(11,16),
+        temp:om.hourly.temperature_2m?.[i]??null,
+        wcode:om.hourly.weathercode?.[i]??0,
+        pluie:om.hourly.precipitation?.[i]??0,
+        vent:om.hourly.windspeed_10m?.[i]??0,
+        icone:wmoTexte[om.hourly.weathercode?.[i]]?.substring(0,2)??'🌡',
+        isNow:(i===hi)
+      });
     }
   }
   const bord = isOrage?'var(--red)':isGivrant||isBrouillard?'var(--orange)':'var(--border)';
@@ -1201,8 +1357,16 @@ function afficherOnglet1(){
     '</div></div>':
     '<div style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;font-size:12px;color:var(--green-light)">✅ Aucune précipitation active</div>')+
     (roseeDirecte!==null&&tempActuelle!==null?'<div style="margin-top:10px;font-size:12px;color:var(--gray-light)">💧 Point de rosée: <b style="color:var(--offwhite)">'+parseFloat(roseeDirecte).toFixed(1)+'°C</b> — Écart: <b style="color:'+(( parseFloat(tempActuelle)-parseFloat(roseeDirecte))>5?'var(--green-light)':(parseFloat(tempActuelle)-parseFloat(roseeDirecte))>3?'var(--orange)':'var(--red)')+'">'+( parseFloat(tempActuelle)-parseFloat(roseeDirecte)).toFixed(1)+'°C'+(( parseFloat(tempActuelle)-parseFloat(roseeDirecte))<3?' ⚠️ Risque condensation':'')+'</b></div>':'')+
-    (prevNuit.length>0?'<div style="border-top:1px solid var(--border);padding-top:10px;margin-top:10px"><div style="font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">🌙 Nuit & Petit matin</div><div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px">'+
-    prevNuit.map(p=>'<div style="flex-shrink:0;background:#071628;border:1px solid var(--border);border-radius:8px;padding:8px 10px;text-align:center;min-width:58px"><div style="font-size:10px;color:var(--gray);font-family:DM Mono,monospace">'+p.heure+'</div><div style="font-size:15px;margin:3px 0">'+( p.icone||'')+'</div><div style="font-size:11px;font-weight:600;color:'+(parseFloat(p.temp)<0?'var(--red)':parseFloat(p.temp)<5?'var(--orange)':'var(--offwhite)')+'">'+( typeof p.temp==='number'?parseFloat(p.temp).toFixed(0)+'°':'--')+'</div>'+(p.pluie>0?'<div style="font-size:9px;color:var(--blue-light)">'+p.pluie.toFixed(1)+'mm</div>':'')+'</div>').join('')+
+    (timeline24.length>0?'<div style="border-top:1px solid var(--border);padding-top:10px;margin-top:10px"><div style="font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">⏱ Prochaines 24h — défilement</div><div class="timeline-scroll">'+
+    timeline24.map(p=>'<div class="tl-card'+(p.isNow?' tl-now':'')+'">'+
+    (p.isNow?'<div class="tl-now-badge">MAINTENANT</div>':'')+
+    '<div class="tl-heure">'+p.heure+'</div>'+
+    '<div class="tl-icone">'+p.icone+'</div>'+
+    '<div class="tl-temp" style="color:'+(p.temp!==null?(parseFloat(p.temp)<0?'var(--red)':parseFloat(p.temp)<5?'var(--orange)':'var(--offwhite)'):'var(--gray)')+'">'+
+    (p.temp!==null?parseFloat(p.temp).toFixed(0)+'°':'--')+'</div>'+
+    (p.pluie>0?'<div class="tl-pluie">'+p.pluie.toFixed(1)+'mm</div>':'')+
+    '<div class="tl-vent">'+p.vent.toFixed(0)+' km/h</div>'+
+    '</div>').join('')+
     '</div></div>':'')+
     '</div>';
 
@@ -1313,10 +1477,18 @@ function afficherOnglet1(){
 function afficherOnglet2(){
   const om=donneesPrev7;
   if(!om){document.getElementById('tab-content').innerHTML='<div style="padding:40px;text-align:center;color:var(--gray)"><div style="font-size:48px;opacity:0.4;margin-bottom:12px">📅</div><p>Sélectionnez un point sur la carte</p></div>';return;}
+  // J+1 Montréal: date locale Montréal + 1
+  const maintenant = new Date(new Date().toLocaleString('en-CA',{timeZone:'America/Toronto'}));
+  const dateLocaleMtl = maintenant.toISOString().substring(0,10);
+  // Trouver l'index du jour suivant dans les données
+  let startIdx = om.daily.time.findIndex(t => t > dateLocaleMtl);
+  if(startIdx < 0) startIdx = 1;
   const jours=[];
-  for(let i=0;i<7;i++){
-    const s=scoreJour(om,i);const dt=new Date(om.daily.time[i]);
-    jours.push({date:om.daily.time[i],jour:dt.toLocaleDateString('fr-CA',{weekday:'short'}),dateStr:dt.toLocaleDateString('fr-CA',{day:'numeric',month:'short'}),tempMax:om.daily.temperature_2m_max[i],tempMin:om.daily.temperature_2m_min[i],ventMax:om.daily.windspeed_10m_max[i],rafMax:om.daily.windgusts_10m_max[i],pluie:om.daily.precipitation_sum[i],pluiePct:om.daily.precipitation_probability_max[i],uv:om.daily.uv_index_max[i],wmo:om.daily.weathercode[i],sunrise:localTimeStr(om.daily.sunrise[i]),sunset:localTimeStr(om.daily.sunset[i]),score:s.score,code:s.code,fenetre:s.fenetre});
+  for(let k=0;k<7;k++){
+    const i=startIdx+k;
+    if(i>=om.daily.time.length) break;
+    const s=scoreJour(om,i);const dt=new Date(om.daily.time[i]+'T12:00:00');
+    jours.push({date:om.daily.time[i],jour:dt.toLocaleDateString('fr-CA',{weekday:'short'}),dateStr:dt.toLocaleDateString('fr-CA',{day:'numeric',month:'short'}),tempMax:om.daily.temperature_2m_max[i],tempMin:om.daily.temperature_2m_min[i],ventMax:om.daily.windspeed_10m_max[i],rafMax:om.daily.windgusts_10m_max[i],pluie:om.daily.precipitation_sum[i],pluiePct:om.daily.precipitation_probability_max[i],uv:om.daily.uv_index_max[i],wmo:om.daily.weathercode[i],sunrise:localTimeStr(om.daily.sunrise[i]),sunset:localTimeStr(om.daily.sunset[i]),score:s.score,code:s.code,fenetre:s.fenetre,dayIdx:i});
   }
   // MODIFICATION 8: URL NavDrone dynamique
   const lat_nav=pointActif?.lat??donneesMeteo?.lat??45.5;
@@ -1325,7 +1497,7 @@ function afficherOnglet2(){
 
   document.getElementById('tab-content').innerHTML=`
     <div class="days-grid" id="days-grid7">
-      ${jours.map((j,i)=>`<div class="day-card ${j.code}" onclick="toggleDayDetail(${i})" id="day-card-${i}"><div class="day-name">${j.jour.toUpperCase()}</div><div class="day-date">${j.dateStr}</div><div class="day-icon">${iconeMeteo(j.wmo)}</div><div class="day-temp">${Math.round(j.tempMax)}° / ${Math.round(j.tempMin)}°</div><div class="day-wind">💨 ${j.ventMax?.toFixed(0)} km/h</div><div class="day-score ${j.code}">${j.score}</div><div class="day-window">${j.fenetre}</div></div>`).join('')}
+      ${jours.map((j,i)=>`<div class="day-card ${j.code}" onclick="toggleDayDetail(${j.dayIdx})" id="day-card-${i}"><div class="day-name">${j.jour.toUpperCase()}</div><div class="day-date">${j.dateStr}</div><div class="day-icon">${iconeMeteo(j.wmo)}</div><div class="day-temp">${Math.round(j.tempMax)}° / ${Math.round(j.tempMin)}°</div><div class="day-wind">💨 ${j.ventMax?.toFixed(0)} km/h</div>${j.pluie>0?`<div style="font-size:10px;color:var(--blue-light)">🌧 ${j.pluie.toFixed(1)} mm</div>`:''}<div class="day-score ${j.code}">${j.score}</div><div class="day-window">${j.fenetre}</div></div>`).join('')}
     </div>
     <div id="day-detail"></div>
     <div class="card"><div class="card-title"><span class="icon">💨</span>Vent sur 7 jours</div><div class="chart-container"><canvas id="chart-vent7"></canvas></div></div>
@@ -1371,10 +1543,17 @@ function toggleDayDetail(idx){
 function afficherOnglet3(){
   const om=donneesPrev15;
   if(!om){document.getElementById('tab-content').innerHTML='<div style="padding:40px;text-align:center;color:var(--gray)"><div style="font-size:48px;opacity:0.4;margin-bottom:12px">📆</div><p>Sélectionnez un point sur la carte</p></div>';return;}
+  // J+1 Montréal
+  const maintenant15 = new Date(new Date().toLocaleString('en-CA',{timeZone:'America/Toronto'}));
+  const dateLocaleMtl15 = maintenant15.toISOString().substring(0,10);
+  let startIdx15 = om.daily.time.findIndex(t => t > dateLocaleMtl15);
+  if(startIdx15 < 0) startIdx15 = 1;
   const jours=[];
-  for(let i=0;i<16;i++){
-    const s=scoreJour(om,i);const dt=new Date(om.daily.time[i]);
-    jours.push({date:om.daily.time[i],jour:dt.toLocaleDateString('fr-CA',{weekday:'short'}),dateStr:dt.toLocaleDateString('fr-CA',{day:'numeric',month:'short'}),tempMax:om.daily.temperature_2m_max[i],tempMin:om.daily.temperature_2m_min[i],ventMax:om.daily.windspeed_10m_max[i],rafMax:om.daily.windgusts_10m_max[i],pluiePct:om.daily.precipitation_probability_max[i],wmo:om.daily.weathercode[i],score:s.score,code:s.code,fenetre:s.fenetre,fiable:i<7});
+  for(let k=0;k<15;k++){
+    const i=startIdx15+k;
+    if(i>=om.daily.time.length) break;
+    const s=scoreJour(om,i);const dt=new Date(om.daily.time[i]+'T12:00:00');
+    jours.push({date:om.daily.time[i],jour:dt.toLocaleDateString('fr-CA',{weekday:'short'}),dateStr:dt.toLocaleDateString('fr-CA',{day:'numeric',month:'short'}),tempMax:om.daily.temperature_2m_max[i],tempMin:om.daily.temperature_2m_min[i],ventMax:om.daily.windspeed_10m_max[i],rafMax:om.daily.windgusts_10m_max[i],pluiePct:om.daily.precipitation_probability_max[i],pluieMM:om.daily.precipitation_sum?.[i]??0,wmo:om.daily.weathercode[i],score:s.score,code:s.code,fenetre:s.fenetre,fiable:k<7,dayIdx:i});
   }
   const sem1=jours.slice(0,7),sem2=jours.slice(7,14);
   const s1Verts=sem1.filter(j=>j.code==='vert').length,s2Verts=sem2.filter(j=>j.code==='vert').length;
@@ -1398,7 +1577,7 @@ function afficherOnglet3(){
       <div class="card-title"><span class="icon">📆</span>Prévisions 15 jours</div>
       <div class="list-header"><div>Date</div><div>Conditions</div><div>Vent max</div><div>Pluie</div><div>Score</div><div></div><div>Fenêtre</div></div>
       <div class="days-list">
-        ${jours.map(j=>`<div class="list-row ${j.code==='vert'?'favorable':''} ${!j.fiable?'low-confidence':''}"><div><b>${j.jour}</b> ${j.dateStr}${!j.fiable?` <span class="confidence-badge">~</span>`:''}</div><div>${iconeMeteo(j.wmo)} ${Math.round(j.tempMax)}°/${Math.round(j.tempMin)}°C</div><div style="color:${couleurVent(j.ventMax)}">${j.ventMax?.toFixed(0)} km/h</div><div>${j.pluiePct}%</div><div style="color:${j.code==='vert'?'var(--green-light)':j.code==='orange'?'var(--orange)':'var(--red)'};font-weight:700">${j.score}</div><div>${j.code==='vert'?'🟢':j.code==='orange'?'🟠':'🔴'}</div><div style="font-size:10px;color:var(--teal)">${j.fenetre}</div></div>`).join('')}
+        ${jours.map(j=>`<div class="list-row ${j.code==='vert'?'favorable':''} ${!j.fiable?'low-confidence':''}"><div><b>${j.jour}</b> ${j.dateStr}${!j.fiable?` <span class="confidence-badge">~</span>`:''}</div><div>${iconeMeteo(j.wmo)} ${Math.round(j.tempMax)}°/${Math.round(j.tempMin)}°C</div><div style="color:${couleurVent(j.ventMax)}">${j.ventMax?.toFixed(0)} km/h</div><div style="color:var(--blue-light)">${j.pluieMM>0?j.pluieMM.toFixed(1)+' mm':j.pluiePct+'%'}</div><div style="color:${j.code==='vert'?'var(--green-light)':j.code==='orange'?'var(--orange)':'var(--red)'};font-weight:700">${j.score}</div><div>${j.code==='vert'?'🟢':j.code==='orange'?'🟠':'🔴'}</div><div style="font-size:10px;color:var(--teal)">${j.fenetre}</div></div>`).join('')}
       </div>
     </div>
     <div class="card"><div class="card-title"><span class="icon">📈</span>Tendance vent — 15 jours</div><div class="chart-container"><canvas id="chart-vent15"></canvas></div></div>
@@ -1416,52 +1595,80 @@ function genZonesHTML(){
 }
 
 // ═══════════════════════════════════════════════════════
-// MODIFICATION 7: EXPORT PDF
+// MODIFICATION 7: EXPORT PDF avec sélection
 // ═══════════════════════════════════════════════════════
-async function exporterPDF() {
+function ouvrirModalPDF() {
   if(!donneesMeteo){showNotif('Aucune donnée à exporter','error');return;}
-  showNotif('📄 Génération du PDF en cours...','info');
+  document.getElementById('pdf-modal').classList.add('show');
+}
+function fermerModalPDF() {
+  document.getElementById('pdf-modal').classList.remove('show');
+}
+async function genererPDF() {
+  fermerModalPDF();
+  if(!donneesMeteo){showNotif('Aucune donnée à exporter','error');return;}
+  // Lire les sélections
+  const sel = {
+    lieu: document.getElementById('pdf-lieu')?.checked,
+    verdict: document.getElementById('pdf-verdict')?.checked,
+    conditions: document.getElementById('pdf-conditions')?.checked,
+    vent: document.getElementById('pdf-vent')?.checked,
+    visi: document.getElementById('pdf-visi')?.checked,
+    atmo: document.getElementById('pdf-atmo')?.checked,
+    drone: document.getElementById('pdf-drone')?.checked,
+    soleil: document.getElementById('pdf-soleil')?.checked,
+    metar: document.getElementById('pdf-metar')?.checked,
+    zones: document.getElementById('pdf-zones')?.checked,
+    j7: document.getElementById('pdf-7j')?.checked,
+    j15: document.getElementById('pdf-15j')?.checked,
+  };
+  showNotif('Generation du PDF en cours...','info');
   document.getElementById('btn-pdf').disabled=true;
   try {
     const {jsPDF}=window.jspdf;
     const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
     const W=210,margin=15;
     let y=margin;
+    const checkPage=()=>{if(y>270){doc.addPage();y=margin;}};
 
     // En-tête
     doc.setFillColor(11,31,58);doc.rect(0,0,W,40,'F');
     doc.setTextColor(58,171,239);doc.setFont('helvetica','bold');doc.setFontSize(20);
-    doc.text('CAPTURAIR MÉTÉO',margin,18);
+    doc.text('CAPTURAIR METEO',margin,18);
     doc.setTextColor(26,188,156);doc.setFontSize(10);
-    doc.text('BRIEFING PRÉ-VOL · DJI AIR 3S',margin,27);
+    doc.text('BRIEFING PRE-VOL - DJI AIR 3S',margin,27);
     doc.setTextColor(107,124,147);doc.setFontSize(9);
     const now=new Date().toLocaleDateString('fr-CA',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});
-    doc.text(`Généré le ${now}`,margin,34);
+    doc.text('Genere le '+now,margin,34);
     y=50;
 
     // Lieu
-    if(villeActuelle){
+    if(sel.lieu && villeActuelle){
+      checkPage();
       doc.setFillColor(15,36,68);doc.roundedRect(margin,y,W-2*margin,14,2,2,'F');
       doc.setTextColor(26,188,156);doc.setFont('helvetica','bold');doc.setFontSize(11);
-      doc.text(`📍 ${villeActuelle}`,margin+5,y+9);
-      const lat=donneesMeteo.lat?.toFixed(5)||'';const lng=donneesMeteo.lng?.toFixed(5)||'';
+      doc.text('[GPS] '+villeActuelle,margin+5,y+9);
+      const latP=donneesMeteo.lat?.toFixed(5)||'';const lngP=donneesMeteo.lng?.toFixed(5)||'';
       doc.setTextColor(107,124,147);doc.setFont('helvetica','normal');doc.setFontSize(8);
-      doc.text(`${lat}, ${lng}`,W-margin-5,y+9,{align:'right'});
+      doc.text(latP+', '+lngP,W-margin-5,y+9,{align:'right'});
       y+=20;
     }
 
     // Verdict
     const stat=statutVol(donneesMeteo);
-    const verdictColor=stat.code==='vert'?[39,174,96]:stat.code==='orange'?[230,126,34]:[231,76,60];
-    doc.setFillColor(...verdictColor);doc.roundedRect(margin,y,W-2*margin,18,3,3,'F');
-    doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(13);
-    const verdictTxt=stat.code==='vert'?'✓ VOL AUTORISÉ':stat.code==='orange'?'⚠ VOL AVEC PRÉCAUTIONS':'✗ VOL DÉCONSEILLÉ';
-    doc.text(verdictTxt,margin+5,y+8);
-    doc.setFontSize(10);doc.text(`Score: ${stat.score}/100`,W-margin-5,y+8,{align:'right'});
-    if(stat.raisons.length){doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text(stat.raisons[0],margin+5,y+14);}
-    y+=25;
+    if(sel.verdict){
+      checkPage();
+      const verdictColor=stat.code==='vert'?[39,174,96]:stat.code==='orange'?[230,126,34]:[231,76,60];
+      doc.setFillColor(...verdictColor);doc.roundedRect(margin,y,W-2*margin,18,3,3,'F');
+      doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(13);
+      const verdictTxt=stat.code==='vert'?'VOL AUTORISE':stat.code==='orange'?'VOL AVEC PRECAUTIONS':'VOL DECONSEILLE';
+      doc.text(verdictTxt,margin+5,y+8);
+      doc.setFontSize(10);doc.text('Score: '+stat.score+'/100',W-margin-5,y+8,{align:'right'});
+      if(stat.raisons.length){doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text(stat.raisons[0].replace(/[^ -]/g,'?'),margin+5,y+14);}
+      y+=25;
+    }
 
-    // Données météo principales
+    // Données météo
     const om=donneesMeteo.om;const ow=donneesMeteo.ow;
     const hi=om?trouverHoraireActuel(om):0;
     const vent10=om?.hourly.windspeed_10m[hi]??(ow?.wind?.speed*3.6)??0;
@@ -1477,68 +1684,161 @@ async function exporterPDF() {
     const uv=om?.hourly.uv_index[hi]??0;
     const pression=om?.hourly.surface_pressure[hi]??ow?.main?.pressure??1013;
     const auto=autonomieAir3S(parseFloat(temp));
+    const wcode2=om?.hourly?.weathercode?.[hi]??-1;
+    const wmoNoms={0:'Ciel degage',1:'Principalement degage',2:'Partiellement nuageux',3:'Couvert',45:'Brouillard',48:'Brouillard givrant',51:'Bruine legere',53:'Bruine moderee',55:'Bruine dense',61:'Pluie legere',63:'Pluie moderee',65:'Pluie forte',71:'Neige legere',73:'Neige moderee',75:'Neige forte',80:'Averses legeres',81:'Averses moderees',82:'Averses violentes',95:'Orage',96:'Orage avec grele',99:'Orage grele forte'};
+    const condNom=wmoNoms[wcode2]??'Inconnu';
 
-    // Tableau données
-    const donneesTable=[
-      ['Vent sol 10m',`${vent10.toFixed(0)} km/h`,vent10<20?'OK':vent10<35?'MODÉRÉ':'FORT'],
-      ['Rafales',`${rafales.toFixed(0)} km/h`,rafales<25?'OK':rafales<38?'ATTENTION':'DANGEREUX'],
-      ['Vent 80m AGL',`${vent80.toFixed(0)} km/h`,vent80<20?'OK':vent80<30?'MODÉRÉ':'FORT'],
-      ['Vent 120m AGL',`${vent120.toFixed(0)} km/h`,vent120<25?'OK':vent120<35?'MODÉRÉ':'FORT'],
-      ['Visibilité',`${visi.toFixed(1)} km`,visi>=8?'EXCELLENT':visi>=3?'OK':'NOK'],
-      ['Température',`${parseFloat(temp).toFixed(1)}°C`,parseFloat(temp)>=0&&parseFloat(temp)<=38?'OK':'HORS LIMITES'],
-      ['Humidité',`${humidite}%`,humidite<70?'OK':humidite<80?'ÉLEVÉE':'TRÈS ÉLEVÉE'],
-      ['Précipitations',`${pluie.toFixed(1)} mm/h (${pluiePct}%)`,pluie===0?'AUCUNE':'PLUIE ACTIVE'],
-      ['CAPE',`${cape} J/kg`,cape<250?'STABLE':cape<750?'INSTABLE':'ORAGE POSSIBLE'],
-      ['Index UV',`${uv.toFixed(1)}`,uv<6?'FAIBLE':uv<9?'ÉLEVÉ':'TRÈS ÉLEVÉ'],
-      ['Pression QNH',`${pression.toFixed(0)} hPa / ${hpaToInHg(pression)} inHg`,''],
-      ['Autonomie Air 3S',`${auto.min} min (~${auto.pct}%)`,auto.txt],
-    ];
+    const secHead=(txt)=>{checkPage();doc.setFillColor(15,36,68);doc.rect(margin,y,W-2*margin,7,'F');doc.setTextColor(107,124,147);doc.setFont('helvetica','bold');doc.setFontSize(8);doc.text(txt,margin+3,y+5);y+=7;};
+    const row2=(k,v,s)=>{checkPage();doc.setFillColor(y%14<7?[11,31,58]:[15,36,68]);doc.rect(margin,y,W-2*margin,7,'F');doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(244,247,250);doc.text(k,margin+3,y+5);doc.setTextColor(58,171,239);doc.text(v,margin+80,y+5);if(s){const sc=s.includes('FORT')||s.includes('DANGER')||s.includes('ACTIVE')||s.includes('NOK')||s.includes('ORAGE')||s.includes('LIMITE')||s.includes('GEL')?[231,76,60]:s.includes('MODERE')||s.includes('ATTENTION')||s.includes('INSTABLE')||s.includes('ELEVE')?[230,126,34]:[39,174,96];doc.setTextColor(...sc);doc.text(s,margin+130,y+5);}y+=7;};
 
-    doc.setFillColor(15,36,68);doc.rect(margin,y,W-2*margin,7,'F');
-    doc.setTextColor(107,124,147);doc.setFont('helvetica','bold');doc.setFontSize(8);
-    doc.text('PARAMÈTRE',margin+3,y+5);doc.text('VALEUR',margin+75,y+5);doc.text('STATUT',margin+125,y+5);
-    y+=7;
-
-    donneesTable.forEach((row,i)=>{
-      if(i%2===0)doc.setFillColor(11,31,58);else doc.setFillColor(15,36,68);
-      doc.rect(margin,y,W-2*margin,7,'F');
-      doc.setFont('helvetica','normal');doc.setFontSize(8);
-      doc.setTextColor(244,247,250);doc.text(row[0],margin+3,y+5);
-      doc.setTextColor(58,171,239);doc.text(row[1],margin+75,y+5);
-      // Couleur statut
-      const sc=row[2].includes('FORT')||row[2].includes('ÉLEVÉ')||row[2].includes('DANGEREUX')||row[2].includes('ACTIVE')||row[2].includes('LIMITE')||row[2].includes('NOK')||row[2].includes('ORAGE')?[231,76,60]:row[2].includes('MODÉRÉ')||row[2].includes('ATTENTION')||row[2].includes('PROBABLE')||row[2].includes('INSTABLE')?[230,126,34]:[39,174,96];
-      doc.setTextColor(...sc);doc.text(row[2],margin+125,y+5);
-      y+=7;
-    });
-    y+=5;
-
-    // Soleil
-    const sunrise=om?.daily.sunrise[0]?localTimeStr(om.daily.sunrise[0]):'--';
-    const sunset=om?.daily.sunset[0]?localTimeStr(om.daily.sunset[0]):'--';
-    doc.setFillColor(11,31,58);doc.roundedRect(margin,y,W-2*margin,22,2,2,'F');
-    doc.setTextColor(241,196,15);doc.setFont('helvetica','bold');doc.setFontSize(9);
-    doc.text('☀️ FENÊTRES DE VOL',margin+5,y+7);
-    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(244,247,250);
-    doc.text(`Lever: ${sunrise}   Coucher: ${sunset}`,margin+5,y+14);
-    doc.text(`Fuseau horaire: ${tzId||'UTC'}`,margin+5,y+20);
-    y+=28;
-
-    // Zones
-    const zones=window._zones||{};
-    if(zones.critiques?.length||zones.vigilance?.length){
-      doc.setFillColor(231,76,60,40);doc.roundedRect(margin,y,W-2*margin,8,'F');
-      doc.setTextColor(231,76,60);doc.setFont('helvetica','bold');doc.setFontSize(9);
-      doc.text(`⚠️ ZONES CRITIQUES DÉTECTÉES: ${zones.critiques.length} dans la zone, ${zones.vigilance.length} en vigilance`,margin+5,y+5);
-      y+=12;
+    if(sel.conditions){
+      secHead('CONDITIONS ACTUELLES');
+      row2('Condition generale',condNom,'');
+      row2('Temperature',parseFloat(temp).toFixed(1)+' C',parseFloat(temp)>=0&&parseFloat(temp)<=38?'OK':'HORS LIMITE');
+      const tRes=om?.hourly?.apparent_temperature?.[hi]??null;
+      if(tRes!==null) row2('Temperature ressentie',parseFloat(tRes).toFixed(1)+' C','');
+      const frz=om?.hourly?.freezing_level_height?.[hi]??null;
+      if(frz!==null) row2('Niveau de gel',Math.round(frz)+' m',frz>500?'OK':'GIVRAGE POSSIBLE');
+      if(pluie>0) row2('Pluie active',pluie.toFixed(1)+' mm/h','PLUIE ACTIVE');
+      const nge=om?.hourly?.snowfall?.[hi]??0;
+      if(nge>0) row2('Chute de neige',nge.toFixed(1)+' cm/h','NEIGE ACTIVE');
+      y+=3;
     }
 
-    // NavDrone
-    const lat_nav=pointActif?.lat??donneesMeteo?.lat??45.5;
-    const lng_nav=pointActif?.lng??donneesMeteo?.lng??-73.0;
-    doc.setFillColor(26,143,209,30);doc.roundedRect(margin,y,W-2*margin,10,2,2,'F');
-    doc.setTextColor(58,171,239);doc.setFont('helvetica','normal');doc.setFontSize(8);
-    doc.text(`🛫 Vérifier sur NavDrone: portal.navdrone.ca/?lat=${lat_nav?.toFixed(5)}&lng=${lng_nav?.toFixed(5)}`,margin+5,y+6);
-    y+=15;
+    if(sel.vent){
+      secHead('VENT');
+      row2('Vent sol 10m',vent10.toFixed(0)+' km/h',vent10<20?'OK':vent10<35?'MODERE':'FORT');
+      row2('Rafales',rafales.toFixed(0)+' km/h',rafales<25?'OK':rafales<38?'ATTENTION':'DANGEREUX');
+      row2('Vent 80m AGL',vent80.toFixed(0)+' km/h',vent80<20?'OK':vent80<30?'MODERE':'FORT');
+      row2('Vent 120m AGL',vent120.toFixed(0)+' km/h',vent120<25?'OK':vent120<35?'MODERE':'FORT');
+      y+=3;
+    }
+
+    if(sel.visi){
+      secHead('VISIBILITE & PLAFOND');
+      row2('Visibilite',visi.toFixed(1)+' km',visi>=8?'EXCELLENT':visi>=3?'OK':'NOK');
+      const nuagesBas=om?.hourly?.cloudcover_low?.[hi]??0;
+      const plafondFt=Math.max(0,(100-nuagesBas)*25);
+      row2('Plafond nuageux',plafondFt+' ft',plafondFt>=1500?'OK':plafondFt>=800?'MARGE FAIBLE':'INSUFFISANT');
+      y+=3;
+    }
+
+    if(sel.atmo){
+      secHead('CONDITIONS ATMOSPHERIQUES');
+      row2('Pression QNH',pression.toFixed(0)+' hPa / '+hpaToInHg(pression)+' inHg','');
+      row2('Humidite',humidite+'%',humidite<70?'OK':humidite<80?'ELEVEE':'TRES ELEVEE');
+      row2('CAPE',cape+' J/kg',cape<250?'STABLE':cape<750?'INSTABLE':'ORAGE POSSIBLE');
+      row2('Index UV',uv.toFixed(1),uv<6?'FAIBLE':uv<9?'ELEVE':'TRES ELEVE');
+      row2('Precipitations',pluie.toFixed(1)+' mm/h ('+pluiePct+'%)',pluie===0?'AUCUNE':'PLUIE ACTIVE');
+      y+=3;
+    }
+
+    if(sel.drone){
+      secHead('DJI AIR 3S');
+      row2('Autonomie estimee',auto.min+' min (~'+auto.pct+'%)',auto.txt);
+      row2('Temp. vs limite',parseFloat(temp).toFixed(1)+'C / -10C a +40C',parseFloat(temp)>=0&&parseFloat(temp)<=38?'OK':'HORS LIMITE');
+      row2('Vent vs limite certifiee',vent10.toFixed(0)+' km/h / 43 km/h','');
+      y+=3;
+    }
+
+    if(sel.soleil){
+      checkPage();
+      const sunrise=om?.daily.sunrise[0]?localTimeStr(om.daily.sunrise[0]):'--';
+      const sunset=om?.daily.sunset[0]?localTimeStr(om.daily.sunset[0]):'--';
+      doc.setFillColor(11,31,58);doc.roundedRect(margin,y,W-2*margin,22,2,2,'F');
+      doc.setTextColor(241,196,15);doc.setFont('helvetica','bold');doc.setFontSize(9);
+      doc.text('[SOLEIL] FENETRES DE VOL',margin+5,y+7);
+      doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(244,247,250);
+      doc.text('Lever: '+sunrise+'   Coucher: '+sunset,margin+5,y+14);
+      doc.text('Fuseau horaire: '+(tzId||'UTC'),margin+5,y+20);
+      y+=28;
+    }
+
+    if(sel.metar && donneesMeteo?.metar){
+      checkPage();
+      secHead('METAR - '+( donneesMeteo.metar_aeroport?.icao||'--'));
+      const rawM=(donneesMeteo.metar.rawOb||'').replace(/[^ -]/g,'?');
+      const lines=doc.splitTextToSize(rawM,W-2*margin-6);
+      doc.setFillColor(5,14,26);doc.rect(margin,y,W-2*margin,lines.length*5+4,'F');
+      doc.setTextColor(58,171,239);doc.setFont('helvetica','normal');doc.setFontSize(7);
+      doc.text(lines,margin+3,y+5);
+      y+=lines.length*5+8;
+    }
+
+    if(sel.zones){
+      checkPage();
+      const zones=window._zones||{};
+      secHead('ZONES AERIENNES');
+      if(zones.critiques?.length){
+        doc.setTextColor(231,76,60);doc.setFont('helvetica','bold');doc.setFontSize(8);
+        doc.text('CRITIQUE: '+zones.critiques.length+' zone(s) - '+zones.critiques.map(z=>z.nom).join(', ').replace(/[^ -]/g,'?'),margin+3,y+4);y+=8;
+      }
+      if(zones.vigilance?.length){
+        doc.setTextColor(230,126,34);doc.setFont('helvetica','normal');doc.setFontSize(8);
+        doc.text('VIGILANCE: '+zones.vigilance.length+' zone(s) - '+zones.vigilance.map(z=>z.nom).join(', ').replace(/[^ -]/g,'?'),margin+3,y+4);y+=8;
+      }
+      if(!zones.critiques?.length&&!zones.vigilance?.length){
+        doc.setTextColor(39,174,96);doc.setFont('helvetica','normal');doc.setFontSize(8);
+        doc.text('Aucune zone critique dans un rayon de 30km',margin+3,y+4);y+=8;
+      }
+      const lat_nav=pointActif?.lat??donneesMeteo?.lat??45.5;
+      const lng_nav=pointActif?.lng??donneesMeteo?.lng??-73.0;
+      checkPage();
+      doc.setFillColor(26,143,209,30);doc.roundedRect(margin,y,W-2*margin,10,2,2,'F');
+      doc.setTextColor(58,171,239);doc.setFont('helvetica','normal');doc.setFontSize(8);
+      doc.text('[NAVDRONE] portal.navdrone.ca/?lat='+lat_nav?.toFixed(5)+'&lng='+lng_nav?.toFixed(5),margin+5,y+6);
+      y+=15;
+    }
+
+    if(sel.j7 && donneesPrev7){
+      checkPage();
+      secHead('PREVISIONS 7 JOURS (J+1 a J+7)');
+      const maintenant7=new Date(new Date().toLocaleString('en-CA',{timeZone:'America/Toronto'}));
+      const dlm7=maintenant7.toISOString().substring(0,10);
+      let si7=donneesPrev7.daily.time.findIndex(t=>t>dlm7);if(si7<0)si7=1;
+      for(let k=0;k<7;k++){
+        const i=si7+k;if(i>=donneesPrev7.daily.time.length)break;
+        checkPage();
+        const dt7=new Date(donneesPrev7.daily.time[i]+'T12:00:00');
+        const jr7=dt7.toLocaleDateString('fr-CA',{weekday:'short',day:'numeric',month:'short'});
+        const s7=scoreJour(donneesPrev7,i);
+        const clr7=s7.code==='vert'?[39,174,96]:s7.code==='orange'?[230,126,34]:[231,76,60];
+        doc.setFillColor(y%14<7?[11,31,58]:[15,36,68]);doc.rect(margin,y,W-2*margin,7,'F');
+        doc.setTextColor(...clr7);doc.setFont('helvetica','bold');doc.setFontSize(8);
+        doc.text(jr7.replace(/[^ -]/g,'?'),margin+3,y+5);
+        doc.setTextColor(244,247,250);doc.setFont('helvetica','normal');
+        const vMax7=donneesPrev7.daily.windspeed_10m_max[i]?.toFixed(0)||'--';
+        const pMM7=(donneesPrev7.daily.precipitation_sum?.[i]??0).toFixed(1);
+        doc.text('Vent: '+vMax7+' km/h  Pluie: '+pMM7+' mm  Score: '+s7.score+'/100',margin+50,y+5);
+        doc.setTextColor(...clr7);doc.text(s7.code==='vert'?'OK':s7.code==='orange'?'MODERE':'DEFAVORABLE',margin+160,y+5);
+        y+=7;
+      }
+      y+=5;
+    }
+
+    if(sel.j15 && donneesPrev15){
+      checkPage();
+      secHead('PREVISIONS 15 JOURS (J+1 a J+15)');
+      const maintenant15=new Date(new Date().toLocaleString('en-CA',{timeZone:'America/Toronto'}));
+      const dlm15=maintenant15.toISOString().substring(0,10);
+      let si15=donneesPrev15.daily.time.findIndex(t=>t>dlm15);if(si15<0)si15=1;
+      for(let k=0;k<15;k++){
+        const i=si15+k;if(i>=donneesPrev15.daily.time.length)break;
+        checkPage();
+        const dt15=new Date(donneesPrev15.daily.time[i]+'T12:00:00');
+        const jr15=dt15.toLocaleDateString('fr-CA',{weekday:'short',day:'numeric',month:'short'});
+        const s15=scoreJour(donneesPrev15,i);
+        const clr15=s15.code==='vert'?[39,174,96]:s15.code==='orange'?[230,126,34]:[231,76,60];
+        doc.setFillColor(y%14<7?[11,31,58]:[15,36,68]);doc.rect(margin,y,W-2*margin,6,'F');
+        doc.setTextColor(...clr15);doc.setFont('helvetica','bold');doc.setFontSize(7);
+        doc.text(jr15.replace(/[^ -]/g,'?'),margin+3,y+4);
+        doc.setTextColor(244,247,250);doc.setFont('helvetica','normal');
+        const pMM15=(donneesPrev15.daily.precipitation_sum?.[i]??0).toFixed(1);
+        doc.text('Vent: '+(donneesPrev15.daily.windspeed_10m_max[i]?.toFixed(0)||'--')+' km/h  Pluie: '+pMM15+' mm  Score: '+s15.score+'/100'+(k>=7?' (~)':''),margin+45,y+4);
+        y+=6;
+      }
+      y+=5;
+    }
 
     // Pied de page
     doc.setFillColor(11,31,58);doc.rect(0,285,W,12,'F');
