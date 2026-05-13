@@ -975,7 +975,8 @@ async function calculerDepuisDessin(mode, enRoute=false) {
 modeNav = mode;
   calculEnCours = true;
 
-  // Appeler directement directionsService sans passer par calculerItineraire()
+// Appeler directement directionsService sans passer par calculerItineraire()
+  directionsService.route({
     origin:      new google.maps.LatLng(depLat, depLng),
     destination: new google.maps.LatLng(arrLat, arrLng),
     travelMode:  google.maps.TravelMode[mode],
