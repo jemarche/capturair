@@ -1013,8 +1013,10 @@ function statutVol(data){
   return{code:score>=70?'vert':score>=40?'orange':'rouge',score,raisons,chips};
 }
 function trouverHoraireActuel(om){
+  if(!om?.hourly?.time?.length) return 0;
   const now=new Date().toISOString().substring(0,13);
-  return om.hourly.time.findIndex(t=>t.startsWith(now))||0;
+  const idx=om.hourly.time.findIndex(t=>t.startsWith(now));
+  return idx>=0 ? idx : 0;
 }
 function scoreJour(om,dayIdx){
   if(!om)return{score:50,code:'orange',fenetre:'--'};
@@ -1112,7 +1114,9 @@ function afficherOnglet1(){
   if(sunset_str){const p=sunset_str.split('T')[1]?.split(':');if(p)orCoucher=`${String(parseInt(p[0])-1).padStart(2,'0')}h${p[1]}-${p[0]}h${p[1]}`;}
   const zones=window._zones||{critiques:[],vigilance:[],informatif:[],lointaines:[]};
   const labels24=[],vent24=[],pluie24=[];
-  for(let i=hi;i<hi+24&&i<(om?.hourly?.windspeed_10m?.length||0);i++){
+  const maxLen=om?.hourly?.time?.length||0;
+  for(let i=hi;i<hi+24&&i<maxLen;i++){
+    if(!om.hourly.time[i]) continue;
     labels24.push(om.hourly.time[i].substring(11,16));
     vent24.push(om.hourly.windspeed_10m[i]||0);
     pluie24.push(om.hourly.precipitation_probability[i]||0);
