@@ -650,7 +650,7 @@ function switchOnglet(onglet) {
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   document.getElementById(`tab-${onglet}`).classList.add('active');
   document.getElementById(`content-${onglet}`).classList.add('active');
-  if (onglet === 'meteo' && appareilActif) chargerMeteo();
+  if (onglet === 'meteo' && appareilActif) { meteoPointManuel = false; chargerMeteo(); }
 }
 
 // ══ CARTE ═════════════════════════════════════════════════════════════
