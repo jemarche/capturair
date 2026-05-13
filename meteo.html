@@ -1875,7 +1875,7 @@ async function genererPDF() {
       }
       if(zones.vigilance?.length){
         doc.setTextColor(230,126,34);doc.setFont('helvetica','normal');doc.setFontSize(8);
-        doc.text('VIGILANCE: '+zones.vigilance.length+' zone(s) - '+zones.vigilance.map(z=>z.nom).join(', ').replace(/[^\x20-\x7E]/g,'?'),margin+3,y+4);
+       doc.text('VIGILANCE: '+zones.vigilance.length+' zone(s) - '+zones.vigilance.map(z=>z.nom).join(', ').replace(/[^\x20-\x7E]/g,'?'),margin+3,y+4);y+=8;
       }
       if(!zones.critiques?.length&&!zones.vigilance?.length){
         doc.setTextColor(39,174,96);doc.setFont('helvetica','normal');doc.setFontSize(8);
