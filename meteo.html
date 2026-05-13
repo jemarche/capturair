@@ -924,7 +924,7 @@ async function chargerMeteo(lat,lng){
     // MODIFICATION 5: Open-Meteo supporte déjà le monde entier avec timezone=auto
     // OWM supporte aussi le monde entier — pas de restriction
     const [openMeteo,owm,windy]=await Promise.allSettled([
-      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&hourly=windspeed_10m,windspeed_80m,windspeed_120m,winddirection_10m,winddirection_80m,windgusts_10m,visibility,cloudcover,cloudcover_low,cloudcover_mid,cloudcover_high,precipitation,precipitation_probability,cape,uv_index,temperature_2m,relativehumidity_2m,apparent_temperature,surface_pressure&daily=temperature_2m_max,temperature_2m_min,windspeed_10m_max,windgusts_10m_max,precipitation_sum,precipitation_probability_max,sunrise,sunset,uv_index_max,weathercode&timezone=auto&forecast_days=16`).then(r=>r.json()),
+      hourly=windspeed_10m,windspeed_80m,windspeed_120m,winddirection_10m,winddirection_80m,windgusts_10m,visibility,cloudcover,cloudcover_low,cloudcover_mid,cloudcover_high,precipitation,precipitation_probability,cape,uv_index,temperature_2m,apparent_temperature,surface_temperature,relativehumidity_2m,surface_pressure,weathercode,showers,rain,snowfall,snow_depth,dewpoint_2m,freezing_level_height
       fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${OWM_KEY}&units=metric&lang=fr`).then(r=>r.json()),
       fetch(`https://api.windy.com/api/point-forecast/v2`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lat,lng,model:'gfs',parameters:['wind','windGust'],levels:['surface','850h','925h','700h','500h'],key:WINDY_KEY})}).then(r=>r.json()),
     ]);
