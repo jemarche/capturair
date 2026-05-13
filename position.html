@@ -1023,11 +1023,11 @@ async function chargerZones(filtre) {
     const r=await fetch(`https://api.core.openaip.net/api/airspaces?bbox=${bbox}&page=1&limit=200`,{headers:{'x-openaip-api-key':OPENAIP_KEY,'Accept':'application/json'}});
     const d=await r.json();
     let items=d.items||d.data||[];
-    if(filtre==='interdit') items=items.filter(z=>z.category===8||z.category===0||z.type==='CTR'||['A','B','C'].includes(z.icaoClass));
-    else if(filtre==='restreint') items=items.filter(z=>z.category===11||z.type==='RESTRICTED'||z.icaoClass==='D');
-    else if(filtre==='ctr') items=items.filter(z=>z.type==='CTR'||z.icaoClass==='CTR'||z.icaoClass==='C'||z.icaoClass==='D'||z.name?.toUpperCase().includes('TRUDEAU')||z.name?.toUpperCase().includes('MONTREAL'));
-    else if(filtre==='danger') items=items.filter(z=>z.category===8||z.type==='DANGER');
-    else if(filtre==='info') items=items.filter(z=>z.category===6||z.category===7||z.icaoClass==='E'||z.icaoClass==='G');
+if(filtre==='interdit') items=items.filter(z=>z.type===1||(z.type===0&&[1,2,3].includes(z.icaoClass)));
+else if(filtre==='restreint') items=items.filter(z=>z.type===1||z.name?.includes('CYR'));
+else if(filtre==='ctr') items=items.filter(z=>z.type===0&&(z.name?.includes('CZ')||z.name?.includes('TCA')||z.name?.includes('INTL')||z.name?.includes('TRUDEAU')||z.name?.includes('ST-HUBERT')||z.name?.includes('ST-JEAN')));
+else if(filtre==='danger') items=items.filter(z=>z.type===1);
+else if(filtre==='info') items=items.filter(z=>z.type===0&&z.name?.includes('AIRWAY'));
     items.forEach(zone=>{
       if(!zone.geometry)return;
       const coords=zone.geometry.coordinates;
