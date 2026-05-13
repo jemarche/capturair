@@ -936,23 +936,64 @@ function afficherVolOiseau() {
 }
 
 async function calculerDepuisDessin(mode, enRoute=false) {
-  if(pointsDessin.length<2){showNotif('⚠️ Au moins 2 points','error');return;}
-  const dep=pointsDessin[0], arr=pointsDessin[pointsDessin.length-1];
-  document.getElementById('nav-depart').setAttribute('data-lat',dep.lat);
-  document.getElementById('nav-depart').setAttribute('data-lon',dep.lng);
-  document.getElementById('nav-dest').setAttribute('data-lat',arr.lat);
-  document.getElementById('nav-dest').setAttribute('data-lon',arr.lng);
-  document.getElementById('nav-depart').value=`📍 ${dep.lat.toFixed(4)}, ${dep.lng.toFixed(4)}`;
-  document.getElementById('nav-dest').value=`📍 ${arr.lat.toFixed(4)}, ${arr.lng.toFixed(4)}`;
-  if(polylineDessin){polylineDessin.setMap(null);polylineDessin=null;}
-  markersDessin.forEach(m=>m.setMap(null));markersDessin=[];
-  modeNav=mode;
-  await calculerItineraire();
-  if(enRoute){
-    showNotif('🧭 Mode En Route activé !','success');
-    if(refreshInterval)clearInterval(refreshInterval);
-    refreshInterval=setInterval(async()=>{ await actualiserPosition(); if(markerPosition) map.panTo(markerPosition.getPosition()); },15000);
-  }
+  if (pointsDessin.length < 2) { showNotif('⚠️ Au moins 2 points', 'error'); return; }
+
+  // Sauvegarder les coordonnées AVANT tout effacement
+  const depLat = pointsDessin[0].lat, depLng = pointsDessin[0].lng;
+  const arrLat = pointsDessin[pointsDessin.length-1].lat, arrLng = pointsDessin[pointsDessin.length-1].lng;
+
+  // Effacer SEULEMENT le dessin, pas les champs
+  if (polylineDessin) { polylineDessin.setMap(null); polylineDessin = null; }
+  markersDessin.forEach(m => m.setMap(null)); markersDessin = [];
+  pointsDessin = [];
+  if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
+  const btns = document.getElementById('dessin-action-btns');
+  if (btns) btns.style.display = 'none';
+  document.getElementById('nav-result').style.display = 'none';
+  document.getElementById('btn-sauver-trajet').disabled = true;
+
+  // Remplir les champs avec les coordonnées sauvegardées
+  document.getElementById('nav-depart').value = `📍 ${depLat.toFixed(4)}, ${depLng.toFixed(4)}`;
+  document.getElementById('nav-dest').value   = `📍 ${arrLat.toFixed(4)}, ${arrLng.toFixed(4)}`;
+  document.getElementById('nav-depart').setAttribute('data-lat', depLat);
+  document.getElementById('nav-depart').setAttribute('data-lon', depLng);
+  document.getElementById('nav-dest').setAttribute('data-lat', arrLat);
+  document.getElementById('nav-dest').setAttribute('data-lon', arrLng);
+
+  modeNav = mode;
+  showNotif('⏳ Calcul en cours...', '');
+
+  // Appeler directement directionsService sans passer par calculerItineraire()
+  directionsService.route({
+    origin:      new google.maps.LatLng(depLat, depLng),
+    destination: new google.maps.LatLng(arrLat, arrLng),
+    travelMode:  google.maps.TravelMode[mode],
+    provideRouteAlternatives: false,
+    drivingOptions: mode === 'DRIVING' ? { departureTime: new Date(), trafficModel: 'bestguess' } : undefined
+  }, (result, status) => {
+    if (status === 'OK') {
+      directionsRenderer.setDirections(result);
+      const leg = result.routes[0].legs[0];
+      document.getElementById('nav-result').style.display = 'block';
+      document.getElementById('nav-result').innerHTML = `
+        <div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">📏 Distance</span><span style="font-weight:600;">${leg.distance.text}</span></div>
+        <div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">⏱️ Durée</span><span style="font-weight:600;">${leg.duration.text}</span></div>
+        ${leg.duration_in_traffic ? `<div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">🚦 Trafic</span><span style="font-weight:600;">${leg.duration_in_traffic.text}</span></div>` : ''}`;
+      document.getElementById('btn-sauver-trajet').disabled = false;
+      trajetsNav._currentCoords = result.routes[0].overview_path.map(p => [p.lat(), p.lng()]);
+      showNotif(`✅ ${leg.distance.text} — ${leg.duration.text}`, 'success');
+      if (enRoute) {
+        showNotif('🧭 Mode En Route activé !', 'success');
+        if (refreshInterval) clearInterval(refreshInterval);
+        refreshInterval = setInterval(async () => {
+          await actualiserPosition();
+          if (markerPosition) map.panTo(markerPosition.getPosition());
+        }, 15000);
+      }
+    } else {
+      showNotif('❌ Itinéraire non trouvé : ' + status, 'error');
+    }
+  });
 }
 
 // ══ TRAJETS SAUVEGARDÉS ═══════════════════════════════════════════════
