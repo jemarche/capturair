@@ -791,6 +791,12 @@ function setModeNav(mode) {
 async function calculerItineraire() {
   const depPlace = autocompleteDepart.getPlace();
   const destPlace = autocompleteDest.getPlace();
+  
+  // Sécurité : si les deux sources sont vides, on sort
+  const depLat = document.getElementById('nav-depart').getAttribute('data-lat');
+  const destLat = document.getElementById('nav-dest').getAttribute('data-lat');
+  if (!depPlace?.geometry && !depLat) { showNotif('⚠️ Sélectionnez une adresse de départ','error'); return; }
+  if (!destPlace?.geometry && !destLat) { showNotif('⚠️ Sélectionnez une destination','error'); return; }
   if (!depPlace?.geometry && !document.getElementById('nav-depart').getAttribute('data-lat')) {
     showNotif('⚠️ Sélectionnez une adresse de départ','error'); return;
   }
