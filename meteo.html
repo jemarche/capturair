@@ -1871,11 +1871,11 @@ async function genererPDF() {
       secHead('ZONES AERIENNES');
       if(zones.critiques?.length){
         doc.setTextColor(231,76,60);doc.setFont('helvetica','bold');doc.setFontSize(8);
-        doc.text('CRITIQUE: '+zones.critiques.length+' zone(s) - '+zones.critiques.map(z=>z.nom).join(', ').replace(/[^ -]/g,'?'),margin+3,y+4);y+=8;
+        doc.text('CRITIQUE: '+zones.critiques.length+' zone(s) - '+zones.critiques.map(z=>z.nom).join(', ').replace(/[^\x20-\x7E]/g,'?'),margin+3,y+4);
       }
       if(zones.vigilance?.length){
         doc.setTextColor(230,126,34);doc.setFont('helvetica','normal');doc.setFontSize(8);
-        doc.text('VIGILANCE: '+zones.vigilance.length+' zone(s) - '+zones.vigilance.map(z=>z.nom).join(', ').replace(/[^ -]/g,'?'),margin+3,y+4);y+=8;
+        doc.text('VIGILANCE: '+zones.vigilance.length+' zone(s) - '+zones.vigilance.map(z=>z.nom).join(', ').replace(/[^\x20-\x7E]/g,'?'),margin+3,y+4);
       }
       if(!zones.critiques?.length&&!zones.vigilance?.length){
         doc.setTextColor(39,174,96);doc.setFont('helvetica','normal');doc.setFontSize(8);
