@@ -1219,8 +1219,22 @@ function afficherDonneesMeteo(meteo,prev){
   document.getElementById('meteo-visibilite').textContent=`${(visibilite/1000).toFixed(1)} km`;
   document.getElementById('meteo-pression').textContent=`${meteo.main.pressure}`;
   document.getElementById('meteo-nuages').textContent=`${meteo.clouds.all}%`;
-  document.getElementById('meteo-lever').textContent=new Date(meteo.sys.sunrise*1000).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
-  document.getElementById('meteo-coucher').textContent=new Date(meteo.sys.sunset*1000).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
+  // Fuseau horaire correct via Open-Meteo timezone=auto
+  (async () => {
+    try {
+      const lat = meteo.coord.lat, lon = meteo.coord.lon;
+      const tz = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=sunrise,sunset&timezone=auto&forecast_days=1`);
+      const tzData = await tz.json();
+      if (tzData.daily?.sunrise?.[0]) {
+        document.getElementById('meteo-lever').textContent = tzData.daily.sunrise[0].substring(11,16);
+        document.getElementById('meteo-coucher').textContent = tzData.daily.sunset[0].substring(11,16);
+      }
+    } catch(e) {
+      // Fallback UTC si Open-Meteo échoue
+      document.getElementById('meteo-lever').textContent = new Date(meteo.sys.sunrise*1000).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
+      document.getElementById('meteo-coucher').textContent = new Date(meteo.sys.sunset*1000).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
+    }
+  })();
   const statut=statutDrone(ventMs,weatherId,visibilite);
   const droneEl=document.getElementById('drone-status');droneEl.className=`drone-status ${statut.classe}`;droneEl.textContent=statut.msg;
   const joursVus=new Set();
