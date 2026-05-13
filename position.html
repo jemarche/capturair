@@ -1032,11 +1032,11 @@ else if(filtre==='info') items=items.filter(z=>z.type===0&&z.name?.includes('AIR
       if(!zone.geometry)return;
       const coords=zone.geometry.coordinates;
       const cat=zone.category||0, type=zone.type||zone.icaoClass||'', nom=zone.name||'Zone';
-      let couleur='#3AABEF';
-      if(cat===0||type==='CTR'||['A','B','C'].includes(zone.icaoClass)){couleur='#E74C3C';}
-      else if(cat===8||type==='DANGER'){couleur='#E74C3C';}
-      else if(cat===11||type==='RESTRICTED'||zone.icaoClass==='D'){couleur='#E67E22';}
-      else if(cat===2||cat===3){couleur='#9B59B6';}
+let couleur='#3AABEF';
+if(zone.type===1){couleur='#E74C3C';}
+else if(zone.type===0&&[1,2,3].includes(zone.icaoClass)){couleur='#E74C3C';}
+else if(zone.type===0&&(zone.name?.includes('CZ')||zone.name?.includes('TCA'))){couleur='#E67E22';}
+else if(zone.type===0&&zone.name?.includes('AIRWAY')){couleur='#3AABEF';}
       try {
         let path=[];
         if(zone.geometry.type==='Polygon') path=coords[0].map(c=>({lat:c[1],lng:c[0]}));
