@@ -1138,6 +1138,23 @@ async function getTZ(lat,lng){
 
 function localTimeStr(isoStr){return isoStr?isoStr.substring(11,16):'--:--';}
 
+// Date locale Montréal fiable (sans new Date(toLocaleString))
+function dateLocaleMontreal(){
+  const now=new Date();
+  // UTC-5 hiver, UTC-4 été — on utilise Intl pour la précision
+  try {
+    const fmt=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Toronto',year:'numeric',month:'2-digit',day:'2-digit'});
+    const parts=fmt.formatToParts(now);
+    const y=parts.find(p=>p.type==='year').value;
+    const m=parts.find(p=>p.type==='month').value;
+    const d=parts.find(p=>p.type==='day').value;
+    return y+'-'+m+'-'+d;
+  } catch(e){
+    // Fallback UTC
+    return now.toISOString().substring(0,10);
+  }
+}
+
 // ═══════════════════════════════════════════════════════
 // CHARGEMENT DONNÉES MÉTÉO — MODIFICATION 5: Météo mondiale
 // ═══════════════════════════════════════════════════════
@@ -1170,19 +1187,22 @@ async function chargerMeteo(lat,lng){
 async function chargerMETAR(lat,lng){
   const apNear=ZONES.aeroports.filter(a=>a.icao&&!a.icao.includes('_')).map(a=>({...a,dist:haversine(lat,lng,a.lat,a.lng)})).sort((a,b)=>a.dist-b.dist)[0];
   if(apNear&&apNear.dist<100){
+    // Headers avec JWT si disponible (Worker vérifie JWT sur ces routes)
+    const metarHeaders = jwt ? {'Authorization':'Bearer '+jwt} : {};
     try {
-      const r=await fetch(`${API}/api/metar/${apNear.icao}`);
-      const d=await r.json();
-      if(d&&d.length>0){if(!donneesMeteo)donneesMeteo={};donneesMeteo.metar=d[0];donneesMeteo.metar_aeroport=apNear;}
+      const r=await fetch(`${API}/api/metar/${apNear.icao}`,{headers:metarHeaders});
+      if(r.ok){const d=await r.json();if(d&&d.length>0){if(!donneesMeteo)donneesMeteo={};donneesMeteo.metar=d[0];donneesMeteo.metar_aeroport=apNear;}}
+      else throw new Error('401');
     } catch(e){
-      try{const r2=await fetch(`https://aviationweather.gov/api/data/metar?ids=${apNear.icao}&format=json`);const d2=await r2.json();if(d2&&d2.length>0){if(!donneesMeteo)donneesMeteo={};donneesMeteo.metar=d2[0];donneesMeteo.metar_aeroport=apNear;}}catch(e2){}
+      // Fallback direct aviationweather.gov
+      try{const r2=await fetch(`https://aviationweather.gov/api/data/metar?ids=${apNear.icao}&format=json`);if(r2.ok){const d2=await r2.json();if(d2&&d2.length>0){if(!donneesMeteo)donneesMeteo={};donneesMeteo.metar=d2[0];donneesMeteo.metar_aeroport=apNear;}}}catch(e2){}
     }
     try {
-      const rn=await fetch(`${API}/api/notam/${apNear.icao}`);
-      const dn=await rn.json();
-      if(dn&&dn.length>0)donneesMeteo.notams=dn.slice(0,5);
+      const rn=await fetch(`${API}/api/notam/${apNear.icao}`,{headers:metarHeaders});
+      if(rn.ok){const dn=await rn.json();if(dn&&dn.length>0)donneesMeteo.notams=dn.slice(0,5);}
+      else throw new Error('401');
     } catch(e){
-      try{const rn2=await fetch(`https://aviationweather.gov/api/data/notam?location=${apNear.icao}&format=json`);const dn2=await rn2.json();if(dn2&&dn2.length>0)donneesMeteo.notams=dn2.slice(0,5);}catch(e2){}
+      try{const rn2=await fetch(`https://aviationweather.gov/api/data/notam?location=${apNear.icao}&format=json`);if(rn2.ok){const dn2=await rn2.json();if(dn2&&dn2.length>0)donneesMeteo.notams=dn2.slice(0,5);}}catch(e2){}
     }
   }
 }
@@ -1560,8 +1580,7 @@ function afficherOnglet2(){
   const om=donneesPrev7;
   if(!om){document.getElementById('tab-content').innerHTML='<div style="padding:40px;text-align:center;color:var(--gray)"><div style="font-size:48px;opacity:0.4;margin-bottom:12px">📅</div><p>Sélectionnez un point sur la carte</p></div>';return;}
   // J+1 Montréal: date locale Montréal + 1
-  const maintenant = new Date(new Date().toLocaleString('en-CA',{timeZone:'America/Toronto'}));
-  const dateLocaleMtl = maintenant.toISOString().substring(0,10);
+  const dateLocaleMtl = dateLocaleMontreal();
   // Trouver l'index du jour suivant dans les données
   let startIdx = om.daily.time.findIndex(t => t > dateLocaleMtl);
   if(startIdx < 0) startIdx = 1;
@@ -1626,8 +1645,7 @@ function afficherOnglet3(){
   const om=donneesPrev15;
   if(!om){document.getElementById('tab-content').innerHTML='<div style="padding:40px;text-align:center;color:var(--gray)"><div style="font-size:48px;opacity:0.4;margin-bottom:12px">📆</div><p>Sélectionnez un point sur la carte</p></div>';return;}
   // J+1 Montréal
-  const maintenant15 = new Date(new Date().toLocaleString('en-CA',{timeZone:'America/Toronto'}));
-  const dateLocaleMtl15 = maintenant15.toISOString().substring(0,10);
+  const dateLocaleMtl15 = dateLocaleMontreal();
   let startIdx15 = om.daily.time.findIndex(t => t > dateLocaleMtl15);
   if(startIdx15 < 0) startIdx15 = 1;
   const jours=[];
@@ -1875,8 +1893,7 @@ async function genererPDF() {
     if(sel.j7 && donneesPrev7){
       checkPage();
       secHead('PREVISIONS 7 JOURS (J+1 a J+7)');
-      const maintenant7=new Date(new Date().toLocaleString('en-CA',{timeZone:'America/Toronto'}));
-      const dlm7=maintenant7.toISOString().substring(0,10);
+      const dlm7=dateLocaleMontreal();
       let si7=donneesPrev7.daily.time.findIndex(t=>t>dlm7);if(si7<0)si7=1;
       for(let k=0;k<7;k++){
         const i=si7+k;if(i>=donneesPrev7.daily.time.length)break;
@@ -1901,8 +1918,7 @@ async function genererPDF() {
     if(sel.j15 && donneesPrev15){
       checkPage();
       secHead('PREVISIONS 15 JOURS (J+1 a J+15)');
-      const maintenant15=new Date(new Date().toLocaleString('en-CA',{timeZone:'America/Toronto'}));
-      const dlm15=maintenant15.toISOString().substring(0,10);
+      const dlm15=dateLocaleMontreal();
       let si15=donneesPrev15.daily.time.findIndex(t=>t>dlm15);if(si15<0)si15=1;
       for(let k=0;k<15;k++){
         const i=si15+k;if(i>=donneesPrev15.daily.time.length)break;
