@@ -809,7 +809,15 @@ async function calculerItineraire() {
     showNotif('⚠️ Coordonnées de destination invalides','error'); return;
   }
 
-if (calculEnCours) return; // bloque les appels parasites
+if (calculEnCours) return;
+  // Bloquer si appelé sans données valides (ex: depuis idle)
+  const depCheck = document.getElementById('nav-depart').getAttribute('data-lat');
+  const destCheck = document.getElementById('nav-dest').getAttribute('data-lat');
+  const depPlaceCheck = autocompleteDepart.getPlace();
+  const destPlaceCheck = autocompleteDest.getPlace();
+  if (!depPlaceCheck?.geometry && !depCheck) return;
+  if (!destPlaceCheck?.geometry && !destCheck) return;
+
   effacerItineraire();
   showNotif('⏳ Calcul en cours...','');
 
