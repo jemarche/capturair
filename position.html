@@ -1044,7 +1044,7 @@ else if(zone.type===0&&zone.name?.includes('AIRWAY')){couleur='#3AABEF';}
         if(!path.length)return;
         const poly=new google.maps.Polygon({paths:path,strokeColor:couleur,strokeWeight:2,strokeOpacity:0.8,fillColor:couleur,fillOpacity:0.15,map});
         const alt=zone.upperLimit?`${zone.lowerLimit?.value||0}${zone.lowerLimit?.unit||'ft'} — ${zone.upperLimit?.value||''}${zone.upperLimit?.unit||'ft'}`:'—';
-        const restriction=cat===0||cat===8?'⛔ VOL DRONE INTERDIT':cat===11?'⚠️ ZONE RESTREINTE':type==='CTR'||['A','B','C','D'].includes(zone.icaoClass)?'🏙️ ZONE AÉROPORT':'ℹ️ INFORMATION';
+        const restriction=zone.type===1?'⛔ ZONE RESTREINTE — VOL INTERDIT':zone.name?.includes('CZ')||zone.name?.includes('TCA')?'🏙️ ZONE AÉROPORT CONTRÔLÉE':zone.name?.includes('AIRWAY')?'ℹ️ COULOIR AÉRIEN':'ℹ️ ZONE AÉRIENNE';
         poly.addListener('click', e=>{
           infoWindow.setContent(`<div style="font-family:'DM Sans',sans-serif;min-width:200px;padding:4px;"><strong>🚁 ${nom}</strong><br><span style="font-size:11px;color:#6B7C93;">Type: ${type||'—'} · Classe: ${zone.icaoClass||'—'}</span><br><span style="font-size:11px;color:#6B7C93;">Alt: ${alt}</span><br><div style="margin-top:6px;padding:4px 8px;background:${couleur}22;border-radius:4px;color:${couleur};font-weight:700;font-size:11px;">${restriction}</div><a href="https://portal.navdrone.ca" target="_blank" style="display:block;text-align:center;background:#0B1F3A;color:white;padding:5px;border-radius:4px;font-size:11px;text-decoration:none;margin-top:6px;font-weight:600;">🚁 Vérifier sur NavDrone →</a></div>`);
           infoWindow.setPosition(e.latLng);
