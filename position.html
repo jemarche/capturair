@@ -972,7 +972,10 @@ async function calculerDepuisDessin(mode, enRoute=false) {
   document.getElementById('nav-dest').setAttribute('data-lat', arrLat);
   document.getElementById('nav-dest').setAttribute('data-lon', arrLng);
 
+modeNav = mode;
+  calculEnCours = true;
 
+  // Appeler directement directionsService sans passer par calculerItineraire()
     origin:      new google.maps.LatLng(depLat, depLng),
     destination: new google.maps.LatLng(arrLat, arrLng),
     travelMode:  google.maps.TravelMode[mode],
@@ -988,7 +991,8 @@ async function calculerDepuisDessin(mode, enRoute=false) {
         <div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">⏱️ Durée</span><span style="font-weight:600;">${leg.duration.text}</span></div>
         ${leg.duration_in_traffic ? `<div class="nav-result-row"><span style="color:var(--gray);font-size:11px;">🚦 Trafic</span><span style="font-weight:600;">${leg.duration_in_traffic.text}</span></div>` : ''}`;
       document.getElementById('btn-sauver-trajet').disabled = false;
-      trajetsNav._currentCoords = result.routes[0].overview_path.map(p => [p.lat(), p.lng()]);
+     trajetsNav._currentCoords = result.routes[0].overview_path.map(p => [p.lat(), p.lng()]);
+      calculEnCours = false;
       showNotif(`✅ ${leg.distance.text} — ${leg.duration.text}`, 'success');
       if (enRoute) {
         showNotif('🧭 Mode En Route activé !', 'success');
