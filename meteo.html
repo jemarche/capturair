@@ -1904,7 +1904,7 @@ async function genererPDF() {
         const clr7=s7.code==='vert'?[39,174,96]:s7.code==='orange'?[230,126,34]:[231,76,60];
         if(y%14<7)doc.setFillColor(11,31,58);else doc.setFillColor(15,36,68);doc.rect(margin,y,W-2*margin,7,'F');
         doc.setTextColor(...clr7);doc.setFont('helvetica','bold');doc.setFontSize(8);
-        doc.text(jr7.replace(/[^ -]/g,'?'),margin+3,y+5);
+        doc.text(jr7.replace(/[^\x20-\x7E]/g,'?'),margin+3,y+5);
         doc.setTextColor(244,247,250);doc.setFont('helvetica','normal');
         const vMax7=donneesPrev7.daily.windspeed_10m_max[i]?.toFixed(0)||'--';
         const pMM7=(donneesPrev7.daily.precipitation_sum?.[i]??0).toFixed(1);
