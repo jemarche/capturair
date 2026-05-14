@@ -1470,8 +1470,9 @@ timeline24.push({
     (p.isNow?'<div class="tl-now-badge">MAINTENANT</div>':'')+
     '<div class="tl-heure">'+p.heure+'</div>'+
     '<div class="tl-icone">'+p.icone+'</div>'+
-    '<div class="tl-temp" style="color:'+(p.temp!==null?(parseFloat(p.temp)<0?'var(--red)':parseFloat(p.temp)<5?'var(--orange)':'var(--offwhite)'):'var(--gray)')+'">'+
+'<div class="tl-temp" style="color:'+(p.temp!==null?(parseFloat(p.temp)<0?'var(--red)':parseFloat(p.temp)<5?'var(--orange)':'var(--offwhite)'):'var(--gray)')+'">'+
     (p.temp!==null?parseFloat(p.temp).toFixed(0)+'°':'--')+'</div>'+
+    (p.ressenti!==null&&typeof p.ressenti==='number'?'<div style="font-size:9px;color:var(--gray-light)">res. '+parseFloat(p.ressenti).toFixed(0)+'°</div>':'')+
     (p.pluie>0?'<div class="tl-pluie">'+p.pluie.toFixed(1)+'mm</div>':'')+
     '<div class="tl-vent">'+p.vent.toFixed(0)+' km/h</div>'+
     '</div>').join('')+
