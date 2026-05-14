@@ -1929,7 +1929,7 @@ async function genererPDF() {
         const clr15=s15.code==='vert'?[39,174,96]:s15.code==='orange'?[230,126,34]:[231,76,60];
         if(y%14<7)doc.setFillColor(11,31,58);else doc.setFillColor(15,36,68);doc.rect(margin,y,W-2*margin,6,'F');
         doc.setTextColor(...clr15);doc.setFont('helvetica','bold');doc.setFontSize(7);
-        doc.text(jr15.replace(/[^ -]/g,'?'),margin+3,y+4);
+        doc.text(jr15.replace(/[^\x20-\x7E]/g,'?'),margin+3,y+4);
         doc.setTextColor(244,247,250);doc.setFont('helvetica','normal');
         const pMM15=(donneesPrev15.daily.precipitation_sum?.[i]??0).toFixed(1);
         doc.text('Vent: '+(donneesPrev15.daily.windspeed_10m_max[i]?.toFixed(0)||'--')+' km/h  Pluie: '+pMM15+' mm  Score: '+s15.score+'/100'+(k>=7?' (~)':''),margin+45,y+4);
