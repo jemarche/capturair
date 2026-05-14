@@ -1428,9 +1428,10 @@ function afficherOnglet1(){
   if(om?.hourly?.time){
     for(let i=hi;i<hi+24&&i<(om.hourly.time?.length||0);i++){
       if(!om.hourly.time[i]) continue;
-      timeline24.push({
+timeline24.push({
         heure:om.hourly.time[i].substring(11,16),
         temp:om.hourly.temperature_2m?.[i]??null,
+        ressenti:om.hourly.apparent_temperature?.[i]??null,
         wcode:om.hourly.weathercode?.[i]??0,
         pluie:om.hourly.precipitation?.[i]??0,
         vent:om.hourly.windspeed_10m?.[i]??0,
