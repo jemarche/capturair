@@ -1185,7 +1185,12 @@ async function chargerMeteo(lat,lng){
 }
 
 async function chargerMETAR(lat,lng){
-  const apNear=ZONES.aeroports.filter(a=>a.icao&&!a.icao.includes('_')).map(a=>({...a,dist:haversine(lat,lng,a.lat,a.lng)})).sort((a,b)=>a.dist-b.dist)[0];
+  // Garder seulement les aéroports avec METAR confirmé (grands aéroports)
+const icaosAvecMetar = ['CYUL','CYHU','CYMX','CYRQ','CYJN','CYQB','CYSH','CYOW','CYYZ','CYMB','CYBG','CYVO','CYGR','CYSJ','CYHZ','CYYT','CYFC','CYYG','CYWG','CYYC','CYVR','CYEG','KBGR','KBTV','KPLB'];
+const apNear=ZONES.aeroports
+  .filter(a=>a.icao && icaosAvecMetar.includes(a.icao))
+  .map(a=>({...a,dist:haversine(lat,lng,a.lat,a.lng)}))
+  .sort((a,b)=>a.dist-b.dist)[0];
   if(apNear&&apNear.dist<100){
     // Headers avec JWT si disponible (Worker vérifie JWT sur ces routes)
     const metarHeaders = jwt ? {'Authorization':'Bearer '+jwt} : {};
