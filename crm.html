@@ -3750,10 +3750,10 @@ async function supprimerSMSQueue(id) {
 // SMS Manuel depuis fiche lead
 let currentSMSLeadId = null;
 const SMS_TEMPLATES = {
-  'visite': 'CapturAir - Visite confirmee ! Nous avons bien recu votre reservation. Questions : 514-236-4950',
-  'galerie': 'CapturAir - Vos photos sont pretes ! Consultez votre galerie par courriel. Questions : 514-236-4950',
-  'paiement': 'CapturAir - Paiement recu ! Merci. Vos fichiers sont disponibles par courriel. Info : 514-236-4950',
-  'rappel': 'CapturAir - Rappel : votre seance photo est demain ! Questions : 514-236-4950'
+  'visite': '🚁 CapturAir - Visite confirmee ! ✅ Nous avons bien recu votre reservation. Questions : 📞 514-236-4950',
+  'galerie': '🚁 CapturAir - Vos photos sont pretes ! 📸 Consultez votre galerie par courriel. Questions : 📞 514-236-4950',
+  'paiement': '🚁 CapturAir - Paiement recu ! 💳 Merci. Vos fichiers sont disponibles par courriel. Info : 📞 514-236-4950',
+  'rappel': '🚁 CapturAir - Rappel : votre seance photo est demain ! ⏰ Questions : 📞 514-236-4950'
 };
 
 function ouvrirModalSMS(leadId) {
