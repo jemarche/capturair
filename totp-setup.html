@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CapturAir — Setup TOTP</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#0B1F3A;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.box{background:white;border-radius:20px;padding:40px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.logo{text-align:center;margin-bottom:28px}
+.logo h1{font-size:24px;font-weight:700;color:#0B1F3A}
+.logo h1 span{color:#1A8FD1}
+.logo p{font-size:12px;color:#6B7C93;margin-top:4px;letter-spacing:1px;text-transform:uppercase}
+.step{background:#F4F7FA;border-radius:12px;padding:16px 20px;margin-bottom:14px;border-left:4px solid #1A8FD1}
+.step-num{font-size:11px;font-weight:700;color:#1A8FD1;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.step p{font-size:13px;color:#0B1F3A;line-height:1.6}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#6B7C93;margin-bottom:6px}
+.field input{width:100%;border:1.5px solid #DEE4EF;border-radius:10px;padding:11px 14px;font-size:14px;outline:none;transition:border-color 0.2s;font-family:'Segoe UI',sans-serif}
+.field input:focus{border-color:#1A8FD1}
+.btn{width:100%;background:linear-gradient(135deg,#1A8FD1,#0D6EA8);color:white;border:none;padding:14px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,143,209,0.4)}
+.btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.error{color:#E74C3C;font-size:12px;margin-top:10px;padding:10px;background:rgba(231,76,60,0.08);border-radius:8px;display:none}
+.error.visible{display:block}
+.result{display:none;margin-top:20px}
+.result.visible{display:block}
+.qr-wrap{text-align:center;padding:24px;background:#F4F7FA;border-radius:14px;margin-bottom:16px}
+#qrcode{display:inline-block;padding:12px;background:white;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.1)}
+.secret-box{background:#0B1F3A;border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.secret-box label{font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px}
+.secret-box code{font-family:monospace;font-size:14px;color:#3AABEF;letter-spacing:2px;word-break:break-all}
+.success-msg{background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:10px;padding:16px;text-align:center}
+.success-msg .icon{font-size:36px;margin-bottom:8px}
+.success-msg h3{color:#27AE60;font-size:16px;margin-bottom:6px}
+.success-msg p{font-size:13px;color:#6B7C93;line-height:1.6}
+.warning{background:rgba(230,126,34,0.08);border:1px solid rgba(230,126,34,0.2);border-radius:10px;padding:14px;margin-bottom:16px;font-size:12px;color:#E67E22;line-height:1.6}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.6s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="logo">
+    <h1>Captur<span>Air</span></h1>
+    <p>Configuration Authenticator — Usage unique</p>
+  </div>
+
+  <div class="step">
+    <div class="step-num">Étape 1</div>
+    <p>Installe <strong>Google Authenticator</strong> ou <strong>Authy</strong> sur ton téléphone si ce n'est pas déjà fait.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-num">Étape 2</div>
+    <p>Entre ton PIN CapturAir ci-dessous pour générer ton QR code personnel.</p>
+  </div>
+
+  <div id="form-section">
+    <div class="field">
+      <label>Ton PIN CapturAir</label>
+      <input type="password" id="pin-input" placeholder="••••••" maxlength="6">
+    </div>
+    <button class="btn" id="btn-generer" onclick="genererQR()">
+      <span id="btn-text">Générer mon QR code →</span>
+    </button>
+    <div class="error" id="error-msg"></div>
+  </div>
+
+  <div class="result" id="result-section">
+    <div class="warning">
+      ⚠️ <strong>Important :</strong> Scanne ce QR code <strong>une seule fois</strong>. Ne le partage avec personne. Si tu perds ton téléphone, contacte l'administrateur pour régénérer un nouveau secret.
+    </div>
+
+    <div class="qr-wrap">
+      <div id="qrcode"></div>
+      <p style="font-size:12px;color:#6B7C93;margin-top:12px;">Scanne avec Google Authenticator ou Authy</p>
+    </div>
+
+    <div class="secret-box">
+      <label>Clé secrète (si tu ne peux pas scanner)</label>
+      <code id="secret-text">—</code>
+    </div>
+
+    <div class="success-msg">
+      <div class="icon">📱</div>
+      <h3>QR code généré !</h3>
+      <p>Ouvre Google Authenticator → Appuie sur <strong>+</strong> → <strong>Scanner un QR code</strong> → pointe sur l'écran.<br><br>Une fois scanné, tu verras <strong>CapturAir</strong> apparaître dans l'app avec un code à 6 chiffres qui change toutes les 30 secondes.<br><br>C'est tout — tu peux fermer cette page. ✅</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const AUTH_WORKER = 'https://capturair-carnet.tumarchessurlatete.workers.dev';
+
+async function genererQR() {
+  const pin = document.getElementById('pin-input').value.trim();
+  const err = document.getElementById('error-msg');
+  err.classList.remove('visible');
+
+  if (!pin) { showErr('Entre ton PIN.'); return; }
+
+  const btn = document.getElementById('btn-generer');
+  const btnText = document.getElementById('btn-text');
+  btn.disabled = true;
+  btnText.innerHTML = '<span class="spinner"></span> Génération...';
+
+  try {
+    const r = await fetch(`${AUTH_WORKER}/api/carnet/auth/totp-setup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'mohand.aidi@mohand.ca', pin })
+    });
+    const d = await r.json();
+
+    if (!r.ok || !d.success) {
+      showErr(d.error || 'Erreur. Vérifie ton PIN.');
+      btn.disabled = false;
+      btnText.textContent = 'Générer mon QR code →';
+      return;
+    }
+
+    // Afficher le résultat
+    document.getElementById('form-section').style.display = 'none';
+    document.getElementById('secret-text').textContent = d.secret;
+
+    // Générer le QR code
+    document.getElementById('qrcode').innerHTML = '';
+    new QRCode(document.getElementById('qrcode'), {
+      text: d.otpauth,
+      width: 200,
+      height: 200,
+      colorDark: '#0B1F3A',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+
+    document.getElementById('result-section').classList.add('visible');
+
+  } catch(e) {
+    showErr('Erreur de connexion. Réessaie.');
+    btn.disabled = false;
+    btnText.textContent = 'Générer mon QR code →';
+  }
+}
+
+function showErr(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+
+document.getElementById('pin-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') genererQR();
+});
+</script>
+</body>
+</html>
