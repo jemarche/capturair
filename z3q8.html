@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CapturAir</title>
+<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#0B1F3A; --navy2:#0D2B50; --blue:#1A8FD1; --blue-light:#3AABEF;
+  --teal:#1ABC9C; --orange:#E67E22; --red:#E74C3C; --green:#27AE60;
+  --offwhite:#F4F7FA; --white:#FFFFFF; --gray:#6B7C93; --border:#DEE4EF;
+  --card-bg:#FFFFFF; --page-bg:#F4F7FA; --text:#0B1F3A; --text-muted:#6B7C93;
+  --sidebar-bg:#0B1F3A; --topbar-bg:#FFFFFF; --topbar-border:#DEE4EF;
+  --tile-bg:#FFFFFF; --tile-border:#DEE4EF; --tile-hover:#F0F7FD;
+  --section-label:#6B7C93;
+}
+[data-theme="dark"] {
+  --offwhite:#0D1520; --white:#1A2A3F; --gray:#8A9BB0; --border:#1E3150;
+  --card-bg:#1A2A3F; --page-bg:#0D1520; --text:#E8F0F8; --text-muted:#8A9BB0;
+  --sidebar-bg:#060E18; --topbar-bg:#0D1520; --topbar-border:#1E3150;
+  --tile-bg:#1A2A3F; --tile-border:#1E3150; --tile-hover:#1E3356;
+  --section-label:#8A9BB0;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);color:var(--text);overflow-x:hidden;transition:background 0.3s,color 0.3s}
+
+/* ══ LOGIN ══ */
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#040C16 0%,#0B1F3A 55%,#0D2B50 100%);position:relative;overflow:hidden}
+.login-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(26,143,209,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(26,143,209,0.06) 1px,transparent 1px);background-size:48px 48px;animation:gridFade 8s ease-in-out infinite alternate}
+@keyframes gridFade{from{opacity:0.5}to{opacity:1}}
+.login-glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(26,143,209,0.12) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.login-box{background:rgba(255,255,255,0.035);backdrop-filter:blur(24px);border:1px solid rgba(200,216,232,0.1);border-radius:28px;padding:48px 44px;width:440px;position:relative;z-index:2;box-shadow:0 32px 80px rgba(0,0,0,0.4)}
+.login-logo{text-align:center;margin-bottom:36px}
+.login-logo img{width:180px;height:auto;margin-bottom:16px;border-radius:10px}
+.login-logo-sub{color:rgba(58,171,239,0.7);font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-top:6px}
+.login-step-indicator{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:28px}
+.step-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.15);transition:all 0.3s}
+.step-dot.active{background:var(--blue);box-shadow:0 0 8px rgba(26,143,209,0.6);width:24px;border-radius:4px}
+.step-dot.done{background:var(--teal)}
+.login-field{margin-bottom:18px}
+.login-field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:rgba(200,216,232,0.45);margin-bottom:9px;font-weight:600}
+.login-field input{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(200,216,232,0.12);border-radius:12px;padding:14px 18px;color:white;font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:all 0.25s;letter-spacing:2px}
+.login-field input:focus{border-color:rgba(26,143,209,0.6);background:rgba(255,255,255,0.09);box-shadow:0 0 0 3px rgba(26,143,209,0.1)}
+.login-field input::placeholder{color:rgba(200,216,232,0.2);letter-spacing:1px}
+.login-method-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.method-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(200,216,232,0.12);border-radius:12px;padding:16px 12px;cursor:pointer;text-align:center;transition:all 0.25s;color:rgba(200,216,232,0.6)}
+.method-btn:hover{background:rgba(26,143,209,0.12);border-color:rgba(26,143,209,0.4);color:white}
+.method-btn.selected{background:rgba(26,143,209,0.18);border-color:rgba(26,143,209,0.6);color:white}
+.method-btn-icon{font-size:24px;margin-bottom:7px;display:block}
+.method-btn-label{font-size:12px;font-weight:600;font-family:'Syne',sans-serif}
+.method-btn-sub{font-size:10px;opacity:0.6;margin-top:3px}
+.btn-login{width:100%;background:linear-gradient(135deg,var(--blue),#0D6EA8);color:white;border:none;padding:15px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;font-family:'Syne',sans-serif;transition:all 0.25s;letter-spacing:0.5px;position:relative;overflow:hidden}
+.btn-login::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.1),transparent);opacity:0}
+.btn-login:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(26,143,209,0.45)}
+.btn-login:hover::before{opacity:1}
+.btn-login:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.login-error{color:#FF6B6B;font-size:12px;text-align:center;margin-top:14px;padding:10px 14px;background:rgba(231,76,60,0.1);border-radius:8px;border:1px solid rgba(231,76,60,0.2);display:none}
+.login-error.visible{display:block;animation:shake 0.4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.blocage-timer{text-align:center;padding:16px;background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.2);border-radius:12px;margin-top:16px;display:none}
+.blocage-timer.visible{display:block}
+.blocage-timer-count{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:#FF6B6B;margin:6px 0}
+.blocage-timer p{font-size:12px;color:rgba(200,216,232,0.5)}
+.tentatives-restantes{font-size:11px;color:rgba(230,126,34,0.8);text-align:center;margin-top:10px}
+
+/* ══ APP ══ */
+.app{display:none;min-height:100vh;flex-direction:column}
+.app.visible{display:flex}
+
+/* ══ TOPBAR ══ */
+.topbar{background:var(--topbar-bg);border-bottom:1px solid var(--topbar-border);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;transition:background 0.3s,border-color 0.3s;box-shadow:0 1px 12px rgba(0,0,0,0.06)}
+.topbar-logo{display:flex;align-items:center;gap:12px}
+.topbar-logo img{height:32px;width:auto;border-radius:6px}
+.topbar-logo-text{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--text)}
+.topbar-logo-text span{color:var(--blue)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-user{display:flex;align-items:center;gap:8px;padding:6px 14px;background:var(--offwhite);border-radius:100px;font-size:12px;color:var(--text-muted);border:1px solid var(--border)}
+.topbar-avatar{width:26px;height:26px;background:linear-gradient(135deg,var(--blue),#0D5C8A);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700}
+.topbar-time{font-size:12px;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-weight:400}
+.btn-icon{background:var(--offwhite);border:1px solid var(--border);border-radius:10px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;color:var(--text-muted);font-size:16px}
+.btn-icon:hover{background:var(--blue);color:white;border-color:var(--blue)}
+.btn-logout{background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.2);border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;color:var(--red);transition:all 0.2s;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px}
+.btn-logout:hover{background:var(--red);color:white;border-color:var(--red)}
+
+/* ══ MAIN ══ */
+.main{flex:1;padding:32px 36px;max-width:1400px;margin:0 auto;width:100%}
+.greeting{margin-bottom:32px}
+.greeting h1{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:4px}
+.greeting p{font-size:14px;color:var(--text-muted)}
+
+/* ══ BADGES DYNAMIQUES ══ */
+.dynamic-bar{display:flex;align-items:center;gap:12px;margin-bottom:36px;flex-wrap:wrap}
+.dyn-badge{display:flex;align-items:center;gap:8px;padding:9px 16px;background:var(--tile-bg);border:1px solid var(--tile-border);border-radius:100px;font-size:12px;color:var(--text-muted);transition:all 0.2s;cursor:default}
+.dyn-badge-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dyn-badge-dot.green{background:var(--green);box-shadow:0 0 6px rgba(39,174,96,0.5)}
+.dyn-badge-dot.orange{background:var(--orange);box-shadow:0 0 6px rgba(230,126,34,0.5)}
+.dyn-badge-dot.blue{background:var(--blue);box-shadow:0 0 6px rgba(26,143,209,0.5)}
+.dyn-badge-dot.gray{background:var(--gray)}
+.dyn-badge strong{color:var(--text);font-weight:600}
+
+/* ══ SECTIONS ══ */
+.section{margin-bottom:36px}
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--section-label);font-family:'Syne',sans-serif}
+.section-line{flex:1;height:1px;background:var(--border)}
+
+/* ══ TUILES ══ */
+.tiles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.tile{background:var(--tile-bg);border:1px solid var(--tile-border);border-radius:16px;padding:22px 20px;cursor:pointer;transition:all 0.25s;text-decoration:none;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
+.tile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;opacity:0;transition:opacity 0.25s}
+.tile:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,0.1);border-color:var(--blue-light);background:var(--tile-hover)}
+.tile:hover::before{opacity:1}
+.tile-ops::before{background:linear-gradient(90deg,var(--blue),var(--blue-light))}
+.tile-terrain::before{background:linear-gradient(90deg,var(--teal),#2ECC71)}
+.tile-public::before{background:linear-gradient(90deg,var(--orange),#F1C40F)}
+.tile-infra::before{background:linear-gradient(90deg,var(--gray),#95A5A6)}
+.tile-icon-wrap{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tile-icon-ops{background:rgba(26,143,209,0.12)}
+.tile-icon-terrain{background:rgba(26,188,156,0.12)}
+.tile-icon-public{background:rgba(230,126,34,0.12)}
+.tile-icon-infra{background:rgba(107,124,147,0.12)}
+.tile-icon{width:22px;height:22px}
+.tile-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text);line-height:1.2}
+.tile-desc{font-size:11px;color:var(--text-muted);line-height:1.5;flex:1}
+.tile-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:700;margin-top:2px;align-self:flex-start}
+.tile-badge-blue{background:rgba(26,143,209,0.12);color:var(--blue)}
+.tile-badge-green{background:rgba(39,174,96,0.12);color:var(--green)}
+.tile-badge-orange{background:rgba(230,126,34,0.12);color:var(--orange)}
+.tile-badge-gray{background:rgba(107,124,147,0.12);color:var(--gray)}
+.tile-badge-teal{background:rgba(26,188,156,0.12);color:var(--teal)}
+.tile-ext{position:absolute;top:12px;right:12px;font-size:10px;color:var(--border);opacity:0}
+.tile:hover .tile-ext{opacity:1}
+
+/* ══ NOTIF ══ */
+.notif{position:fixed;top:76px;right:24px;z-index:10000;background:var(--navy);color:white;padding:12px 18px;border-radius:12px;font-size:13px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,0.2);animation:slideInN 0.3s ease;max-width:320px;pointer-events:none}
+.notif.success{background:var(--green)}
+.notif.error{background:var(--red)}
+@keyframes slideInN{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.6s linear infinite;display:inline-block;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ══ FOOTER ══ */
+.footer{padding:20px 36px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text-muted)}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div class="login-screen" id="login-screen">
+  <div class="login-grid"></div>
+  <div class="login-glow"></div>
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="https://raw.githubusercontent.com/jemarche/capturair/main/images/Logo%20carr%C3%A9%20headers.png" alt="CapturAir">
+      <div class="login-logo-sub">Portail Sécurisé</div>
+    </div>
+
+    <div class="login-step-indicator">
+      <div class="step-dot active" id="step-dot-1"></div>
+      <div class="step-dot" id="step-dot-2"></div>
+      <div class="step-dot" id="step-dot-3"></div>
+    </div>
+
+    <!-- Étape 1 : PIN -->
+    <div id="step-pin">
+      <div class="login-field">
+        <label id="lbl-pin">Code PIN</label>
+        <input type="password" id="login-pin" placeholder="••••••" maxlength="6" autocomplete="off" autofocus>
+      </div>
+      <button class="btn-login" onclick="validerPIN()"><span id="pin-btn-text">Continuer →</span></button>
+      <div class="tentatives-restantes" id="tentatives-label"></div>
+    </div>
+
+    <!-- Étape 2 : Choix méthode -->
+    <div id="step-methode" style="display:none;">
+      <div style="font-size:12px;color:rgba(200,216,232,0.5);text-align:center;margin-bottom:16px;letter-spacing:0.5px;">Choisissez votre méthode de vérification</div>
+      <div class="login-method-choice">
+        <div class="method-btn selected" id="btn-otp" onclick="choisirMethode('otp')">
+          <span class="method-btn-icon">📧</span>
+          <div class="method-btn-label">Par email</div>
+          <div class="method-btn-sub">Code envoyé par courriel</div>
+        </div>
+        <div class="method-btn" id="btn-totp" onclick="choisirMethode('totp')">
+          <span class="method-btn-icon">📱</span>
+          <div class="method-btn-label">Authenticator</div>
+          <div class="method-btn-sub">Google Auth / Authy</div>
+        </div>
+      </div>
+      <button class="btn-login" onclick="envoyerCode()"><span id="methode-btn-text">Envoyer le code →</span></button>
+    </div>
+
+    <!-- Étape 3 : Code -->
+    <div id="step-code" style="display:none;">
+      <div class="login-field">
+        <label id="lbl-code">Code de vérification</label>
+        <input type="text" id="login-code" placeholder="000000" maxlength="6" autocomplete="off" style="text-align:center;font-size:22px;letter-spacing:8px">
+      </div>
+      <button class="btn-login" onclick="validerCode()"><span id="code-btn-text">Accéder au portail →</span></button>
+      <div style="text-align:center;margin-top:12px;">
+        <span style="font-size:11px;color:rgba(200,216,232,0.35);cursor:pointer;" onclick="retourEtape2()">← Changer de méthode</span>
+      </div>
+    </div>
+
+    <div class="login-error" id="login-error"></div>
+
+    <!-- Blocage timer -->
+    <div class="blocage-timer" id="blocage-timer">
+      <p>Trop de tentatives incorrectes</p>
+      <div class="blocage-timer-count" id="blocage-countdown">20:00</div>
+      <p>Réessayez dans quelques minutes</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div class="app" id="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-logo">
+      <img src="https://raw.githubusercontent.com/jemarche/capturair/main/images/Logo%20carr%C3%A9%20headers.png" alt="CapturAir">
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-time" id="topbar-time">—</div>
+      <div class="topbar-user">
+        <div class="topbar-avatar" id="topbar-avatar">M</div>
+        <span id="topbar-nom">Mohand</span>
+      </div>
+      <button class="btn-icon" onclick="toggleTheme()" title="Thème" id="theme-btn">🌙</button>
+      <button class="btn-logout" onclick="logout()">↪ Déconnexion</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <div class="greeting">
+      <h1 id="greeting-text">Bonjour, Mohand 👋</h1>
+      <p id="greeting-date">—</p>
+    </div>
+
+    <!-- Badges dynamiques -->
+    <div class="dynamic-bar" id="dynamic-bar">
+      <div class="dyn-badge"><div class="dyn-badge-dot gray"></div><span>Chargement...</span></div>
+    </div>
+
+    <!-- SECTION 1 — Opérations -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-label">Opérations</span>
+        <div class="section-line"></div>
+      </div>
+      <div class="tiles-grid">
+
+        <a class="tile tile-ops" href="https://capturair.com/crm" target="_blank">
+          <div class="tile-icon-wrap tile-icon-ops">
+            <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div>
+            <div class="tile-name">CRM</div>
+            <div class="tile-desc">Leads, soumissions, factures, galeries clients</div>
+          </div>
+          <div class="tile-badge tile-badge-blue" id="badge-crm">⏳ Chargement</div>
+          <span class="tile-ext">↗</span>
+        </a>
+
+        <a class="tile tile-ops" href="https://capturair.com/portail-admin" target="_blank">
+          <div class="tile-icon-wrap tile-icon-ops">
+            <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          </div>
+          <div>
+            <div class="tile-name">Admin Galeries</div>
+            <div class="tile-desc">Gestion des projets photos clients</div>
+          </div>
+          <div class="tile-badge tile-badge-blue">Galeries</div>
+          <span class="tile-ext">↗</span>
+        </a>
+
+        <a class="tile tile-ops" href="https://capturair.com/finance" target="_blank">
+          <div class="tile-icon-wrap tile-icon-ops">
+            <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div>
+            <div class="tile-name">Finance</div>
+            <div class="tile-desc">Dépenses, taxes, kilométrage, TPS/TVQ</div>
+          </div>
+          <div class="tile-badge tile-badge-blue">Fiscal QC</div>
+          <span class="tile-ext">↗</span>
+        </a>
+
+        <a class="tile tile-ops" href="https://capturair.com/carnet" target="_blank">
+          <div class="tile-icon-wrap tile-icon-ops">
+            <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <div>
+            <div class="tile-name">Carnet de vol</div>
+            <div class="tile-desc">Journal de bord — conformité Transports Canada</div>
+          </div>
+          <div class="tile-badge tile-badge-blue">Drone</div>
+          <span class="tile-ext">↗</span>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- SECTION 2 — Terrain & Vol -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-label">Terrain &amp; Vol</span>
+        <div class="section-line"></div>
+      </div>
+      <div class="tiles-grid">
+
+        <a class="tile tile-terrain" href="https://capturair.com/meteo" target="_blank">
+          <div class="tile-icon-wrap tile-icon-terrain">
+            <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="#1ABC9C" stroke-width="1.8" stroke-linecap="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+          </div>
+          <div>
+            <div class="tile-name">Météo</div>
+            <div class="tile-desc">Briefing météo drone — METAR, NOTAM, zones</div>
+          </div>
+          <div class="tile-badge tile-badge-teal" id="badge-meteo">⏳ Chargement</div>
+          <span class="tile-ext">↗</span>
+        </a>
+
+        <a class="tile tile-terrain" href="https://capturair.com/position" target="_blank">
+          <div class="tile-icon-wrap tile-icon-terrain">
+            <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="#1ABC9C" stroke-width="1.8" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div>
+            <div class="tile-name">Position &amp; Navigation</div>
+            <div class="tile-desc">GPS temps réel, itinéraires, missions, bornes</div>
+          </div>
+          <div class="tile-badge tile-badge-teal">Navigation</div>
+          <span class="tile-ext">↗</span>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- SECTION 3 — Site public -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-label">Site public</span>
+        <div class="section-line"></div>
+      </div>
+      <div class="tiles-grid">
+
+        <a class="tile tile-public" href="https://capturair.com" target="_blank">
+          <div class="tile-icon-wrap tile-icon-public">
+            <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <div>
+            <div class="tile-name">Site principal</div>
+            <div class="tile-desc">Page d'accueil publique capturair.com</div>
+          </div>
+          <div class="tile-badge tile-badge-orange">Public</div>
+          <span class="tile-ext">↗</span>
+        </a>
+
+        <a class="tile tile-public" href="https://capturair.com/client.html" target="_blank">
+          <div class="tile-icon-wrap tile-icon-public">
+            <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <div>
+            <div class="tile-name">Galerie client</div>
+            <div class="tile-desc">Interface de sélection et paiement client</div>
+          </div>
+          <div class="tile-badge tile-badge-orange">Client</div>
+          <span class="tile-ext">↗</span>
+        </a>
+
+        <a class="tile tile-public" href="https://capturair.com/rdv.html" target="_blank">
+          <div class="tile-icon-wrap tile-icon-public">
+            <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div>
+            <div class="tile-name">Prise de RDV</div>
+            <div class="tile-desc">Calendrier courtiers — liens personnalisés</div>
+          </div>
+          <div class="tile-badge tile-badge-orange">Courtiers</div>
+          <span class="tile-ext">↗</span>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- SECTION 4 — Infrastructure -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-label">Infrastructure</span>
+        <div class="section-line"></div>
+      </div>
+      <div class="tiles-grid">
+
+        <a class="tile tile-infra" href="https://dash.cloudflare.com" target="_blank">
+          <div class="tile-icon-wrap tile-icon-infra">
+            <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="#6B7C93" stroke-width="1.8" stroke-linecap="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+          </div>
+          <div>
+            <div class="tile-name">Cloudflare</div>
+            <div class="tile-desc">Workers, D1, R2, DNS, domaine</div>
+          </div>
+          <div class="tile-badge tile-badge-gray">Dashboard</div>
+          <span class="tile-ext">↗</span>
+        </a>
+
+        <a class="tile tile-infra" href="https://github.com/jemarche/capturair" target="_blank">
+          <div class="tile-icon-wrap tile-icon-infra">
+            <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="#6B7C93" stroke-width="1.8" stroke-linecap="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          </div>
+          <div>
+            <div class="tile-name">GitHub</div>
+            <div class="tile-desc">Repo capturair — déploiement GitHub Pages</div>
+          </div>
+          <div class="tile-badge tile-badge-gray">jemarche</div>
+          <span class="tile-ext">↗</span>
+        </a>
+
+        <a class="tile tile-infra" href="https://ha.capturair.com" target="_blank">
+          <div class="tile-icon-wrap tile-icon-infra">
+            <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="#6B7C93" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <div>
+            <div class="tile-name">Home Assistant</div>
+            <div class="tile-desc">Domotique — GPS Samsung S24 — notifications push</div>
+          </div>
+          <div class="tile-badge tile-badge-gray">ha.capturair.com</div>
+          <span class="tile-ext">↗</span>
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <span>CapturAir · Portail privé</span>
+    <span id="footer-session">Session active</span>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════
+const AUTH_WORKER = 'https://capturair-carnet.tumarchessurlatete.workers.dev';
+const PORTAIL_WORKER = 'https://capturair-portail.tumarchessurlatete.workers.dev';
+const MAX_TENTATIVES = 3;
+const BLOCAGE_MINUTES = 20;
+const DELAI_ECHEC_MS = 1500;
+
+let authToken = '', currentUser = null;
+let loginStep = 1, loginMethode = 'otp';
+let blocageInterval = null, clockInterval = null;
+
+// ════════════════════════════════════════════
+// SÉCURITÉ — BLOCAGE
+// ════════════════════════════════════════════
+function getTentatives() { return parseInt(localStorage.getItem('z3q8_tentatives') || '0'); }
+function setTentatives(n) { localStorage.setItem('z3q8_tentatives', n); }
+function getBlocage() { return parseInt(localStorage.getItem('z3q8_blocage') || '0'); }
+function setBlocage(ts) { localStorage.setItem('z3q8_blocage', ts); }
+function clearBlocage() { localStorage.removeItem('z3q8_blocage'); localStorage.removeItem('z3q8_tentatives'); }
+
+function verifierBlocage() {
+  const blocage = getBlocage();
+  if (!blocage) return false;
+  if (Date.now() < blocage) return true;
+  clearBlocage();
+  return false;
+}
+
+function afficherBlocage() {
+  document.getElementById('step-pin').style.display = 'none';
+  document.getElementById('step-methode').style.display = 'none';
+  document.getElementById('step-code').style.display = 'none';
+  document.getElementById('login-error').classList.remove('visible');
+  const timerEl = document.getElementById('blocage-timer');
+  timerEl.classList.add('visible');
+  mettreAJourCountdown();
+  if (blocageInterval) clearInterval(blocageInterval);
+  blocageInterval = setInterval(() => {
+    if (!verifierBlocage()) {
+      clearInterval(blocageInterval);
+      timerEl.classList.remove('visible');
+      document.getElementById('step-pin').style.display = 'block';
+      document.getElementById('login-pin').value = '';
+      document.getElementById('login-pin').focus();
+      majStepDots(1);
+    } else {
+      mettreAJourCountdown();
+    }
+  }, 1000);
+}
+
+function mettreAJourCountdown() {
+  const reste = Math.max(0, getBlocage() - Date.now());
+  const m = Math.floor(reste / 60000), s = Math.floor((reste % 60000) / 1000);
+  document.getElementById('blocage-countdown').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function enregistrerEchec() {
+  const t = getTentatives() + 1;
+  setTentatives(t);
+  const restantes = MAX_TENTATIVES - t;
+  if (t >= MAX_TENTATIVES) {
+    setBlocage(Date.now() + BLOCAGE_MINUTES * 60 * 1000);
+    setTentatives(0);
+    afficherBlocage();
+    return true;
+  }
+  const label = document.getElementById('tentatives-label');
+  label.textContent = `⚠️ ${restantes} tentative${restantes > 1 ? 's' : ''} restante${restantes > 1 ? 's' : ''}`;
+  return false;
+}
+
+// ════════════════════════════════════════════
+// LOGIN — ÉTAPES
+// ════════════════════════════════════════════
+function majStepDots(step) {
+  for (let i = 1; i <= 3; i++) {
+    const dot = document.getElementById(`step-dot-${i}`);
+    dot.classList.remove('active', 'done');
+    if (i < step) dot.classList.add('done');
+    else if (i === step) dot.classList.add('active');
+  }
+}
+
+function showErr(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+
+function hideErr() {
+  document.getElementById('login-error').classList.remove('visible');
+}
+
+async function validerPIN() {
+  if (verifierBlocage()) { afficherBlocage(); return; }
+  const pin = document.getElementById('login-pin').value.trim();
+  if (!pin) { showErr('Entrez votre code PIN.'); return; }
+  const btn = document.getElementById('pin-btn-text');
+  btn.innerHTML = '<span class="spinner"></span>';
+  document.getElementById('login-pin').disabled = true;
+  // Délai artificiel anti-bruteforce
+  await new Promise(r => setTimeout(r, DELAI_ECHEC_MS));
+  try {
+    const r = await fetch(`${AUTH_WORKER}/api/carnet/auth/init`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'mohand.aidi@mohand.ca', pin })
+    });
+    const d = await r.json();
+    if (!r.ok || !d.success) {
+      const bloque = enregistrerEchec();
+      if (!bloque) showErr('Code PIN incorrect. Réessayez.');
+    } else {
+      clearBlocage();
+      hideErr();
+      document.getElementById('step-pin').style.display = 'none';
+      document.getElementById('step-methode').style.display = 'block';
+      majStepDots(2);
+      loginStep = 2;
+    }
+  } catch(e) {
+    showErr('Erreur de connexion. Réessayez.');
+  }
+  btn.textContent = 'Continuer →';
+  document.getElementById('login-pin').disabled = false;
+}
+
+function choisirMethode(m) {
+  loginMethode = m;
+  document.getElementById('btn-otp').classList.toggle('selected', m === 'otp');
+  document.getElementById('btn-totp').classList.toggle('selected', m === 'totp');
+  document.getElementById('methode-btn-text').textContent = m === 'otp' ? 'Envoyer le code →' : 'Utiliser mon Authenticator →';
+}
+
+async function envoyerCode() {
+  const btn = document.getElementById('methode-btn-text');
+  btn.innerHTML = '<span class="spinner"></span>';
+  if (loginMethode === 'otp') {
+    // OTP déjà envoyé à l'étape 1 — on passe juste
+    await new Promise(r => setTimeout(r, 600));
+    document.getElementById('lbl-code').textContent = 'Code reçu par email';
+    document.getElementById('login-code').placeholder = '000000';
+  } else {
+    await new Promise(r => setTimeout(r, 400));
+    document.getElementById('lbl-code').textContent = 'Code Authenticator (6 chiffres)';
+    document.getElementById('login-code').placeholder = '000000';
+  }
+  document.getElementById('step-methode').style.display = 'none';
+  document.getElementById('step-code').style.display = 'block';
+  majStepDots(3);
+  loginStep = 3;
+  document.getElementById('login-code').focus();
+  btn.textContent = 'Envoyer le code →';
+}
+
+function retourEtape2() {
+  document.getElementById('step-code').style.display = 'none';
+  document.getElementById('step-methode').style.display = 'block';
+  document.getElementById('login-code').value = '';
+  majStepDots(2);
+  loginStep = 2;
+  hideErr();
+}
+
+async function validerCode() {
+  if (verifierBlocage()) { afficherBlocage(); return; }
+  const code = document.getElementById('login-code').value.trim();
+  if (!code || code.length < 6) { showErr('Entrez le code à 6 chiffres.'); return; }
+  const btn = document.getElementById('code-btn-text');
+  btn.innerHTML = '<span class="spinner"></span>';
+  document.getElementById('login-code').disabled = true;
+  await new Promise(r => setTimeout(r, DELAI_ECHEC_MS));
+  try {
+    // Pour TOTP, on utilise la même route OTP (le Worker vérifie les deux)
+    const r = await fetch(`${AUTH_WORKER}/api/carnet/auth/otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'mohand.aidi@mohand.ca', otp: code, methode: loginMethode })
+    });
+    const d = await r.json();
+    if (!r.ok || !d.token) {
+      const bloque = enregistrerEchec();
+      if (!bloque) showErr('Code incorrect ou expiré. Réessayez.');
+    } else {
+      clearBlocage();
+      authToken = d.token;
+      currentUser = { email: 'mohand.aidi@mohand.ca', role: d.role || 'superadmin', nom: d.nom || 'Mohand' };
+      sessionStorage.setItem('z3q8_token', authToken);
+      sessionStorage.setItem('z3q8_user', JSON.stringify(currentUser));
+      ouvrirPortail();
+    }
+  } catch(e) {
+    showErr('Erreur de connexion. Réessayez.');
+  }
+  btn.textContent = 'Accéder au portail →';
+  document.getElementById('login-code').disabled = false;
+}
+
+// ════════════════════════════════════════════
+// AUTO-LOGIN
+// ════════════════════════════════════════════
+(function() {
+  if (verifierBlocage()) { afficherBlocage(); return; }
+  const t = sessionStorage.getItem('z3q8_token');
+  const u = sessionStorage.getItem('z3q8_user');
+  if (t && u) {
+    try {
+      const p = JSON.parse(atob(t.split('.')[0]));
+      if (p.exp > Date.now()) {
+        authToken = t;
+        currentUser = JSON.parse(u);
+        ouvrirPortail();
+        return;
+      }
+    } catch(e) {}
+    sessionStorage.clear();
+  }
+})();
+
+// Touches clavier
+document.getElementById('login-pin').addEventListener('keydown', e => { if (e.key === 'Enter') validerPIN(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (loginStep === 3) validerCode();
+  }
+});
+
+// ════════════════════════════════════════════
+// PORTAIL
+// ════════════════════════════════════════════
+function ouvrirPortail() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+  const nom = currentUser?.nom || 'Mohand';
+  document.getElementById('topbar-avatar').textContent = nom[0].toUpperCase();
+  document.getElementById('topbar-nom').textContent = nom;
+  majGreeting();
+  demarrerHorloge();
+  chargerBadges();
+  chargerMeteo();
+  appliquerThemeSauvegarde();
+}
+
+function majGreeting() {
+  const h = new Date().getHours();
+  const salut = h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir';
+  document.getElementById('greeting-text').textContent = `${salut}, Mohand 👋`;
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById('greeting-date').textContent = new Date().toLocaleDateString('fr-CA', options);
+}
+
+function demarrerHorloge() {
+  function maj() {
+    const now = new Date();
+    document.getElementById('topbar-time').textContent = now.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
+    const exp = (() => { try { return JSON.parse(atob(authToken.split('.')[0])).exp; } catch(e) { return 0; } })();
+    const reste = Math.max(0, exp - Date.now());
+    const rm = Math.floor(reste / 60000);
+    document.getElementById('footer-session').textContent = `Session · expire dans ${rm} min`;
+  }
+  maj();
+  clockInterval = setInterval(maj, 30000);
+}
+
+function logout() {
+  sessionStorage.clear();
+  authToken = ''; currentUser = null;
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-pin').value = '';
+  document.getElementById('login-code').value = '';
+  document.getElementById('step-pin').style.display = 'block';
+  document.getElementById('step-methode').style.display = 'none';
+  document.getElementById('step-code').style.display = 'none';
+  majStepDots(1);
+  loginStep = 1;
+  hideErr();
+  if (clockInterval) clearInterval(clockInterval);
+  document.getElementById('login-pin').focus();
+}
+
+// ════════════════════════════════════════════
+// BADGES DYNAMIQUES
+// ════════════════════════════════════════════
+async function chargerBadges() {
+  const bar = document.getElementById('dynamic-bar');
+  bar.innerHTML = '';
+
+  // Badge météo
+  try {
+    const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FToronto');
+    const d = await r.json();
+    const temp = Math.round(d.current.temperature_2m);
+    const vent = Math.round(d.current.wind_speed_10m);
+    const volOk = vent < 30;
+    const icons = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',61:'🌧️',71:'🌨️',80:'🌦️',95:'⛈️'};
+    const icone = icons[d.current.weather_code] || '🌡️';
+    bar.innerHTML += `<div class="dyn-badge"><div class="dyn-badge-dot ${volOk?'green':'orange'}"></div>${icone} <strong>${temp}°C</strong> · Vent ${vent} km/h · ${volOk?'Vol OK ✅':'Vol prudent ⚠️'}</div>`;
+    document.getElementById('badge-meteo').textContent = `${icone} ${temp}°C · ${vent} km/h`;
+    document.getElementById('badge-meteo').className = `tile-badge ${volOk?'tile-badge-teal':'tile-badge-orange'}`;
+  } catch(e) {
+    bar.innerHTML += `<div class="dyn-badge"><div class="dyn-badge-dot gray"></div>Météo indisponible</div>`;
+  }
+
+  // Badge CRM
+  try {
+    const r = await fetch(`${PORTAIL_WORKER}/api/crm/leads`, {
+      headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' }
+    });
+    const d = await r.json();
+    const leads = (d.leads || []).filter(l => l.statut !== 'Fermé');
+    const soumissions_count = leads.filter(l => l.statut === 'Soumission envoyée').length;
+    bar.innerHTML += `<div class="dyn-badge"><div class="dyn-badge-dot blue"></div>📁 <strong>${leads.length}</strong> leads actifs · <strong>${soumissions_count}</strong> soumissions</div>`;
+    document.getElementById('badge-crm').textContent = `${leads.length} leads · ${soumissions_count} soumissions`;
+    document.getElementById('badge-crm').className = `tile-badge ${leads.length > 0 ? 'tile-badge-blue' : 'tile-badge-gray'}`;
+  } catch(e) {
+    bar.innerHTML += `<div class="dyn-badge"><div class="dyn-badge-dot gray"></div>CRM indisponible</div>`;
+  }
+
+  // Badge session
+  bar.innerHTML += `<div class="dyn-badge"><div class="dyn-badge-dot green"></div>🔒 Connexion sécurisée · <strong>${loginMethode === 'totp' ? 'TOTP' : 'OTP email'}</strong></div>`;
+}
+
+async function chargerMeteo() {
+  // Déjà chargé dans chargerBadges
+}
+
+// ════════════════════════════════════════════
+// THÈME DARK / LIGHT
+// ════════════════════════════════════════════
+function appliquerThemeSauvegarde() {
+  const theme = localStorage.getItem('z3q8_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('theme-btn').textContent = theme === 'dark' ? '☀️' : '🌙';
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('z3q8_theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
+  showNotif(next === 'dark' ? '🌙 Mode sombre activé' : '☀️ Mode clair activé', '');
+}
+
+// ════════════════════════════════════════════
+// NOTIF
+// ════════════════════════════════════════════
+function showNotif(msg, type = '') {
+  const el = document.createElement('div');
+  el.className = `notif ${type}`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(() => el.remove(), 300); }, 3000);
+}
+</script>
+</body>
+</html>
