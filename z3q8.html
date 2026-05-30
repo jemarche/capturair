@@ -828,6 +828,7 @@ function buildMeteoTile(om, idx, label, heureStr) {
     </div>
     <span class="meteo-tile-icon">${WMO_ICONS[wcode] || '🌡'}</span>
     <div class="meteo-tile-temp">${typeof temp === 'number' ? temp.toFixed(1) : temp}<small> °C</small></div>
+<div class="meteo-tile-condition" style="font-size:10px;color:rgba(200,216,232,0.4);">Ressenti ${typeof ressenti === 'number' ? ressenti.toFixed(1) : ressenti}°C</div>
     <div class="meteo-tile-condition">${WMO_NOMS[wcode] || ''}</div>
     <div class="meteo-tile-stats">
       <div class="meteo-stat">
