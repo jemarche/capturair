@@ -1090,44 +1090,55 @@ let map = null, directionsService = null, directionsRenderer = null;
 
 // ── AUTH ──────────────────────────────────────────────────────────
 let currentEmail = '';
+let loginMethode = 'otp';
+
+function choisirMethode(m) {
+  loginMethode = m;
+  document.getElementById('btn-otp').style.background = m==='otp' ? '#EBF4FB' : '#F5F7FA';
+  document.getElementById('btn-otp').style.borderColor = m==='otp' ? '#1A8FD1' : '#DEE4EF';
+  document.getElementById('btn-otp').style.color = m==='otp' ? '#1B2A47' : '#6B7A99';
+  document.getElementById('btn-totp').style.background = m==='totp' ? '#EBF4FB' : '#F5F7FA';
+  document.getElementById('btn-totp').style.borderColor = m==='totp' ? '#1A8FD1' : '#DEE4EF';
+  document.getElementById('btn-totp').style.color = m==='totp' ? '#1B2A47' : '#6B7A99';
+}
+
+async function continuerMethode() {
+  document.getElementById('step-methode').style.display = 'none';
+  document.getElementById('step-2').style.display = 'block';
+  if(loginMethode === 'totp') {
+    document.querySelector('#step-2 label').textContent = 'Code Authenticator (6 chiffres)';
+  } else {
+    document.querySelector('#step-2 label').textContent = 'Code de vérification (6 chiffres)';
+  }
+  document.getElementById('login-otp').value = '';
+  document.getElementById('login-otp').focus();
+}
 
 async function login() {
   const email = document.getElementById('login-email').value.trim();
   const pin = document.getElementById('login-pin').value.trim();
   if (!email || !pin) { showLoginError('Remplis tous les champs'); return; }
   if (pin.length < 4) { showLoginError('PIN minimum 4 chiffres'); return; }
-
-  const btn = document.querySelector('.btn-login');
+  const btn = document.querySelector('#step-1 .btn-login');
   btn.textContent = 'Envoi en cours...';
   btn.disabled = true;
-
   try {
-    // Vérifier si utilisateur existe, sinon créer
-    const checkUser = await fetch(API + '/api/carnet/admin/users', {
-      headers: { 'Authorization': 'Bearer dummy' }
-    });
-
     const res = await fetch(API + '/api/carnet/auth/init', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, pin })
     });
     const data = await res.json();
-
     if (data.error) {
       showLoginError(data.error);
       btn.textContent = 'Continuer →';
       btn.disabled = false;
       return;
     }
-
-    // Succès → afficher étape OTP
     currentEmail = email;
     document.getElementById('step-1').style.display = 'none';
-    document.getElementById('step-2').style.display = 'block';
-    document.getElementById('login-otp').focus();
+    document.getElementById('step-methode').style.display = 'block';
     document.getElementById('login-error').style.display = 'none';
-
   } catch(e) {
     showLoginError('Erreur de connexion — réessaie');
   }
@@ -1138,27 +1149,22 @@ async function login() {
 async function verifyOTP() {
   const otp = document.getElementById('login-otp').value.trim();
   if (otp.length !== 6) { showLoginError('Entre les 6 chiffres du code'); return; }
-
-  const btn = document.querySelectorAll('.btn-login')[1];
+  const btn = document.querySelector('#step-2 .btn-login');
   btn.textContent = 'Vérification...';
   btn.disabled = true;
-
   try {
     const res = await fetch(API + '/api/carnet/auth/otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: currentEmail, otp })
+      body: JSON.stringify({ email: currentEmail, otp, methode: loginMethode })
     });
     const data = await res.json();
-
     if (data.error) {
       showLoginError(data.error);
       btn.textContent = '✅ Vérifier le code';
       btn.disabled = false;
       return;
     }
-
-    // Connexion réussie !
     TOKEN = data.token;
     localStorage.setItem('carnet_token', TOKEN);
     const roleLabels = {'superadmin':'👑 Superadmin','admin_pilote':'✈️ Admin Pilote','admin_client':'🎧 Admin Clientèle','utilisateur':'👤 Utilisateur','pilote':'🚁 Pilote','admin':'🛡️ Admin'};
@@ -1168,7 +1174,6 @@ async function verifyOTP() {
     if (['admin','superadmin','admin_pilote'].includes(data.role)) document.getElementById('nav-admin').style.display = 'flex';
     if (['superadmin','admin_pilote'].includes(data.role)) document.getElementById('nav-drones').style.display = 'flex';
     initApp();
-
   } catch(e) {
     showLoginError('Erreur de vérification');
     btn.textContent = '✅ Vérifier le code';
@@ -1191,8 +1196,10 @@ async function resendOTP() {
 function backToStep1() {
   document.getElementById('step-1').style.display = 'block';
   document.getElementById('step-2').style.display = 'none';
+  document.getElementById('step-methode').style.display = 'none';
   document.getElementById('login-error').style.display = 'none';
   document.getElementById('login-otp').value = '';
+  loginMethode = 'otp';
 }
 
 function showLoginError(msg) {
