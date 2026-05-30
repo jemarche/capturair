@@ -841,47 +841,75 @@ const FICHES = {
 // ═══════════════════════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════════════════════
-const PIN_CORRECT = '1977';
+let loginMethode = 'otp';
+
+function choisirMethode(m) {
+  loginMethode = m;
+  document.getElementById('btn-otp').style.background = m==='otp' ? 'rgba(26,143,209,0.18)' : 'rgba(255,255,255,0.05)';
+  document.getElementById('btn-otp').style.borderColor = m==='otp' ? 'rgba(26,143,209,0.6)' : 'rgba(200,216,232,0.15)';
+  document.getElementById('btn-otp').style.color = m==='otp' ? '#F4F7FA' : 'rgba(200,216,232,0.5)';
+  document.getElementById('btn-totp').style.background = m==='totp' ? 'rgba(26,143,209,0.18)' : 'rgba(255,255,255,0.05)';
+  document.getElementById('btn-totp').style.borderColor = m==='totp' ? 'rgba(26,143,209,0.6)' : 'rgba(200,216,232,0.15)';
+  document.getElementById('btn-totp').style.color = m==='totp' ? '#F4F7FA' : 'rgba(200,216,232,0.5)';
+}
+
+async function continuerMethode() {
+  document.getElementById('auth-methode-step').style.display = 'none';
+  document.getElementById('auth-otp-step').style.display = 'block';
+  if (loginMethode === 'totp') {
+    document.getElementById('otp-label').textContent = 'Code Authenticator (6 chiffres)';
+    document.getElementById('otp-info').style.display = 'none';
+  } else {
+    document.getElementById('otp-label').textContent = 'Code OTP envoyé par email';
+    document.getElementById('otp-info').style.display = 'block';
+  }
+  document.getElementById('otp-input').focus();
+}
 
 async function verifierPIN() {
-  const pin = document.getElementById('pin-input').value;
-  if(pinTentatives >= 3){document.getElementById('pin-error').textContent='Trop de tentatives. Réessayez dans 30 min.';return;}
-  if(pin !== PIN_CORRECT){
-    pinTentatives++;
-    document.getElementById('pin-error').textContent=`PIN incorrect (${pinTentatives}/3)`;
-    document.getElementById('pin-input').value='';return;
-  }
+  const pin = document.getElementById('pin-input').value.trim();
+  if (pinTentatives >= 3) { document.getElementById('pin-error').textContent='Trop de tentatives. Réessayez dans 20 min.'; return; }
+  if (!pin) { document.getElementById('pin-error').textContent='Entrez votre PIN.'; return; }
   try {
-    const r=await fetch(`${API_AUTH}/api/carnet/auth/init`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:'mohand.aidi@mohand.ca',pin})});
-    const d=await r.json();
-    if(d.success||r.ok){document.getElementById('auth-pin-step').style.display='none';document.getElementById('auth-otp-step').style.display='block';}
-    else document.getElementById('pin-error').textContent=d.error||'Erreur serveur';
-  } catch(e){document.getElementById('auth-pin-step').style.display='none';document.getElementById('auth-otp-step').style.display='block';}
+    const r = await fetch(`${API_AUTH}/api/carnet/auth/init`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email:'mohand.aidi@mohand.ca', pin }) });
+    const d = await r.json();
+    if (d.success || r.ok) {
+      document.getElementById('auth-pin-step').style.display = 'none';
+      document.getElementById('auth-methode-step').style.display = 'block';
+    } else {
+      pinTentatives++;
+      document.getElementById('pin-error').textContent = `PIN incorrect (${pinTentatives}/3)`;
+      document.getElementById('pin-input').value = '';
+    }
+  } catch(e) {
+    document.getElementById('auth-pin-step').style.display = 'none';
+    document.getElementById('auth-methode-step').style.display = 'block';
+  }
 }
 
 async function verifierOTP() {
-  const otp=document.getElementById('otp-input').value.trim();
-  if(!otp||otp.length<6){document.getElementById('otp-error').textContent='Code OTP invalide';return;}
+  const otp = document.getElementById('otp-input').value.trim();
+  if (!otp || otp.length < 6) { document.getElementById('otp-error').textContent='Code invalide'; return; }
   try {
-    const r=await fetch(`${API_AUTH}/api/carnet/auth/otp`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:'mohand.aidi@mohand.ca',otp})});
-    const d=await r.json();
-    if(d.token){jwt=d.token;sessionStorage.setItem('capturair_jwt_meteo',jwt);lancerPortail();}
-    else document.getElementById('otp-error').textContent=d.error||'OTP invalide';
-  } catch(e){document.getElementById('otp-error').textContent='Erreur de connexion';}
+    const r = await fetch(`${API_AUTH}/api/carnet/auth/otp`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email:'mohand.aidi@mohand.ca', otp, methode: loginMethode }) });
+    const d = await r.json();
+    if (d.token) { jwt=d.token; sessionStorage.setItem('capturair_jwt_meteo',jwt); lancerPortail(); }
+    else document.getElementById('otp-error').textContent = d.error || 'Code incorrect';
+  } catch(e) { document.getElementById('otp-error').textContent='Erreur de connexion'; }
 }
 
-function deconnexion(){sessionStorage.removeItem('capturair_jwt_meteo');location.reload();}
+function deconnexion() { sessionStorage.removeItem('capturair_jwt_meteo'); location.reload(); }
 
-document.getElementById('pin-input').addEventListener('keydown',e=>{if(e.key==='Enter')verifierPIN();});
-document.getElementById('otp-input').addEventListener('keydown',e=>{if(e.key==='Enter')verifierOTP();});
+document.getElementById('pin-input').addEventListener('keydown', e => { if(e.key==='Enter') verifierPIN(); });
+document.getElementById('otp-input').addEventListener('keydown', e => { if(e.key==='Enter') verifierOTP(); });
 
-const jwtExist=sessionStorage.getItem('capturair_jwt_meteo');
-if(jwtExist){jwt=jwtExist;lancerPortail();}
+const jwtExist = sessionStorage.getItem('capturair_jwt_meteo');
+if (jwtExist) { jwt=jwtExist; lancerPortail(); }
 
-function lancerPortail(){
-  document.getElementById('auth-screen').style.display='none';
-  document.getElementById('topbar').style.display='flex';
-  document.getElementById('main').style.display='flex';
+function lancerPortail() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('topbar').style.display = 'flex';
+  document.getElementById('main').style.display = 'flex';
 }
 
 // ═══════════════════════════════════════════════════════
