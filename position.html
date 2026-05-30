@@ -595,6 +595,17 @@ meteoPointManuel = true;
 
 // ══ LOGIN ══════════════════════════════════════════════════════════════
 let loginStep = 1;
+
+function choisirMethode(m) {
+  loginMethode = m;
+  document.getElementById('btn-otp').style.background = m==='otp' ? 'rgba(26,143,209,0.18)' : 'rgba(255,255,255,0.05)';
+  document.getElementById('btn-otp').style.borderColor = m==='otp' ? 'rgba(26,143,209,0.6)' : 'rgba(200,216,232,0.12)';
+  document.getElementById('btn-otp').style.color = m==='otp' ? 'white' : 'rgba(200,216,232,0.6)';
+  document.getElementById('btn-totp').style.background = m==='totp' ? 'rgba(26,143,209,0.18)' : 'rgba(255,255,255,0.05)';
+  document.getElementById('btn-totp').style.borderColor = m==='totp' ? 'rgba(26,143,209,0.6)' : 'rgba(200,216,232,0.12)';
+  document.getElementById('btn-totp').style.color = m==='totp' ? 'white' : 'rgba(200,216,232,0.6)';
+}
+
 async function login() {
   const btn = document.getElementById('login-btn-text');
   const err = document.getElementById('login-error');
@@ -603,51 +614,72 @@ async function login() {
   if (blocage && Date.now() < parseInt(blocage)) {
     showErr(`Trop de tentatives. Réessayez dans ${Math.ceil((parseInt(blocage)-Date.now())/60000)} min.`); return;
   }
+
   if (loginStep === 1) {
     const pin = document.getElementById('login-pin').value.trim();
     if (!pin) { showErr('Entrez votre PIN.'); return; }
-    if (pin !== PIN_CORRECT) {
-      const t = parseInt(sessionStorage.getItem('pos_tentatives')||'0') + 1;
-      sessionStorage.setItem('pos_tentatives', t);
-      if (t >= 3) { sessionStorage.setItem('pos_blocage', Date.now()+30*60*1000); sessionStorage.removeItem('pos_tentatives'); showErr('3 tentatives échouées. Accès bloqué 30 min.'); }
-      else showErr(`PIN incorrect. ${3-t} tentative(s) restante(s).`);
-      return;
-    }
     btn.innerHTML = '<span class="spinner"></span>';
     try {
       const r = await fetch(`${AUTH_API}/api/carnet/auth/init`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: OTP_EMAIL, pin }) });
       const d = await r.json();
-      if (!r.ok || !d.success) { showErr('Erreur envoi OTP.'); btn.textContent='Accéder →'; return; }
+      if (!r.ok || !d.success) {
+        const t = parseInt(sessionStorage.getItem('pos_tentatives')||'0') + 1;
+        sessionStorage.setItem('pos_tentatives', t);
+        if (t >= 3) { sessionStorage.setItem('pos_blocage', Date.now()+20*60*1000); sessionStorage.removeItem('pos_tentatives'); showErr('3 tentatives échouées. Accès bloqué 20 min.'); }
+        else showErr(`PIN incorrect. ${3-t} tentative(s) restante(s).`);
+        btn.textContent='Accéder →'; return;
+      }
+      sessionStorage.removeItem('pos_tentatives');
       loginStep = 2;
-      document.getElementById('lbl-pin').textContent = 'Code OTP (reçu par email)';
-      document.getElementById('login-pin').value = '';
-      document.getElementById('login-pin').type = 'text';
-      document.getElementById('login-pin').placeholder = 'Code à 6 chiffres';
-      btn.textContent = 'Valider →';
+      document.getElementById('field-pin').style.display = 'none';
+      document.getElementById('login-methode').style.display = 'block';
+      btn.textContent = 'Envoyer le code →';
     } catch(e) { showErr('Erreur de connexion.'); btn.textContent='Accéder →'; }
+
+  } else if (loginStep === 2) {
+    btn.innerHTML = '<span class="spinner"></span>';
+    loginStep = 3;
+    document.getElementById('login-methode').style.display = 'none';
+    document.getElementById('field-pin').style.display = 'block';
+    if (loginMethode === 'otp') {
+      document.getElementById('lbl-pin').textContent = 'Code OTP (reçu par email)';
+      document.getElementById('login-pin').placeholder = 'Code à 6 chiffres';
+    } else {
+      document.getElementById('lbl-pin').textContent = 'Code Authenticator (6 chiffres)';
+      document.getElementById('login-pin').placeholder = '000000';
+    }
+    document.getElementById('login-pin').value = '';
+    document.getElementById('login-pin').type = 'text';
+    document.getElementById('login-pin').focus();
+    btn.textContent = 'Valider →';
+
   } else {
     const otp = document.getElementById('login-pin').value.trim();
     if (!otp) { showErr('Entrez le code reçu.'); return; }
     btn.innerHTML = '<span class="spinner"></span>';
     try {
-      const r = await fetch(`${AUTH_API}/api/carnet/auth/otp`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: OTP_EMAIL, otp }) });
+      const r = await fetch(`${AUTH_API}/api/carnet/auth/otp`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: OTP_EMAIL, otp, methode: loginMethode }) });
       const d = await r.json();
-      if (!r.ok || !d.token) { showErr('Code OTP incorrect.'); btn.textContent='Valider →'; return; }
+      if (!r.ok || !d.token) { showErr('Code incorrect ou expiré.'); btn.textContent='Valider →'; return; }
       authToken = d.token;
       sessionStorage.setItem('pos_token', authToken);
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app').classList.add('visible');
-      loginStep = 1;
+      loginStep = 1; loginMethode = 'otp';
       initApp();
     } catch(e) { showErr('Erreur de connexion.'); btn.textContent='Valider →'; }
   }
 }
+
 function showErr(m) { const e=document.getElementById('login-error'); e.textContent=m; e.style.display='block'; }
+
 function logout() {
   sessionStorage.clear(); authToken='';
   document.getElementById('app').classList.remove('visible');
   document.getElementById('login-screen').style.display='flex';
-  loginStep=1;
+  loginStep=1; loginMethode='otp';
+  document.getElementById('field-pin').style.display='block';
+  document.getElementById('login-methode').style.display='none';
   document.getElementById('login-pin').type='password';
   document.getElementById('login-pin').value='';
   document.getElementById('lbl-pin').textContent='PIN de sécurité';
@@ -655,6 +687,7 @@ function logout() {
   if(refreshInterval) clearInterval(refreshInterval);
   if(countdownInterval) clearInterval(countdownInterval);
 }
+
 document.getElementById('login-pin').addEventListener('keydown', e => { if(e.key==='Enter') login(); });
 
 // ══ INIT ══════════════════════════════════════════════════════════════
