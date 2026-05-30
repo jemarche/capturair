@@ -1,29 +1,9 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-
-<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-44EB1JEJ2C"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-44EB1JEJ2C');
-</script>
-
-<script type="application/ld+json">
-{
- "@context": "https://schema.org",
- "@type": "LocalBusiness",
- "name": "CapturAir",
- "url": "https://capturair.com",
- "telephone": "+1-514-446-6078",
- "areaServed": ["Montréal","Laval","Lanaudière","Repentigny","Terrebonne","Joliette","Lavaltrie"],
- "serviceType": ["Photographie immobilière par drone","Vidéo aérienne par drone","Inspection visuelle par drone","Photographie immobilière"],
- "address": {"@type":"PostalAddress","addressLocality":"Lavaltrie","addressRegion":"QC","addressCountry":"CA"}
-}
-</script>
-
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-44EB1JEJ2C');</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","name":"CapturAir","url":"https://capturair.com","telephone":"+1-514-446-6078","areaServed":["Montréal","Laval","Lanaudière","Repentigny","Terrebonne","Joliette","Lavaltrie"],"serviceType":["Photographie immobilière par drone","Vidéo aérienne par drone","Inspection visuelle par drone","Photographie immobilière"],"address":{"@type":"PostalAddress","addressLocality":"Lavaltrie","addressRegion":"QC","addressCountry":"CA"}}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="canonical" href="https://capturair.com/">
@@ -47,849 +27,211 @@ gtag('config', 'G-44EB1JEJ2C');
 <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500&display=swap" rel="stylesheet">
-
 <style>
-:root {
-  --void: #05080F;
-  --deep: #0A0F1A;
-  --dark: #0D1520;
-  --panel: #111827;
-  --blue: #1A8FD1;
-  --blue-light: #3AABEF;
-  --blue-glow: rgba(26,143,209,0.2);
-  --white: #FFFFFF;
-  --offwhite: #E8EEF5;
-  --muted: rgba(200,216,232,0.55);
-  --border: rgba(200,216,232,0.1);
-  --border-blue: rgba(26,143,209,0.25);
-  --error: #e74c3c;
-  --success: #2ecc71;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body {
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 300;
-  color: var(--offwhite);
-  background: var(--deep);
-  overflow-x: hidden;
-  position: relative;
-}
-
-/* Full-page grid overlay */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(26,143,209,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(26,143,209,0.04) 1px, transparent 1px);
-  background-size: 64px 64px;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--void); }
-::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 2px; }
-
-/* ══════════════════════════════════════════
-   NAV — transparent on hero, opaque on scroll
-══════════════════════════════════════════ */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 48px; height: 72px;
-  background: transparent;
-  transition: background 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease;
-  border-bottom: 1px solid transparent;
-  gap: 16px;
-}
-nav.scrolled {
-  background: rgba(5,8,15,0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom-color: var(--border);
-}
-
-.nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; flex-shrink: 0; }
-.nav-logo-svg { width: 38px; height: 38px; flex-shrink: 0; }
-.nav-logo-text {
-  font-family: 'Syne', sans-serif;
-  font-size: 20px; font-weight: 700; color: var(--white); letter-spacing: 0.3px;
-}
-.nav-logo-text span { color: var(--blue-light); }
-
-.nav-links { display: flex; align-items: center; gap: 40px; list-style: none; }
-.nav-links a {
-  text-decoration: none; color: rgba(255,255,255,0.65);
-  font-size: 13px; font-weight: 400; letter-spacing: 0.8px;
-  text-transform: uppercase; transition: color 0.2s;
-}
-.nav-links a:hover { color: var(--white); }
-.nav-cta {
-  background: var(--blue) !important; color: var(--white) !important;
-  padding: 9px 22px !important; border-radius: 6px !important;
-  font-weight: 500 !important; text-transform: none !important;
-  letter-spacing: 0 !important;
-}
-.nav-cta:hover { background: var(--blue-light) !important; color: var(--white) !important; }
-
-/* Weather widget */
-.weather-widget {
-  display: flex; align-items: center; gap: 8px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(200,216,232,0.1);
-  border-radius: 10px; padding: 6px 14px; flex-shrink: 0;
-}
-.weather-widget-icon { font-size: 17px; }
-.weather-widget-info { display: flex; flex-direction: column; line-height: 1.3; }
-.weather-widget-city { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(200,216,232,0.4); }
-.weather-widget-temp { font-size: 13px; font-weight: 400; color: var(--white); white-space: nowrap; }
-.weather-widget-temp-short { display: none; }
-
-/* ══════════════════════════════════════════
-   HERO
-══════════════════════════════════════════ */
-#hero {
-  min-height: 100vh; position: relative;
-  display: flex; align-items: center; overflow: hidden;
-  z-index: 1;
-}
-
-.hero-bg-img {
-  position: absolute; inset: 0;
-  background: url('https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=1800&q=85') center/cover no-repeat;
-}
-.hero-bg-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(
-    160deg,
-    rgba(5,8,15,0.88) 0%,
-    rgba(10,15,26,0.72) 45%,
-    rgba(5,8,15,0.92) 100%
-  );
-}
-/* hero-grid replaced by body::before */
-/* Glow at bottom of hero */
-.hero-glow {
-  position: absolute; bottom: -80px; left: 50%;
-  transform: translateX(-50%);
-  width: 600px; height: 200px;
-  background: radial-gradient(ellipse, rgba(26,143,209,0.12) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.hero-content {
-  position: relative; z-index: 2;
-  padding: 140px 80px 100px;
-  max-width: 780px;
-}
-
-.hero-badge {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(26,143,209,0.12);
-  border: 1px solid rgba(26,143,209,0.28);
-  color: var(--blue-light);
-  font-size: 11px; font-weight: 500; letter-spacing: 2.5px;
-  text-transform: uppercase; padding: 6px 16px;
-  border-radius: 100px; margin-bottom: 36px;
-  animation: fadeUp 0.8s ease both;
-}
-.hero-badge::before {
-  content: ''; width: 6px; height: 6px;
-  background: var(--blue-light); border-radius: 50%;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(58,171,239,0.4); }
-  50% { opacity: 0.7; transform: scale(1.3); box-shadow: 0 0 0 4px rgba(58,171,239,0); }
-}
-
-.hero-title {
-  font-family: 'Syne', sans-serif;
-  font-size: clamp(52px, 7vw, 96px);
-  font-weight: 800; line-height: 0.95;
-  color: var(--white);
-  margin-bottom: 10px;
-  letter-spacing: -2px;
-  animation: fadeUp 0.8s 0.1s ease both;
-}
-.hero-title-accent {
-  display: block;
-  color: transparent;
-  -webkit-text-stroke: 1.5px rgba(58,171,239,0.7);
-  font-weight: 800;
-}
-.hero-title-solid { display: block; color: var(--white); }
-
-.hero-eyeline {
-  display: flex; align-items: center; gap: 16px;
-  margin-bottom: 28px;
-  animation: fadeUp 0.8s 0.2s ease both;
-}
-.hero-eyeline-line {
-  width: 48px; height: 1px;
-  background: linear-gradient(90deg, var(--blue), transparent);
-}
-.hero-eyeline-text {
-  font-size: 13px; letter-spacing: 3px; text-transform: uppercase;
-  color: var(--blue-light); font-weight: 500;
-}
-
-.hero-subtitle {
-  font-size: 17px; color: rgba(200,216,232,0.75);
-  line-height: 1.75; margin-bottom: 52px; max-width: 500px;
-  animation: fadeUp 0.8s 0.3s ease both;
-}
-
-.hero-actions {
-  display: flex; gap: 16px; flex-wrap: wrap;
-  animation: fadeUp 0.8s 0.4s ease both;
-}
-
-/* Stats row */
-.hero-stats {
-  position: absolute; bottom: 60px; left: 80px; right: 80px;
-  display: flex; gap: 0; z-index: 2;
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 16px;
-  background: rgba(255,255,255,0.01);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  overflow: hidden;
-  animation: fadeUp 0.8s 0.6s ease both;
-}
-.hero-stat {
-  flex: 1; padding: 20px 28px;
-  border-right: 1px solid rgba(200,216,232,0.06);
-  transition: background 0.3s ease;
-  cursor: default;
-}
-.hero-stat:hover {
-  background: rgba(26,143,209,0.12);
-}
-.hero-stat:last-child { border-right: none; }
-.hero-stat-number {
-  font-family: 'Syne', sans-serif;
-  font-size: 28px; font-weight: 700; color: var(--white);
-  line-height: 1;
-}
-.hero-stat-number span { color: var(--blue-light); }
-.hero-stat-label {
-  font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
-  color: var(--muted); margin-top: 4px;
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(28px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ══════════════════════════════════════════
-   BUTTONS
-══════════════════════════════════════════ */
-.btn-primary {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: var(--blue); color: var(--white);
-  text-decoration: none; padding: 15px 32px;
-  border-radius: 8px; font-size: 14px; font-weight: 500;
-  font-family: 'DM Sans', sans-serif;
-  transition: all 0.25s; border: none; cursor: pointer;
-  letter-spacing: 0.3px;
-}
-.btn-primary:hover {
-  background: var(--blue-light);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(26,143,209,0.35);
-}
-.btn-ghost {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: transparent; color: var(--white);
-  text-decoration: none; padding: 15px 32px;
-  border-radius: 8px; font-size: 14px; font-weight: 400;
-  border: 1px solid rgba(255,255,255,0.2);
-  transition: all 0.25s;
-}
-.btn-ghost:hover {
-  border-color: rgba(255,255,255,0.5);
-  background: rgba(255,255,255,0.05);
-  transform: translateY(-2px);
-}
-.btn-ghost svg { transition: transform 0.2s; }
-.btn-ghost:hover svg { transform: translateX(4px); }
-
-/* ══════════════════════════════════════════
-   SECTION BASE
-══════════════════════════════════════════ */
-section { padding: 120px 80px; position: relative; z-index: 1; }
-
-.section-tag {
-  display: inline-flex; align-items: center; gap: 10px;
-  font-size: 10px; font-weight: 600; letter-spacing: 3px;
-  text-transform: uppercase; color: var(--blue-light);
-  margin-bottom: 20px;
-}
-.section-tag::before {
-  content: ''; width: 24px; height: 1px;
-  background: var(--blue-light);
-}
-
-.section-title {
-  font-family: 'Syne', sans-serif;
-  font-size: clamp(36px, 4.5vw, 60px);
-  font-weight: 700; line-height: 1.05;
-  color: var(--white); letter-spacing: -1.5px;
-  margin-bottom: 20px;
-}
-.section-title em {
-  font-style: normal;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(58,171,239,0.6);
-}
-
-.section-lead {
-  font-size: 16px; color: var(--muted);
-  line-height: 1.8; max-width: 520px;
-}
-
-/* ══════════════════════════════════════════
-   SERVICES — glassmorphism on dark bg
-══════════════════════════════════════════ */
-#services {
-  background: var(--void);
-  position: relative; overflow: hidden;
-}
-#services::before {
-  content: '';
-  position: absolute; top: -200px; left: 50%;
-  transform: translateX(-50%);
-  width: 800px; height: 400px;
-  background: radial-gradient(ellipse, rgba(26,143,209,0.06) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.services-inner { max-width: 1280px; margin: 0 auto; }
-.services-header { margin-bottom: 72px; }
-.services-header-row {
-  display: flex; align-items: flex-end;
-  justify-content: space-between; gap: 40px;
-}
-
-.services-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-.services-grid-bottom {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px; margin-top: 20px;
-}
-
-/* Glassmorphism card */
-.service-card {
-  background: rgba(255,255,255,0.03);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 20px; padding: 40px 36px;
-  position: relative; overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-  cursor: default;
-}
-.service-card::after {
-  content: '';
-  position: absolute; inset: 0; border-radius: 20px;
-  background: linear-gradient(135deg, rgba(26,143,209,0.06) 0%, transparent 60%);
-  opacity: 0; transition: opacity 0.4s;
-}
-.service-card:hover {
-  transform: translateY(-6px);
-  border-color: rgba(58,171,239,0.2);
-  background: rgba(255,255,255,0.055);
-  box-shadow:
-    0 0 0 1px rgba(58,171,239,0.15),
-    0 24px 60px rgba(0,0,0,0.4),
-    0 0 40px rgba(26,143,209,0.08);
-}
-.service-card:hover::after { opacity: 1; }
-
-/* Top accent line on hover */
-.service-card::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(58,171,239,0.6), transparent);
-  opacity: 0; transition: opacity 0.4s;
-}
-.service-card:hover::before { opacity: 1; }
-
-.service-card-icon {
-  width: 48px; height: 48px;
-  background: rgba(26,143,209,0.1);
-  border: 1px solid rgba(26,143,209,0.2);
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 24px;
-  transition: background 0.3s, border-color 0.3s;
-}
-.service-card:hover .service-card-icon {
-  background: rgba(26,143,209,0.18);
-  border-color: rgba(58,171,239,0.4);
-}
-
-.service-card-name {
-  font-family: 'Syne', sans-serif;
-  font-size: 18px; font-weight: 700; color: var(--white);
-  margin-bottom: 10px; letter-spacing: -0.3px;
-}
-.service-card-desc {
-  font-size: 13px; color: var(--muted); line-height: 1.75;
-  margin-bottom: 24px;
-}
-.service-card-price {
-  font-family: 'Syne', sans-serif;
-  font-size: 24px; font-weight: 700; color: var(--blue-light);
-}
-.service-card-price small {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px; font-weight: 300; color: var(--muted);
-  display: block; margin-top: 2px; letter-spacing: 0;
-}
-
-/* CTA card — special */
-.service-card-cta {
-  background: linear-gradient(135deg, rgba(26,143,209,0.15) 0%, rgba(13,21,32,0.8) 100%);
-  border-color: rgba(26,143,209,0.3);
-}
-.service-card-cta:hover {
-  border-color: rgba(58,171,239,0.5);
-  background: linear-gradient(135deg, rgba(26,143,209,0.22) 0%, rgba(13,21,32,0.9) 100%);
-}
-
-/* ══════════════════════════════════════════
-   GALERIE
-══════════════════════════════════════════ */
-#galerie { background: var(--deep); position: relative; }
-
-.galerie-inner { max-width: 1280px; margin: 0 auto; }
-.galerie-header { margin-bottom: 56px; }
-.galerie-header-row {
-  display: flex; align-items: flex-end;
-  justify-content: space-between; gap: 40px;
-}
-
-.galerie-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  grid-template-rows: 280px 280px;
-  gap: 14px;
-}
-
-.galerie-item {
-  position: relative; overflow: hidden;
-  border-radius: 16px; cursor: pointer;
-  border: 1px solid rgba(255,255,255,0.05);
-}
-.galerie-item:first-child {
-  grid-row: span 2;
-}
-.galerie-item img {
-  width: 100%; height: 100%; object-fit: cover;
-  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-  display: block;
-}
-.galerie-item:hover img { transform: scale(1.07); }
-
-.galerie-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(5,8,15,0.85) 0%, transparent 50%);
-  opacity: 0; transition: opacity 0.3s;
-  display: flex; align-items: flex-end; padding: 20px;
-}
-.galerie-item:hover .galerie-overlay { opacity: 1; }
-.galerie-label {
-  font-size: 12px; color: white;
-  font-weight: 500; letter-spacing: 0.5px;
-}
-
-/* ══════════════════════════════════════════
-   APROPOS
-══════════════════════════════════════════ */
-#apropos { background: var(--void); }
-
-.apropos-inner {
-  max-width: 1280px; margin: 0 auto;
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 100px; align-items: center;
-}
-
-.apropos-visual { position: relative; }
-.apropos-photo-wrap {
-  position: relative; border-radius: 24px; overflow: hidden;
-  aspect-ratio: 4/5;
-  cursor: default;
-}
-.apropos-photo-wrap img {
-  width: 100%; height: 100%; object-fit: cover;
-  display: block;
-  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-}
-.apropos-photo-wrap:hover img {
-  transform: scale(1.07);
-}
-.apropos-photo-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(5,8,15,0.6) 0%, transparent 50%);
-  opacity: 0; transition: opacity 0.4s ease;
-  pointer-events: none;
-}
-.apropos-photo-wrap:hover .apropos-photo-overlay {
-  opacity: 1;
-}
-/* Decorative corner accent */
-.apropos-corner {
-  position: absolute; bottom: -20px; right: -20px;
-  width: 100px; height: 100px;
-  border: 1px solid var(--blue-light);
-  border-radius: 16px; opacity: 0.3;
-}
-.apropos-corner2 {
-  position: absolute; top: -20px; left: -20px;
-  width: 60px; height: 60px;
-  border: 1px solid var(--blue-light);
-  border-radius: 10px; opacity: 0.2;
-}
-
-/* Floating badge on photo */
-.apropos-float-badge {
-  position: absolute; bottom: 28px; left: 28px;
-  background: rgba(10,15,26,0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-blue);
-  border-radius: 12px; padding: 14px 18px;
-  display: flex; align-items: center; gap: 12px;
-}
-.apropos-float-badge-icon {
-  width: 36px; height: 36px;
-  background: linear-gradient(135deg, var(--blue), #0D5C8A);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-}
-.apropos-float-badge-text { line-height: 1.3; }
-.apropos-float-badge-text strong { display: block; font-size: 14px; color: var(--white); font-weight: 600; }
-.apropos-float-badge-text span { font-size: 11px; color: var(--muted); }
-
-.apropos-content .section-lead { margin-bottom: 28px; }
-.apropos-content p { font-size: 15px; color: var(--muted); line-height: 1.85; margin-bottom: 20px; }
-
-.certifications { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 36px; }
-.cert-tag {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(26,143,209,0.08);
-  border: 1px solid rgba(26,143,209,0.2);
-  color: rgba(200,216,232,0.8);
-  font-size: 12px; padding: 7px 14px; border-radius: 100px;
-}
-
-/* ══════════════════════════════════════════
-   CONTACT
-══════════════════════════════════════════ */
-#contact {
-  background: var(--deep);
-  position: relative; overflow: hidden;
-}
-#contact::before {
-  content: '';
-  position: absolute; bottom: -100px; right: -100px;
-  width: 500px; height: 500px;
-  background: radial-gradient(ellipse, rgba(26,143,209,0.06) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.contact-inner {
-  max-width: 1280px; margin: 0 auto;
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 100px; align-items: start;
-}
-
-.contact-info-col {}
-.contact-info-col .section-lead { margin-bottom: 36px; }
-.contact-info-col p { font-size: 15px; color: var(--muted); line-height: 1.85; margin-bottom: 20px; }
-
-/* Quick actions */
-.contact-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 36px; }
-.contact-action-btn {
-  display: inline-flex; align-items: center; gap: 10px;
-  padding: 11px 18px; border-radius: 12px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(200,216,232,0.12);
-  color: var(--white); text-decoration: none;
-  font-size: 13px; font-weight: 500;
-  transition: all 0.2s;
-}
-.contact-action-btn:hover {
-  transform: translateY(-1px);
-  background: rgba(26,143,209,0.1);
-  border-color: rgba(58,171,239,0.35);
-}
-.contact-action-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
-
-/* VCard */
-.vcard-widget {
-  background: rgba(26,143,209,0.07);
-  border: 1px solid rgba(26,143,209,0.2);
-  border-radius: 16px; padding: 20px 24px;
-  display: flex; align-items: center; gap: 16px;
-  margin-bottom: 32px;
-  transition: all 0.2s;
-}
-.vcard-widget:hover { border-color: rgba(58,171,239,0.4); }
-.vcard-icon {
-  width: 44px; height: 44px; flex-shrink: 0;
-  background: linear-gradient(135deg, var(--blue), #0D5C8A);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-}
-.vcard-text { flex: 1; }
-.vcard-text strong { display: block; color: var(--white); font-size: 14px; font-weight: 500; margin-bottom: 3px; }
-.vcard-text span { font-size: 12px; color: var(--muted); line-height: 1.5; }
-.vcard-btn {
-  display: inline-flex; align-items: center; gap: 7px;
-  background: var(--blue); color: var(--white);
-  border: none; cursor: pointer;
-  padding: 9px 18px; border-radius: 8px;
-  font-size: 12px; font-weight: 500;
-  font-family: 'DM Sans', sans-serif;
-  white-space: nowrap; transition: all 0.2s; flex-shrink: 0;
-}
-.vcard-btn:hover { background: var(--blue-light); transform: translateY(-1px); }
-
-/* Contact details */
-.contact-details { display: flex; flex-direction: column; gap: 14px; }
-.contact-detail { display: flex; align-items: center; gap: 14px; font-size: 14px; color: var(--muted); }
-.contact-detail-icon {
-  width: 38px; height: 38px;
-  background: rgba(26,143,209,0.1); border: 1px solid var(--border-blue);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.contact-detail a { color: var(--blue-light); text-decoration: none; }
-.contact-detail a:hover { color: var(--white); }
-
-/* Form */
-.contact-form {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border);
-  border-radius: 24px; padding: 44px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-.form-group { margin-bottom: 20px; }
-.form-label {
-  display: block; font-size: 11px; font-weight: 500;
-  letter-spacing: 1.2px; text-transform: uppercase;
-  color: rgba(200,216,232,0.5); margin-bottom: 8px;
-}
-.form-input, .form-select, .form-textarea {
-  width: 100%;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(200,216,232,0.12);
-  border-radius: 10px; padding: 13px 16px;
-  font-size: 14px; color: var(--white);
-  font-family: 'DM Sans', sans-serif;
-  transition: all 0.2s; outline: none;
-}
-.form-input::placeholder, .form-textarea::placeholder { color: rgba(200,216,232,0.25); }
-.form-input:focus, .form-select:focus, .form-textarea:focus {
-  border-color: var(--blue);
-  background: rgba(26,143,209,0.06);
-  box-shadow: 0 0 0 3px rgba(26,143,209,0.08);
-}
-.form-select option { background: var(--panel); color: var(--white); }
-.form-textarea { min-height: 120px; resize: vertical; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.form-submit { width: 100%; margin-top: 8px; }
-.form-input.is-invalid, .form-select.is-invalid, .form-textarea.is-invalid {
-  border-color: var(--error) !important; background: rgba(231,76,60,0.06) !important;
-}
-.form-input.is-valid, .form-select.is-valid, .form-textarea.is-valid { border-color: var(--success) !important; }
-.field-error { font-size: 11px; color: var(--error); margin-top: 5px; display: none; }
-.field-error.visible { display: block; }
-input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(0.4); cursor: pointer; }
-
-/* ══════════════════════════════════════════
-   MODAL
-══════════════════════════════════════════ */
-.modal-overlay {
-  display: none; position: fixed; inset: 0; z-index: 999;
-  background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
-  align-items: center; justify-content: center;
-}
-.modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-.modal-box {
-  background: var(--panel);
-  border: 1px solid var(--border-blue);
-  border-radius: 24px; padding: 52px 48px;
-  max-width: 480px; width: 90%; text-align: center;
-  animation: slideUp 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-}
-@keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-.modal-icon {
-  width: 72px; height: 72px;
-  background: rgba(26,143,209,0.12); border: 2px solid var(--blue);
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 28px;
-}
-.modal-title {
-  font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 700;
-  color: var(--white); margin-bottom: 16px; letter-spacing: -0.5px;
-}
-.modal-text { font-size: 15px; color: var(--muted); line-height: 1.8; margin-bottom: 32px; }
-.modal-text strong { color: var(--blue-light); font-weight: 500; }
-.modal-close {
-  background: var(--blue); color: var(--white); border: none;
-  border-radius: 8px; padding: 13px 40px; font-size: 14px;
-  font-family: 'DM Sans', sans-serif; font-weight: 500;
-  cursor: pointer; transition: all 0.2s;
-}
-.modal-close:hover { background: var(--blue-light); transform: translateY(-1px); }
-
-/* ══════════════════════════════════════════
-   FOOTER
-══════════════════════════════════════════ */
-footer {
-  background: var(--void);
-  padding: 40px 80px;
-  display: flex; align-items: center; justify-content: space-between;
-  border-top: 1px solid rgba(200,216,232,0.05);
-}
-.footer-logo {
-  display: flex; align-items: center; gap: 12px;
-  font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700;
-  color: rgba(255,255,255,0.4);
-}
-.footer-logo .nav-logo-svg { width: 28px; height: 28px; opacity: 0.5; }
-.footer-logo span { color: var(--blue-light); }
-.footer-copy { font-size: 12px; color: rgba(200,216,232,0.25); }
-.footer-links { display: flex; gap: 24px; }
-.footer-links a {
-  text-decoration: none; font-size: 12px;
-  color: rgba(200,216,232,0.3); transition: color 0.2s;
-}
-.footer-links a:hover { color: var(--blue-light); }
-/* ══════════════════════════════════════════
-   WHATSAPP FLOAT
-══════════════════════════════════════════ */
-.whatsapp-float {
-  position: fixed; bottom: 24px; right: 24px;
-  width: 56px; height: 56px; z-index: 999;
-  opacity: 0; pointer-events: none;
-  transform: translateY(10px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-.whatsapp-float.visible {
-  opacity: 1; pointer-events: auto;
-  transform: translateY(0);
-}
-.whatsapp-float img {
-  width: 100%; height: 100%; border-radius: 50%;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-  transition: transform 0.2s;
-}
-.whatsapp-float:hover img { transform: scale(1.1); }
-
-/* ══════════════════════════════════════════
-   SCROLL REVEAL
-══════════════════════════════════════════ */
-.reveal {
-  opacity: 0;
-  transform: translateY(32px);
-  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.23, 1, 0.32, 1);
-}
-.reveal.visible { opacity: 1; transform: translateY(0); }
-.reveal-delay-1 { transition-delay: 0.1s; }
-.reveal-delay-2 { transition-delay: 0.2s; }
-.reveal-delay-3 { transition-delay: 0.3s; }
-.reveal-delay-4 { transition-delay: 0.4s; }
-
-/* ══════════════════════════════════════════
-   RESPONSIVE
-══════════════════════════════════════════ */
-@media (max-width: 1100px) {
-  .services-grid, .services-grid-bottom { grid-template-columns: repeat(2, 1fr); }
-  .galerie-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
-  .galerie-item:first-child { grid-row: span 1; grid-column: span 2; aspect-ratio: 16/7; }
-}
-
-@media (max-width: 900px) {
-  nav { padding: 0 20px; gap: 10px; }
-  .nav-links { display: none; }
-  .weather-widget { padding: 5px 10px; }
-  .weather-widget-temp { display: none; }
-  .weather-widget-temp-short { display: block; font-size: 12px; }
-
-  section { padding: 80px 24px; }
-  .hero-content { padding: 120px 24px 80px; }
-  .hero-stats { left: 24px; right: 24px; bottom: 40px; flex-wrap: wrap; }
-  .hero-stat { flex: 1 1 45%; min-width: 120px; }
-
-  .services-grid, .services-grid-bottom { grid-template-columns: 1fr; }
-  .services-header-row { flex-direction: column; align-items: flex-start; }
-  .galerie-grid { grid-template-columns: 1fr; }
-  .galerie-item:first-child { grid-column: span 1; }
-  .apropos-inner { grid-template-columns: 1fr; gap: 56px; }
-  .contact-inner { grid-template-columns: 1fr; gap: 56px; }
-  .form-row { grid-template-columns: 1fr; }
-  footer { flex-direction: column; gap: 16px; text-align: center; padding: 32px 24px; }
-  .modal-box { padding: 36px 24px; }
-  .vcard-widget { flex-direction: column; align-items: flex-start; }
-  .vcard-btn { width: 100%; justify-content: center; }
-}
+:root{--void:#05080F;--deep:#0A0F1A;--dark:#0D1520;--panel:#111827;--blue:#1A8FD1;--blue-light:#3AABEF;--blue-glow:rgba(26,143,209,0.2);--white:#FFFFFF;--offwhite:#E8EEF5;--muted:rgba(200,216,232,0.55);--border:rgba(200,216,232,0.1);--border-blue:rgba(26,143,209,0.25);--error:#e74c3c;--success:#2ecc71;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;font-weight:300;color:var(--offwhite);background:var(--deep);overflow-x:hidden;position:relative;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(26,143,209,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(26,143,209,0.04) 1px,transparent 1px);background-size:64px 64px;pointer-events:none;z-index:0;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--void);}::-webkit-scrollbar-thumb{background:var(--blue);border-radius:2px;}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:72px;background:transparent;transition:background 0.4s ease,backdrop-filter 0.4s ease,border-color 0.4s ease;border-bottom:1px solid transparent;gap:16px;}
+nav.scrolled{background:rgba(5,8,15,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom-color:var(--border);}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0;}
+.nav-logo-svg{width:38px;height:38px;flex-shrink:0;}
+.nav-logo-text{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--white);letter-spacing:0.3px;}
+.nav-logo-text span{color:var(--blue-light);}
+.nav-links{display:flex;align-items:center;gap:40px;list-style:none;}
+.nav-links a{text-decoration:none;color:rgba(255,255,255,0.65);font-size:13px;font-weight:400;letter-spacing:0.8px;text-transform:uppercase;transition:color 0.2s;}
+.nav-links a:hover{color:var(--white);}
+.nav-cta{background:var(--blue)!important;color:var(--white)!important;padding:9px 22px!important;border-radius:6px!important;font-weight:500!important;text-transform:none!important;letter-spacing:0!important;}
+.nav-cta:hover{background:var(--blue-light)!important;color:var(--white)!important;}
+.weather-widget{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(200,216,232,0.1);border-radius:10px;padding:6px 14px;flex-shrink:0;}
+.weather-widget-icon{font-size:17px;}
+.weather-widget-info{display:flex;flex-direction:column;line-height:1.3;}
+.weather-widget-city{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(200,216,232,0.4);}
+.weather-widget-temp{font-size:13px;font-weight:400;color:var(--white);white-space:nowrap;}
+.weather-widget-temp-short{display:none;}
+#hero{min-height:100vh;position:relative;display:flex;align-items:center;overflow:hidden;z-index:1;}
+.hero-bg-img{position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=1800&q=85') center/cover no-repeat;}
+.hero-bg-overlay{position:absolute;inset:0;background:linear-gradient(160deg,rgba(5,8,15,0.88) 0%,rgba(10,15,26,0.72) 45%,rgba(5,8,15,0.92) 100%);}
+.hero-glow{position:absolute;bottom:-80px;left:50%;transform:translateX(-50%);width:600px;height:200px;background:radial-gradient(ellipse,rgba(26,143,209,0.12) 0%,transparent 70%);pointer-events:none;}
+.hero-content{position:relative;z-index:2;padding:140px 80px 100px;max-width:780px;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(26,143,209,0.12);border:1px solid rgba(26,143,209,0.28);color:var(--blue-light);font-size:11px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;padding:6px 16px;border-radius:100px;margin-bottom:36px;animation:fadeUp 0.8s ease both;}
+.hero-badge::before{content:'';width:6px;height:6px;background:var(--blue-light);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);box-shadow:0 0 0 0 rgba(58,171,239,0.4);}50%{opacity:0.7;transform:scale(1.3);box-shadow:0 0 0 4px rgba(58,171,239,0);}}
+.hero-title{font-family:'Syne',sans-serif;font-size:clamp(52px,7vw,96px);font-weight:800;line-height:0.95;color:var(--white);margin-bottom:10px;letter-spacing:-2px;animation:fadeUp 0.8s 0.1s ease both;}
+.hero-title-accent{display:block;color:transparent;-webkit-text-stroke:1.5px rgba(58,171,239,0.7);font-weight:800;}
+.hero-title-solid{display:block;color:var(--white);}
+.hero-eyeline{display:flex;align-items:center;gap:16px;margin-bottom:28px;animation:fadeUp 0.8s 0.2s ease both;}
+.hero-eyeline-line{width:48px;height:1px;background:linear-gradient(90deg,var(--blue),transparent);}
+.hero-eyeline-text{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--blue-light);font-weight:500;}
+.hero-subtitle{font-size:17px;color:rgba(200,216,232,0.75);line-height:1.75;margin-bottom:52px;max-width:500px;animation:fadeUp 0.8s 0.3s ease both;}
+.hero-actions{display:flex;gap:16px;flex-wrap:wrap;animation:fadeUp 0.8s 0.4s ease both;}
+.hero-stats{position:absolute;bottom:60px;left:80px;right:80px;display:flex;gap:0;z-index:2;border:1px solid rgba(255,255,255,0.05);border-radius:16px;background:rgba(255,255,255,0.01);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);overflow:hidden;animation:fadeUp 0.8s 0.6s ease both;}
+.hero-stat{flex:1;padding:20px 28px;border-right:1px solid rgba(200,216,232,0.06);transition:background 0.3s ease;cursor:default;}
+.hero-stat:hover{background:rgba(26,143,209,0.12);}
+.hero-stat:last-child{border-right:none;}
+.hero-stat-number{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:var(--white);line-height:1;}
+.hero-stat-number span{color:var(--blue-light);}
+.hero-stat-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:var(--white);text-decoration:none;padding:15px 32px;border-radius:8px;font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;transition:all 0.25s;border:none;cursor:pointer;letter-spacing:0.3px;}
+.btn-primary:hover{background:var(--blue-light);transform:translateY(-2px);box-shadow:0 12px 32px rgba(26,143,209,0.35);}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--white);text-decoration:none;padding:15px 32px;border-radius:8px;font-size:14px;font-weight:400;border:1px solid rgba(255,255,255,0.2);transition:all 0.25s;}
+.btn-ghost:hover{border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.05);transform:translateY(-2px);}
+.btn-ghost svg{transition:transform 0.2s;}
+.btn-ghost:hover svg{transform:translateX(4px);}
+section{padding:120px 80px;position:relative;z-index:1;}
+.section-tag{display:inline-flex;align-items:center;gap:10px;font-size:10px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--blue-light);margin-bottom:20px;}
+.section-tag::before{content:'';width:24px;height:1px;background:var(--blue-light);}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(36px,4.5vw,60px);font-weight:700;line-height:1.05;color:var(--white);letter-spacing:-1.5px;margin-bottom:20px;}
+.section-title em{font-style:normal;color:transparent;-webkit-text-stroke:1px rgba(58,171,239,0.6);}
+.section-lead{font-size:16px;color:var(--muted);line-height:1.8;max-width:520px;}
+#services{background:var(--void);position:relative;overflow:hidden;}
+#services::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:400px;background:radial-gradient(ellipse,rgba(26,143,209,0.06) 0%,transparent 70%);pointer-events:none;}
+.services-inner{max-width:1280px;margin:0 auto;}
+.services-header{margin-bottom:72px;}
+.services-header-row{display:flex;align-items:flex-end;justify-content:space-between;gap:40px;}
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.services-grid-bottom{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:20px;}
+.service-card{background:rgba(255,255,255,0.03);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:40px 36px;position:relative;overflow:hidden;transition:all 0.4s cubic-bezier(0.23,1,0.32,1);cursor:default;}
+.service-card::after{content:'';position:absolute;inset:0;border-radius:20px;background:linear-gradient(135deg,rgba(26,143,209,0.06) 0%,transparent 60%);opacity:0;transition:opacity 0.4s;}
+.service-card:hover{transform:translateY(-6px);border-color:rgba(58,171,239,0.2);background:rgba(255,255,255,0.055);box-shadow:0 0 0 1px rgba(58,171,239,0.15),0 24px 60px rgba(0,0,0,0.4),0 0 40px rgba(26,143,209,0.08);}
+.service-card:hover::after{opacity:1;}
+.service-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(58,171,239,0.6),transparent);opacity:0;transition:opacity 0.4s;}
+.service-card:hover::before{opacity:1;}
+.service-card-icon{width:48px;height:48px;background:rgba(26,143,209,0.1);border:1px solid rgba(26,143,209,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;transition:background 0.3s,border-color 0.3s;}
+.service-card:hover .service-card-icon{background:rgba(26,143,209,0.18);border-color:rgba(58,171,239,0.4);}
+.service-card-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:10px;letter-spacing:-0.3px;}
+.service-card-desc{font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:24px;}
+.service-card-price{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;color:var(--blue-light);}
+.service-card-price small{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:300;color:var(--muted);display:block;margin-top:2px;letter-spacing:0;}
+.service-card-cta{background:linear-gradient(135deg,rgba(26,143,209,0.15) 0%,rgba(13,21,32,0.8) 100%);border-color:rgba(26,143,209,0.3);}
+.service-card-cta:hover{border-color:rgba(58,171,239,0.5);background:linear-gradient(135deg,rgba(26,143,209,0.22) 0%,rgba(13,21,32,0.9) 100%);}
+#galerie{background:var(--deep);position:relative;}
+.galerie-inner{max-width:1280px;margin:0 auto;}
+.galerie-header{margin-bottom:56px;}
+.galerie-header-row{display:flex;align-items:flex-end;justify-content:space-between;gap:40px;}
+.galerie-grid{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:280px 280px;gap:14px;}
+.galerie-item{position:relative;overflow:hidden;border-radius:16px;cursor:pointer;border:1px solid rgba(255,255,255,0.05);}
+.galerie-item:first-child{grid-row:span 2;}
+.galerie-item img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s cubic-bezier(0.23,1,0.32,1);display:block;}
+.galerie-item:hover img{transform:scale(1.07);}
+.galerie-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(5,8,15,0.85) 0%,transparent 50%);opacity:0;transition:opacity 0.3s;display:flex;align-items:flex-end;padding:20px;}
+.galerie-item:hover .galerie-overlay{opacity:1;}
+.galerie-label{font-size:12px;color:white;font-weight:500;letter-spacing:0.5px;}
+#apropos{background:var(--void);}
+.apropos-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center;}
+.apropos-visual{position:relative;}
+.apropos-photo-wrap{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:4/5;cursor:default;}
+.apropos-photo-wrap img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s cubic-bezier(0.23,1,0.32,1);}
+.apropos-photo-wrap:hover img{transform:scale(1.07);}
+.apropos-photo-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(5,8,15,0.6) 0%,transparent 50%);opacity:0;transition:opacity 0.4s ease;pointer-events:none;}
+.apropos-photo-wrap:hover .apropos-photo-overlay{opacity:1;}
+.apropos-corner{position:absolute;bottom:-20px;right:-20px;width:100px;height:100px;border:1px solid var(--blue-light);border-radius:16px;opacity:0.3;}
+.apropos-corner2{position:absolute;top:-20px;left:-20px;width:60px;height:60px;border:1px solid var(--blue-light);border-radius:10px;opacity:0.2;}
+.apropos-float-badge{position:absolute;bottom:28px;left:28px;background:rgba(10,15,26,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--border-blue);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;}
+.apropos-float-badge-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--blue),#0D5C8A);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.apropos-float-badge-text{line-height:1.3;}
+.apropos-float-badge-text strong{display:block;font-size:14px;color:var(--white);font-weight:600;}
+.apropos-float-badge-text span{font-size:11px;color:var(--muted);}
+.apropos-content .section-lead{margin-bottom:28px;}
+.apropos-content p{font-size:15px;color:var(--muted);line-height:1.85;margin-bottom:20px;}
+.certifications{display:flex;flex-wrap:wrap;gap:10px;margin-top:36px;}
+.cert-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(26,143,209,0.08);border:1px solid rgba(26,143,209,0.2);color:rgba(200,216,232,0.8);font-size:12px;padding:7px 14px;border-radius:100px;}
+#contact{background:var(--deep);position:relative;overflow:hidden;}
+#contact::before{content:'';position:absolute;bottom:-100px;right:-100px;width:500px;height:500px;background:radial-gradient(ellipse,rgba(26,143,209,0.06) 0%,transparent 70%);pointer-events:none;}
+.contact-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:start;}
+.contact-info-col .section-lead{margin-bottom:36px;}
+.contact-info-col p{font-size:15px;color:var(--muted);line-height:1.85;margin-bottom:20px;}
+.contact-actions{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:36px;}
+.contact-action-btn{display:inline-flex;align-items:center;gap:10px;padding:11px 18px;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(200,216,232,0.12);color:var(--white);text-decoration:none;font-size:13px;font-weight:500;transition:all 0.2s;}
+.contact-action-btn:hover{transform:translateY(-1px);background:rgba(26,143,209,0.1);border-color:rgba(58,171,239,0.35);}
+.contact-action-btn svg{width:16px;height:16px;flex-shrink:0;}
+.vcard-widget{background:rgba(26,143,209,0.07);border:1px solid rgba(26,143,209,0.2);border-radius:16px;padding:20px 24px;display:flex;align-items:center;gap:16px;margin-bottom:32px;transition:all 0.2s;}
+.vcard-widget:hover{border-color:rgba(58,171,239,0.4);}
+.vcard-icon{width:44px;height:44px;flex-shrink:0;background:linear-gradient(135deg,var(--blue),#0D5C8A);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.vcard-text{flex:1;}
+.vcard-text strong{display:block;color:var(--white);font-size:14px;font-weight:500;margin-bottom:3px;}
+.vcard-text span{font-size:12px;color:var(--muted);line-height:1.5;}
+.vcard-btn{display:inline-flex;align-items:center;gap:7px;background:var(--blue);color:var(--white);border:none;cursor:pointer;padding:9px 18px;border-radius:8px;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.2s;flex-shrink:0;}
+.vcard-btn:hover{background:var(--blue-light);transform:translateY(-1px);}
+.contact-details{display:flex;flex-direction:column;gap:14px;}
+.contact-detail{display:flex;align-items:center;gap:14px;font-size:14px;color:var(--muted);}
+.contact-detail-icon{width:38px;height:38px;background:rgba(26,143,209,0.1);border:1px solid var(--border-blue);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.contact-detail a{color:var(--blue-light);text-decoration:none;}
+.contact-detail a:hover{color:var(--white);}
+.contact-form{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:24px;padding:44px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);}
+.form-group{margin-bottom:20px;}
+.form-label{display:block;font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:rgba(200,216,232,0.5);margin-bottom:8px;}
+.form-input,.form-select,.form-textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(200,216,232,0.12);border-radius:10px;padding:13px 16px;font-size:14px;color:var(--white);font-family:'DM Sans',sans-serif;transition:all 0.2s;outline:none;}
+.form-input::placeholder,.form-textarea::placeholder{color:rgba(200,216,232,0.25);}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--blue);background:rgba(26,143,209,0.06);box-shadow:0 0 0 3px rgba(26,143,209,0.08);}
+.form-select option{background:var(--panel);color:var(--white);}
+.form-textarea{min-height:120px;resize:vertical;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-submit{width:100%;margin-top:8px;}
+.form-input.is-invalid,.form-select.is-invalid,.form-textarea.is-invalid{border-color:var(--error)!important;background:rgba(231,76,60,0.06)!important;}
+.form-input.is-valid,.form-select.is-valid,.form-textarea.is-valid{border-color:var(--success)!important;}
+.field-error{font-size:11px;color:var(--error);margin-top:5px;display:none;}
+.field-error.visible{display:block;}
+input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(0.4);cursor:pointer;}
+.modal-overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);align-items:center;justify-content:center;}
+.modal-overlay.active{display:flex;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.modal-box{background:var(--panel);border:1px solid var(--border-blue);border-radius:24px;padding:52px 48px;max-width:480px;width:90%;text-align:center;animation:slideUp 0.4s cubic-bezier(0.23,1,0.32,1);}
+@keyframes slideUp{from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:translateY(0);}}
+.modal-icon{width:72px;height:72px;background:rgba(26,143,209,0.12);border:2px solid var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;}
+.modal-title{font-family:'Syne',sans-serif;font-size:30px;font-weight:700;color:var(--white);margin-bottom:16px;letter-spacing:-0.5px;}
+.modal-text{font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:32px;}
+.modal-text strong{color:var(--blue-light);font-weight:500;}
+.modal-close{background:var(--blue);color:var(--white);border:none;border-radius:8px;padding:13px 40px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;transition:all 0.2s;}
+.modal-close:hover{background:var(--blue-light);transform:translateY(-1px);}
+footer{background:var(--void);padding:40px 80px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(200,216,232,0.05);}
+.footer-logo{display:flex;align-items:center;gap:12px;font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:rgba(255,255,255,0.4);}
+.footer-logo .nav-logo-svg{width:28px;height:28px;opacity:0.5;}
+.footer-logo span{color:var(--blue-light);}
+.footer-copy{font-size:12px;color:rgba(200,216,232,0.25);}
+.footer-links{display:flex;gap:24px;}
+.footer-links a{text-decoration:none;font-size:12px;color:rgba(200,216,232,0.3);transition:color 0.2s;}
+.footer-links a:hover{color:var(--blue-light);}
+.whatsapp-float{position:fixed;bottom:24px;right:24px;width:56px;height:56px;z-index:999;opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity 0.4s ease,transform 0.4s ease;}
+.whatsapp-float.visible{opacity:1;pointer-events:auto;transform:translateY(0);}
+.whatsapp-float img{width:100%;height:100%;border-radius:50%;box-shadow:0 8px 24px rgba(0,0,0,0.4);transition:transform 0.2s;}
+.whatsapp-float:hover img{transform:scale(1.1);}
+.reveal{opacity:0;transform:translateY(32px);transition:opacity 0.7s ease,transform 0.7s cubic-bezier(0.23,1,0.32,1);}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal-delay-1{transition-delay:0.1s;}
+.reveal-delay-2{transition-delay:0.2s;}
+.reveal-delay-3{transition-delay:0.3s;}
+.reveal-delay-4{transition-delay:0.4s;}
+@media(max-width:1100px){.services-grid,.services-grid-bottom{grid-template-columns:repeat(2,1fr);}.galerie-grid{grid-template-columns:1fr 1fr;grid-template-rows:auto;}.galerie-item:first-child{grid-row:span 1;grid-column:span 2;aspect-ratio:16/7;}}
+@media(max-width:900px){nav{padding:0 20px;gap:10px;}.nav-links{display:none;}.weather-widget{padding:5px 10px;}.weather-widget-temp{display:none;}.weather-widget-temp-short{display:block;font-size:12px;}section{padding:80px 24px;}.hero-content{padding:120px 24px 80px;}.hero-stats{left:24px;right:24px;bottom:40px;flex-wrap:wrap;}.hero-stat{flex:1 1 45%;min-width:120px;}.services-grid,.services-grid-bottom{grid-template-columns:1fr;}.services-header-row{flex-direction:column;align-items:flex-start;}.galerie-grid{grid-template-columns:1fr;}.galerie-item:first-child{grid-column:span 1;}.apropos-inner{grid-template-columns:1fr;gap:56px;}.contact-inner{grid-template-columns:1fr;gap:56px;}.form-row{grid-template-columns:1fr;}footer{flex-direction:column;gap:16px;text-align:center;padding:32px 24px;}.modal-box{padding:36px 24px;}.vcard-widget{flex-direction:column;align-items:flex-start;}.vcard-btn{width:100%;justify-content:center;}}
 </style>
 </head>
 <body>
 
-<!-- ══════════ MODAL ══════════ -->
 <div class="modal-overlay" id="successModal">
   <div class="modal-box">
-    <div class="modal-icon">
-      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-    </div>
+    <div class="modal-icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
     <h2 class="modal-title">Merci pour votre message !</h2>
     <p class="modal-text">Votre demande a bien été reçue. Nous vous contacterons <strong>dans les 24 heures</strong>.<br><br>À très bientôt,<br>— L'équipe CapturAir —</p>
     <button class="modal-close" onclick="closeModal()">Fermer</button>
   </div>
 </div>
 
-<!-- ══════════ NAV ══════════ -->
 <nav id="mainNav">
   <a href="#" class="nav-logo">
     <svg class="nav-logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
-      <circle cx="200" cy="171" r="8" fill="#1A8FD1" stroke="white" stroke-width="2.5"/>
-      <circle cx="200" cy="171" r="3.5" fill="white" opacity="0.9"/>
-      <line x1="163" y1="161" x2="128" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/>
-      <line x1="237" y1="161" x2="272" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/>
-      <line x1="163" y1="181" x2="128" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/>
-      <line x1="237" y1="181" x2="272" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="128" cy="126" r="7" fill="white"/><circle cx="272" cy="126" r="7" fill="white"/>
-      <circle cx="128" cy="216" r="7" fill="white"/><circle cx="272" cy="216" r="7" fill="white"/>
-      <ellipse cx="128" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-35 128 126)"/>
-      <ellipse cx="128" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(55 128 126)"/>
-      <ellipse cx="272" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(35 272 126)"/>
-      <ellipse cx="272" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-55 272 126)"/>
-      <ellipse cx="128" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(35 128 216)"/>
-      <ellipse cx="128" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-55 128 216)"/>
-      <ellipse cx="272" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-35 272 216)"/>
-      <ellipse cx="272" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(55 272 216)"/>
-      <line x1="172" y1="184" x2="167" y2="200" stroke="white" stroke-width="3"/>
-      <line x1="228" y1="184" x2="233" y2="200" stroke="white" stroke-width="3"/>
-      <line x1="162" y1="200" x2="238" y2="200" stroke="white" stroke-width="3"/>
+      <circle cx="200" cy="171" r="8" fill="#1A8FD1" stroke="white" stroke-width="2.5"/><circle cx="200" cy="171" r="3.5" fill="white" opacity="0.9"/>
+      <line x1="163" y1="161" x2="128" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/><line x1="237" y1="161" x2="272" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/>
+      <line x1="163" y1="181" x2="128" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/><line x1="237" y1="181" x2="272" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="128" cy="126" r="7" fill="white"/><circle cx="272" cy="126" r="7" fill="white"/><circle cx="128" cy="216" r="7" fill="white"/><circle cx="272" cy="216" r="7" fill="white"/>
+      <ellipse cx="128" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-35 128 126)"/><ellipse cx="128" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(55 128 126)"/>
+      <ellipse cx="272" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(35 272 126)"/><ellipse cx="272" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-55 272 126)"/>
+      <ellipse cx="128" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(35 128 216)"/><ellipse cx="128" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-55 128 216)"/>
+      <ellipse cx="272" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-35 272 216)"/><ellipse cx="272" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(55 272 216)"/>
+      <line x1="172" y1="184" x2="167" y2="200" stroke="white" stroke-width="3"/><line x1="228" y1="184" x2="233" y2="200" stroke="white" stroke-width="3"/><line x1="162" y1="200" x2="238" y2="200" stroke="white" stroke-width="3"/>
     </svg>
     <span class="nav-logo-text">Captur<span>Air</span></span>
   </a>
@@ -910,111 +252,67 @@ footer {
   </div>
 </nav>
 
-<!-- ══════════ HERO ══════════ -->
 <section id="hero">
   <div class="hero-bg-img"></div>
   <div class="hero-bg-overlay"></div>
   <div class="hero-glow"></div>
-
   <div class="hero-content">
     <div class="hero-badge">Lanaudière · Québec · Certifié TC</div>
-    <div class="hero-eyeline">
-      <div class="hero-eyeline-line"></div>
-      <span class="hero-eyeline-text">Photographie aérienne par drone</span>
-    </div>
-    <h1 class="hero-title">
-      <span class="hero-title-solid">Révélez</span>
-      <span class="hero-title-accent">l'altitude</span>
-    </h1>
+    <div class="hero-eyeline"><div class="hero-eyeline-line"></div><span class="hero-eyeline-text">Photographie aérienne par drone</span></div>
+    <h1 class="hero-title"><span class="hero-title-solid">Révélez</span><span class="hero-title-accent">l'altitude</span></h1>
     <p class="hero-subtitle">Des perspectives uniques pour mettre en valeur vos propriétés, événements et projets. Images professionnelles capturées avec précision au-dessus de la Lanaudière.</p>
-
   </div>
-
   <div class="hero-stats">
-    <div class="hero-stat">
-      <div class="hero-stat-number">72<span>h</span></div>
-      <div class="hero-stat-label">Livraison garantie</div>
-    </div>
-    <div class="hero-stat">
-      <div class="hero-stat-number">4<span>K</span></div>
-      <div class="hero-stat-label">Résolution images</div>
-    </div>
-    <div class="hero-stat">
-      <div class="hero-stat-number">100<span>%</span></div>
-      <div class="hero-stat-label">Certifié Transports Canada</div>
-    </div>
-    <div class="hero-stat">
-      <div class="hero-stat-number">199<span>$</span></div>
-      <div class="hero-stat-label">À partir de</div>
-    </div>
+    <div class="hero-stat"><div class="hero-stat-number">72<span>h</span></div><div class="hero-stat-label">Livraison garantie</div></div>
+    <div class="hero-stat"><div class="hero-stat-number">4<span>K</span></div><div class="hero-stat-label">Résolution images</div></div>
+    <div class="hero-stat"><div class="hero-stat-number">100<span>%</span></div><div class="hero-stat-label">Certifié Transports Canada</div></div>
+    <div class="hero-stat"><div class="hero-stat-number">199<span>$</span></div><div class="hero-stat-label">À partir de</div></div>
   </div>
 </section>
 
-<!-- ══════════ SERVICES ══════════ -->
 <section id="services">
   <div class="services-inner">
     <div class="services-header">
       <div class="services-header-row">
-        <div>
-          <span class="section-tag reveal">Ce que nous mettons en valeur</span>
-          <h2 class="section-title reveal reveal-delay-1">Nos Offres &amp; <em>Tarifs</em></h2>
-        </div>
+        <div><span class="section-tag reveal">Ce que nous mettons en valeur</span><h2 class="section-title reveal reveal-delay-1">Nos Offres &amp; <em>Tarifs</em></h2></div>
         <p class="section-lead reveal reveal-delay-2">Des solutions visuelles pensées pour révéler le plein potentiel de chaque projet, avec une exécution rapide et un rendu professionnel irréprochable.</p>
       </div>
     </div>
-
     <div class="services-grid">
       <div class="service-card reveal">
-        <div class="service-card-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
-        </div>
+        <div class="service-card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>
         <h3 class="service-card-name">Immobilier</h3>
         <p class="service-card-desc">Valorisez chaque propriété comme une opportunité unique — des images qui captent l'attention et révèlent tout son potentiel.</p>
         <div class="service-card-price">À partir de 199$<small>/ session</small></div>
       </div>
-
       <div class="service-card reveal reveal-delay-1">
-        <div class="service-card-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M8 6V4m8 2V4M2 12h20"/></svg>
-        </div>
+        <div class="service-card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M8 6V4m8 2V4M2 12h20"/></svg></div>
         <h3 class="service-card-name">Événements</h3>
         <p class="service-card-desc">Capturez l'intensité et l'émotion de votre événement sous un angle spectaculaire qui marque durablement les esprits.</p>
         <div class="service-card-price">À partir de 299$<small>/ événement</small></div>
       </div>
-
       <div class="service-card reveal reveal-delay-2">
-        <div class="service-card-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20M6 20V10l6-6 6 6v10M10 20v-5h4v5"/></svg>
-        </div>
+        <div class="service-card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20M6 20V10l6-6 6 6v10M10 20v-5h4v5"/></svg></div>
         <h3 class="service-card-name">Industriel &amp; Construction</h3>
         <p class="service-card-desc">Prenez de la hauteur sur vos projets — une vision aérienne claire pour mieux suivre, analyser et valoriser chaque étape.</p>
         <div class="service-card-price">À partir de 399$<small>/ projet</small></div>
       </div>
     </div>
-
     <div class="services-grid-bottom">
       <div class="service-card reveal">
-        <div class="service-card-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 14h5v8h6v-8h5L12 2z"/></svg>
-        </div>
+        <div class="service-card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 14h5v8h6v-8h5L12 2z"/></svg></div>
         <h3 class="service-card-name">Nature &amp; Tourisme</h3>
         <p class="service-card-desc">Sublimez vos paysages et transformez chaque lieu en expérience visuelle immersive.</p>
         <div class="service-card-price">À partir de 249$<small>/ session</small></div>
       </div>
-
       <div class="service-card reveal reveal-delay-1">
-        <div class="service-card-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2M12 12v5M9.5 12h5"/></svg>
-        </div>
+        <div class="service-card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2M12 12v5M9.5 12h5"/></svg></div>
         <h3 class="service-card-name">Forfait Complet</h3>
         <p class="service-card-desc">Une solution clé en main pensée pour offrir un rendu professionnel fort et une présence visuelle remarquable.</p>
         <div class="service-card-price">À partir de 599$<small>/ projet</small></div>
       </div>
-
       <div class="service-card service-card-cta reveal reveal-delay-2">
-        <div class="service-card-icon" style="background:rgba(58,171,239,0.12);border-color:rgba(58,171,239,0.3);">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        </div>
+        <div class="service-card-icon" style="background:rgba(58,171,239,0.12);border-color:rgba(58,171,239,0.3);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
         <h3 class="service-card-name">Projet sur mesure ?</h3>
         <p class="service-card-desc" style="color:rgba(200,216,232,0.6);">Un projet unique mérite une approche sur mesure — transformons votre vision en images à fort impact.</p>
         <a href="#contact" class="btn-primary" style="display:inline-flex;margin-top:4px;">Nous contacter</a>
@@ -1023,44 +321,24 @@ footer {
   </div>
 </section>
 
-<!-- ══════════ GALERIE ══════════ -->
 <section id="galerie">
   <div class="galerie-inner">
     <div class="galerie-header">
       <div class="galerie-header-row">
-        <div>
-          <span class="section-tag reveal">Notre travail</span>
-          <h2 class="section-title reveal reveal-delay-1">Galerie <em>Photo &amp; Vidéo</em></h2>
-        </div>
+        <div><span class="section-tag reveal">Notre travail</span><h2 class="section-title reveal reveal-delay-1">Galerie <em>Photo &amp; Vidéo</em></h2></div>
         <p class="section-lead reveal reveal-delay-2">Aperçu de réalisations aériennes — paysages, immobilier, nature et industrie vus du ciel.</p>
       </div>
     </div>
     <div class="galerie-grid">
-      <div class="galerie-item reveal">
-        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80" alt="Vue panoramique" loading="lazy">
-        <div class="galerie-overlay"><span class="galerie-label">Vue panoramique · Paysage naturel</span></div>
-      </div>
-      <div class="galerie-item reveal reveal-delay-1">
-        <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80" alt="Immobilier résidentiel" loading="lazy">
-        <div class="galerie-overlay"><span class="galerie-label">Immobilier résidentiel</span></div>
-      </div>
-      <div class="galerie-item reveal reveal-delay-2">
-        <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80" alt="Forêt" loading="lazy">
-        <div class="galerie-overlay"><span class="galerie-label">Forêt · Nature</span></div>
-      </div>
-      <div class="galerie-item reveal reveal-delay-1">
-        <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80" alt="Chantier" loading="lazy">
-        <div class="galerie-overlay"><span class="galerie-label">Suivi de chantier</span></div>
-      </div>
-      <div class="galerie-item reveal reveal-delay-2">
-        <img src="https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?w=800&q=80" alt="Lac" loading="lazy">
-        <div class="galerie-overlay"><span class="galerie-label">Lac · Lanaudière</span></div>
-      </div>
+      <div class="galerie-item reveal"><img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80" alt="Vue panoramique" loading="lazy"><div class="galerie-overlay"><span class="galerie-label">Vue panoramique · Paysage naturel</span></div></div>
+      <div class="galerie-item reveal reveal-delay-1"><img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80" alt="Immobilier résidentiel" loading="lazy"><div class="galerie-overlay"><span class="galerie-label">Immobilier résidentiel</span></div></div>
+      <div class="galerie-item reveal reveal-delay-2"><img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80" alt="Forêt" loading="lazy"><div class="galerie-overlay"><span class="galerie-label">Forêt · Nature</span></div></div>
+      <div class="galerie-item reveal reveal-delay-1"><img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80" alt="Chantier" loading="lazy"><div class="galerie-overlay"><span class="galerie-label">Suivi de chantier</span></div></div>
+      <div class="galerie-item reveal reveal-delay-2"><img src="https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?w=800&q=80" alt="Lac" loading="lazy"><div class="galerie-overlay"><span class="galerie-label">Lac · Lanaudière</span></div></div>
     </div>
   </div>
 </section>
 
-<!-- ══════════ À PROPOS ══════════ -->
 <section id="apropos">
   <div class="apropos-inner">
     <div class="apropos-visual reveal">
@@ -1071,13 +349,8 @@ footer {
       <div class="apropos-corner"></div>
       <div class="apropos-corner2"></div>
       <div class="apropos-float-badge">
-        <div class="apropos-float-badge-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        </div>
-        <div class="apropos-float-badge-text">
-          <strong>Certifié Transports Canada</strong>
-          <span>Pilote accrédité · Assurance responsabilité</span>
-        </div>
+        <div class="apropos-float-badge-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div class="apropos-float-badge-text"><strong>Certifié Transports Canada</strong><span>Pilote accrédité · Assurance responsabilité</span></div>
       </div>
     </div>
     <div class="apropos-content">
@@ -1096,18 +369,14 @@ footer {
   </div>
 </section>
 
-<!-- ══════════ CONTACT ══════════ -->
 <section id="contact">
   <div class="contact-inner">
     <div class="contact-info-col">
       <span class="section-tag reveal">Contact</span>
       <h2 class="section-title reveal reveal-delay-1">Parlons de <em>votre projet</em></h2>
       <p class="reveal reveal-delay-2">Prêt à donner de la hauteur à votre projet ? Contactez-nous pour une soumission gratuite et sans engagement. Nous répondons sous 24h.</p>
-
       <div class="contact-actions reveal reveal-delay-2">
-        <a class="contact-action-btn"
-           href="https://wa.me/15144466078?text=Bonjour%20L%27%C3%A9quipe%20CapturAir%2C%20je%20souhaite%20un%20devis%20CapturAir%2C%20Merci%20et%20bonne%20journ%C3%A9e%20%F0%9F%99%82"
-           target="_blank" rel="noopener">
+        <a class="contact-action-btn" href="https://wa.me/15144466078?text=Bonjour%20L%27%C3%A9quipe%20CapturAir%2C%20je%20souhaite%20un%20devis%20CapturAir%2C%20Merci%20et%20bonne%20journ%C3%A9e%20%F0%9F%99%82" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" stroke="#3AABEF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5z"/><path d="M8.8 9.8c.2-.3.5-.5.9-.4l1.1.3c.3.1.6.4.6.7.1.6.3 1.2.7 1.7.2.3.2.7-.1 1l-.4.4a6.8 6.8 0 0 0 2.7 2.1l.4-.4c.3-.3.7-.3 1-.1.6.4 1.2.6 1.8.7.4.1.6.3.7.6l.3 1.1c.1.4-.1.7-.4.9-.9.6-2.1.8-3.2.4-2.2-.7-4.9-3-6-5.1-.6-1.1-.4-2.3.1-3.2z"/></svg>
           WhatsApp
         </a>
@@ -1120,21 +389,14 @@ footer {
           SMS
         </a>
       </div>
-
       <div class="vcard-widget reveal reveal-delay-3">
-        <div class="vcard-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><circle cx="8.5" cy="10.5" r="2.5"/><path d="M4 20c0-2.2 2-4 4.5-4S13 17.8 13 20"/><line x1="16" y1="10" x2="20" y2="10"/><line x1="16" y1="14" x2="19" y2="14"/></svg>
-        </div>
-        <div class="vcard-text">
-          <strong>Enregistrer nos coordonnées</strong>
-          <span>Ajoutez CapturAir à vos contacts rapidement.</span>
-        </div>
+        <div class="vcard-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><circle cx="8.5" cy="10.5" r="2.5"/><path d="M4 20c0-2.2 2-4 4.5-4S13 17.8 13 20"/><line x1="16" y1="10" x2="20" y2="10"/><line x1="16" y1="14" x2="19" y2="14"/></svg></div>
+        <div class="vcard-text"><strong>Enregistrer nos coordonnées</strong><span>Ajoutez CapturAir à vos contacts rapidement.</span></div>
         <button type="button" class="vcard-btn" onclick="openVcf()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Ajouter
         </button>
       </div>
-
       <div class="contact-details reveal reveal-delay-3">
         <div class="contact-detail">
           <div class="contact-detail-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
@@ -1150,6 +412,14 @@ footer {
             <a href="mailto:info@capturair.com">info@capturair.com</a>
           </div>
         </div>
+        <!-- FACEBOOK — ajout sous courriel -->
+        <div class="contact-detail">
+          <div class="contact-detail-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="#1A8FD1"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></div>
+          <div>
+            <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:rgba(200,216,232,0.35);margin-bottom:3px;">Facebook</div>
+            <a href="https://www.facebook.com/CapturAir" target="_blank" rel="noopener">CapturAir</a>
+          </div>
+        </div>
         <div class="contact-detail">
           <div class="contact-detail-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
           <div>
@@ -1159,36 +429,17 @@ footer {
         </div>
       </div>
     </div>
-
-    <!-- FORM -->
     <form class="contact-form reveal reveal-delay-2" id="contactForm" novalidate onsubmit="handleSubmit(event)">
       <input type="hidden" name="access_key" value="968327d5-cc33-42ad-a702-52e138057bff">
       <input type="hidden" name="subject" value="Nouvelle demande - CapturAir">
       <input type="hidden" name="from_name" value="CapturAir Site Web">
-<input type="checkbox" name="botcheck" class="hidden" style="display:none;" tabindex="-1" autocomplete="off">
-
+      <input type="checkbox" name="botcheck" class="hidden" style="display:none;" tabindex="-1" autocomplete="off">
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Prénom *</label>
-          <input type="text" name="prenom" id="prenom" class="form-input" placeholder="Jean" required>
-          <div class="field-error" id="prenom-error">Ce champ est obligatoire.</div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Nom *</label>
-          <input type="text" name="nom" id="nom" class="form-input" placeholder="Tremblay" required>
-          <div class="field-error" id="nom-error">Ce champ est obligatoire.</div>
-        </div>
+        <div class="form-group"><label class="form-label">Prénom *</label><input type="text" name="prenom" id="prenom" class="form-input" placeholder="Jean" required><div class="field-error" id="prenom-error">Ce champ est obligatoire.</div></div>
+        <div class="form-group"><label class="form-label">Nom *</label><input type="text" name="nom" id="nom" class="form-input" placeholder="Tremblay" required><div class="field-error" id="nom-error">Ce champ est obligatoire.</div></div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Courriel *</label>
-        <input type="email" name="email" id="email" class="form-input" placeholder="jean@example.com" required>
-        <div class="field-error" id="email-error">Entrez une adresse courriel valide.</div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Téléphone</label>
-        <input type="tel" name="telephone" id="telephone" class="form-input" placeholder="514 446-6078">
-        <div class="field-error" id="telephone-error">Entrez un numéro valide.</div>
-      </div>
+      <div class="form-group"><label class="form-label">Courriel *</label><input type="email" name="email" id="email" class="form-input" placeholder="jean@example.com" required><div class="field-error" id="email-error">Entrez une adresse courriel valide.</div></div>
+      <div class="form-group"><label class="form-label">Téléphone</label><input type="tel" name="telephone" id="telephone" class="form-input" placeholder="514 446-6078"><div class="field-error" id="telephone-error">Entrez un numéro valide.</div></div>
       <div class="form-group">
         <label class="form-label">Ville / Municipalité *</label>
         <select name="ville" id="ville" class="form-select form-input" required>
@@ -1205,11 +456,7 @@ footer {
         </select>
         <div class="field-error" id="type_projet-error">Veuillez sélectionner un type.</div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Date souhaitée <span style="color:rgba(200,216,232,0.3);font-size:10px;">(min. 48h)</span></label>
-        <input type="date" name="date_souhaitee" id="date_souhaitee" class="form-input">
-        <div class="field-error" id="date_souhaitee-error">La date doit être au minimum 48h.</div>
-      </div>
+      <div class="form-group"><label class="form-label">Date souhaitée <span style="color:rgba(200,216,232,0.3);font-size:10px;">(min. 48h)</span></label><input type="date" name="date_souhaitee" id="date_souhaitee" class="form-input"><div class="field-error" id="date_souhaitee-error">La date doit être au minimum 48h.</div></div>
       <div class="form-group">
         <label class="form-label">Budget approximatif *</label>
         <select name="budget" id="budget" class="form-select form-input" required>
@@ -1218,11 +465,7 @@ footer {
         </select>
         <div class="field-error" id="budget-error">Veuillez sélectionner un budget.</div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Message *</label>
-        <textarea name="message" id="message" class="form-textarea" placeholder="Décrivez votre projet..." required></textarea>
-        <div class="field-error" id="message-error">Veuillez décrire votre projet.</div>
-      </div>
+      <div class="form-group"><label class="form-label">Message *</label><textarea name="message" id="message" class="form-textarea" placeholder="Décrivez votre projet..." required></textarea><div class="field-error" id="message-error">Veuillez décrire votre projet.</div></div>
       <button type="submit" class="btn-primary form-submit">
         Envoyer la demande
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -1231,216 +474,50 @@ footer {
   </div>
 </section>
 
-<!-- ══════════ FOOTER ══════════ -->
 <footer>
   <div class="footer-logo">
     <svg class="nav-logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
       <circle cx="200" cy="171" r="8" fill="#1A8FD1" stroke="white" stroke-width="2.5"/>
-      <line x1="163" y1="161" x2="128" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/>
-      <line x1="237" y1="161" x2="272" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/>
-      <line x1="163" y1="181" x2="128" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/>
-      <line x1="237" y1="181" x2="272" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="128" cy="126" r="7" fill="white"/><circle cx="272" cy="126" r="7" fill="white"/>
-      <circle cx="128" cy="216" r="7" fill="white"/><circle cx="272" cy="216" r="7" fill="white"/>
+      <line x1="163" y1="161" x2="128" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/><line x1="237" y1="161" x2="272" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/>
+      <line x1="163" y1="181" x2="128" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/><line x1="237" y1="181" x2="272" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="128" cy="126" r="7" fill="white"/><circle cx="272" cy="126" r="7" fill="white"/><circle cx="128" cy="216" r="7" fill="white"/><circle cx="272" cy="216" r="7" fill="white"/>
     </svg>
     <span style="color:rgba(255,255,255,0.4);">Captur<span style="color:var(--blue-light);">Air</span></span>
   </div>
   <div class="footer-copy">© 2026 CapturAir · Tous droits réservés</div>
   <div class="footer-links">
     <a href="mailto:info@capturair.com">Contact</a>
-   <a href="https://www.facebook.com/CapturAir" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;">
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(200,216,232,0.3)"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-  Facebook
-</a>
+    <a href="https://www.facebook.com/CapturAir" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(200,216,232,0.3)"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+      Facebook
+    </a>
     <a href="#">Politique de confidentialité</a>
   </div>
 </footer>
 
-<!-- WhatsApp float -->
-<a class="whatsapp-float"
-   href="https://wa.me/15144466078?text=Bonjour%20L%27%C3%A9quipe%20CapturAir%2C%20je%20souhaite%20un%20devis%20CapturAir%2C%20Merci%20et%20bonne%20journ%C3%A9e%20%F0%9F%99%82"
-   target="_blank" rel="noopener" aria-label="WhatsApp CapturAir">
+<a class="whatsapp-float" href="https://wa.me/15144466078?text=Bonjour%20L%27%C3%A9quipe%20CapturAir%2C%20je%20souhaite%20un%20devis%20CapturAir%2C%20Merci%20et%20bonne%20journ%C3%A9e%20%F0%9F%99%82" target="_blank" rel="noopener" aria-label="WhatsApp CapturAir">
   <img src="images/whatsapp.png" alt="WhatsApp CapturAir">
 </a>
 
 <script>
-/* ══ NAV SCROLL ══ */
-var nav = document.getElementById('mainNav');
-window.addEventListener('scroll', function() {
-  if (window.scrollY > 60) {
-    nav.classList.add('scrolled');
-  } else {
-    nav.classList.remove('scrolled');
-  }
-}, { passive: true });
-
-/* ══ SCROLL REVEAL ══ */
-var revealObs = new IntersectionObserver(function(entries) {
-  entries.forEach(function(en) {
-    if (en.isIntersecting) {
-      en.target.classList.add('visible');
-      revealObs.unobserve(en.target);
-    }
-  });
-}, { threshold: 0.12 });
-document.querySelectorAll('.reveal').forEach(function(el) { revealObs.observe(el); });
-
-/* ══ VCF ══ */
-function openVcf() {
-  var vcfUrl = 'CapturAir.vcf';
-  var ua = navigator.userAgent || '';
-  var isAndroid = /Android/i.test(ua);
-  fetch(vcfUrl)
-    .then(function(r) { if (!r.ok) throw new Error('fetch failed'); return r.arrayBuffer(); })
-    .then(function(buf) {
-      var blob = new Blob([buf], { type: 'text/x-vcard' });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = url; a.download = 'CapturAir.vcf'; a.style.display = 'none';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(function() { URL.revokeObjectURL(url); }, 4000);
-    })
-    .catch(function() {
-      if (isAndroid) {
-        window.location.href = 'intent://' + location.host + '/CapturAir.vcf#Intent;scheme=https;type=text/x-vcard;action=android.intent.action.VIEW;end';
-      } else { window.location.href = vcfUrl; }
-    });
-}
-
-/* ══ DATE MIN ══ */
-(function() {
-  var minDate = new Date(); minDate.setDate(minDate.getDate() + 2);
-  var yyyy = minDate.getFullYear();
-  var mm = String(minDate.getMonth() + 1).padStart(2, '0');
-  var dd = String(minDate.getDate()).padStart(2, '0');
-  var el = document.getElementById('date_souhaitee');
-  if (el) el.setAttribute('min', yyyy + '-' + mm + '-' + dd);
-})();
-
-/* ══ VALIDATION ══ */
-var RULES = {
-  prenom: { required: true }, nom: { required: true },
-  email: { required: true, email: true },
-  telephone: { required: false, phone: true },
-  ville: { required: true }, type_projet: { required: true },
-  date_souhaitee: { required: false, futureDate: true },
-  budget: { required: true }, message: { required: true }
-};
-var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-var PHONE_RE = /^(\+?1[\s.\-]?)?(\(?\d{3}\)?[\s.\-]?)(\d{3}[\s.\-]?\d{4})$/;
-
-function validateField(id) {
-  var rule = RULES[id]; if (!rule) return true;
-  var el = document.getElementById(id);
-  var errEl = document.getElementById(id + '-error');
-  var val = el.value.trim(); var valid = true;
-  if (rule.required && val === '') { valid = false; }
-  else if (rule.email && val !== '' && !EMAIL_RE.test(val)) { valid = false; }
-  else if (rule.phone && val !== '' && !PHONE_RE.test(val)) { valid = false; }
-  else if (rule.futureDate && val !== '') {
-    var minD = new Date(); minD.setHours(0,0,0,0); minD.setDate(minD.getDate() + 2);
-    var picked = new Date(val + 'T00:00:00');
-    if (isNaN(picked) || picked < minD) { valid = false; }
-  }
-  el.classList.toggle('is-invalid', !valid);
-  el.classList.toggle('is-valid', valid && val !== '');
-  if (errEl) errEl.classList.toggle('visible', !valid);
-  return valid;
-}
-Object.keys(RULES).forEach(function(id) {
-  var el = document.getElementById(id); if (!el) return;
-  el.addEventListener('blur', function() {
-    if (id === 'telephone') { var d = el.value.replace(/\D/g,''); if (d.length === 10) el.value = d.slice(0,3)+'-'+d.slice(3,6)+'-'+d.slice(6); }
-    if (id === 'prenom' || id === 'nom') { var v = el.value.trim(); if (v) el.value = v.toLowerCase().replace(/(?:^|\s|[-'])(\p{L})/gu, function(m,l) { return m.replace(l,l.toUpperCase()); }); }
-    validateField(id);
-  });
-  el.addEventListener('change', function() { validateField(id); });
-  el.addEventListener('input', function() { if (el.classList.contains('is-invalid')) validateField(id); });
-});
-
-/* ══ SUBMIT ══ */
-function handleSubmit(e) {
-  e.preventDefault();
-  var allValid = Object.keys(RULES).map(validateField).every(Boolean);
-  if (!allValid) { var first = document.querySelector('.is-invalid'); if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
-  var btn = e.target.querySelector('.form-submit');
-  var orig = btn.innerHTML; btn.innerHTML = 'Envoi en cours…'; btn.disabled = true;
-  var formData = new FormData(e.target);
-  // Worker
-  fetch('https://capturair-portail.tumarchessurlatete.workers.dev/api/public/devis', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ first_name: formData.get('prenom'), last_name: formData.get('nom'), email: formData.get('email'), phone: formData.get('telephone'), ville: formData.get('ville'), service: formData.get('type_projet'), date: formData.get('date_souhaitee'), budget: formData.get('budget'), message: formData.get('message') })
-  }).catch(function(err) { console.warn('Worker:', err); });
-  // Make
-  fetch('https://hook.us2.make.com/sidbtqdypiokmtbdxfpj3te7kkhq5zdv', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ fields: { "Prénom": formData.get('prenom'), "Nom": formData.get('nom'), "Courriel": formData.get('email'), "Téléphone": formData.get('telephone'), "Ville / Municipalité": formData.get('ville'), "Type de service": formData.get('type_projet'), "Date souhaitée": formData.get('date_souhaitee'), "Budget approximatif": formData.get('budget'), "Description du projet": formData.get('message') } })
-  }).catch(function(err) { console.warn('Make:', err); });
-  // Web3Forms
-  fetch('https://api.web3forms.com/submit', { method: 'POST', body: formData })
-    .then(function(res) { return res.json(); })
-    .then(function(data) {
-      if (data.success) {
-        e.target.reset();
-        Object.keys(RULES).forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('is-valid','is-invalid'); var errEl = document.getElementById(id+'-error'); if (errEl) errEl.classList.remove('visible'); });
-        showModal();
-      } else { btn.innerHTML = 'Erreur, réessayez'; btn.style.background = '#e74c3c'; }
-    })
-    .catch(function() { btn.innerHTML = 'Erreur de connexion'; btn.style.background = '#e74c3c'; })
-    .finally(function() { setTimeout(function() { btn.innerHTML = orig; btn.style.background = ''; btn.disabled = false; }, 3000); });
-}
-
-/* ══ MODAL ══ */
-function showModal() { document.getElementById('successModal').classList.add('active'); document.body.style.overflow = 'hidden'; }
-function closeModal() { document.getElementById('successModal').classList.remove('active'); document.body.style.overflow = ''; }
-document.getElementById('successModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
-
-/* ══ SMS ══ */
-function openSms(e) {
-  if (e) e.preventDefault();
-  var body = "Bonjour L'équipe CapturAir, je souhaite un devis CapturAir, Merci et bonne journée :)";
-  var encoded = encodeURIComponent(body);
-  var ua = navigator.userAgent || navigator.vendor || window.opera;
-  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-  window.location.href = isIOS ? ('sms:15144466078&body=' + encoded) : ('sms:+15144466078?body=' + encoded);
-  return false;
-}
-
-/* ══ MÉTÉO ══ */
-fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FToronto')
-  .then(function(r) { return r.json(); })
-  .then(function(d) {
-    var hr = new Date().getHours();
-    var isNight = hr >= 20 || hr < 6;
-    var icons = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
-    var nightIcons = {0:'🌙',1:'🌙',2:'🌑',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
-    var iconSet = isNight ? nightIcons : icons;
-    document.getElementById('w-icon').textContent = iconSet[d.current.weather_code] || (isNight ? '🌙' : '🌡️');
-    var c = Math.round(d.current.temperature_2m);
-    var f = Math.round((c * 9/5) + 32);
-    var wind = Math.round(d.current.wind_speed_10m);
-    var cond = wind >= 30 ? '❌ Vol déconseillé' : wind >= 15 ? '⚠️ Vol prudent' : '✅ Vol OK';
-    document.getElementById('w-temp').textContent = c + '°C · ' + f + '°F · Vent ' + wind + ' km/h · ' + cond;
-    document.getElementById('w-temp-short').textContent = c + '°C · ' + f + '°F';
-  })
-  .catch(function() {});
-
-/* ══ WHATSAPP — show near contact section ══ */
-(function() {
-  var waBtn = document.querySelector('.whatsapp-float');
-  var contactSection = document.getElementById('contact');
-  if (!waBtn || !contactSection) return;
-  var waObs = new IntersectionObserver(function(entries) {
-    entries.forEach(function(en) {
-      if (en.isIntersecting) {
-        waBtn.classList.add('visible');
-      } else {
-        waBtn.classList.remove('visible');
-      }
-    });
-  }, { threshold: 0.1 });
-  waObs.observe(contactSection);
-})();
+var nav=document.getElementById('mainNav');
+window.addEventListener('scroll',function(){if(window.scrollY>60){nav.classList.add('scrolled');}else{nav.classList.remove('scrolled');}},{passive:true});
+var revealObs=new IntersectionObserver(function(entries){entries.forEach(function(en){if(en.isIntersecting){en.target.classList.add('visible');revealObs.unobserve(en.target);}});},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(function(el){revealObs.observe(el);});
+function openVcf(){var vcfUrl='CapturAir.vcf';var ua=navigator.userAgent||'';var isAndroid=/Android/i.test(ua);fetch(vcfUrl).then(function(r){if(!r.ok)throw new Error('fetch failed');return r.arrayBuffer();}).then(function(buf){var blob=new Blob([buf],{type:'text/x-vcard'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='CapturAir.vcf';a.style.display='none';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(url);},4000);}).catch(function(){if(isAndroid){window.location.href='intent://'+location.host+'/CapturAir.vcf#Intent;scheme=https;type=text/x-vcard;action=android.intent.action.VIEW;end';}else{window.location.href=vcfUrl;}});}
+(function(){var minDate=new Date();minDate.setDate(minDate.getDate()+2);var yyyy=minDate.getFullYear();var mm=String(minDate.getMonth()+1).padStart(2,'0');var dd=String(minDate.getDate()).padStart(2,'0');var el=document.getElementById('date_souhaitee');if(el)el.setAttribute('min',yyyy+'-'+mm+'-'+dd);})();
+var RULES={prenom:{required:true},nom:{required:true},email:{required:true,email:true},telephone:{required:false,phone:true},ville:{required:true},type_projet:{required:true},date_souhaitee:{required:false,futureDate:true},budget:{required:true},message:{required:true}};
+var EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+var PHONE_RE=/^(\+?1[\s.\-]?)?(\(?\d{3}\)?[\s.\-]?)(\d{3}[\s.\-]?\d{4})$/;
+function validateField(id){var rule=RULES[id];if(!rule)return true;var el=document.getElementById(id);var errEl=document.getElementById(id+'-error');var val=el.value.trim();var valid=true;if(rule.required&&val===''){valid=false;}else if(rule.email&&val!==''&&!EMAIL_RE.test(val)){valid=false;}else if(rule.phone&&val!==''&&!PHONE_RE.test(val)){valid=false;}else if(rule.futureDate&&val!==''){var minD=new Date();minD.setHours(0,0,0,0);minD.setDate(minD.getDate()+2);var picked=new Date(val+'T00:00:00');if(isNaN(picked)||picked<minD){valid=false;}}el.classList.toggle('is-invalid',!valid);el.classList.toggle('is-valid',valid&&val!=='');if(errEl)errEl.classList.toggle('visible',!valid);return valid;}
+Object.keys(RULES).forEach(function(id){var el=document.getElementById(id);if(!el)return;el.addEventListener('blur',function(){if(id==='telephone'){var d=el.value.replace(/\D/g,'');if(d.length===10)el.value=d.slice(0,3)+'-'+d.slice(3,6)+'-'+d.slice(6);}if(id==='prenom'||id==='nom'){var v=el.value.trim();if(v)el.value=v.toLowerCase().replace(/(?:^|\s|[-'])(\p{L})/gu,function(m,l){return m.replace(l,l.toUpperCase());});}validateField(id);});el.addEventListener('change',function(){validateField(id);});el.addEventListener('input',function(){if(el.classList.contains('is-invalid'))validateField(id);});});
+function handleSubmit(e){e.preventDefault();var allValid=Object.keys(RULES).map(validateField).every(Boolean);if(!allValid){var first=document.querySelector('.is-invalid');if(first)first.scrollIntoView({behavior:'smooth',block:'center'});return;}var btn=e.target.querySelector('.form-submit');var orig=btn.innerHTML;btn.innerHTML='Envoi en cours…';btn.disabled=true;var formData=new FormData(e.target);fetch('https://capturair-portail.tumarchessurlatete.workers.dev/api/public/devis',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({first_name:formData.get('prenom'),last_name:formData.get('nom'),email:formData.get('email'),phone:formData.get('telephone'),ville:formData.get('ville'),service:formData.get('type_projet'),date:formData.get('date_souhaitee'),budget:formData.get('budget'),message:formData.get('message')})}).catch(function(err){console.warn('Worker:',err);});fetch('https://hook.us2.make.com/sidbtqdypiokmtbdxfpj3te7kkhq5zdv',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{"Prénom":formData.get('prenom'),"Nom":formData.get('nom'),"Courriel":formData.get('email'),"Téléphone":formData.get('telephone'),"Ville / Municipalité":formData.get('ville'),"Type de service":formData.get('type_projet'),"Date souhaitée":formData.get('date_souhaitee'),"Budget approximatif":formData.get('budget'),"Description du projet":formData.get('message')}})}).catch(function(err){console.warn('Make:',err);});fetch('https://api.web3forms.com/submit',{method:'POST',body:formData}).then(function(res){return res.json();}).then(function(data){if(data.success){e.target.reset();Object.keys(RULES).forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('is-valid','is-invalid');var errEl=document.getElementById(id+'-error');if(errEl)errEl.classList.remove('visible');});showModal();}else{btn.innerHTML='Erreur, réessayez';btn.style.background='#e74c3c';}}).catch(function(){btn.innerHTML='Erreur de connexion';btn.style.background='#e74c3c';}).finally(function(){setTimeout(function(){btn.innerHTML=orig;btn.style.background='';btn.disabled=false;},3000);});}
+function showModal(){document.getElementById('successModal').classList.add('active');document.body.style.overflow='hidden';}
+function closeModal(){document.getElementById('successModal').classList.remove('active');document.body.style.overflow='';}
+document.getElementById('successModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+function openSms(e){if(e)e.preventDefault();var body="Bonjour L'équipe CapturAir, je souhaite un devis CapturAir, Merci et bonne journée :)";var encoded=encodeURIComponent(body);var ua=navigator.userAgent||navigator.vendor||window.opera;var isIOS=/iPad|iPhone|iPod/.test(ua)&&!window.MSStream;window.location.href=isIOS?('sms:15144466078&body='+encoded):('sms:+15144466078?body='+encoded);return false;}
+fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FToronto').then(function(r){return r.json();}).then(function(d){var hr=new Date().getHours();var isNight=hr>=20||hr<6;var icons={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};var nightIcons={0:'🌙',1:'🌙',2:'🌑',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};var iconSet=isNight?nightIcons:icons;document.getElementById('w-icon').textContent=iconSet[d.current.weather_code]||(isNight?'🌙':'🌡️');var c=Math.round(d.current.temperature_2m);var f=Math.round((c*9/5)+32);var wind=Math.round(d.current.wind_speed_10m);var cond=wind>=30?'❌ Vol déconseillé':wind>=15?'⚠️ Vol prudent':'✅ Vol OK';document.getElementById('w-temp').textContent=c+'°C · '+f+'°F · Vent '+wind+' km/h · '+cond;document.getElementById('w-temp-short').textContent=c+'°C · '+f+'°F';}).catch(function(){});
+(function(){var waBtn=document.querySelector('.whatsapp-float');var contactSection=document.getElementById('contact');if(!waBtn||!contactSection)return;var waObs=new IntersectionObserver(function(entries){entries.forEach(function(en){if(en.isIntersecting){waBtn.classList.add('visible');}else{waBtn.classList.remove('visible');}});},{threshold:0.1});waObs.observe(contactSection);})();
 </script>
 </body>
 </html>
