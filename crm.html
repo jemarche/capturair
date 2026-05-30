@@ -447,7 +447,7 @@
             <div class="form-group"><label class="form-label">Prénom *</label><input type="text" class="form-input" id="info-prenom" oninput="marquerModif()" onblur="formatCap('info-prenom');validerChamp('info-prenom','req')"><div class="form-error" id="err-info-prenom">Requis</div></div>
             <div class="form-group"><label class="form-label">Nom *</label><input type="text" class="form-input" id="info-nom" oninput="marquerModif()" onblur="formatCap('info-nom');validerChamp('info-nom','req')"><div class="form-error" id="err-info-nom">Requis</div></div>
             <div class="form-group"><label class="form-label">Courriel *</label><input type="email" class="form-input" id="info-courriel" oninput="marquerModif()" onblur="validerChamp('info-courriel','email');checkDoublon()"><div class="form-error" id="err-info-courriel">Courriel invalide</div></div>
-            <div class="form-group"><label class="form-label">Téléphone (XXX-XXX-XXXX)</label><input type="text" class="form-input" id="info-telephone" placeholder="514-236-4950" oninput="marquerModif()" onblur="formatTel('info-telephone');validerChamp('info-telephone','tel');checkDoublon()"><div class="form-error" id="err-info-telephone">Format: XXX-XXX-XXXX</div></div>
+            <div class="form-group"><label class="form-label">Téléphone (XXX-XXX-XXXX)</label><input type="text" class="form-input" id="info-telephone" placeholder="514-446-6078" oninput="marquerModif()" onblur="formatTel('info-telephone');validerChamp('info-telephone','tel');checkDoublon()"><div class="form-error" id="err-info-telephone">Format: XXX-XXX-XXXX</div></div>
           </div>
           <div class="doublon-bar" id="doublon-bar">⚠️ <span id="doublon-msg"></span></div>
         </div>
@@ -1447,7 +1447,7 @@
       <div class="form-group"><label class="form-label">Prénom *</label><input type="text" class="form-input" id="new-prenom" placeholder="Jean" onblur="formatCap('new-prenom');validerChamp('new-prenom','req')"><div class="form-error" id="err-new-prenom">Requis</div></div>
       <div class="form-group"><label class="form-label">Nom *</label><input type="text" class="form-input" id="new-nom" placeholder="Dupont" onblur="formatCap('new-nom');validerChamp('new-nom','req')"><div class="form-error" id="err-new-nom">Requis</div></div>
       <div class="form-group"><label class="form-label">Courriel *</label><input type="email" class="form-input" id="new-courriel" placeholder="jean@email.com" onblur="validerChamp('new-courriel','email');checkDoublonModal()"><div class="form-error" id="err-new-courriel">Invalide</div></div>
-      <div class="form-group"><label class="form-label">Téléphone</label><input type="text" class="form-input" id="new-telephone" placeholder="514-236-4950" onblur="formatTel('new-telephone');checkDoublonModal()"></div>
+      <div class="form-group"><label class="form-label">Téléphone</label><input type="text" class="form-input" id="new-telephone" placeholder="514-446-6078" onblur="formatTel('new-telephone');checkDoublonModal()"></div>
       <div class="form-group"><label class="form-label">Service *</label>
         <select class="form-input form-select" id="new-service" onblur="validerChamp('new-service','req')">
           <option value="">— Sélectionner —</option>
@@ -2419,7 +2419,7 @@ function ouvrirWhatsAppRappel(){
   const ville=currentLead.ville||'votre secteur';
   const service=currentLead.type_service||'séance photo aérienne';
   const prenom=currentLead.prenom||'';
-  const msg=`🚁✨ CapturAir — Rappel RDV\n\nBonjour ${prenom} ! 👋\n\nVotre séance photo aérienne est demain !\n\n📅 ${dateStr}\n⏰ ${heure}\n📍 ${ville}\n🎯 ${service}\n\nPrévoyez d'être sur place 10 min avant.\nEn cas de météo défavorable, je vous contacte pour reporter. ✅\n\nDes questions ? Répondez ici ou appelez-moi.\n\n— Mohand 📸\nCapturAir · 514-236-4950\ncapturair.com`;
+  const msg=`🚁✨ CapturAir — Rappel RDV\n\nBonjour ${prenom} ! 👋\n\nVotre séance photo aérienne est demain !\n\n📅 ${dateStr}\n⏰ ${heure}\n📍 ${ville}\n🎯 ${service}\n\nPrévoyez d'être sur place 10 min avant.\nEn cas de météo défavorable, je vous contacte pour reporter. ✅\n\nDes questions ? Répondez ici ou appelez-moi.\n\n— Mohand 📸\nCapturAir · 514-446-6078\ncapturair.com`;
   window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`,'_blank');
 }
 
@@ -3330,13 +3330,13 @@ function corrApercu(){
         <td style="vertical-align:top;border-left:3px solid #1A8FD1;padding-left:16px;">
           <strong style="color:#0B1F3A;font-size:15px;">Mohand Aïdi</strong><br>
           <span style="color:#1A8FD1;font-size:11px;letter-spacing:1px;text-transform:uppercase;">Fondateur · CapturAir</span><br>
-          <span style="font-size:12px;color:#6B7C93;">✉️ info@capturair.com · 📞 514 236-4950 · capturair.com</span>
+          <span style="font-size:12px;color:#6B7C93;">✉️ info@capturair.com · 📞 514 446-6078 · capturair.com</span>
         </td>
       </tr>
     </table>
   </div>
   <div style="background:#0B1F3A;padding:16px 40px;border-radius:0 0 20px 20px;text-align:center;">
-    <p style="color:rgba(255,255,255,0.4);font-size:11px;margin:0;">CapturAir · Drone &amp; Photo Aérienne · info@capturair.com · 514 236-4950 · capturair.com</p>
+    <p style="color:rgba(255,255,255,0.4);font-size:11px;margin:0;">CapturAir · Drone &amp; Photo Aérienne · info@capturair.com · 514 446-6078 · capturair.com</p>
   </div>
 </div></body></html>`;
   }
@@ -3381,13 +3381,13 @@ async function corrEnvoyer(){
         <td style="vertical-align:top;border-left:3px solid #1A8FD1;padding-left:16px;">
           <strong style="color:#0B1F3A;font-size:15px;">Mohand Aidi</strong><br>
           <span style="color:#1A8FD1;font-size:11px;letter-spacing:1px;text-transform:uppercase;">Fondateur · CapturAir</span><br>
-          <span style="font-size:12px;color:#6B7C93;">✉️ info@capturair.com · 📞 514 236-4950 · capturair.com</span>
+          <span style="font-size:12px;color:#6B7C93;">✉️ info@capturair.com · 📞 514 446-6078 · capturair.com</span>
         </td>
       </tr>
     </table>
   </div>
   <div style="background:#0B1F3A;padding:16px 40px;border-radius:0 0 20px 20px;text-align:center;">
-    <p style="color:rgba(255,255,255,0.4);font-size:11px;margin:0;">CapturAir · Drone &amp; Photo Aérienne · info@capturair.com · 514 236-4950 · capturair.com</p>
+    <p style="color:rgba(255,255,255,0.4);font-size:11px;margin:0;">CapturAir · Drone &amp; Photo Aérienne · info@capturair.com · 514 446-6078 · capturair.com</p>
   </div>
 </div>
 </body></html>`;
@@ -3797,10 +3797,10 @@ async function supprimerSMSQueue(id) {
 // SMS Manuel depuis fiche lead
 let currentSMSLeadId = null;
 const SMS_TEMPLATES = {
-  'visite': '🚁 CapturAir - Visite confirmee ! ✅ Nous avons bien recu votre reservation. Questions : 📞 514-236-4950',
-  'galerie': '🚁 CapturAir - Vos photos sont pretes ! 📸 Consultez votre galerie par courriel. Questions : 📞 514-236-4950',
-  'paiement': '🚁 CapturAir - Paiement recu ! 💳 Merci. Vos fichiers sont disponibles par courriel. Info : 📞 514-236-4950',
-  'rappel': '🚁 CapturAir - Rappel : votre seance photo est demain ! ⏰ Questions : 📞 514-236-4950'
+  'visite': '🚁 CapturAir - Visite confirmee ! ✅ Nous avons bien recu votre reservation. Questions : 📞 514-446-6078',
+  'galerie': '🚁 CapturAir - Vos photos sont pretes ! 📸 Consultez votre galerie par courriel. Questions : 📞 514-446-6078',
+  'paiement': '🚁 CapturAir - Paiement recu ! 💳 Merci. Vos fichiers sont disponibles par courriel. Info : 📞 514-446-6078',
+  'rappel': '🚁 CapturAir - Rappel : votre seance photo est demain ! ⏰ Questions : 📞 514-446-6078'
 };
 
 function ouvrirModalSMS(leadId) {
