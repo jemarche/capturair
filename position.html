@@ -193,11 +193,29 @@
       <h1>Captur<span style="color:var(--blue-light)">Air</span></h1>
       <p>📍 Portail de navigation sécurisé</p>
     </div>
-    <div class="login-field">
-      <label id="lbl-pin">PIN de sécurité</label>
-      <input type="password" id="login-pin" placeholder="••••" maxlength="6" autocomplete="current-password">
+<div class="login-field" id="field-pin">
+  <label id="lbl-pin">PIN de sécurité</label>
+  <input type="password" id="login-pin" placeholder="••••••" maxlength="6" autocomplete="current-password">
+</div>
+
+<!-- Choix méthode 2FA -->
+<div id="login-methode" style="display:none;margin-bottom:16px;">
+  <div style="font-size:11px;color:rgba(200,216,232,0.45);text-align:center;margin-bottom:12px;letter-spacing:0.5px;">Choisissez votre méthode de vérification</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+    <div id="btn-otp" onclick="choisirMethode('otp')" style="background:rgba(26,143,209,0.18);border:1px solid rgba(26,143,209,0.6);border-radius:12px;padding:14px 10px;cursor:pointer;text-align:center;color:white;">
+      <div style="font-size:22px;margin-bottom:6px;">📧</div>
+      <div style="font-size:12px;font-weight:600;font-family:'Syne',sans-serif;">Par email</div>
+      <div style="font-size:10px;opacity:0.6;margin-top:3px;">Code par courriel</div>
     </div>
-    <button class="btn-login" onclick="login()"><span id="login-btn-text">Accéder →</span></button>
+    <div id="btn-totp" onclick="choisirMethode('totp')" style="background:rgba(255,255,255,0.05);border:1px solid rgba(200,216,232,0.12);border-radius:12px;padding:14px 10px;cursor:pointer;text-align:center;color:rgba(200,216,232,0.6);">
+      <div style="font-size:22px;margin-bottom:6px;">📱</div>
+      <div style="font-size:12px;font-weight:600;font-family:'Syne',sans-serif;">Authenticator</div>
+      <div style="font-size:10px;opacity:0.6;margin-top:3px;">Google Auth / Authy</div>
+    </div>
+  </div>
+</div>
+
+<button class="btn-login" onclick="login()"><span id="login-btn-text">Accéder →</span></button>
     <div class="login-error" id="login-error"></div>
   </div>
 </div>
