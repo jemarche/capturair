@@ -856,7 +856,7 @@ async function chargerMeteoComplet() {
   try {
     const r = await fetch(
       `https://api.open-meteo.com/v1/forecast?latitude=${LAT_LAVALTRIE}&longitude=${LNG_LAVALTRIE}` +
-      `&hourly=temperature_2m,weathercode,windspeed_10m,windgusts_10m,winddirection_10m,visibility,precipitation,precipitation_probability,relativehumidity_2m` +
+      `&hourly=temperature_2m,apparent_temperature,weathercode,windspeed_10m,windgusts_10m,winddirection_10m,visibility,precipitation,precipitation_probability,relativehumidity_2m` +
       `&daily=sunrise,sunset` +
       `&timezone=America%2FToronto&forecast_days=3`
     );
