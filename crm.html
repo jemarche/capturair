@@ -1713,11 +1713,23 @@ const hdrs=()=>({'Authorization':`Bearer ${authToken}`,'Content-Type':'applicati
 
 // ══ LOGIN OTP ══════════════════════════════════════════════════════════
 let loginStep=1, loginEmail='', loginPin='';
+let loginMethode='otp';
+
+function choisirMethode(m) {
+  loginMethode = m;
+  document.getElementById('btn-otp').style.background = m==='otp' ? 'rgba(26,143,209,0.18)' : 'rgba(255,255,255,0.05)';
+  document.getElementById('btn-otp').style.borderColor = m==='otp' ? 'rgba(26,143,209,0.6)' : 'rgba(200,216,232,0.12)';
+  document.getElementById('btn-otp').style.color = m==='otp' ? 'white' : 'rgba(200,216,232,0.6)';
+  document.getElementById('btn-totp').style.background = m==='totp' ? 'rgba(26,143,209,0.18)' : 'rgba(255,255,255,0.05)';
+  document.getElementById('btn-totp').style.borderColor = m==='totp' ? 'rgba(26,143,209,0.6)' : 'rgba(200,216,232,0.12)';
+  document.getElementById('btn-totp').style.color = m==='totp' ? 'white' : 'rgba(200,216,232,0.6)';
+}
 
 async function login(){
   const btn=document.getElementById('login-btn-text');
   const err=document.getElementById('login-error');
   err.style.display='none';
+
   if(loginStep===1){
     loginEmail=document.getElementById('login-email').value.trim();
     loginPin=document.getElementById('login-pin').value.trim();
@@ -1728,32 +1740,49 @@ async function login(){
       const d=await r.json();
       if(!r.ok||!d.success){showLoginErr('Email ou PIN incorrect.');btn.textContent='Connexion →';return;}
       loginStep=2;
+      document.getElementById('field-pin').style.display='none';
+      document.getElementById('login-email').closest('.login-field').style.display='none';
+      document.getElementById('login-methode').style.display='block';
+      btn.textContent='Envoyer le code →';
+    }catch(e){showLoginErr('Erreur de connexion.');btn.textContent='Connexion →';}
+
+  }else if(loginStep===2){
+    btn.innerHTML='<span class="spinner"></span>';
+    loginStep=3;
+    document.getElementById('login-methode').style.display='none';
+    document.getElementById('field-pin').style.display='block';
+    if(loginMethode==='otp'){
       document.getElementById('login-pin').placeholder='Code reçu par email';
-      document.getElementById('login-pin').value='';
       document.getElementById('login-pin').type='text';
       document.getElementById('lbl-pin').textContent='Code OTP (reçu par email)';
-      document.getElementById('login-email').disabled=true;
-      btn.textContent='Valider →';
-    }catch(e){showLoginErr('Erreur de connexion.');btn.textContent='Connexion →';}
+    }else{
+      document.getElementById('login-pin').placeholder='000000';
+      document.getElementById('login-pin').type='text';
+      document.getElementById('lbl-pin').textContent='Code Authenticator (6 chiffres)';
+    }
+    document.getElementById('login-pin').value='';
+    document.getElementById('login-pin').focus();
+    btn.textContent='Valider →';
+
   }else{
     const otp=document.getElementById('login-pin').value.trim();
     if(!otp){showLoginErr('Entrez le code reçu.');return;}
     btn.innerHTML='<span class="spinner"></span>';
     try{
-      const r=await fetch('https://capturair-carnet.tumarchessurlatete.workers.dev/api/carnet/auth/otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:loginEmail,otp})});
+      const r=await fetch('https://capturair-carnet.tumarchessurlatete.workers.dev/api/carnet/auth/otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:loginEmail,otp,methode:loginMethode})});
       const d=await r.json();
-      if(!r.ok||!d.token){showLoginErr('Code OTP incorrect ou expiré.');btn.textContent='Valider →';return;}
+      if(!r.ok||!d.token){showLoginErr('Code incorrect ou expiré.');btn.textContent='Valider →';return;}
       authToken=d.token;
       currentUser={email:loginEmail,role:d.role||'superadmin',nom:d.nom||''};
       sessionStorage.setItem('crm_token',authToken);
       sessionStorage.setItem('crm_user',JSON.stringify(currentUser));
       document.getElementById('login-screen').style.display='none';
       document.getElementById('app').classList.add('visible');
-      loginStep=1;
-      if(pendingReconnect && currentLead){
+      loginStep=1;loginMethode='otp';
+      if(pendingReconnect&&currentLead){
         pendingReconnect=false;
-        initApp().then(()=>{if(currentLead) setTimeout(()=>ouvrirDossier(currentLead.id),500);});
-      } else {
+        initApp().then(()=>{if(currentLead)setTimeout(()=>ouvrirDossier(currentLead.id),500);});
+      }else{
         initApp();
       }
     }catch(e){showLoginErr('Erreur de connexion.');btn.textContent='Valider →';}
