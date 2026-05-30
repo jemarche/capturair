@@ -6,7 +6,7 @@
 <title>CapturAir</title>
 <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
   --navy:#0B1F3A; --navy2:#0D2B50; --blue:#1A8FD1; --blue-light:#3AABEF;
@@ -35,7 +35,7 @@ body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);
 .login-glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(26,143,209,0.12) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
 .login-box{background:rgba(255,255,255,0.035);backdrop-filter:blur(24px);border:1px solid rgba(200,216,232,0.1);border-radius:28px;padding:48px 44px;width:440px;position:relative;z-index:2;box-shadow:0 32px 80px rgba(0,0,0,0.4)}
 .login-logo{text-align:center;margin-bottom:36px}
-.login-logo img{width:180px;height:auto;margin-bottom:16px;border-radius:10px}
+.login-logo svg{width:120px;height:120px;margin-bottom:12px}
 .login-logo-sub{color:rgba(58,171,239,0.7);font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-top:6px}
 .login-step-indicator{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:28px}
 .step-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.15);transition:all 0.3s}
@@ -54,9 +54,7 @@ body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);
 .method-btn-label{font-size:12px;font-weight:600;font-family:'Syne',sans-serif}
 .method-btn-sub{font-size:10px;opacity:0.6;margin-top:3px}
 .btn-login{width:100%;background:linear-gradient(135deg,var(--blue),#0D6EA8);color:white;border:none;padding:15px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;font-family:'Syne',sans-serif;transition:all 0.25s;letter-spacing:0.5px;position:relative;overflow:hidden}
-.btn-login::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.1),transparent);opacity:0}
 .btn-login:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(26,143,209,0.45)}
-.btn-login:hover::before{opacity:1}
 .btn-login:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 .login-error{color:#FF6B6B;font-size:12px;text-align:center;margin-top:14px;padding:10px 14px;background:rgba(231,76,60,0.1);border-radius:8px;border:1px solid rgba(231,76,60,0.2);display:none}
 .login-error.visible{display:block;animation:shake 0.4s ease}
@@ -73,8 +71,7 @@ body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);
 
 /* ══ TOPBAR ══ */
 .topbar{background:var(--topbar-bg);border-bottom:1px solid var(--topbar-border);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;transition:background 0.3s,border-color 0.3s;box-shadow:0 1px 12px rgba(0,0,0,0.06)}
-.topbar-logo{display:flex;align-items:center;gap:12px}
-.topbar-logo img{height:32px;width:auto;border-radius:6px}
+.topbar-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
 .topbar-logo-text{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--text)}
 .topbar-logo-text span{color:var(--blue)}
 .topbar-right{display:flex;align-items:center;gap:10px}
@@ -88,12 +85,12 @@ body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);
 
 /* ══ MAIN ══ */
 .main{flex:1;padding:32px 36px;max-width:1400px;margin:0 auto;width:100%}
-.greeting{margin-bottom:32px}
+.greeting{margin-bottom:20px}
 .greeting h1{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:4px}
 .greeting p{font-size:14px;color:var(--text-muted)}
 
-/* ══ BADGES DYNAMIQUES ══ */
-.dynamic-bar{display:flex;align-items:center;gap:12px;margin-bottom:36px;flex-wrap:wrap}
+/* ══ BADGE MÉTÉO ══ */
+.dynamic-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
 .dyn-badge{display:flex;align-items:center;gap:8px;padding:9px 16px;background:var(--tile-bg);border:1px solid var(--tile-border);border-radius:100px;font-size:12px;color:var(--text-muted);transition:all 0.2s;cursor:default}
 .dyn-badge-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .dyn-badge-dot.green{background:var(--green);box-shadow:0 0 6px rgba(39,174,96,0.5)}
@@ -101,6 +98,44 @@ body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);
 .dyn-badge-dot.blue{background:var(--blue);box-shadow:0 0 6px rgba(26,143,209,0.5)}
 .dyn-badge-dot.gray{background:var(--gray)}
 .dyn-badge strong{color:var(--text);font-weight:600}
+
+/* ══ SOLEIL FENÊTRE ══ */
+.soleil-card{background:var(--tile-bg);border:1px solid var(--tile-border);border-radius:16px;padding:16px 20px;margin-bottom:20px;position:relative;overflow:hidden}
+.soleil-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#F1C40F,#E67E22,#F1C40F);opacity:0.7}
+.soleil-card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--section-label);font-family:'Syne',sans-serif;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.soleil-rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.soleil-row{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:var(--offwhite);border-radius:10px;border:1px solid var(--border)}
+.soleil-key{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:5px}
+.soleil-val{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:#E67E22}
+.soleil-val.golden{color:#F1C40F}
+.soleil-val.legal{color:var(--orange)}
+
+/* ══ TUILES MÉTÉO H+X ══ */
+.meteo-forecast-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
+.meteo-tile{background:var(--navy2);border:1px solid rgba(26,143,209,0.2);border-radius:16px;padding:18px 16px;position:relative;overflow:hidden;cursor:default;transition:all 0.3s cubic-bezier(0.23,1,0.32,1)}
+.meteo-tile::after{content:'';position:absolute;inset:0;border-radius:16px;background:linear-gradient(135deg,rgba(26,143,209,0.08) 0%,transparent 60%);opacity:0;transition:opacity 0.3s}
+.meteo-tile:hover{transform:translateY(-4px);border-color:rgba(58,171,239,0.5);box-shadow:0 0 0 1px rgba(58,171,239,0.2),0 16px 40px rgba(0,0,0,0.3),0 0 30px rgba(26,143,209,0.12)}
+.meteo-tile:hover::after{opacity:1}
+.meteo-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(58,171,239,0.7),transparent);opacity:0;transition:opacity 0.3s}
+.meteo-tile:hover::before{opacity:1}
+.meteo-tile-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.meteo-tile-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:rgba(58,171,239,0.7);font-family:'Syne',sans-serif}
+.meteo-tile-heure{font-family:'DM Mono',monospace;font-size:11px;color:rgba(200,216,232,0.4);background:rgba(26,143,209,0.1);padding:3px 8px;border-radius:20px;border:1px solid rgba(26,143,209,0.2)}
+.meteo-tile-icon{font-size:32px;margin-bottom:8px;display:block}
+.meteo-tile-temp{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#E8F0F8;margin-bottom:4px;line-height:1}
+.meteo-tile-temp small{font-size:14px;font-weight:400;color:rgba(200,216,232,0.4)}
+.meteo-tile-condition{font-size:11px;color:rgba(200,216,232,0.5);margin-bottom:12px;min-height:16px}
+.meteo-tile-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.meteo-stat{background:rgba(7,22,40,0.5);border:1px solid rgba(26,143,209,0.12);border-radius:8px;padding:7px 10px}
+.meteo-stat-label{font-size:9px;color:rgba(200,216,232,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;font-family:'DM Mono',monospace}
+.meteo-stat-value{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:#E8F0F8}
+.meteo-stat-value.ok{color:#2ECC71}
+.meteo-stat-value.warn{color:#E67E22}
+.meteo-stat-value.danger{color:#E74C3C}
+.meteo-tile-verdict{margin-top:10px;padding:5px 10px;border-radius:20px;font-size:10px;font-weight:700;text-align:center;font-family:'Syne',sans-serif;letter-spacing:0.5px}
+.verdict-ok{background:rgba(39,174,96,0.15);color:#2ECC71;border:1px solid rgba(39,174,96,0.3);box-shadow:0 0 12px rgba(39,174,96,0.15)}
+.verdict-warn{background:rgba(230,126,34,0.15);color:#E67E22;border:1px solid rgba(230,126,34,0.3)}
+.verdict-danger{background:rgba(231,76,60,0.15);color:#E74C3C;border:1px solid rgba(231,76,60,0.3)}
 
 /* ══ SECTIONS ══ */
 .section{margin-bottom:36px}
@@ -145,6 +180,11 @@ body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);
 
 /* ══ FOOTER ══ */
 .footer{padding:20px 36px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text-muted)}
+
+/* ══ DARK MODE METEO TILES ══ */
+[data-theme="light"] .meteo-tile{background:#0D1F38;border-color:rgba(26,143,209,0.25)}
+[data-theme="light"] .meteo-tile:hover{background:#112644}
+[data-theme="light"] .soleil-card{background:var(--tile-bg)}
 </style>
 </head>
 <body>
@@ -155,7 +195,28 @@ body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);
   <div class="login-glow"></div>
   <div class="login-box">
     <div class="login-logo">
-      <img src="https://raw.githubusercontent.com/jemarche/capturair/main/images/Logo%20carr%C3%A9%20headers.png" alt="CapturAir">
+      <!-- SVG Drone CapturAir -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+        <circle cx="200" cy="171" r="8" fill="#1A8FD1" stroke="white" stroke-width="2.5"/>
+        <circle cx="200" cy="171" r="3.5" fill="white" opacity="0.9"/>
+        <line x1="163" y1="161" x2="128" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        <line x1="237" y1="161" x2="272" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        <line x1="163" y1="181" x2="128" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        <line x1="237" y1="181" x2="272" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="128" cy="126" r="7" fill="white"/><circle cx="272" cy="126" r="7" fill="white"/>
+        <circle cx="128" cy="216" r="7" fill="white"/><circle cx="272" cy="216" r="7" fill="white"/>
+        <ellipse cx="128" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-35 128 126)"/>
+        <ellipse cx="128" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(55 128 126)"/>
+        <ellipse cx="272" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(35 272 126)"/>
+        <ellipse cx="272" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-55 272 126)"/>
+        <ellipse cx="128" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(35 128 216)"/>
+        <ellipse cx="128" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-55 128 216)"/>
+        <ellipse cx="272" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-35 272 216)"/>
+        <ellipse cx="272" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(55 272 216)"/>
+        <line x1="172" y1="184" x2="167" y2="200" stroke="white" stroke-width="3"/>
+        <line x1="228" y1="184" x2="233" y2="200" stroke="white" stroke-width="3"/>
+        <line x1="162" y1="200" x2="238" y2="200" stroke="white" stroke-width="3"/>
+      </svg>
       <div class="login-logo-sub">Portail Sécurisé</div>
     </div>
 
@@ -165,7 +226,6 @@ body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);
       <div class="step-dot" id="step-dot-3"></div>
     </div>
 
-    <!-- Étape 1 : PIN -->
     <div id="step-pin">
       <div class="login-field">
         <label id="lbl-pin">Code PIN</label>
@@ -175,7 +235,6 @@ body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);
       <div class="tentatives-restantes" id="tentatives-label"></div>
     </div>
 
-    <!-- Étape 2 : Choix méthode -->
     <div id="step-methode" style="display:none;">
       <div style="font-size:12px;color:rgba(200,216,232,0.5);text-align:center;margin-bottom:16px;letter-spacing:0.5px;">Choisissez votre méthode de vérification</div>
       <div class="login-method-choice">
@@ -193,7 +252,6 @@ body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);
       <button class="btn-login" onclick="envoyerCode()"><span id="methode-btn-text">Envoyer le code →</span></button>
     </div>
 
-    <!-- Étape 3 : Code -->
     <div id="step-code" style="display:none;">
       <div class="login-field">
         <label id="lbl-code">Code de vérification</label>
@@ -206,8 +264,6 @@ body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);
     </div>
 
     <div class="login-error" id="login-error"></div>
-
-    <!-- Blocage timer -->
     <div class="blocage-timer" id="blocage-timer">
       <p>Trop de tentatives incorrectes</p>
       <div class="blocage-timer-count" id="blocage-countdown">20:00</div>
@@ -221,9 +277,30 @@ body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);
 
   <!-- TOPBAR -->
   <div class="topbar">
-    <div class="topbar-logo">
-      <img src="https://raw.githubusercontent.com/jemarche/capturair/main/images/Logo%20carr%C3%A9%20headers.png" alt="CapturAir">
-    </div>
+    <a class="topbar-logo" href="#">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="36" height="36">
+        <circle cx="200" cy="171" r="8" fill="#1A8FD1" stroke="white" stroke-width="2.5"/>
+        <circle cx="200" cy="171" r="3.5" fill="white" opacity="0.9"/>
+        <line x1="163" y1="161" x2="128" y2="126" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+        <line x1="237" y1="161" x2="272" y2="126" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+        <line x1="163" y1="181" x2="128" y2="216" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+        <line x1="237" y1="181" x2="272" y2="216" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="128" cy="126" r="7" fill="currentColor"/><circle cx="272" cy="126" r="7" fill="currentColor"/>
+        <circle cx="128" cy="216" r="7" fill="currentColor"/><circle cx="272" cy="216" r="7" fill="currentColor"/>
+        <ellipse cx="128" cy="126" rx="26" ry="5" fill="currentColor" opacity="0.8" transform="rotate(-35 128 126)"/>
+        <ellipse cx="128" cy="126" rx="26" ry="5" fill="currentColor" opacity="0.8" transform="rotate(55 128 126)"/>
+        <ellipse cx="272" cy="126" rx="26" ry="5" fill="currentColor" opacity="0.8" transform="rotate(35 272 126)"/>
+        <ellipse cx="272" cy="126" rx="26" ry="5" fill="currentColor" opacity="0.8" transform="rotate(-55 272 126)"/>
+        <ellipse cx="128" cy="216" rx="26" ry="5" fill="currentColor" opacity="0.8" transform="rotate(35 128 216)"/>
+        <ellipse cx="128" cy="216" rx="26" ry="5" fill="currentColor" opacity="0.8" transform="rotate(-55 128 216)"/>
+        <ellipse cx="272" cy="216" rx="26" ry="5" fill="currentColor" opacity="0.8" transform="rotate(-35 272 216)"/>
+        <ellipse cx="272" cy="216" rx="26" ry="5" fill="currentColor" opacity="0.8" transform="rotate(55 272 216)"/>
+        <line x1="172" y1="184" x2="167" y2="200" stroke="currentColor" stroke-width="3"/>
+        <line x1="228" y1="184" x2="233" y2="200" stroke="currentColor" stroke-width="3"/>
+        <line x1="162" y1="200" x2="238" y2="200" stroke="currentColor" stroke-width="3"/>
+      </svg>
+      <span class="topbar-logo-text">Captur<span>Air</span></span>
+    </a>
     <div class="topbar-right">
       <div class="topbar-time" id="topbar-time">—</div>
       <div class="topbar-user">
@@ -238,14 +315,28 @@ body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);
   <!-- MAIN -->
   <div class="main">
 
+    <!-- Greeting -->
     <div class="greeting">
       <h1 id="greeting-text">Bonjour, Mohand 👋</h1>
       <p id="greeting-date">—</p>
     </div>
 
-    <!-- Badges dynamiques -->
+    <!-- Badge météo uniquement -->
     <div class="dynamic-bar" id="dynamic-bar">
-      <div class="dyn-badge"><div class="dyn-badge-dot gray"></div><span>Chargement...</span></div>
+      <div class="dyn-badge"><div class="dyn-badge-dot gray"></div><span>Chargement météo...</span></div>
+    </div>
+
+    <!-- Soleil & Fenêtres légales -->
+    <div class="soleil-card" id="soleil-card" style="display:none">
+      <div class="soleil-card-title">☀️ Soleil & Fenêtres légales — Lavaltrie</div>
+      <div class="soleil-rows" id="soleil-rows"></div>
+    </div>
+
+    <!-- Prévisions H+3 / H+6 / H+12 -->
+    <div class="meteo-forecast-grid" id="forecast-grid">
+      <div class="meteo-tile" id="tile-h3"><div style="color:rgba(200,216,232,0.3);font-size:12px;text-align:center;padding:20px">Chargement H+3...</div></div>
+      <div class="meteo-tile" id="tile-h6"><div style="color:rgba(200,216,232,0.3);font-size:12px;text-align:center;padding:20px">Chargement H+6...</div></div>
+      <div class="meteo-tile" id="tile-h12"><div style="color:rgba(200,216,232,0.3);font-size:12px;text-align:center;padding:20px">Chargement H+12...</div></div>
     </div>
 
     <!-- SECTION 1 — Opérations -->
@@ -270,10 +361,19 @@ body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);
 
         <a class="tile tile-ops" href="https://capturair.com/portail-admin" target="_blank">
           <div class="tile-icon-wrap tile-icon-ops">
-            <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round">
+              <!-- Drone icon -->
+              <circle cx="12" cy="10" r="2"/>
+              <line x1="9.5" y1="9" x2="7" y2="7"/><line x1="14.5" y1="9" x2="17" y2="7"/>
+              <line x1="9.5" y1="11" x2="7" y2="13"/><line x1="14.5" y1="11" x2="17" y2="13"/>
+              <circle cx="7" cy="7" r="1.5"/><circle cx="17" cy="7" r="1.5"/>
+              <circle cx="7" cy="13" r="1.5"/><circle cx="17" cy="13" r="1.5"/>
+              <line x1="11" y1="12.5" x2="10.5" y2="15"/><line x1="13" y1="12.5" x2="13.5" y2="15"/>
+              <line x1="10" y1="15" x2="14" y2="15"/>
+            </svg>
           </div>
           <div>
-            <div class="tile-name">Admin Galeries</div>
+            <div class="tile-name">Admin Drone</div>
             <div class="tile-desc">Gestion des projets photos clients</div>
           </div>
           <div class="tile-badge tile-badge-blue">Galeries</div>
@@ -289,18 +389,6 @@ body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);
             <div class="tile-desc">Dépenses, taxes, kilométrage, TPS/TVQ</div>
           </div>
           <div class="tile-badge tile-badge-blue">Fiscal QC</div>
-          <span class="tile-ext">↗</span>
-        </a>
-
-        <a class="tile tile-ops" href="https://capturair.com/carnet" target="_blank">
-          <div class="tile-icon-wrap tile-icon-ops">
-            <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="#1A8FD1" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          </div>
-          <div>
-            <div class="tile-name">Carnet de vol</div>
-            <div class="tile-desc">Journal de bord — conformité Transports Canada</div>
-          </div>
-          <div class="tile-badge tile-badge-blue">Drone</div>
           <span class="tile-ext">↗</span>
         </a>
 
@@ -362,30 +450,6 @@ body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);
           <span class="tile-ext">↗</span>
         </a>
 
-        <a class="tile tile-public" href="https://capturair.com/client.html" target="_blank">
-          <div class="tile-icon-wrap tile-icon-public">
-            <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          </div>
-          <div>
-            <div class="tile-name">Galerie client</div>
-            <div class="tile-desc">Interface de sélection et paiement client</div>
-          </div>
-          <div class="tile-badge tile-badge-orange">Client</div>
-          <span class="tile-ext">↗</span>
-        </a>
-
-        <a class="tile tile-public" href="https://capturair.com/rdv.html" target="_blank">
-          <div class="tile-icon-wrap tile-icon-public">
-            <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          </div>
-          <div>
-            <div class="tile-name">Prise de RDV</div>
-            <div class="tile-desc">Calendrier courtiers — liens personnalisés</div>
-          </div>
-          <div class="tile-badge tile-badge-orange">Courtiers</div>
-          <span class="tile-ext">↗</span>
-        </a>
-
       </div>
     </div>
 
@@ -433,6 +497,22 @@ body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);
           <span class="tile-ext">↗</span>
         </a>
 
+        <a class="tile tile-infra" href="https://portal.navdrone.ca/auth/realms/OperatorPortal/protocol/openid-connect/auth?client_id=NavcanPortal&redirect_uri=https%3A%2F%2Fportal.navdrone.ca%2F%23%2F&state=acbfb3b6-b3fb-4017-995a-aee6f404b123&response_mode=fragment&response_type=code&scope=openid&nonce=f018e2c8-1bc9-4ade-bd01-8081e9b90f64&code_challenge=ISUP0VGd77UkbtpgnnGWZJtab_FSPQERuEYeKZ9ECN4&code_challenge_method=S256" target="_blank">
+          <div class="tile-icon-wrap tile-icon-infra">
+            <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="#6B7C93" stroke-width="1.8" stroke-linecap="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <div>
+            <div class="tile-name">Nav Canada</div>
+            <div class="tile-desc">NavDrone — Portail opérateur UAV</div>
+          </div>
+          <div class="tile-badge tile-badge-gray">NavDrone</div>
+          <span class="tile-ext">↗</span>
+        </a>
+
       </div>
     </div>
 
@@ -450,6 +530,8 @@ body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--page-bg);
 // ════════════════════════════════════════════
 const AUTH_WORKER = 'https://capturair-carnet.tumarchessurlatete.workers.dev';
 const PORTAIL_WORKER = 'https://capturair-portail.tumarchessurlatete.workers.dev';
+const LAT_LAVALTRIE = 45.8833;
+const LNG_LAVALTRIE = -73.2833;
 const MAX_TENTATIVES = 3;
 const BLOCAGE_MINUTES = 20;
 const DELAI_ECHEC_MS = 1500;
@@ -471,8 +553,7 @@ function verifierBlocage() {
   const blocage = getBlocage();
   if (!blocage) return false;
   if (Date.now() < blocage) return true;
-  clearBlocage();
-  return false;
+  clearBlocage(); return false;
 }
 
 function afficherBlocage() {
@@ -492,9 +573,7 @@ function afficherBlocage() {
       document.getElementById('login-pin').value = '';
       document.getElementById('login-pin').focus();
       majStepDots(1);
-    } else {
-      mettreAJourCountdown();
-    }
+    } else { mettreAJourCountdown(); }
   }, 1000);
 }
 
@@ -510,9 +589,7 @@ function enregistrerEchec() {
   const restantes = MAX_TENTATIVES - t;
   if (t >= MAX_TENTATIVES) {
     setBlocage(Date.now() + BLOCAGE_MINUTES * 60 * 1000);
-    setTentatives(0);
-    afficherBlocage();
-    return true;
+    setTentatives(0); afficherBlocage(); return true;
   }
   const label = document.getElementById('tentatives-label');
   label.textContent = `⚠️ ${restantes} tentative${restantes > 1 ? 's' : ''} restante${restantes > 1 ? 's' : ''}`;
@@ -520,7 +597,7 @@ function enregistrerEchec() {
 }
 
 // ════════════════════════════════════════════
-// LOGIN — ÉTAPES
+// LOGIN
 // ════════════════════════════════════════════
 function majStepDots(step) {
   for (let i = 1; i <= 3; i++) {
@@ -531,15 +608,8 @@ function majStepDots(step) {
   }
 }
 
-function showErr(msg) {
-  const el = document.getElementById('login-error');
-  el.textContent = msg;
-  el.classList.add('visible');
-}
-
-function hideErr() {
-  document.getElementById('login-error').classList.remove('visible');
-}
+function showErr(msg) { const el = document.getElementById('login-error'); el.textContent = msg; el.classList.add('visible'); }
+function hideErr() { document.getElementById('login-error').classList.remove('visible'); }
 
 async function validerPIN() {
   if (verifierBlocage()) { afficherBlocage(); return; }
@@ -548,12 +618,10 @@ async function validerPIN() {
   const btn = document.getElementById('pin-btn-text');
   btn.innerHTML = '<span class="spinner"></span>';
   document.getElementById('login-pin').disabled = true;
-  // Délai artificiel anti-bruteforce
   await new Promise(r => setTimeout(r, DELAI_ECHEC_MS));
   try {
     const r = await fetch(`${AUTH_WORKER}/api/carnet/auth/init`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: 'mohand.aidi@mohand.ca', pin })
     });
     const d = await r.json();
@@ -561,16 +629,12 @@ async function validerPIN() {
       const bloque = enregistrerEchec();
       if (!bloque) showErr('Code PIN incorrect. Réessayez.');
     } else {
-      clearBlocage();
-      hideErr();
+      clearBlocage(); hideErr();
       document.getElementById('step-pin').style.display = 'none';
       document.getElementById('step-methode').style.display = 'block';
-      majStepDots(2);
-      loginStep = 2;
+      majStepDots(2); loginStep = 2;
     }
-  } catch(e) {
-    showErr('Erreur de connexion. Réessayez.');
-  }
+  } catch(e) { showErr('Erreur de connexion. Réessayez.'); }
   btn.textContent = 'Continuer →';
   document.getElementById('login-pin').disabled = false;
 }
@@ -585,20 +649,11 @@ function choisirMethode(m) {
 async function envoyerCode() {
   const btn = document.getElementById('methode-btn-text');
   btn.innerHTML = '<span class="spinner"></span>';
-  if (loginMethode === 'otp') {
-    // OTP déjà envoyé à l'étape 1 — on passe juste
-    await new Promise(r => setTimeout(r, 600));
-    document.getElementById('lbl-code').textContent = 'Code reçu par email';
-    document.getElementById('login-code').placeholder = '000000';
-  } else {
-    await new Promise(r => setTimeout(r, 400));
-    document.getElementById('lbl-code').textContent = 'Code Authenticator (6 chiffres)';
-    document.getElementById('login-code').placeholder = '000000';
-  }
+  await new Promise(r => setTimeout(r, loginMethode === 'otp' ? 600 : 400));
+  document.getElementById('lbl-code').textContent = loginMethode === 'otp' ? 'Code reçu par email' : 'Code Authenticator (6 chiffres)';
   document.getElementById('step-methode').style.display = 'none';
   document.getElementById('step-code').style.display = 'block';
-  majStepDots(3);
-  loginStep = 3;
+  majStepDots(3); loginStep = 3;
   document.getElementById('login-code').focus();
   btn.textContent = 'Envoyer le code →';
 }
@@ -607,9 +662,7 @@ function retourEtape2() {
   document.getElementById('step-code').style.display = 'none';
   document.getElementById('step-methode').style.display = 'block';
   document.getElementById('login-code').value = '';
-  majStepDots(2);
-  loginStep = 2;
-  hideErr();
+  majStepDots(2); loginStep = 2; hideErr();
 }
 
 async function validerCode() {
@@ -621,10 +674,8 @@ async function validerCode() {
   document.getElementById('login-code').disabled = true;
   await new Promise(r => setTimeout(r, DELAI_ECHEC_MS));
   try {
-    // Pour TOTP, on utilise la même route OTP (le Worker vérifie les deux)
     const r = await fetch(`${AUTH_WORKER}/api/carnet/auth/otp`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: 'mohand.aidi@mohand.ca', otp: code, methode: loginMethode })
     });
     const d = await r.json();
@@ -639,9 +690,7 @@ async function validerCode() {
       sessionStorage.setItem('z3q8_user', JSON.stringify(currentUser));
       ouvrirPortail();
     }
-  } catch(e) {
-    showErr('Erreur de connexion. Réessayez.');
-  }
+  } catch(e) { showErr('Erreur de connexion. Réessayez.'); }
   btn.textContent = 'Accéder au portail →';
   document.getElementById('login-code').disabled = false;
 }
@@ -657,23 +706,16 @@ async function validerCode() {
     try {
       const p = JSON.parse(atob(t.split('.')[0]));
       if (p.exp > Date.now()) {
-        authToken = t;
-        currentUser = JSON.parse(u);
-        ouvrirPortail();
-        return;
+        authToken = t; currentUser = JSON.parse(u);
+        ouvrirPortail(); return;
       }
     } catch(e) {}
     sessionStorage.clear();
   }
 })();
 
-// Touches clavier
 document.getElementById('login-pin').addEventListener('keydown', e => { if (e.key === 'Enter') validerPIN(); });
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    if (loginStep === 3) validerCode();
-  }
-});
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && loginStep === 3) validerCode(); });
 
 // ════════════════════════════════════════════
 // PORTAIL
@@ -686,8 +728,8 @@ function ouvrirPortail() {
   document.getElementById('topbar-nom').textContent = nom;
   majGreeting();
   demarrerHorloge();
-  chargerBadges();
-  chargerMeteo();
+  chargerMeteoComplet();
+  chargerBadgeCRM();
   appliquerThemeSauvegarde();
 }
 
@@ -722,37 +764,169 @@ function logout() {
   document.getElementById('step-pin').style.display = 'block';
   document.getElementById('step-methode').style.display = 'none';
   document.getElementById('step-code').style.display = 'none';
-  majStepDots(1);
-  loginStep = 1;
-  hideErr();
+  majStepDots(1); loginStep = 1; hideErr();
   if (clockInterval) clearInterval(clockInterval);
   document.getElementById('login-pin').focus();
 }
 
 // ════════════════════════════════════════════
-// BADGES DYNAMIQUES
+// MÉTÉO COMPLÈTE — Open-Meteo Lavaltrie
 // ════════════════════════════════════════════
-async function chargerBadges() {
-  const bar = document.getElementById('dynamic-bar');
-  bar.innerHTML = '';
+const WMO_ICONS = {0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',48:'🌫',51:'🌦',53:'🌦',55:'🌧',61:'🌧',63:'🌧',65:'🌧',71:'❄️',73:'❄️',75:'❄️',80:'🌦',81:'🌦',82:'⛈',85:'🌨',86:'🌨',95:'⛈',96:'⛈',99:'⛈'};
+const WMO_NOMS = {0:'Ciel dégagé',1:'Principalement dégagé',2:'Partiellement nuageux',3:'Couvert',45:'Brouillard',48:'Brouillard givrant',51:'Bruine légère',53:'Bruine',55:'Bruine dense',61:'Pluie légère',63:'Pluie modérée',65:'Pluie forte',71:'Neige légère',73:'Neige modérée',75:'Neige forte',80:'Averses légères',81:'Averses',82:'Averses violentes',95:'Orage',96:'Orage + grêle',99:'Orage + grêle forte'};
 
-  // Badge météo
+function dirVent(deg) {
+  const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
+  return dirs[Math.round(deg / 22.5) % 16];
+}
+
+function verdictVol(vent, rafales, pluie, visi) {
+  if (pluie > 0 || vent > 35 || rafales > 38 || visi < 3) return { cls: 'verdict-danger', txt: 'VOL DÉCONSEILLÉ' };
+  if (vent > 20 || rafales > 25 || visi < 8) return { cls: 'verdict-warn', txt: 'VOL AVEC PRÉCAUTIONS' };
+  return { cls: 'verdict-ok', txt: 'VOL AUTORISÉ ✓' };
+}
+
+function statClass(vent, raf, pluie) {
+  if (pluie > 0 || vent > 35 || raf > 38) return 'danger';
+  if (vent > 20 || raf > 25) return 'warn';
+  return 'ok';
+}
+
+function trouverHIndex(times) {
+  const now = new Date().toISOString().substring(0, 13);
+  const idx = times.findIndex(t => t.startsWith(now));
+  return idx >= 0 ? idx : 0;
+}
+
+function formatHeure(isoStr) {
+  return isoStr ? isoStr.substring(11, 16) : '--:--';
+}
+
+function heureReelle(offsetH) {
+  const d = new Date(Date.now() + offsetH * 3600000);
+  return d.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Toronto' });
+}
+
+function buildMeteoTile(om, idx, label, heureStr) {
+  const t = om.hourly;
+  const temp = t.temperature_2m[idx] ?? '--';
+  const wcode = t.weathercode[idx] ?? 0;
+  const vent = t.windspeed_10m[idx] ?? 0;
+  const raf = t.windgusts_10m[idx] ?? 0;
+  const pluie = t.precipitation[idx] ?? 0;
+  const pluiePct = t.precipitation_probability[idx] ?? 0;
+  const visi = (t.visibility[idx] ?? 10000) / 1000;
+  const humidite = t.relativehumidity_2m[idx] ?? 0;
+  const v = verdictVol(vent, raf, pluie, visi);
+  const sc = statClass(vent, raf, pluie);
+
+  return `
+    <div class="meteo-tile-header">
+      <span class="meteo-tile-label">${label}</span>
+      <span class="meteo-tile-heure">${heureStr}</span>
+    </div>
+    <span class="meteo-tile-icon">${WMO_ICONS[wcode] || '🌡'}</span>
+    <div class="meteo-tile-temp">${typeof temp === 'number' ? temp.toFixed(1) : temp}<small> °C</small></div>
+    <div class="meteo-tile-condition">${WMO_NOMS[wcode] || ''}</div>
+    <div class="meteo-tile-stats">
+      <div class="meteo-stat">
+        <div class="meteo-stat-label">Vent</div>
+        <div class="meteo-stat-value ${sc}">${vent.toFixed(0)} km/h</div>
+      </div>
+      <div class="meteo-stat">
+        <div class="meteo-stat-label">Rafales</div>
+        <div class="meteo-stat-value ${raf > 38 ? 'danger' : raf > 25 ? 'warn' : 'ok'}">${raf.toFixed(0)} km/h</div>
+      </div>
+      <div class="meteo-stat">
+        <div class="meteo-stat-label">Pluie</div>
+        <div class="meteo-stat-value ${pluie > 0 ? 'danger' : 'ok'}">${pluiePct}%</div>
+      </div>
+      <div class="meteo-stat">
+        <div class="meteo-stat-label">Visibilité</div>
+        <div class="meteo-stat-value ${visi < 3 ? 'danger' : visi < 8 ? 'warn' : 'ok'}">${visi.toFixed(0)} km</div>
+      </div>
+    </div>
+    <div class="meteo-tile-verdict ${v.cls}">${v.txt}</div>
+  `;
+}
+
+async function chargerMeteoComplet() {
   try {
-    const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FToronto');
+    const r = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${LAT_LAVALTRIE}&longitude=${LNG_LAVALTRIE}` +
+      `&hourly=temperature_2m,weathercode,windspeed_10m,windgusts_10m,winddirection_10m,visibility,precipitation,precipitation_probability,relativehumidity_2m` +
+      `&daily=sunrise,sunset` +
+      `&timezone=America%2FToronto&forecast_days=3`
+    );
     const d = await r.json();
-    const temp = Math.round(d.current.temperature_2m);
-    const vent = Math.round(d.current.wind_speed_10m);
-    const volOk = vent < 30;
-    const icons = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',61:'🌧️',71:'🌨️',80:'🌦️',95:'⛈️'};
-    const icone = icons[d.current.weather_code] || '🌡️';
-    bar.innerHTML += `<div class="dyn-badge"><div class="dyn-badge-dot ${volOk?'green':'orange'}"></div>${icone} <strong>${temp}°C</strong> · Vent ${vent} km/h · ${volOk?'Vol OK ✅':'Vol prudent ⚠️'}</div>`;
-    document.getElementById('badge-meteo').textContent = `${icone} ${temp}°C · ${vent} km/h`;
-    document.getElementById('badge-meteo').className = `tile-badge ${volOk?'tile-badge-teal':'tile-badge-orange'}`;
-  } catch(e) {
-    bar.innerHTML += `<div class="dyn-badge"><div class="dyn-badge-dot gray"></div>Météo indisponible</div>`;
-  }
+    const hi = trouverHIndex(d.hourly.time);
 
-  // Badge CRM
+    // ── Badge météo topbar ──
+    const temp = d.hourly.temperature_2m[hi] ?? '--';
+    const vent = d.hourly.windspeed_10m[hi] ?? 0;
+    const wcode = d.hourly.weathercode[hi] ?? 0;
+    const volOk = vent < 30;
+    const bar = document.getElementById('dynamic-bar');
+    bar.innerHTML = `<div class="dyn-badge"><div class="dyn-badge-dot ${volOk ? 'green' : 'orange'}"></div>${WMO_ICONS[wcode] || '🌡'} <strong>${typeof temp === 'number' ? temp.toFixed(0) : temp}°C</strong> · Vent ${vent.toFixed(0)} km/h · ${volOk ? 'Vol OK ✅' : 'Vol prudent ⚠️'}</div>`;
+
+    // Badge tuile Météo
+    document.getElementById('badge-meteo').textContent = `${WMO_ICONS[wcode] || '🌡'} ${typeof temp === 'number' ? temp.toFixed(0) : temp}°C · ${vent.toFixed(0)} km/h`;
+    document.getElementById('badge-meteo').className = `tile-badge ${volOk ? 'tile-badge-teal' : 'tile-badge-orange'}`;
+
+    // ── Soleil & Fenêtres légales ──
+    const sunrise = formatHeure(d.daily.sunrise[0]);
+    const sunset = formatHeure(d.daily.sunset[0]);
+    let crepuscule = '--';
+    if (d.daily.sunset[0]) {
+      const parts = d.daily.sunset[0].split('T')[1]?.split(':');
+      if (parts) {
+        let h = parseInt(parts[0]), m = parseInt(parts[1]) + 30;
+        if (m >= 60) { h++; m -= 60; }
+        crepuscule = `${String(h).padStart(2,'0')}h${String(m).padStart(2,'0')}`;
+      }
+    }
+    let orLevier = '--', orCoucher = '--';
+    if (d.daily.sunrise[0]) {
+      const p = d.daily.sunrise[0].split('T')[1]?.split(':');
+      if (p) orLevier = `${p[0]}h${p[1]} – ${String(parseInt(p[0])+1).padStart(2,'0')}h${p[1]}`;
+    }
+    if (d.daily.sunset[0]) {
+      const p = d.daily.sunset[0].split('T')[1]?.split(':');
+      if (p) orCoucher = `${String(parseInt(p[0])-1).padStart(2,'0')}h${p[1]} – ${p[0]}h${p[1]}`;
+    }
+    const soleilCard = document.getElementById('soleil-card');
+    document.getElementById('soleil-rows').innerHTML = `
+      <div class="soleil-row"><span class="soleil-key">🌅 Lever du soleil</span><span class="soleil-val">${sunrise}</span></div>
+      <div class="soleil-row"><span class="soleil-key">🌇 Coucher du soleil</span><span class="soleil-val">${sunset}</span></div>
+      <div class="soleil-row"><span class="soleil-key">🌆 Crépuscule civil (limite légale)</span><span class="soleil-val legal">${crepuscule}</span></div>
+      <div class="soleil-row"><span class="soleil-key">📸 Heure dorée lever</span><span class="soleil-val golden">${orLevier}</span></div>
+      <div class="soleil-row"><span class="soleil-key">📸 Heure dorée coucher</span><span class="soleil-val golden">${orCoucher}</span></div>
+    `;
+    soleilCard.style.display = 'block';
+
+    // ── Tuiles H+3 / H+6 / H+12 ──
+    const offsets = [3, 6, 12];
+    const labels = ['H+3', 'H+6', 'H+12'];
+    const ids = ['tile-h3', 'tile-h6', 'tile-h12'];
+
+    offsets.forEach((offset, i) => {
+      const idx = Math.min(hi + offset, d.hourly.time.length - 1);
+      const heure = heureReelle(offset);
+      document.getElementById(ids[i]).innerHTML = buildMeteoTile(d, idx, labels[i], heure);
+    });
+
+  } catch(e) {
+    document.getElementById('dynamic-bar').innerHTML = `<div class="dyn-badge"><div class="dyn-badge-dot gray"></div>Météo indisponible</div>`;
+    ['tile-h3','tile-h6','tile-h12'].forEach(id => {
+      document.getElementById(id).innerHTML = `<div style="color:rgba(200,216,232,0.3);font-size:11px;text-align:center;padding:20px">Indisponible</div>`;
+    });
+  }
+}
+
+// ════════════════════════════════════════════
+// CRM BADGE
+// ════════════════════════════════════════════
+async function chargerBadgeCRM() {
   try {
     const r = await fetch(`${PORTAIL_WORKER}/api/crm/leads`, {
       headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' }
@@ -760,32 +934,22 @@ async function chargerBadges() {
     const d = await r.json();
     const leads = (d.leads || []).filter(l => l.statut !== 'Fermé');
     const soumissions_count = leads.filter(l => l.statut === 'Soumission envoyée').length;
-    bar.innerHTML += `<div class="dyn-badge"><div class="dyn-badge-dot blue"></div>📁 <strong>${leads.length}</strong> leads actifs · <strong>${soumissions_count}</strong> soumissions</div>`;
     document.getElementById('badge-crm').textContent = `${leads.length} leads · ${soumissions_count} soumissions`;
     document.getElementById('badge-crm').className = `tile-badge ${leads.length > 0 ? 'tile-badge-blue' : 'tile-badge-gray'}`;
-  } catch(e) {
-    bar.innerHTML += `<div class="dyn-badge"><div class="dyn-badge-dot gray"></div>CRM indisponible</div>`;
-  }
-
-  // Badge session
-  bar.innerHTML += `<div class="dyn-badge"><div class="dyn-badge-dot green"></div>🔒 Connexion sécurisée · <strong>${loginMethode === 'totp' ? 'TOTP' : 'OTP email'}</strong></div>`;
-}
-
-async function chargerMeteo() {
-  // Déjà chargé dans chargerBadges
+  } catch(e) {}
 }
 
 // ════════════════════════════════════════════
-// THÈME DARK / LIGHT
+// THÈME
 // ════════════════════════════════════════════
 function appliquerThemeSauvegarde() {
-  const theme = localStorage.getItem('z3q8_theme') || 'light';
+  const theme = localStorage.getItem('z3q8_theme') || 'dark';
   document.documentElement.setAttribute('data-theme', theme);
   document.getElementById('theme-btn').textContent = theme === 'dark' ? '☀️' : '🌙';
 }
 
 function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
   const next = current === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('z3q8_theme', next);
