@@ -810,6 +810,7 @@ function heureReelle(offsetH) {
 function buildMeteoTile(om, idx, label, heureStr) {
   const t = om.hourly;
   const temp = t.temperature_2m[idx] ?? '--';
+  const ressenti = t.apparent_temperature[idx] ?? '--';
   const wcode = t.weathercode[idx] ?? 0;
   const vent = t.windspeed_10m[idx] ?? 0;
   const raf = t.windgusts_10m[idx] ?? 0;
