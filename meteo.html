@@ -520,19 +520,38 @@ body{
   </svg>
 </div>
 <div class="auth-sub" style="margin-top:16px">MÉTÉO AVIATION · BRIEFING PRÉ-VOL</div>
-    <div id="auth-pin-step">
-      <div class="auth-label">Code PIN</div>
-      <input type="password" id="pin-input" class="auth-input" maxlength="4" placeholder="••••" autocomplete="off">
-      <button class="auth-btn" onclick="verifierPIN()">CONTINUER</button>
-      <div class="auth-error" id="pin-error"></div>
+<div id="auth-pin-step">
+  <div class="auth-label">Code PIN</div>
+  <input type="password" id="pin-input" class="auth-input" maxlength="6" placeholder="••••••" autocomplete="off">
+  <button class="auth-btn" onclick="verifierPIN()">CONTINUER</button>
+  <div class="auth-error" id="pin-error"></div>
+</div>
+
+<!-- Choix méthode -->
+<div id="auth-methode-step" style="display:none;margin:16px 0;">
+  <div class="auth-label" style="margin-bottom:12px;">Méthode de vérification</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+    <div id="btn-otp" onclick="choisirMethode('otp')" style="background:rgba(26,143,209,0.18);border:1px solid rgba(26,143,209,0.6);border-radius:10px;padding:12px 8px;cursor:pointer;text-align:center;color:#F4F7FA;">
+      <div style="font-size:20px;margin-bottom:5px;">📧</div>
+      <div style="font-size:11px;font-weight:600;">Par email</div>
+      <div style="font-size:10px;opacity:0.6;margin-top:2px;">Code courriel</div>
     </div>
-    <div id="auth-otp-step" style="display:none">
-      <div class="auth-label">Code OTP envoyé par email</div>
-      <input type="text" id="otp-input" class="auth-input" maxlength="6" placeholder="000000" autocomplete="off">
-      <button class="auth-btn" onclick="verifierOTP()">ACCÉDER</button>
-      <div class="auth-error" id="otp-error"></div>
-      <div class="auth-info">Code envoyé à mohand.aidi@mohand.ca</div>
+    <div id="btn-totp" onclick="choisirMethode('totp')" style="background:rgba(255,255,255,0.05);border:1px solid rgba(200,216,232,0.15);border-radius:10px;padding:12px 8px;cursor:pointer;text-align:center;color:rgba(200,216,232,0.5);">
+      <div style="font-size:20px;margin-bottom:5px;">📱</div>
+      <div style="font-size:11px;font-weight:600;">Authenticator</div>
+      <div style="font-size:10px;opacity:0.6;margin-top:2px;">Google Auth</div>
     </div>
+  </div>
+  <button class="auth-btn" onclick="continuerMethode()">CONTINUER</button>
+</div>
+
+<div id="auth-otp-step" style="display:none">
+  <div class="auth-label" id="otp-label">Code OTP envoyé par email</div>
+  <input type="text" id="otp-input" class="auth-input" maxlength="6" placeholder="000000" autocomplete="off">
+  <button class="auth-btn" onclick="verifierOTP()">ACCÉDER</button>
+  <div class="auth-error" id="otp-error"></div>
+  <div class="auth-info" id="otp-info">Code envoyé à mohand.aidi@mohand.ca</div>
+</div>
   </div>
 </div>
 
