@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="canonical" href="https://capturair.com/guide">
+<title>CapturAir — Guide de prise de vue DJI Air 3S</title>
+<meta name="description" content="Assistant de réglages intelligent pour la photographie aérienne immobilière avec le DJI Air 3S.">
+<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500&display=swap" rel="stylesheet">
+<style>
+/* ── THEMES ── */
+:root {
+  --void:#05080F;--deep:#0A0F1A;--dark:#0D1520;--panel:#111827;
+  --blue:#1A8FD1;--blue-light:#3AABEF;--blue-glow:rgba(26,143,209,0.2);
+  --white:#FFFFFF;--offwhite:#E8EEF5;--muted:rgba(200,216,232,0.55);
+  --border:rgba(200,216,232,0.1);--border-blue:rgba(26,143,209,0.25);
+  --success:#2ecc71;--warning:#f39c12;--error:#e74c3c;
+  --bg:var(--deep);--text:var(--offwhite);--card:rgba(255,255,255,0.03);
+  --card-border:rgba(255,255,255,0.07);--nav-bg:rgba(5,8,15,0.92);
+}
+[data-theme="light"] {
+  --bg:#F0F4F8;--text:#0D1520;--card:#FFFFFF;--card-border:rgba(0,0,0,0.08);
+  --muted:rgba(13,21,32,0.5);--border:rgba(0,0,0,0.1);--nav-bg:rgba(240,244,248,0.95);
+  --panel:#FFFFFF;--offwhite:#0D1520;
+}
+[data-theme="custom"] {
+  --bg:var(--custom-bg, #0A0F1A);
+  --text:var(--custom-text, #E8EEF5);
+  --blue:var(--custom-accent, #1A8FD1);
+  --card:rgba(255,255,255,0.03);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;font-weight:300;color:var(--text);background:var(--bg);overflow-x:hidden;transition:background 0.3s,color 0.3s;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(26,143,209,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(26,143,209,0.04) 1px,transparent 1px);background-size:64px 64px;pointer-events:none;z-index:0;opacity:1;transition:opacity 0.3s;}
+[data-theme="light"] body::before{opacity:0.3;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:72px;background:var(--nav-bg);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0;}
+.nav-logo-svg{width:38px;height:38px;flex-shrink:0;}
+.nav-logo-text{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--white);letter-spacing:0.3px;}
+[data-theme="light"] .nav-logo-text{color:var(--text);}
+.nav-logo-text span{color:var(--blue-light);}
+.nav-right{display:flex;align-items:center;gap:16px;}
+.nav-back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;text-decoration:none;transition:color 0.2s;}
+.nav-back:hover{color:var(--blue-light);}
+
+/* THEME SWITCHER */
+.theme-switcher{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:4px;}
+.theme-btn{width:32px;height:32px;border:none;border-radius:7px;cursor:pointer;font-size:14px;background:transparent;color:var(--muted);transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
+.theme-btn.active,.theme-btn:hover{background:var(--blue);color:white;}
+
+/* CUSTOM PANEL */
+.custom-panel{display:none;position:fixed;top:82px;right:48px;z-index:300;background:var(--panel);border:1px solid var(--border-blue);border-radius:16px;padding:20px;width:280px;box-shadow:0 20px 60px rgba(0,0,0,0.4);}
+.custom-panel.open{display:block;animation:fadeUp 0.3s ease;}
+.custom-panel h4{font-family:'Syne',sans-serif;font-size:14px;color:var(--text);margin-bottom:16px;}
+.custom-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:13px;color:var(--muted);}
+.custom-row input[type="color"]{width:40px;height:28px;border:none;border-radius:6px;cursor:pointer;background:none;}
+.custom-row input[type="range"]{width:120px;accent-color:var(--blue);}
+
+/* MAIN */
+main{position:relative;z-index:1;padding:100px 48px 80px;max-width:1100px;margin:0 auto;}
+
+/* HEADER */
+.guide-header{text-align:center;margin-bottom:56px;animation:fadeUp 0.7s ease both;}
+.guide-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(26,143,209,0.10);border:1px solid rgba(26,143,209,0.25);color:var(--blue-light);font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;padding:5px 14px;border-radius:100px;margin-bottom:20px;}
+.guide-badge::before{content:'';width:5px;height:5px;background:var(--blue-light);border-radius:50%;animation:pulse 2s infinite;}
+.guide-title{font-family:'Syne',sans-serif;font-size:clamp(32px,5vw,56px);font-weight:800;color:var(--text);letter-spacing:-1.5px;margin-bottom:12px;line-height:1.05;}
+.guide-title span{color:transparent;-webkit-text-stroke:1.5px var(--blue-light);}
+.guide-sub{font-size:16px;color:var(--muted);max-width:500px;margin:0 auto;}
+
+/* TABS */
+.tabs{display:flex;gap:8px;margin-bottom:40px;flex-wrap:wrap;justify-content:center;}
+.tab-btn{padding:9px 20px;border-radius:100px;border:1px solid var(--card-border);background:var(--card);color:var(--muted);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn.active,.tab-btn:hover{background:var(--blue);border-color:var(--blue);color:white;}
+
+/* TAB CONTENT */
+.tab-content{display:none;}
+.tab-content.active{display:block;animation:fadeUp 0.4s ease both;}
+
+/* ── ASSISTANT TAB ── */
+.steps-progress{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:40px;flex-wrap:wrap;}
+.step-dot{width:32px;height:32px;border-radius:50%;border:1px solid var(--card-border);background:var(--card);color:var(--muted);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:all 0.3s;font-family:'Syne',sans-serif;}
+.step-dot.active{background:var(--blue);border-color:var(--blue);color:white;box-shadow:0 0 20px rgba(26,143,209,0.4);}
+.step-dot.done{background:var(--success);border-color:var(--success);color:white;}
+.step-line{width:32px;height:1px;background:var(--border);}
+.step-line.done{background:var(--success);}
+
+.step-panel{display:none;}
+.step-panel.active{display:block;animation:fadeUp 0.4s ease both;}
+.step-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:8px;text-align:center;}
+.step-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px;}
+
+/* CHOICE GRID */
+.choices{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:28px;}
+.choice{background:var(--card);border:1px solid var(--card-border);border-radius:14px;padding:18px 14px;cursor:pointer;transition:all 0.25s cubic-bezier(0.23,1,0.32,1);text-align:center;position:relative;overflow:hidden;}
+.choice::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(58,171,239,0.5),transparent);opacity:0;transition:opacity 0.3s;}
+.choice:hover,.choice.selected{transform:translateY(-3px);border-color:var(--blue);background:rgba(26,143,209,0.08);box-shadow:0 0 0 1px rgba(58,171,239,0.15),0 12px 32px rgba(0,0,0,0.2);}
+.choice:hover::before,.choice.selected::before{opacity:1;}
+.choice-emoji{font-size:28px;margin-bottom:8px;display:block;}
+.choice-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.choice-desc{font-size:11px;color:var(--muted);}
+.choice.selected .choice-name{color:var(--blue-light);}
+
+/* NAV BUTTONS */
+.step-nav{display:flex;gap:12px;justify-content:center;margin-top:8px;}
+.btn-back{padding:11px 24px;border-radius:10px;border:1px solid var(--card-border);background:transparent;color:var(--muted);font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.2s;}
+.btn-back:hover{border-color:var(--blue);color:var(--blue-light);}
+.btn-next{padding:11px 28px;border-radius:10px;border:none;background:var(--blue);color:white;font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.2s;}
+.btn-next:hover{background:var(--blue-light);transform:translateY(-1px);}
+.btn-next:disabled{background:rgba(26,143,209,0.3);cursor:not-allowed;transform:none;}
+
+/* RESULTS */
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+.result-card{background:var(--card);border:1px solid var(--card-border);border-radius:16px;padding:20px;}
+.result-card-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;font-weight:500;}
+.result-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
+.result-row:last-child{border-bottom:none;}
+.result-label{font-size:12px;color:var(--muted);}
+.result-value{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text);}
+.result-value.blue{color:var(--blue-light);}
+
+.alerts{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.alert{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-radius:12px;font-size:13px;line-height:1.5;}
+.alert.warning{background:rgba(243,156,18,0.1);border:1px solid rgba(243,156,18,0.25);color:#f39c12;}
+.alert.tip{background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.25);color:#2ecc71;}
+.alert.info{background:rgba(26,143,209,0.1);border:1px solid rgba(26,143,209,0.25);color:var(--blue-light);}
+.alert-icon{flex-shrink:0;font-size:15px;}
+
+.btn-reset{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;border-radius:10px;border:1px solid var(--card-border);background:transparent;color:var(--muted);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.2s;margin-top:8px;}
+.btn-reset:hover{border-color:var(--blue);color:var(--blue-light);}
+
+/* ── CHECKLIST TAB ── */
+.checklist-sections{display:flex;flex-direction:column;gap:20px;}
+.checklist-section{background:var(--card);border:1px solid var(--card-border);border-radius:16px;overflow:hidden;}
+.checklist-section-header{padding:16px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.checklist-section-icon{font-size:20px;}
+.checklist-section-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--text);}
+.checklist-section-count{margin-left:auto;font-size:12px;color:var(--muted);}
+.checklist-items{padding:8px 0;}
+.checklist-item{display:flex;align-items:center;gap:14px;padding:12px 20px;cursor:pointer;transition:background 0.2s;}
+.checklist-item:hover{background:rgba(26,143,209,0.05);}
+.checklist-item input[type="checkbox"]{width:18px;height:18px;accent-color:var(--blue);cursor:pointer;flex-shrink:0;}
+.checklist-item label{font-size:14px;color:var(--text);cursor:pointer;line-height:1.5;}
+.checklist-item.checked label{text-decoration:line-through;color:var(--muted);}
+.checklist-reset{display:flex;justify-content:flex-end;padding:16px 20px 0;}
+.btn-checklist-reset{padding:8px 16px;border-radius:8px;border:1px solid var(--card-border);background:transparent;color:var(--muted);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.2s;}
+.btn-checklist-reset:hover{border-color:var(--error);color:var(--error);}
+
+/* ── EXPORT TAB ── */
+.export-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+.export-card{background:var(--card);border:1px solid var(--card-border);border-radius:16px;padding:22px;transition:all 0.3s;}
+.export-card:hover{border-color:var(--blue);transform:translateY(-2px);}
+.export-card-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.export-card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.export-card-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--text);}
+.export-card-type{font-size:11px;color:var(--muted);}
+.export-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.export-row:last-child{border-bottom:none;}
+.export-key{color:var(--muted);}
+.export-val{font-weight:500;color:var(--text);}
+.export-val.highlight{color:var(--blue-light);font-family:'Syne',sans-serif;}
+.export-note{margin-top:12px;padding:10px 12px;background:rgba(26,143,209,0.07);border-radius:8px;font-size:11px;color:var(--muted);line-height:1.6;}
+
+/* ── LIGHTROOM TAB ── */
+.lr-grid{display:flex;flex-direction:column;gap:16px;}
+.lr-card{background:var(--card);border:1px solid var(--card-border);border-radius:16px;overflow:hidden;}
+.lr-card-header{padding:16px 20px;display:flex;align-items:center;gap:12px;background:rgba(26,143,209,0.05);border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
+.lr-card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);}
+.lr-card-arrow{margin-left:auto;color:var(--muted);transition:transform 0.3s;font-size:12px;}
+.lr-card.open .lr-card-arrow{transform:rotate(180deg);}
+.lr-card-body{display:none;padding:16px 20px;}
+.lr-card.open .lr-card-body{display:block;}
+.lr-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.lr-row:last-child{border-bottom:none;}
+.lr-key{color:var(--muted);}
+.lr-val{font-weight:500;color:var(--text);}
+.lr-val.pos{color:var(--success);}
+.lr-val.neg{color:var(--error);}
+.lr-val.blue{color:var(--blue-light);}
+
+/* FOOTER */
+footer{background:var(--void);padding:32px 48px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(200,216,232,0.05);position:relative;z-index:1;}
+.footer-logo{display:flex;align-items:center;gap:10px;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:rgba(255,255,255,0.4);}
+.footer-logo span{color:var(--blue-light);}
+.footer-copy{font-size:12px;color:rgba(200,216,232,0.25);}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.7;transform:scale(1.3);}}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  nav{padding:0 20px;}
+  main{padding:90px 20px 60px;}
+  .result-grid{grid-template-columns:1fr;}
+  .export-grid{grid-template-columns:1fr;}
+  .choices{grid-template-columns:repeat(2,1fr);}
+  footer{flex-direction:column;gap:12px;text-align:center;padding:24px 20px;}
+  .custom-panel{right:20px;width:calc(100vw - 40px);}
+}
+</style>
+</head>
+<body data-theme="dark">
+
+<!-- NAV -->
+<nav id="mainNav">
+  <a href="/" class="nav-logo">
+    <svg class="nav-logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+      <circle cx="200" cy="171" r="8" fill="#1A8FD1" stroke="white" stroke-width="2.5"/><circle cx="200" cy="171" r="3.5" fill="white" opacity="0.9"/>
+      <line x1="163" y1="161" x2="128" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/><line x1="237" y1="161" x2="272" y2="126" stroke="white" stroke-width="5" stroke-linecap="round"/>
+      <line x1="163" y1="181" x2="128" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/><line x1="237" y1="181" x2="272" y2="216" stroke="white" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="128" cy="126" r="7" fill="white"/><circle cx="272" cy="126" r="7" fill="white"/><circle cx="128" cy="216" r="7" fill="white"/><circle cx="272" cy="216" r="7" fill="white"/>
+      <ellipse cx="128" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-35 128 126)"/><ellipse cx="128" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(55 128 126)"/>
+      <ellipse cx="272" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(35 272 126)"/><ellipse cx="272" cy="126" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-55 272 126)"/>
+      <ellipse cx="128" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(35 128 216)"/><ellipse cx="128" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-55 128 216)"/>
+      <ellipse cx="272" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(-35 272 216)"/><ellipse cx="272" cy="216" rx="26" ry="5" fill="white" opacity="0.8" transform="rotate(55 272 216)"/>
+      <line x1="172" y1="184" x2="167" y2="200" stroke="white" stroke-width="3"/><line x1="228" y1="184" x2="233" y2="200" stroke="white" stroke-width="3"/><line x1="162" y1="200" x2="238" y2="200" stroke="white" stroke-width="3"/>
+    </svg>
+    <span class="nav-logo-text">Captur<span>Air</span></span>
+  </a>
+  <div class="nav-right">
+    <div class="theme-switcher">
+      <button class="theme-btn" onclick="setTheme('light')" title="Mode clair">☀️</button>
+      <button class="theme-btn active" onclick="setTheme('dark')" title="Mode sombre">🌙</button>
+      <button class="theme-btn" onclick="setTheme('custom')" title="Personnalisé">🎨</button>
+    </div>
+    <a href="/" class="nav-back">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Retour
+    </a>
+  </div>
+</nav>
+
+<!-- CUSTOM PANEL -->
+<div class="custom-panel" id="customPanel">
+  <h4>🎨 Personnaliser</h4>
+  <div class="custom-row">
+    <span>Fond</span>
+    <input type="color" id="customBg" value="#0A0F1A" oninput="applyCustom()">
+  </div>
+  <div class="custom-row">
+    <span>Texte</span>
+    <input type="color" id="customText" value="#E8EEF5" oninput="applyCustom()">
+  </div>
+  <div class="custom-row">
+    <span>Accent</span>
+    <input type="color" id="customAccent" value="#1A8FD1" oninput="applyCustom()">
+  </div>
+  <div class="custom-row">
+    <span>Taille texte</span>
+    <input type="range" id="customSize" min="12" max="20" value="16" oninput="applyCustomSize(this.value)">
+  </div>
+</div>
+
+<main>
+  <!-- HEADER -->
+  <div class="guide-header">
+    <div class="guide-badge">DJI Air 3S · Immobilier · Terrain</div>
+    <h1 class="guide-title">Assistant <span>Réglages</span></h1>
+    <p class="guide-sub">Tes réglages optimaux en 5 clics — adapté à ta situation exacte sur le terrain.</p>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('assistant')">🎯 Assistant</button>
+    <button class="tab-btn" onclick="showTab('checklist')">✅ Checklist</button>
+    <button class="tab-btn" onclick="showTab('export')">📤 Export</button>
+    <button class="tab-btn" onclick="showTab('lightroom')">🎨 Lightroom</button>
+  </div>
+
+  <!-- ── TAB ASSISTANT ── -->
+  <div class="tab-content active" id="tab-assistant">
+
+    <!-- Progress -->
+    <div class="steps-progress">
+      <div class="step-dot active" id="dot-1">1</div>
+      <div class="step-line" id="line-1"></div>
+      <div class="step-dot" id="dot-2">2</div>
+      <div class="step-line" id="line-2"></div>
+      <div class="step-dot" id="dot-3">3</div>
+      <div class="step-line" id="line-3"></div>
+      <div class="step-dot" id="dot-4">4</div>
+      <div class="step-line" id="line-4"></div>
+      <div class="step-dot" id="dot-5">5</div>
+    </div>
+
+    <!-- STEP 1 — Plateforme -->
+    <div class="step-panel active" id="step-1">
+      <div class="step-title">Pour quelle plateforme ?</div>
+      <div class="step-sub">La plateforme détermine le ratio et la résolution à régler sur le drone.</div>
+      <div class="choices">
+        <div class="choice" onclick="select(this,'platform','centris')" data-val="centris">
+          <span class="choice-emoji">🏠</span>
+          <div class="choice-name">Centris / MLS</div>
+          <div class="choice-desc">4:3 · jusqu'à 100 photos</div>
+        </div>
+        <div class="choice" onclick="select(this,'platform','remax')" data-val="remax">
+          <span class="choice-emoji">🏢</span>
+          <div class="choice-name">REMAX</div>
+          <div class="choice-desc">4:3 · max 10 aériennes</div>
+        </div>
+        <div class="choice" onclick="select(this,'platform','instagram')" data-val="instagram">
+          <span class="choice-emoji">📱</span>
+          <div class="choice-name">Instagram</div>
+          <div class="choice-desc">4:5 portrait · 1:1 carré</div>
+        </div>
+        <div class="choice" onclick="select(this,'platform','web')" data-val="web">
+          <span class="choice-emoji">🌐</span>
+          <div class="choice-name">Site web</div>
+          <div class="choice-desc">16:9 · 3000px large</div>
+        </div>
+        <div class="choice" onclick="select(this,'platform','print')" data-val="print">
+          <span class="choice-emoji">🖨️</span>
+          <div class="choice-name">Impression</div>
+          <div class="choice-desc">50MP obligatoire</div>
+        </div>
+        <div class="choice" onclick="select(this,'platform','all')" data-val="all">
+          <span class="choice-emoji">📦</span>
+          <div class="choice-name">Tout</div>
+          <div class="choice-desc">Réglages universels</div>
+        </div>
+      </div>
+      <div class="step-nav">
+        <button class="btn-next" id="next-1" onclick="nextStep(1)" disabled>Suivant →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 — Météo + Saison -->
+    <div class="step-panel" id="step-2">
+      <div class="step-title">Météo & saison ?</div>
+      <div class="step-sub">La lumière ambiante est le facteur le plus important.</div>
+      <div class="choices">
+        <div class="choice" onclick="select(this,'weather','sunny-summer')" data-val="sunny-summer">
+          <span class="choice-emoji">☀️</span>
+          <div class="choice-name">Plein soleil — Été</div>
+          <div class="choice-desc">Lumière intense · chaleur</div>
+        </div>
+        <div class="choice" onclick="select(this,'weather','sunny-winter')" data-val="sunny-winter">
+          <span class="choice-emoji">❄️☀️</span>
+          <div class="choice-name">Plein soleil — Hiver</div>
+          <div class="choice-desc">Neige · surexposition</div>
+        </div>
+        <div class="choice" onclick="select(this,'weather','veiled')" data-val="veiled">
+          <span class="choice-emoji">🌤️</span>
+          <div class="choice-name">Ensoleillé voilé</div>
+          <div class="choice-desc">Conditions idéales</div>
+        </div>
+        <div class="choice" onclick="select(this,'weather','cloudy')" data-val="cloudy">
+          <span class="choice-emoji">⛅</span>
+          <div class="choice-name">Nuageux partiel</div>
+          <div class="choice-desc">Lumière variable</div>
+        </div>
+        <div class="choice" onclick="select(this,'weather','overcast')" data-val="overcast">
+          <span class="choice-emoji">☁️</span>
+          <div class="choice-name">Gris / couvert</div>
+          <div class="choice-desc">Lumière douce uniforme</div>
+        </div>
+        <div class="choice" onclick="select(this,'weather','snow')" data-val="snow">
+          <span class="choice-emoji">🌨️</span>
+          <div class="choice-name">Neigeux / hiver</div>
+          <div class="choice-desc">Réflexion extrême</div>
+        </div>
+        <div class="choice" onclick="select(this,'weather','fog')" data-val="fog">
+          <span class="choice-emoji">🌫️</span>
+          <div class="choice-name">Brumeux</div>
+          <div class="choice-desc">Effet artistique</div>
+        </div>
+        <div class="choice" onclick="select(this,'weather','autumn')" data-val="autumn">
+          <span class="choice-emoji">🍂</span>
+          <div class="choice-name">Automne</div>
+          <div class="choice-desc">Couleurs chaudes</div>
+        </div>
+      </div>
+      <div class="step-nav">
+        <button class="btn-back" onclick="prevStep(2)">← Retour</button>
+        <button class="btn-next" id="next-2" onclick="nextStep(2)" disabled>Suivant →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 — Soleil -->
+    <div class="step-panel" id="step-3">
+      <div class="step-title">Position du soleil ?</div>
+      <div class="step-sub">Le moment de la journée détermine la qualité et la chaleur de la lumière.</div>
+      <div class="choices">
+        <div class="choice" onclick="select(this,'light','blue-morning')" data-val="blue-morning">
+          <span class="choice-emoji">🌌</span>
+          <div class="choice-name">Heure bleue matin</div>
+          <div class="choice-desc">Avant lever · premium</div>
+        </div>
+        <div class="choice" onclick="select(this,'light','golden-morning')" data-val="golden-morning">
+          <span class="choice-emoji">🌅</span>
+          <div class="choice-name">Heure dorée matin</div>
+          <div class="choice-desc">⭐ Meilleure heure !</div>
+        </div>
+        <div class="choice" onclick="select(this,'light','morning')" data-val="morning">
+          <span class="choice-emoji">🌄</span>
+          <div class="choice-name">Matin (8h-10h)</div>
+          <div class="choice-desc">Très bonne lumière</div>
+        </div>
+        <div class="choice" onclick="select(this,'light','noon')" data-val="noon">
+          <span class="choice-emoji">🌞</span>
+          <div class="choice-name">Midi (10h-14h)</div>
+          <div class="choice-desc">Ombres dures · éviter</div>
+        </div>
+        <div class="choice" onclick="select(this,'light','afternoon')" data-val="afternoon">
+          <span class="choice-emoji">🌤️</span>
+          <div class="choice-name">Après-midi (14h-17h)</div>
+          <div class="choice-desc">Bonne lumière</div>
+        </div>
+        <div class="choice" onclick="select(this,'light','golden-evening')" data-val="golden-evening">
+          <span class="choice-emoji">🌇</span>
+          <div class="choice-name">Heure dorée soir</div>
+          <div class="choice-desc">⭐ Meilleure heure !</div>
+        </div>
+        <div class="choice" onclick="select(this,'light','sunset')" data-val="sunset">
+          <span class="choice-emoji">🌆</span>
+          <div class="choice-name">Coucher de soleil</div>
+          <div class="choice-desc">Contre-jour · HDR</div>
+        </div>
+        <div class="choice" onclick="select(this,'light','blue-evening')" data-val="blue-evening">
+          <span class="choice-emoji">🌃</span>
+          <div class="choice-name">Heure bleue soir</div>
+          <div class="choice-desc">Wow factor premium !</div>
+        </div>
+      </div>
+      <div class="step-nav">
+        <button class="btn-back" onclick="prevStep(3)">← Retour</button>
+        <button class="btn-next" id="next-3" onclick="nextStep(3)" disabled>Suivant →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4 — Propriété -->
+    <div class="step-panel" id="step-4">
+      <div class="step-title">Type de propriété ?</div>
+      <div class="step-sub">Le type de bien détermine les angles et compositions recommandés.</div>
+      <div class="choices">
+        <div class="choice" onclick="select(this,'property','residential')" data-val="residential">
+          <span class="choice-emoji">🏠</span>
+          <div class="choice-name">Résidentiel</div>
+          <div class="choice-desc">Maison · unifamiliale</div>
+        </div>
+        <div class="choice" onclick="select(this,'property','waterfront')" data-val="waterfront">
+          <span class="choice-emoji">💧</span>
+          <div class="choice-name">Bord de l'eau</div>
+          <div class="choice-desc">Fleuve · lac · rivière</div>
+        </div>
+        <div class="choice" onclick="select(this,'property','forest')" data-val="forest">
+          <span class="choice-emoji">🌲</span>
+          <div class="choice-name">En forêt</div>
+          <div class="choice-desc">Terrain boisé</div>
+        </div>
+        <div class="choice" onclick="select(this,'property','urban')" data-val="urban">
+          <span class="choice-emoji">🏙️</span>
+          <div class="choice-name">Zone urbaine</div>
+          <div class="choice-desc">Résidentiel dense</div>
+        </div>
+        <div class="choice" onclick="select(this,'property','condo')" data-val="condo">
+          <span class="choice-emoji">🏢</span>
+          <div class="choice-name">Condo / Immeuble</div>
+          <div class="choice-desc">Multi-logements</div>
+        </div>
+        <div class="choice" onclick="select(this,'property','agricultural')" data-val="agricultural">
+          <span class="choice-emoji">🌾</span>
+          <div class="choice-name">Agricole / Grand terrain</div>
+          <div class="choice-desc">Ferme · champs</div>
+        </div>
+      </div>
+      <div class="step-nav">
+        <button class="btn-back" onclick="prevStep(4)">← Retour</button>
+        <button class="btn-next" id="next-4" onclick="nextStep(4)" disabled>Suivant →</button>
+      </div>
+    </div>
+
+    <!-- STEP 5 — Objectif -->
+    <div class="step-panel" id="step-5">
+      <div class="step-title">Objectif à utiliser ?</div>
+      <div class="step-sub">Le DJI Air 3S a deux capteurs — chacun a ses forces.</div>
+      <div class="choices">
+        <div class="choice" onclick="select(this,'lens','24mm')" data-val="24mm">
+          <span class="choice-emoji">🔭</span>
+          <div class="choice-name">24mm Grand angle</div>
+          <div class="choice-desc">f/1.8 · 50MP · 1 pouce · Vue large</div>
+        </div>
+        <div class="choice" onclick="select(this,'lens','70mm')" data-val="70mm">
+          <span class="choice-emoji">🔬</span>
+          <div class="choice-name">70mm Télé</div>
+          <div class="choice-desc">f/2.8 · 48MP · Détails · Compression</div>
+        </div>
+        <div class="choice" onclick="select(this,'lens','both')" data-val="both">
+          <span class="choice-emoji">📷</span>
+          <div class="choice-name">Les deux</div>
+          <div class="choice-desc">Couverture complète</div>
+        </div>
+      </div>
+      <div class="step-nav">
+        <button class="btn-back" onclick="prevStep(5)">← Retour</button>
+        <button class="btn-next" id="next-5" onclick="showResults()" disabled>Voir mes réglages →</button>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="step-panel" id="step-results">
+      <div class="step-title">✅ Tes réglages optimaux</div>
+      <div class="step-sub" id="results-context"></div>
+      <div class="alerts" id="results-alerts"></div>
+      <div class="result-grid" id="results-grid"></div>
+      <div style="text-align:center;">
+        <button class="btn-reset" onclick="resetAssistant()">↺ Recommencer</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── TAB CHECKLIST ── -->
+  <div class="tab-content" id="tab-checklist">
+    <div class="checklist-reset">
+      <button class="btn-checklist-reset" onclick="resetChecklist()">↺ Tout décocher</button>
+    </div>
+    <div class="checklist-sections" id="checklist-container"></div>
+  </div>
+
+  <!-- ── TAB EXPORT ── -->
+  <div class="tab-content" id="tab-export">
+    <div class="export-grid" id="export-container"></div>
+  </div>
+
+  <!-- ── TAB LIGHTROOM ── -->
+  <div class="tab-content" id="tab-lightroom">
+    <div class="lr-grid" id="lr-container"></div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-logo">
+    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+      <circle cx="200" cy="171" r="8" fill="#1A8FD1"/>
+      <line x1="163" y1="161" x2="128" y2="126" stroke="rgba(200,216,232,0.4)" stroke-width="5" stroke-linecap="round"/>
+      <line x1="237" y1="161" x2="272" y2="126" stroke="rgba(200,216,232,0.4)" stroke-width="5" stroke-linecap="round"/>
+      <line x1="163" y1="181" x2="128" y2="216" stroke="rgba(200,216,232,0.4)" stroke-width="5" stroke-linecap="round"/>
+      <line x1="237" y1="181" x2="272" y2="216" stroke="rgba(200,216,232,0.4)" stroke-width="5" stroke-linecap="round"/>
+    </svg>
+    Captur<span>Air</span>
+  </div>
+  <div class="footer-copy">© 2026 CapturAir · Guide DJI Air 3S</div>
+  <a href="/" style="font-size:12px;color:rgba(200,216,232,0.3);text-decoration:none;">← Retour au site</a>
+</footer>
+
+<script>
+// ── DATA ──
+var selections = {};
+var currentStep = 1;
+
+// RESULTS DATABASE
+var resultsDB = {
+  // [weather][light][lens] → settings
+  getSettings: function(s) {
+    var w = s.weather, li = s.light, le = s.lens, p = s.platform, pr = s.property;
+
+    // Base settings by weather
+    var base = {
+      'sunny-summer': {iso:'100', speed:'1/1000 - 1/1600s', bb:'5200K', mode:'Manuel (Pro)'},
+      'sunny-winter': {iso:'100', speed:'1/800 - 1/1250s', bb:'6000K', mode:'Manuel (Pro)'},
+      'veiled':       {iso:'100', speed:'1/640 - 1/1000s', bb:'5200 - 5500K', mode:'Manuel (Pro)'},
+      'cloudy':       {iso:'100', speed:'1/400 - 1/800s',  bb:'6000K', mode:'Manuel (Pro)'},
+      'overcast':     {iso:'100-200', speed:'1/250 - 1/500s', bb:'7000K', mode:'Manuel (Pro)'},
+      'snow':         {iso:'100', speed:'1/800 - 1/1250s', bb:'6000K', mode:'Manuel (Pro)'},
+      'fog':          {iso:'100-200', speed:'1/200 - 1/400s', bb:'Auto ou 6500K', mode:'Manuel (Pro)'},
+      'autumn':       {iso:'100', speed:'1/500 - 1/800s',  bb:'5500K', mode:'Manuel (Pro)'},
+    };
+
+    // Override by light position
+    var lightOverride = {
+      'blue-morning':    {iso:'400-800', speed:'1/60 - 1/100s', bb:'3500K'},
+      'golden-morning':  {iso:'100',     speed:'1/250 - 1/500s', bb:'5500 - 6000K'},
+      'morning':         {iso:'100',     speed:'1/640 - 1/1000s', bb:'5200K'},
+      'noon':            {iso:'100',     speed:'1/1000 - 1/1600s', bb:'5200K'},
+      'afternoon':       {iso:'100',     speed:'1/640 - 1/1000s', bb:'5000K'},
+      'golden-evening':  {iso:'100-200', speed:'1/250s', bb:'6000 - 7000K'},
+      'sunset':          {iso:'100-200', speed:'1/160 - 1/320s', bb:'7000 - 8000K'},
+      'blue-evening':    {iso:'400-800', speed:'1/60 - 1/100s', bb:'3500K'},
+    };
+
+    var settings = Object.assign({}, base[w] || base['veiled'], lightOverride[li] || {});
+
+    // Platform settings
+    var platformSettings = {
+      'centris':   {ratio:'4:3', resolution:'12MP ou 50MP', format:'DNG+JPEG', maxPhotos:'100'},
+      'remax':     {ratio:'4:3', resolution:'12MP', format:'DNG+JPEG', maxPhotos:'10 aériennes'},
+      'instagram': {ratio:'4:5 ou 1:1', resolution:'12MP', format:'JPEG', maxPhotos:'Illimité'},
+      'web':       {ratio:'16:9', resolution:'12MP', format:'JPEG', maxPhotos:'Illimité'},
+      'print':     {ratio:'4:3', resolution:'50MP OBLIGATOIRE', format:'DNG RAW', maxPhotos:'Selon besoin'},
+      'all':       {ratio:'4:3 (universel)', resolution:'50MP RAW', format:'DNG+JPEG', maxPhotos:'Maximum'},
+    };
+
+    // Lens settings
+    var lensSettings = {
+      '24mm': {aperture:'f/1.8', sensor:'1 pouce', mpMax:'50MP', focal:'24mm Grand angle'},
+      '70mm': {aperture:'f/2.8', sensor:'1/1.3 pouce', mpMax:'48MP', focal:'70mm Télé'},
+      'both': {aperture:'f/1.8 + f/2.8', sensor:'Dual', mpMax:'50MP + 48MP', focal:'24mm + 70mm'},
+    };
+
+    return {
+      camera: settings,
+      platform: platformSettings[p] || platformSettings['all'],
+      lens: lensSettings[le] || lensSettings['24mm']
+    };
+  },
+
+  getAlerts: function(s) {
+    var alerts = [];
+    var w = s.weather, li = s.light, pr = s.property;
+
+    if (w === 'sunny-summer' && pr === 'waterfront')
+      alerts.push({type:'warning', icon:'⚠️', text:'Reflets roses/magenta sur l\'eau par soleil intense — Correction Lightroom : TSL > Magenta -40, Rouge -15'});
+    if (w === 'sunny-winter' || w === 'snow')
+      alerts.push({type:'warning', icon:'⚠️', text:'Neige = surexposition ! Baisser les Blancs à -60 et Hautes lumières à -80 dans Lightroom'});
+    if (w === 'snow')
+      alerts.push({type:'warning', icon:'🌡️', text:'Température min. de vol : -10°C. En dessous, la batterie se décharge 3x plus vite !'});
+    if (li === 'golden-morning' || li === 'golden-evening')
+      alerts.push({type:'tip', icon:'⭐', text:'Heure dorée — La meilleure lumière pour l\'immobilier ! Lumière chaude et rasante qui met en valeur les textures.'});
+    if (li === 'blue-evening')
+      alerts.push({type:'tip', icon:'✨', text:'Heure bleue — Allume toutes les lumières intérieures et extérieures avant de voler. Résultat premium garanti !'});
+    if (li === 'sunset')
+      alerts.push({type:'info', icon:'💡', text:'Contre-jour : utilise le mode HDR ou AEB (3 poses) pour capturer façade ET ciel en même prise.'});
+    if (pr === 'forest')
+      alerts.push({type:'warning', icon:'🌲', text:'La détection d\'obstacles peut se déclencher avec les branches — passe en mode manuel si nécessaire.'});
+    if (pr === 'waterfront')
+      alerts.push({type:'tip', icon:'🌅', text:'Matin tôt recommandé — l\'eau est plus calme et les reflets plus nets.'});
+    if (pr === 'urban')
+      alerts.push({type:'info', icon:'⚖️', text:'Zone urbaine au Québec : certification Transport Canada pilote avancé généralement requise.'});
+    if (w === 'fog')
+      alerts.push({type:'tip', icon:'📸', text:'La brume matinale sur un terrain boisé = photo de couverture pour une fiche de prestige !'});
+    if (li === 'blue-morning' || li === 'blue-evening')
+      alerts.push({type:'info', icon:'📱', text:'Utilise l\'app PhotoPills ou Sun Surveyor pour connaitre exactement l\'heure bleue à ton adresse.'});
+
+    // Always
+    alerts.push({type:'info', icon:'📊', text:'Active l\'histogramme dans DJI Fly — courbe en cloche = exposition parfaite. Toujours en Balance des blancs manuelle !'});
+    alerts.push({type:'tip', icon:'💾', text:'Format DNG + JPEG simultané recommandé — le DNG pour la retouche, le JPEG comme aperçu rapide.'});
+
+    return alerts;
+  },
+
+  getCompositions: function(pr) {
+    var comp = {
+      'residential': ['Façade principale à 30-45° (jamais à plat)','Vue zénithale 90° — superficie du terrain','Vue quartier — altitude maximale autorisée','4 points cardinaux autour de la propriété','Si piscine : photo rapprochée depuis le dessus'],
+      'waterfront':  ['Maison + eau dans le même cadre (photo principale)','Vue zénithale 90° — terrain jusqu\'à l\'eau','Quai ou plage privée rapprochée','Coucher de soleil sur l\'eau vers la maison'],
+      'forest':      ['Vue zénithale — maison dans son environnement boisé','Trouée d\'entrée depuis l\'accès','Couleurs automne si applicable','Vol basse altitude uniquement'],
+      'urban':       ['Altitude 30-60m max — beau cadrage de la façade','Inclure rue et propriétés voisines','Respecter la vie privée des voisins','Certification avancée requise'],
+      'condo':       ['Vue d\'ensemble de l\'immeuble','Détails façade au 70mm','Vue quartier depuis altitude max','Entrée et stationnement'],
+      'agricultural':['Vue zénithale 90° obligatoire — superficie complète','Bâtiments de ferme, silos, granges','Acces routier et limites de propriété visible','Matin tôt — champs nets sans convection'],
+    };
+    return comp[pr] || comp['residential'];
+  }
+};
+
+// ── ASSISTANT LOGIC ──
+function select(el, key, val) {
+  // Deselect siblings
+  el.closest('.choices').querySelectorAll('.choice').forEach(function(c){c.classList.remove('selected');});
+  el.classList.add('selected');
+  selections[key] = val;
+  // Enable next
+  var stepMap = {platform:1, weather:2, light:3, property:4, lens:5};
+  var stepNum = stepMap[key];
+  if (stepNum) {
+    var btn = document.getElementById('next-' + stepNum);
+    if (btn) btn.disabled = false;
+  }
+}
+
+function nextStep(from) {
+  document.getElementById('step-' + from).classList.remove('active');
+  document.getElementById('dot-' + from).classList.remove('active');
+  document.getElementById('dot-' + from).classList.add('done');
+  if (document.getElementById('line-' + from)) document.getElementById('line-' + from).classList.add('done');
+  var to = from + 1;
+  document.getElementById('step-' + to).classList.add('active');
+  document.getElementById('dot-' + to).classList.add('active');
+}
+
+function prevStep(from) {
+  document.getElementById('step-' + from).classList.remove('active');
+  document.getElementById('dot-' + from).classList.remove('active');
+  var to = from - 1;
+  document.getElementById('step-' + to).classList.add('active');
+  document.getElementById('dot-' + to).classList.remove('done');
+  document.getElementById('dot-' + to).classList.add('active');
+  if (document.getElementById('line-' + to)) document.getElementById('line-' + to).classList.remove('done');
+}
+
+function showResults() {
+  // Hide step 5
+  document.getElementById('step-5').classList.remove('active');
+  document.getElementById('dot-5').classList.remove('active');
+  document.getElementById('dot-5').classList.add('done');
+
+  var data = resultsDB.getSettings(selections);
+  var alerts = resultsDB.getAlerts(selections);
+  var comps = resultsDB.getCompositions(selections.property);
+
+  // Context
+  var lightLabels = {'blue-morning':'Heure bleue matin','golden-morning':'Heure dorée matin','morning':'Matin','noon':'Midi','afternoon':'Après-midi','golden-evening':'Heure dorée soir','sunset':'Coucher de soleil','blue-evening':'Heure bleue soir'};
+  document.getElementById('results-context').textContent =
+    'DJI Air 3S · ' + (lightLabels[selections.light]||'') + ' · ' + (selections.property||'') + ' · ' + (selections.lens||'');
+
+  // Alerts
+  var alertsHtml = '';
+  alerts.forEach(function(a){
+    alertsHtml += '<div class="alert '+a.type+'"><span class="alert-icon">'+a.icon+'</span><span>'+a.text+'</span></div>';
+  });
+  document.getElementById('results-alerts').innerHTML = alertsHtml;
+
+  // Grid
+  var grid = '';
+
+  // Card 1 — Camera
+  grid += '<div class="result-card">';
+  grid += '<div class="result-card-title">📷 Réglages caméra</div>';
+  grid += '<div class="result-row"><span class="result-label">Objectif</span><span class="result-value blue">'+data.lens.focal+'</span></div>';
+  grid += '<div class="result-row"><span class="result-label">Ouverture</span><span class="result-value">'+data.lens.aperture+'</span></div>';
+  grid += '<div class="result-row"><span class="result-label">ISO</span><span class="result-value blue">'+data.camera.iso+'</span></div>';
+  grid += '<div class="result-row"><span class="result-label">Vitesse</span><span class="result-value">'+data.camera.speed+'</span></div>';
+  grid += '<div class="result-row"><span class="result-label">Balance BB</span><span class="result-value blue">'+data.camera.bb+'</span></div>';
+  grid += '<div class="result-row"><span class="result-label">Mode</span><span class="result-value">'+data.camera.mode+'</span></div>';
+  grid += '</div>';
+
+  // Card 2 — Plateforme
+  grid += '<div class="result-card">';
+  grid += '<div class="result-card-title">📤 Réglages plateforme</div>';
+  grid += '<div class="result-row"><span class="result-label">Ratio</span><span class="result-value blue">'+data.platform.ratio+'</span></div>';
+  grid += '<div class="result-row"><span class="result-label">Résolution</span><span class="result-value">'+data.platform.resolution+'</span></div>';
+  grid += '<div class="result-row"><span class="result-label">Format capture</span><span class="result-value">'+data.platform.format+'</span></div>';
+  grid += '<div class="result-row"><span class="result-label">Capteur</span><span class="result-value">'+data.lens.sensor+'</span></div>';
+  grid += '<div class="result-row"><span class="result-label">Max résolution</span><span class="result-value blue">'+data.lens.mpMax+'</span></div>';
+  grid += '<div class="result-row"><span class="result-label">Nb photos</span><span class="result-value">'+data.platform.maxPhotos+'</span></div>';
+  grid += '</div>';
+
+  // Card 3 — Compositions
+  grid += '<div class="result-card" style="grid-column:1/-1">';
+  grid += '<div class="result-card-title">📐 Compositions recommandées</div>';
+  comps.forEach(function(c){
+    grid += '<div class="result-row"><span style="font-size:13px;color:var(--text)">✓ '+c+'</span></div>';
+  });
+  grid += '</div>';
+
+  document.getElementById('results-grid').innerHTML = grid;
+  document.getElementById('step-results').classList.add('active');
+}
+
+function resetAssistant() {
+  selections = {};
+  currentStep = 1;
+  document.querySelectorAll('.step-panel').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('step-1').classList.add('active');
+  for (var i=1;i<=5;i++){
+    var d = document.getElementById('dot-'+i);
+    d.classList.remove('active','done');
+    var l = document.getElementById('line-'+i);
+    if(l) l.classList.remove('done');
+  }
+  document.getElementById('dot-1').classList.add('active');
+  document.querySelectorAll('.choice').forEach(function(c){c.classList.remove('selected');});
+  document.querySelectorAll('.btn-next').forEach(function(b){b.disabled=true;});
+}
+
+// ── CHECKLIST DATA ──
+var checklistData = [
+  {
+    icon:'🏠', title:'Avant de partir',
+    items:['Batteries drone chargées à 100% (min. 2 batteries)','Télécommande chargée','Carte mémoire formatée et vide','App DJI Fly à jour','Vérifier l\'espace aérien sur Nav Canada et Drone Scene','Météo vérifiée — vent < 40 km/h, visibilité > 5 km','Certification Transport Canada sur toi','Assurance responsabilité civile drone']
+  },
+  {
+    icon:'⚙️', title:'Réglages drone avant décollage',
+    items:['Format capture : DNG + JPEG simultané','Ratio selon plateforme (4:3 ou 16:9)','ISO : 100','Style image : Normal (aucun filtre)','Mode : Manuel (Pro)','Ouverture selon météo (voir assistant)','Balance blancs : Manuel selon conditions','Histogramme : Activé','AEB : 3 poses recommandé si lumière variable','Détection d\'obstacles : Active (sauf forêt)']
+  },
+  {
+    icon:'🚁', title:'Pendant le vol',
+    items:['Photo façade principale — angle 30 à 45 degrés','Photo zénithale (90°) — terrain complet','Photo vue quartier — altitude max autorisée','Photo 4 points cardinaux autour de la propriété','Photo depuis la rue (vue piéton)','Si eau : photo maison + eau dans même cadre','Si piscine : photo rapprochée depuis le dessus','Vérifier l\'histogramme sur les photos importantes','AEB sur les prises délicates (contre-jour)']
+  },
+  {
+    icon:'💾', title:'Après le vol — Workflow',
+    items:['Importer les DNG dans Lightroom Classic','Trier : garder les meilleures, rejeter doublons','Appliquer les réglages sur la meilleure photo','Copier-coller réglages sur photos similaires','Ajustements individuels si nécessaire','Exporter : JPEG 90%, sRGB, 3000px, ratio 4:3','Livrer dans dossier nommé par adresse']
+  },
+  {
+    icon:'⚖️', title:'Rappels réglementaires Québec',
+    items:['Certification pilote avancé TC en zone urbaine','Ne jamais voler au-dessus de personnes','Altitude max : 122m (400 pieds) sauf autorisation','Distance aéroports : selon carte Nav Canada','Visibilité min. de vol : 100m','Température min. : -10°C (batterie)']
+  }
+];
+
+function buildChecklist() {
+  var html = '';
+  checklistData.forEach(function(section, si) {
+    html += '<div class="checklist-section">';
+    html += '<div class="checklist-section-header">';
+    html += '<span class="checklist-section-icon">'+section.icon+'</span>';
+    html += '<span class="checklist-section-title">'+section.title+'</span>';
+    html += '<span class="checklist-section-count" id="count-'+si+'">0/'+section.items.length+'</span>';
+    html += '</div><div class="checklist-items">';
+    section.items.forEach(function(item, ii) {
+      var id = 'chk-'+si+'-'+ii;
+      html += '<div class="checklist-item" id="item-'+id+'" onclick="toggleCheck(\''+id+'\','+si+','+ii+')">';
+      html += '<input type="checkbox" id="'+id+'" onclick="event.stopPropagation();toggleCheck(\''+id+'\','+si+','+ii+')">';
+      html += '<label for="'+id+'">'+item+'</label>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+  });
+  document.getElementById('checklist-container').innerHTML = html;
+  loadChecklistState();
+}
+
+function toggleCheck(id, si, ii) {
+  var cb = document.getElementById(id);
+  if (event.target !== cb) cb.checked = !cb.checked;
+  var item = document.getElementById('item-'+id);
+  item.classList.toggle('checked', cb.checked);
+  saveChecklistState();
+  updateCount(si);
+}
+
+function updateCount(si) {
+  var section = checklistData[si];
+  var checked = 0;
+  section.items.forEach(function(_, ii) {
+    if (document.getElementById('chk-'+si+'-'+ii) && document.getElementById('chk-'+si+'-'+ii).checked) checked++;
+  });
+  var countEl = document.getElementById('count-'+si);
+  if (countEl) countEl.textContent = checked+'/'+section.items.length;
+}
+
+function saveChecklistState() {
+  var state = {};
+  checklistData.forEach(function(section, si) {
+    section.items.forEach(function(_, ii) {
+      var cb = document.getElementById('chk-'+si+'-'+ii);
+      if (cb) state['chk-'+si+'-'+ii] = cb.checked;
+    });
+  });
+  try { localStorage.setItem('capturair-checklist', JSON.stringify(state)); } catch(e){}
+}
+
+function loadChecklistState() {
+  try {
+    var state = JSON.parse(localStorage.getItem('capturair-checklist') || '{}');
+    Object.keys(state).forEach(function(id) {
+      var cb = document.getElementById(id);
+      if (cb && state[id]) {
+        cb.checked = true;
+        var item = document.getElementById('item-'+id);
+        if (item) item.classList.add('checked');
+      }
+    });
+    checklistData.forEach(function(_, si) { updateCount(si); });
+  } catch(e) {}
+}
+
+function resetChecklist() {
+  document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(function(cb){cb.checked=false;});
+  document.querySelectorAll('.checklist-item').forEach(function(item){item.classList.remove('checked');});
+  try { localStorage.removeItem('capturair-checklist'); } catch(e){}
+  checklistData.forEach(function(_, si) { updateCount(si); });
+}
+
+// ── EXPORT DATA ──
+var exportData = [
+  {icon:'🏠', color:'#1A8FD1', name:'Centris / MLS', type:'Immobilier résidentiel',
+   rows:[['Format','JPEG'],['Qualité','90%'],['Espace colorimétrique','sRGB'],['Largeur','3000 px'],['Ratio','4:3'],['Résolution DPI','72 ppp'],['Photos max','100 par fiche'],['Min résolution','1024 x 768']],
+   note:'Régler le drone en ratio 4:3 avant de décoller. La résolution min de 3000x2000 est recommandée pour un rendu optimal sur Centris.'},
+  {icon:'🏢', color:'#E74C3C', name:'REMAX.ca', type:'Immobilier résidentiel',
+   rows:[['Format','JPEG'],['Qualité','90%'],['Espace colorimétrique','sRGB'],['Largeur','3000 x 2250 px'],['Ratio','4:3'],['Photos aériennes max','10 par fiche'],['Min résolution','2048 x 1536']],
+   note:'REMAX limite à 10 photos aériennes — choisir les 10 meilleures angles AVANT de voler pour optimiser chaque prise.'},
+  {icon:'📱', color:'#C13584', name:'Instagram', type:'Réseaux sociaux',
+   rows:[['Format','JPEG'],['Qualité','90%'],['Feed carré','1080 x 1080 px'],['Feed portrait','1080 x 1350 px'],['Ratio vol','4:5 ou 1:1'],['Stories','1080 x 1920 px'],['Couleurs','sRGB']],
+   note:'Pour Instagram, régler le drone en ratio 4:5 (portrait) pour maximiser la surface visible dans le feed. Cadrer en conséquence pendant le vol.'},
+  {icon:'🌐', color:'#2ECC71', name:'Site web', type:'Web personnel / client',
+   rows:[['Format','JPEG'],['Qualité','90%'],['Largeur','1920 x 1080 px'],['Ratio','16:9'],['Espace colorimétrique','sRGB OBLIGATOIRE'],['Résolution DPI','72 ppp'],['Poids max recommandé','2 MB']],
+   note:'Pour le site web, régler le drone en ratio 16:9 pour un cadrage horizontal optimal. Le ratio 4:3 peut être recadré en post mais perd de la résolution.'},
+  {icon:'🖨️', color:'#F39C12', name:'Impression grand format', type:'Panneaux / affiches',
+   rows:[['Format','DNG RAW + TIFF'],['Résolution','50MP OBLIGATOIRE'],['Espace colorimétrique','Adobe RGB'],['Objectif','24mm 1 pouce'],['DPI minimum','300 ppp'],['Largeur export','8192 x 6144 px']],
+   note:'Pour l\'impression grand format, utiliser UNIQUEMENT le capteur 24mm en mode 50MP. Ne pas monter l\'ISO au-delà de 200. Exporter en TIFF 16 bits pour le prestataire d\'impression.'},
+  {icon:'📦', color:'#9B59B6', name:'Livrable complet', type:'Tous formats simultanés',
+   rows:[['Capture drone','DNG + JPEG 4:3'],['Résolution','50MP (24mm)'],['Export web','JPEG 90% sRGB 3000px'],['Export print','TIFF Adobe RGB 300ppp'],['Export Instagram','JPEG 1080x1350px'],['Dossier nommé','Adresse complète']],
+   note:'Stratégie universelle : capturer en DNG 50MP ratio 4:3, puis exporter en plusieurs formats depuis Lightroom avec des presets de sortie différents.'},
+];
+
+function buildExport() {
+  var html = '';
+  exportData.forEach(function(card) {
+    html += '<div class="export-card">';
+    html += '<div class="export-card-header">';
+    html += '<div class="export-card-icon" style="background:'+card.color+'22;border:1px solid '+card.color+'44;">'+card.icon+'</div>';
+    html += '<div><div class="export-card-name">'+card.name+'</div><div class="export-card-type">'+card.type+'</div></div>';
+    html += '</div>';
+    card.rows.forEach(function(row) {
+      html += '<div class="export-row"><span class="export-key">'+row[0]+'</span><span class="export-val highlight">'+row[1]+'</span></div>';
+    });
+    html += '<div class="export-note">'+card.note+'</div>';
+    html += '</div>';
+  });
+  document.getElementById('export-container').innerHTML = html;
+}
+
+// ── LIGHTROOM DATA ──
+var lrData = [
+  {
+    icon:'☀️', title:'Plein soleil — Été',
+    rows:[['Exposition','+0 à -0.3 EV','',''],['Contrastes','+10 à +15','',''],['Hautes lumières','-40 à -60','neg',''],['Ombres','+20 à +30','pos',''],['Blancs','-20','neg',''],['Noirs','+10','pos',''],['Clarté','+15','',''],['Vibrance','+15','','']]
+  },
+  {
+    icon:'❄️', title:'Hiver / Neige',
+    rows:[['Blancs','-60 à -80 (neige!)','neg',''],['Hautes lumières','-80 à -90','neg',''],['Ombres','+30 à +40','pos',''],['Température BB','Refroidir légèrement','','blue'],['TSL Bleu Luminance','+20 (ciel)','pos',''],['Vibrance','+20','pos','']]
+  },
+  {
+    icon:'🌫️', title:'Temps gris / couvert',
+    rows:[['Vibrance','+25 à +35','pos',''],['Saturation','+10','pos',''],['Color Grading ombres','Orange/Ambre chaud','','blue'],['Clarté','+20','',''],['Contraste','+20','',''],['TSL Vert Luminance','+15','pos','']]
+  },
+  {
+    icon:'💧', title:'Bord de l\'eau — Correction DJI',
+    rows:[['TSL Rouge Saturation','-15 (reflets roses)','neg',''],['TSL Magenta Saturation','-40 (reflets DJI)','neg',''],['TSL Bleu Saturation','-35 (cyan criard)','neg',''],['TSL Turquoise Saturation','-30','neg',''],['TSL Bleu Luminance','+15 (eau naturelle)','pos',''],['Hautes lumières','-80 à -90','neg',''],['Blancs','-30 à -40','neg','']]
+  },
+  {
+    icon:'🌲', title:'Propriété en forêt',
+    rows:[['Hautes lumières','-60 à -80 (trouées)','neg',''],['Ombres','+40 à +60 (sous arbres)','pos',''],['TSL Vert Luminance','+20 (feuillage)','pos',''],['TSL Jaune Luminance','+15','pos',''],['Vibrance','+30 (automne)','pos',''],['Temp. BB','+150K (dominante verte)','','blue']]
+  },
+  {
+    icon:'🌅', title:'Heure dorée / coucher de soleil',
+    rows:[['Temp. BB','+200K pour plus de chaleur','','blue'],['TSL Orange Saturation','+20','pos',''],['TSL Jaune Saturation','+15','pos',''],['Hautes lumières','-50 (ciel)','neg',''],['Ombres','+30 (façade)','pos',''],['Color Grading ombres','Teintes bleues/violet','','blue']]
+  },
+  {
+    icon:'🌃', title:'Heure bleue',
+    rows:[['ISO bruit','Réduction bruit : +30','pos',''],['Exposition','+0.5 EV','pos',''],['Temp. BB','3500K — garder le bleu','','blue'],['Hautes lumières','-30 (lumières allumées)','neg',''],['Clarté','+20','',''],['TSL Bleu Luminance','+20 (ciel bleu)','pos','']]
+  },
+  {
+    icon:'📤', title:'Réglages export universels Lightroom',
+    rows:[['Format','JPEG','','blue'],['Qualité','90%','','blue'],['Espace colorimétrique','sRGB','','blue'],['Largeur max','3000 px','','blue'],['Résolution','72 ppp (web)','',''],['Nettete export','Écran / Standard','','']]
+  }
+];
+
+function buildLightroom() {
+  var html = '';
+  lrData.forEach(function(card, i) {
+    html += '<div class="lr-card" id="lr-'+i+'">';
+    html += '<div class="lr-card-header" onclick="toggleLr('+i+')">';
+    html += '<span style="font-size:20px">'+card.icon+'</span>';
+    html += '<span class="lr-card-title">'+card.title+'</span>';
+    html += '<span class="lr-card-arrow">▼</span>';
+    html += '</div><div class="lr-card-body">';
+    card.rows.forEach(function(row) {
+      var cls = row[2] === 'pos' ? 'pos' : row[2] === 'neg' ? 'neg' : row[3] === 'blue' ? 'blue' : '';
+      html += '<div class="lr-row"><span class="lr-key">'+row[0]+'</span><span class="lr-val '+cls+'">'+row[1]+'</span></div>';
+    });
+    html += '</div></div>';
+  });
+  document.getElementById('lr-container').innerHTML = html;
+}
+
+function toggleLr(i) {
+  document.getElementById('lr-'+i).classList.toggle('open');
+}
+
+// ── TABS ──
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── THEME ──
+function setTheme(theme) {
+  document.body.setAttribute('data-theme', theme);
+  document.querySelectorAll('.theme-btn').forEach(function(b){b.classList.remove('active');});
+  event.target.classList.add('active');
+  if (theme === 'custom') {
+    document.getElementById('customPanel').classList.add('open');
+  } else {
+    document.getElementById('customPanel').classList.remove('open');
+  }
+  try { localStorage.setItem('capturair-theme', theme); } catch(e){}
+}
+
+function applyCustom() {
+  var bg = document.getElementById('customBg').value;
+  var text = document.getElementById('customText').value;
+  var accent = document.getElementById('customAccent').value;
+  document.documentElement.style.setProperty('--custom-bg', bg);
+  document.documentElement.style.setProperty('--custom-text', text);
+  document.documentElement.style.setProperty('--custom-accent', accent);
+  document.documentElement.style.setProperty('--blue', accent);
+}
+
+function applyCustomSize(val) {
+  document.body.style.fontSize = val + 'px';
+}
+
+// ── INIT ──
+window.addEventListener('load', function() {
+  buildChecklist();
+  buildExport();
+  buildLightroom();
+  try {
+    var savedTheme = localStorage.getItem('capturair-theme');
+    if (savedTheme) {
+      document.body.setAttribute('data-theme', savedTheme);
+      document.querySelectorAll('.theme-btn').forEach(function(b,i){
+        var themes = ['light','dark','custom'];
+        if (themes[i] === savedTheme) b.classList.add('active');
+        else b.classList.remove('active');
+      });
+    }
+  } catch(e){}
+});
+
+// Close custom panel on outside click
+document.addEventListener('click', function(e) {
+  var panel = document.getElementById('customPanel');
+  if (panel.classList.contains('open') && !panel.contains(e.target) && !e.target.closest('.theme-btn')) {
+    panel.classList.remove('open');
+  }
+});
+</script>
+</body>
+</html>
