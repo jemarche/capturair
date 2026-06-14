@@ -349,6 +349,11 @@ footer{background:var(--void);padding:32px 48px;display:flex;align-items:center;
       <div class="step-title">Pour quelle plateforme ?</div>
       <div class="step-sub">La plateforme détermine le ratio et la résolution à régler sur le drone.</div>
       <div class="choices">
+        <div class="choice" onclick="select(this,'platform','facebook')" data-val="facebook">
+          <span class="choice-emoji">📘</span>
+          <div class="choice-name">Facebook</div>
+          <div class="choice-desc">4:3 · photos & galerie</div>
+        </div>
         <div class="choice" onclick="select(this,'platform','centris')" data-val="centris">
           <span class="choice-emoji">🏠</span>
           <div class="choice-name">Centris / MLS</div>
@@ -645,6 +650,7 @@ var resultsDB = {
 
     // Platform settings
     var platformSettings = {
+      'facebook':  {ratio:'4:3', resolution:'12MP', format:'JPEG', maxPhotos:'Illimité'},
       'centris':   {ratio:'4:3', resolution:'12MP ou 50MP', format:'DNG+JPEG', maxPhotos:'100'},
       'remax':     {ratio:'4:3', resolution:'12MP', format:'DNG+JPEG', maxPhotos:'10 aériennes'},
       'instagram': {ratio:'4:5 ou 1:1', resolution:'12MP', format:'JPEG', maxPhotos:'Illimité'},
