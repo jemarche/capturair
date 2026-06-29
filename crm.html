@@ -2468,6 +2468,16 @@ function toggleCourtier(id,el){if(el.checked)courtiersSelectionnes.add(id);else 
 function toggleTousCourtiers(el){if(el.checked)courtiers.forEach(c=>courtiersSelectionnes.add(c.id));else courtiersSelectionnes.clear();renderCourtiers();}
 function toutSelectionnerCourtiers(){courtiers.forEach(c=>courtiersSelectionnes.add(c.id));document.getElementById('check-all-courtiers').checked=true;renderCourtiers();}
 function toutDeselectionnerCourtiers(){courtiersSelectionnes.clear();document.getElementById('check-all-courtiers').checked=false;renderCourtiers();}
+async function supprimerCourtiersSelectionnes(){
+  if(courtiersSelectionnes.size===0){showNotif('⚠️ Sélectionnez au moins un courtier','warning');return;}
+  if(!confirm(`Supprimer ${courtiersSelectionnes.size} courtier(s) ? Irréversible.`))return;
+  const ids=Array.from(courtiersSelectionnes);
+  let ok=0,err=0;
+  for(const id of ids){const d=await apiDelete(`/api/crm/courtiers/${id}`);if(d.success)ok++;else err++;}
+  courtiersSelectionnes.clear();
+  showNotif(`✅ ${ok} supprimé(s)${err>0?' — '+err+' erreur(s)':''}`,err>0?'warning':'success');
+  await chargerCourtiers();
+}  
 async function supprimerCourtier(id){if(!confirm('Supprimer ce courtier ?'))return;const d=await apiDelete(`/api/crm/courtiers/${id}`);if(d.success){showNotif('✅ Courtier supprimé','success');await chargerCourtiers();}else showNotif('❌ '+d.error,'error');}
 function ouvrirEditionCourtier(id){
   // Chercher dans courtiers[] (page Courtiers) ou dans hubContacts (hub)
