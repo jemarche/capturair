@@ -493,6 +493,17 @@
             <div class="form-group form-full"><label class="form-label">Prochaine action</label><input type="text" class="form-input" id="info-action" oninput="marquerModif()"></div>
           </div>
         </div>
+        <div class="section-card">
+          <div class="section-card-title">🎁 Livrables inclus (apparaissent sur le PDF)
+            <button class="btn-primary" onclick="sauverLeadManuel()" style="font-size:12px;padding:7px 14px;">💾 Sauvegarder</button>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+            <button class="btn-secondary" onclick="rechargerLivrablesForfait()" style="font-size:12px;">🔄 Charger les livrables du forfait choisi</button>
+            <button class="btn-secondary" onclick="ajouterLivrablePerso()" style="font-size:12px;border-color:var(--purple);color:var(--purple);">+ Ajouter un livrable personnalisé</button>
+          </div>
+          <div style="font-size:12px;color:var(--gray);margin-bottom:12px;">Coche les livrables à inclure dans la soumission. Tu peux modifier le texte (ex. le nombre de photos) et ajouter des livrables personnalisés.</div>
+          <div id="livrables-container"></div>
+        </div>
       </div>
 
       <!-- TAB SOUMISSION -->
@@ -1969,6 +1980,91 @@ function filtrerLeads(){
 }
 
 // ══ DOSSIER ════════════════════════════════════════════════════════════
+const PACKS_LIVRABLES={
+'Pack Visibilité Essentielle':['10 photos HDR 4K professionnelles (retouchées)','Optimisation immobilière avancée (luminosité, contraste)','Mise en valeur stratégique du bien','Livraison rapide 24–48h (HD + web)'],
+'Capsule Vidéo Impact':['Vidéo 4K UHD 30–60 sec (5–8 séquences drone)','Montage fluide + transitions + musique libre de droits','Color grading léger + stabilisation','Export optimisé web (MLS / réseaux) + lien sécurisé'],
+'Pack Visibilité Complète':['15 photos HDR 4K + 5 photos verticales','Vidéo 4K 30–60 sec (plans variés)','Optimisation marketing immobilier complète','Livraison rapide (formats HD + réseaux sociaux)'],
+'Cartographie Drone Professionnelle':['Orthophoto HD (≈3–8 cm/pixel, non certifiée)','Captation drone structurée (recouvrement + plan de vol)','10–20 photos aériennes supplémentaires','Livraison : orthophoto + images (JPG/PNG HD)'],
+'Inspection Toiture Visuelle Drone':['8–12 photos HD détaillées (angles multiples)','Accès visuel zones difficiles (cheminée, pente, etc.)','Analyse visuelle simple + annotations','Mini rapport PDF (1–2 pages) + livraison rapide'],
+'Inspection Structure & Bâtiment':['15–25 photos HD détaillées (structures ciblées)','Analyse visuelle + repérage anomalies visibles','Accès zones complexes (hauteur, angles)','Rapport visuel annoté (PDF)'],
+'Inspection Réseaux & Infrastructures':['20–40 photos HD (inspection linéaire)','Vidéo 4K linéaire stabilisée','Analyse visuelle des infrastructures','Rapport PDF + livraison rapide'],
+'Pack Signature Immobilier Premium':['20 photos HDR 4K + 8 verticales','Vidéo 4K cinematic (45–60 sec)','Teaser 15 sec (réseaux sociaux)','Optimisation marketing complète + export multi-format'],
+'Captation Événementielle Drone':['25–40 photos HD événement','Vidéo highlight 60–90 sec','Captation multi-angles dynamique','Montage pro + livraison rapide'],
+'Suivi de Chantier Drone Pro':['15–30 photos HD suivi chantier','Vidéo 4K progression','Comparatif avant / après / phases','Livraison organisée chronologique'],
+'Pack Promotion Tourisme & Paysage':['15–25 photos HDR panoramiques','Vidéo 4K 45–60 sec','Captation grand angle immersive','Livraison optimisée rapide'],
+'Projet sur mesure':['Analyse personnalisée','Captation adaptée projet','Flexibilité livrables','Livraison sur mesure'],
+};
+function ligneLivrable(k,c,t,isCustom){
+  const checked=c?'checked':'';
+  const tEsc=String(t).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+  return '<div class="liv-row" data-k="'+k+'" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
+    +'<input type="checkbox" class="liv-check" '+checked+' onchange="marquerModif()" style="width:16px;height:16px;accent-color:var(--blue);flex-shrink:0;cursor:pointer;">'
+    +'<input type="text" class="liv-text" value="'+tEsc+'" oninput="marquerModif()" style="flex:1;background:var(--offwhite);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--navy);">'
+    +(isCustom?'<button onclick="retirerLigneLivrable(this)" style="background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;flex-shrink:0;">✕</button>':'')
+    +'</div>';
+}
+function retirerLigneLivrable(btn){const r=btn.closest('.liv-row');if(r)r.remove();marquerModif();}
+function rendreLivrables(arr){
+  arr=arr||[];
+  const bykey={};
+  arr.forEach(it=>{if(it&&it.k)bykey[it.k]=it;});
+  const serviceActuel=document.getElementById('info-service')?.value||currentLead?.type_service||'';
+  let html='';
+  Object.keys(PACKS_LIVRABLES).forEach(pack=>{
+    html+='<div style="margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);"><div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px;">'+pack+'</div>';
+    PACKS_LIVRABLES[pack].forEach((liv,idx)=>{
+      const k=pack+'##'+idx;
+      const saved=bykey[k];
+      const c=saved?saved.c:(pack===serviceActuel);
+      const t=saved?saved.t:liv;
+      html+=ligneLivrable(k,c,t,false);
+    });
+    html+='</div>';
+  });
+  const customs=arr.filter(it=>it&&(!it.k||!PACKS_LIVRABLES[String(it.k).split('##')[0]]));
+  html+='<div id="liv-customs"><div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:8px;">✨ Livrables personnalisés</div>';
+  customs.forEach(it=>{html+=ligneLivrable('',it.c,it.t,true);});
+  html+='</div>';
+  document.getElementById('livrables-container').innerHTML=html;
+}
+function lireLivrablesDOM(){
+  const rows=document.querySelectorAll('#livrables-container .liv-row');
+  const arr=[];
+  rows.forEach(r=>{
+    const k=r.getAttribute('data-k')||'';
+    const chk=r.querySelector('.liv-check');
+    const txt=r.querySelector('.liv-text');
+    if(!chk||!txt)return;
+    const t=txt.value.trim();
+    if(t===''&&k==='')return;
+    arr.push({k:k,c:chk.checked,t:t});
+  });
+  return arr;
+}
+function chargerLivrables(){
+  let arr=null;
+  if(currentLead&&currentLead.livrables_perso){
+    try{const p=JSON.parse(currentLead.livrables_perso);if(Array.isArray(p)&&p.length)arr=p;}catch(e){}
+  }
+  rendreLivrables(arr);
+}
+function ajouterLivrablePerso(){
+  const cont=document.getElementById('liv-customs');
+  if(!cont)return;
+  const wrap=document.createElement('div');
+  wrap.innerHTML=ligneLivrable('',true,'',true);
+  const row=wrap.firstElementChild;
+  cont.appendChild(row);
+  const txt=row.querySelector('.liv-text');
+  if(txt)txt.focus();
+  marquerModif();
+}
+function rechargerLivrablesForfait(){
+  if(!confirm('Recharger les livrables selon le forfait choisi ? Vos cases et modifications actuelles seront remplacées.'))return;
+  rendreLivrables(null);
+  marquerModif();
+}
+
 function ouvrirDossier(id){
   currentLead=leads.find(l=>l.id===id);
   if(!currentLead)return;
@@ -1986,6 +2082,7 @@ function ouvrirDossier(id){
   document.getElementById('info-assigne').value=currentLead.assigne_a||'Mohand';
   document.getElementById('info-description').value=currentLead.description||'';
   document.getElementById('info-action').value=currentLead.prochaine_action||'';
+  chargerLivrables();
   document.getElementById('doublon-bar').classList.remove('visible');
   renderFluxStatut(currentLead.statut);
   switchTab('infos');
@@ -2005,7 +2102,7 @@ function renderFluxStatut(statut){
 }
 async function sauverLeadManuel(silencieux=false){
   if(!currentLead)return;
-  const body={prenom:document.getElementById('info-prenom').value,nom:document.getElementById('info-nom').value,courriel:document.getElementById('info-courriel').value,telephone:document.getElementById('info-telephone').value,type_service:document.getElementById('info-service').value,date_souhaitee:document.getElementById('info-date').value,ville:document.getElementById('info-ville').value,budget:document.getElementById('info-budget').value,source:document.getElementById('info-source').value,assigne_a:document.getElementById('info-assigne').value,description:document.getElementById('info-description').value,prochaine_action:document.getElementById('info-action').value,statut:currentLead.statut};
+  const body={prenom:document.getElementById('info-prenom').value,nom:document.getElementById('info-nom').value,courriel:document.getElementById('info-courriel').value,telephone:document.getElementById('info-telephone').value,type_service:document.getElementById('info-service').value,date_souhaitee:document.getElementById('info-date').value,ville:document.getElementById('info-ville').value,budget:document.getElementById('info-budget').value,source:document.getElementById('info-source').value,assigne_a:document.getElementById('info-assigne').value,description:document.getElementById('info-description').value,prochaine_action:document.getElementById('info-action').value,livrables_perso:JSON.stringify(lireLivrablesDOM()),statut:currentLead.statut};
   await apiPut(`/api/crm/leads/${currentLead.id}`,body);Object.assign(currentLead,body);clearUnsaved();if(!silencieux)showNotif('✅ Dossier sauvegardé','success');
 }
 function modifierStatut(){if(!currentLead)return;document.getElementById('select-statut').value=currentLead?.statut||'Nouveau';document.getElementById('modal-statut').classList.add('active');}
