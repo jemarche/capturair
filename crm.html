@@ -597,6 +597,9 @@
             <div style="border-top:1px solid var(--border);padding-top:18px;margin-bottom:18px;">
               <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:14px;">💰 Données financières</div>
               <div class="form-grid">
+                <div class="form-group"><label class="form-label">Pourcentage remise (%)</label><input type="number" class="form-input" id="soum-remise-pct" placeholder="0" min="0" step="0.01" oninput="marquerModifSoum()" onblur="appliquerPctRemise()"><span class="form-hint">Optionnel — remplit la remise ci-dessous</span></div>
+                <div class="form-group"><label class="form-label">Remise ($)</label><input type="number" class="form-input" id="soum-remise" placeholder="0.00" min="0" step="0.01" oninput="calculerSoumission();majRemiseSoum();marquerModifSoum()"><span class="form-hint">Soustraite du prix du forfait</span></div>
+                <div class="form-group form-full"><div id="soum-remise-erreur" style="display:none;background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.3);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--red);font-weight:600;">⚠️ Valider le montant de la remise avec son pourcentage</div></div>
                 <div class="form-group"><label class="form-label">Frais déplacement ($)</label><input type="number" class="form-input" id="soum-deplacement" placeholder="0.00" min="0" step="0.01" oninput="calculerSoumission()"></div>
                 <div class="form-group"><label class="form-label">Frais postproduction ($)</label><input type="number" class="form-input" id="soum-postprod" placeholder="0.00" min="0" step="0.01" oninput="calculerSoumission()"></div>
                 <div class="form-group form-full">
@@ -627,13 +630,13 @@
             <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;">
               <button class="btn-secondary" onclick="apercuSoumission()">👁️ Aperçu</button>
               <button class="btn-secondary" onclick="imprimerPDF('soumission')">🖨️ PDF</button>
-              <button class="btn-primary" onclick="sauverSoumissionManuel()">💾 Sauvegarder</button>
-              <button class="btn-teal" onclick="envoyerSoumission()">📧 Envoyer</button>
+              <button class="btn-primary" id="btn-sauver-soum" onclick="sauverSoumissionManuel()">💾 Sauvegarder</button>
+              <button class="btn-teal" id="btn-envoyer-soum" onclick="envoyerSoumission()">📧 Envoyer</button>
               <button class="btn-secondary" onclick="ouvrirAgenda()" style="border-color:#27AE60;color:#27AE60;">📅 Ouvrir agenda</button>
-              <button class="btn-secondary" onclick="envoyerConfirmationVisite()" style="border-color:var(--blue);color:var(--blue);">📅 Confirmer visite</button>
+              <button class="btn-secondary" id="btn-confirmer-soum" onclick="envoyerConfirmationVisite()" style="border-color:var(--blue);color:var(--blue);">📅 Confirmer visite</button>
               <button class="btn-secondary" onclick="ouvrirWhatsAppRappel()" style="border-color:#25D366;color:#25D366;">💬 WhatsApp RDV</button>
               <button class="btn-secondary" onclick="ouvrirModalSMS(currentLead?.id)" style="border-color:var(--blue);color:var(--blue);">📱 SMS</button>
-              <button class="btn-secondary" onclick="envoyerRappelVisite()" style="border-color:#E67E22;color:#E67E22;">⏰ Rappel 24h</button>
+              <button class="btn-secondary" id="btn-rappel-soum" onclick="envoyerRappelVisite()" style="border-color:#E67E22;color:#E67E22;">⏰ Rappel 24h</button>
             </div>
           </div>
         </div>
@@ -743,6 +746,7 @@
               </div>
             </div>
             <div class="form-grid">
+              <div class="form-group"><label class="form-label">Remise ($)</label><input type="number" class="form-input" id="fact-remise" placeholder="0.00" min="0" step="0.01" oninput="calculerFacture()"><span class="form-hint">Reportée depuis la soumission (modifiable)</span></div>
               <div class="form-group"><label class="form-label">Frais déplacement ($)</label><input type="number" class="form-input" id="fact-deplacement" placeholder="0.00" min="0" step="0.01" oninput="calculerFacture()"></div>
               <div class="form-group"><label class="form-label">Autres frais ($)</label><input type="number" class="form-input" id="fact-autres" placeholder="0.00" min="0" step="0.01" oninput="calculerFacture()"></div>
               <div class="form-group"><label class="form-label">Acompte reçu ($)</label><input type="number" class="form-input" id="fact-acompte" placeholder="0.00" min="0" step="0.01" oninput="calculerFacture()"><span class="form-hint">Pré-rempli depuis la soumission</span></div>
@@ -2051,6 +2055,9 @@ async function chargerSoumissionDossier(){
   document.getElementById('soum-num').textContent=currentSoumission.num_soumission||'';
   document.getElementById('soum-deplacement').value=currentSoumission.frais_deplacement||'';
   document.getElementById('soum-postprod').value=currentSoumission.frais_postprod||'';
+  document.getElementById('soum-remise').value=currentSoumission.remise||'';
+  document.getElementById('soum-remise-pct').value='';
+  majRemiseSoum();
   document.getElementById('soum-acompte').value=currentSoumission.montant_acompte||'';
   document.getElementById('soum-stripe').value=currentSoumission.stripe_acompte_url||'';
   document.getElementById('soum-notes').value=currentSoumission.notes||'';
@@ -2085,16 +2092,50 @@ function getPrixBase(){
   return k?P[k]:0;
 }
 function calcMtx(b,d,a){const s=b+d+a;const t=s*0.05;const q=s*0.09975;return{s,t,q,tot:s+t+q};}
+function appliquerPctRemise(){
+  const pctEl=document.getElementById('soum-remise-pct');
+  const pct=parseFloat(pctEl.value);
+  if(pctEl.value.trim()!==''&&!isNaN(pct)){
+    const forfait=getPrixBase();
+    document.getElementById('soum-remise').value=(forfait*pct/100).toFixed(2);
+  }
+  calculerSoumission();majRemiseSoum();marquerModifSoum();
+}
+function remiseSoumEnDesaccord(){
+  const pctEl=document.getElementById('soum-remise-pct');
+  if(!pctEl||pctEl.value.trim()==='')return false;
+  const pct=parseFloat(pctEl.value);
+  if(isNaN(pct))return false;
+  const forfait=getPrixBase();
+  const attendu=Math.round(forfait*pct/100*100);
+  const montant=Math.round((parseFloat(document.getElementById('soum-remise').value)||0)*100);
+  return attendu!==montant;
+}
+function majRemiseSoum(){
+  const err=document.getElementById('soum-remise-erreur');
+  const desaccord=remiseSoumEnDesaccord();
+  if(err)err.style.display=desaccord?'block':'none';
+  ['btn-sauver-soum','btn-envoyer-soum','btn-confirmer-soum','btn-rappel-soum'].forEach(id=>{
+    const b=document.getElementById(id);
+    if(b){b.disabled=desaccord;b.style.opacity=desaccord?'0.5':'';b.style.cursor=desaccord?'not-allowed':'';}
+  });
+}
 function calculerSoumission(){
-  const b=getPrixBase(),d=parseFloat(document.getElementById('soum-deplacement').value)||0,p=parseFloat(document.getElementById('soum-postprod').value)||0;
-  const{s,t,q,tot}=calcMtx(b,d,p);
-  document.getElementById('soum-fin-table').innerHTML=`<tr><td>Honoraires (${currentLead?.type_service||'—'})</td><td>${fmt(b)}</td></tr>${d>0?`<tr><td>Frais de déplacement</td><td>${fmt(d)}</td></tr>`:''} ${p>0?`<tr><td>Postproduction</td><td>${fmt(p)}</td></tr>`:''}<tr style="color:var(--gray)"><td>Sous-total</td><td>${fmt(s)}</td></tr><tr style="color:var(--gray)"><td>TPS (5%) — 782828008RT0002</td><td>${fmt(t)}</td></tr><tr style="color:var(--gray)"><td>TVQ (9,975%) — 4016921721TQ0001</td><td>${fmt(q)}</td></tr><tr class="fin-total"><td>💰 TOTAL (taxes incluses)</td><td>${fmt(tot)}</td></tr>`;
+  const b=getPrixBase();
+  const remise=parseFloat(document.getElementById('soum-remise')?.value)||0;
+  const bNet=Math.max(0,b-remise);
+  const d=parseFloat(document.getElementById('soum-deplacement').value)||0,p=parseFloat(document.getElementById('soum-postprod').value)||0;
+  const{s,t,q,tot}=calcMtx(bNet,d,p);
+  document.getElementById('soum-fin-table').innerHTML=`<tr><td>Honoraires (${currentLead?.type_service||'—'})</td><td>${fmt(b)}</td></tr>${remise>0?`<tr style="color:var(--green)"><td>Remise</td><td>-${fmt(remise)}</td></tr><tr><td><strong>Prix net</strong></td><td><strong>${fmt(bNet)}</strong></td></tr>`:''}${d>0?`<tr><td>Frais de déplacement</td><td>${fmt(d)}</td></tr>`:''} ${p>0?`<tr><td>Postproduction</td><td>${fmt(p)}</td></tr>`:''}<tr style="color:var(--gray)"><td>Sous-total</td><td>${fmt(s)}</td></tr><tr style="color:var(--gray)"><td>TPS (5%) — 782828008RT0002</td><td>${fmt(t)}</td></tr><tr style="color:var(--gray)"><td>TVQ (9,975%) — 4016921721TQ0001</td><td>${fmt(q)}</td></tr><tr class="fin-total"><td>💰 TOTAL (taxes incluses)</td><td>${fmt(tot)}</td></tr>`;
 }
 function setAcompte(v){
   document.querySelectorAll('.acompte-btn').forEach(b=>b.classList.remove('active'));
   event.target.classList.add('active');
-  const b=getPrixBase(),d=parseFloat(document.getElementById('soum-deplacement').value)||0,p=parseFloat(document.getElementById('soum-postprod').value)||0;
-  const{tot}=calcMtx(b,d,p);
+  const b=getPrixBase();
+  const remise=parseFloat(document.getElementById('soum-remise')?.value)||0;
+  const bNet=Math.max(0,b-remise);
+  const d=parseFloat(document.getElementById('soum-deplacement').value)||0,p=parseFloat(document.getElementById('soum-postprod').value)||0;
+  const{tot}=calcMtx(bNet,d,p);
   if(v===0)document.getElementById('soum-acompte').value='0';
   else if(v==='libre')document.getElementById('soum-acompte').focus();
   else document.getElementById('soum-acompte').value=(tot*parseInt(v)/100).toFixed(2);
@@ -2103,10 +2144,11 @@ function setSat(v){currentSatisfaction=v;setSatDisplay(v);marquerModif();}
 function setSatDisplay(v){document.querySelectorAll('#stars-sat .star').forEach((s,i)=>{s.textContent=i<v?'⭐':'☆';});currentSatisfaction=v;}
 
 async function sauverSoumissionManuel(silencieux=false){
+  if(remiseSoumEnDesaccord()){majRemiseSoum();showNotif('⚠️ Valider le montant de la remise avec son pourcentage','warning');return false;}
   if(!currentSoumission){await creerSoumission();return;}
-  const body={frais_deplacement:parseFloat(document.getElementById('soum-deplacement').value)||0,frais_postprod:parseFloat(document.getElementById('soum-postprod').value)||0,montant_acompte:parseFloat(document.getElementById('soum-acompte').value)||0,stripe_acompte_url:document.getElementById('soum-stripe').value,notes:document.getElementById('soum-notes').value,statut:document.getElementById('soum-statut-doc').value||'BROUILLON',entreprise:document.getElementById('soum-entreprise').value,personne_contact:document.getElementById('soum-contact').value,nom_projet:document.getElementById('soum-nom-projet').value,date_souhaitee:document.getElementById('soum-date-souhaitee').value,date_confirmee:document.getElementById('soum-date-confirmee').value,heure_intervention:document.getElementById('soum-heure').value,duree_estimee:document.getElementById('soum-duree').value,mode_paiement:document.getElementById('soum-mode-paiement').value,statut_paiement:document.getElementById('soum-statut-paiement').value,statut_pdf_soumission:document.getElementById('soum-statut-pdf-soum').value,statut_pdf_facture:document.getElementById('soum-statut-pdf-fact').value,date_livraison:document.getElementById('soum-date-livraison').value,date_relance:document.getElementById('soum-date-relance').value,satisfaction:currentSatisfaction||null,projet_id:currentLead.id,adresse_projet:document.getElementById('soum-adresse-projet').value,adresse_facturation:document.getElementById('soum-meme-adresse').checked?document.getElementById('soum-adresse-projet').value:document.getElementById('soum-adresse-facturation').value};
+  const body={frais_deplacement:parseFloat(document.getElementById('soum-deplacement').value)||0,frais_postprod:parseFloat(document.getElementById('soum-postprod').value)||0,remise:parseFloat(document.getElementById('soum-remise').value)||0,montant_acompte:parseFloat(document.getElementById('soum-acompte').value)||0,stripe_acompte_url:document.getElementById('soum-stripe').value,notes:document.getElementById('soum-notes').value,statut:document.getElementById('soum-statut-doc').value||'BROUILLON',entreprise:document.getElementById('soum-entreprise').value,personne_contact:document.getElementById('soum-contact').value,nom_projet:document.getElementById('soum-nom-projet').value,date_souhaitee:document.getElementById('soum-date-souhaitee').value,date_confirmee:document.getElementById('soum-date-confirmee').value,heure_intervention:document.getElementById('soum-heure').value,duree_estimee:document.getElementById('soum-duree').value,mode_paiement:document.getElementById('soum-mode-paiement').value,statut_paiement:document.getElementById('soum-statut-paiement').value,statut_pdf_soumission:document.getElementById('soum-statut-pdf-soum').value,statut_pdf_facture:document.getElementById('soum-statut-pdf-fact').value,date_livraison:document.getElementById('soum-date-livraison').value,date_relance:document.getElementById('soum-date-relance').value,satisfaction:currentSatisfaction||null,projet_id:currentLead.id,adresse_projet:document.getElementById('soum-adresse-projet').value,adresse_facturation:document.getElementById('soum-meme-adresse').checked?document.getElementById('soum-adresse-projet').value:document.getElementById('soum-adresse-facturation').value};
   await apiPut(`/api/crm/soumissions/${currentSoumission.id}`,body);Object.assign(currentSoumission,body);clearUnsaved();await chargerProjets();renderFluxStatut(currentLead.statut);
-  if(currentFacture?.id){const factBody={frais_deplacement:parseFloat(document.getElementById('soum-deplacement').value)||0,autres_frais:parseFloat(document.getElementById('soum-postprod').value)||0,acompte_recu:parseFloat(document.getElementById('soum-acompte').value)||0,notes:currentFacture.notes||'',statut:currentFacture.statut||'BROUILLON'};await apiPut(`/api/crm/factures/${currentFacture.id}`,factBody);Object.assign(currentFacture,factBody);}
+  if(currentFacture?.id){const factBody={frais_deplacement:parseFloat(document.getElementById('soum-deplacement').value)||0,autres_frais:parseFloat(document.getElementById('soum-postprod').value)||0,acompte_recu:parseFloat(document.getElementById('soum-acompte').value)||0,remise:parseFloat(document.getElementById('soum-remise').value)||0,notes:currentFacture.notes||'',statut:currentFacture.statut||'BROUILLON'};await apiPut(`/api/crm/factures/${currentFacture.id}`,factBody);Object.assign(currentFacture,factBody);}
   if(!silencieux)showNotif('✅ Soumission sauvegardée — Projet créé/mis à jour','success');
 }
 function apercuSoumission(){if(!currentSoumission){showNotif("⚠️ Créez d'abord la soumission","warning");return;}window.open(`${API}/api/crm/soumissions/${currentSoumission.id}/apercu`,'_blank');}
@@ -2282,13 +2324,17 @@ async function chargerFactureDossier(){
   document.getElementById('fact-deplacement').value=currentFacture.frais_deplacement>0?currentFacture.frais_deplacement:(soumLiee?.frais_deplacement||'');
   document.getElementById('fact-autres').value=currentFacture.autres_frais>0?currentFacture.autres_frais:(soumLiee?.frais_postprod||'');
   document.getElementById('fact-acompte').value=currentFacture.acompte_recu>0?currentFacture.acompte_recu:(soumLiee?.montant_acompte||'');
+  document.getElementById('fact-remise').value=currentFacture.remise>0?currentFacture.remise:(soumLiee?.remise||'');
   document.getElementById('fact-notes').value=currentFacture.notes||soumLiee?.notes||'';
   calculerFacture();
 }
 function calculerFacture(){
-  const b=getPrixBase(),d=parseFloat(document.getElementById('fact-deplacement').value)||0,a=parseFloat(document.getElementById('fact-autres').value)||0,ac=parseFloat(document.getElementById('fact-acompte').value)||0;
-  const{s,t,q,tot}=calcMtx(b,d,a);const sol=tot-ac;
-  document.getElementById('fact-fin-table').innerHTML=`<tr><td>${currentLead?.type_service||'Service'}</td><td>${fmt(b)}</td></tr>${d>0?`<tr><td>Frais de déplacement</td><td>${fmt(d)}</td></tr>`:''} ${a>0?`<tr><td>Autres frais</td><td>${fmt(a)}</td></tr>`:''}<tr style="color:var(--gray)"><td>Sous-total</td><td>${fmt(s)}</td></tr><tr style="color:var(--gray)"><td>TPS (5%) — 782828008RT0002</td><td>${fmt(t)}</td></tr><tr style="color:var(--gray)"><td>TVQ (9,975%) — 4016921721TQ0001</td><td>${fmt(q)}</td></tr><tr class="fin-total"><td>💰 TOTAL (taxes incluses)</td><td>${fmt(tot)}</td></tr>${ac>0?`<tr style="color:var(--gray)"><td>Acompte reçu</td><td>— ${fmt(ac)}</td></tr><tr class="fin-solde"><td>💳 SOLDE À PAYER</td><td>${fmt(sol)}</td></tr>`:''}`;
+  const b=getPrixBase();
+  const remise=parseFloat(document.getElementById('fact-remise')?.value)||0;
+  const bNet=Math.max(0,b-remise);
+  const d=parseFloat(document.getElementById('fact-deplacement').value)||0,a=parseFloat(document.getElementById('fact-autres').value)||0,ac=parseFloat(document.getElementById('fact-acompte').value)||0;
+  const{s,t,q,tot}=calcMtx(bNet,d,a);const sol=tot-ac;
+  document.getElementById('fact-fin-table').innerHTML=`<tr><td>${currentLead?.type_service||'Service'}</td><td>${fmt(b)}</td></tr>${remise>0?`<tr style="color:var(--green)"><td>Remise</td><td>-${fmt(remise)}</td></tr><tr><td><strong>Prix net</strong></td><td><strong>${fmt(bNet)}</strong></td></tr>`:''}${d>0?`<tr><td>Frais de déplacement</td><td>${fmt(d)}</td></tr>`:''} ${a>0?`<tr><td>Autres frais</td><td>${fmt(a)}</td></tr>`:''}<tr style="color:var(--gray)"><td>Sous-total</td><td>${fmt(s)}</td></tr><tr style="color:var(--gray)"><td>TPS (5%) — 782828008RT0002</td><td>${fmt(t)}</td></tr><tr style="color:var(--gray)"><td>TVQ (9,975%) — 4016921721TQ0001</td><td>${fmt(q)}</td></tr><tr class="fin-total"><td>💰 TOTAL (taxes incluses)</td><td>${fmt(tot)}</td></tr>${ac>0?`<tr style="color:var(--gray)"><td>Acompte reçu</td><td>— ${fmt(ac)}</td></tr><tr class="fin-solde"><td>💳 SOLDE À PAYER</td><td>${fmt(sol)}</td></tr>`:''}`;
   const soldeStripe=sol>0?sol:tot;
   const factStripeInput=document.getElementById('fact-stripe-montant');
   if(factStripeInput&&soldeStripe>0) factStripeInput.value=soldeStripe.toFixed(2);
@@ -2296,7 +2342,7 @@ function calculerFacture(){
 }
 async function sauverFactureManuel(silencieux=false){
   if(!currentFacture){await creerFacture();return;}
-  const body={frais_deplacement:parseFloat(document.getElementById('fact-deplacement').value)||0,autres_frais:parseFloat(document.getElementById('fact-autres').value)||0,acompte_recu:parseFloat(document.getElementById('fact-acompte').value)||0,notes:document.getElementById('fact-notes').value,statut:'BROUILLON'};
+  const body={frais_deplacement:parseFloat(document.getElementById('fact-deplacement').value)||0,autres_frais:parseFloat(document.getElementById('fact-autres').value)||0,acompte_recu:parseFloat(document.getElementById('fact-acompte').value)||0,remise:parseFloat(document.getElementById('fact-remise').value)||0,notes:document.getElementById('fact-notes').value,statut:'BROUILLON'};
   await apiPut(`/api/crm/factures/${currentFacture.id}`,body);Object.assign(currentFacture,body);if(!silencieux)showNotif('✅ Facture sauvegardée','success');
 }
 async function dupliquerFacture(){if(!currentFacture)return;const d=await apiPost(`/api/crm/factures/${currentFacture.id}/dupliquer`,{});if(d.success){showNotif('✅ Facture dupliquée — '+d.num_facture,'success');await chargerFactures();chargerFactureDossier();}else showNotif('❌ '+d.error,'error');}
@@ -2325,7 +2371,7 @@ function renderSoumissions(){
   const tbody=document.getElementById('soumissions-tbody');
   if(!soumissions.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">📋</div><div>Aucune soumission</div></div></td></tr>`;return;}
   tbody.innerHTML=soumissions.map(s=>{
-    const b=s.prix_base||0;const tot=((b+(s.frais_deplacement||0)+(s.frais_postprod||0))*1.14975).toFixed(2);
+    const b=s.prix_base||0;const bNet=Math.max(0,b-(s.remise||0));const tot=((bNet+(s.frais_deplacement||0)+(s.frais_postprod||0))*1.14975).toFixed(2);
     const cn=s.client_nom||(s.prenom&&s.nom?`${s.prenom} ${s.nom}`:'—');
     return `<tr onclick="ouvrirDossierDoc('${s.projet_id}','soumission')"><td><strong>${s.num_soumission||'—'}</strong></td><td>${cn}</td><td style="font-size:12px;">${s.nom_projet||s.type_service||'—'}</td><td>${b>0?fmt(parseFloat(tot)):'—'}</td><td>${badgeDoc(s.statut)}</td><td style="font-size:11px;">${badgePaiement(s.statut_paiement)}</td><td style="font-size:11px;">${s.created_at?formatDate(s.created_at):'—'}</td><td onclick="event.stopPropagation()"><button class="btn-secondary" style="padding:5px 10px;font-size:11px;" onclick="window.open('${API}/api/crm/soumissions/${s.id}/apercu','_blank')">👁️</button></td></tr>`;
   }).join('');
@@ -2349,7 +2395,7 @@ function renderFactures(){
   const tbody=document.getElementById('factures-tbody');
   if(!factures.length){tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">📄</div><div>Aucune facture</div></div></td></tr>`;return;}
   tbody.innerHTML=factures.map(f=>{
-    const b=f.prix_base||0;const tot=((b+(f.frais_deplacement||0)+(f.autres_frais||0))*1.14975).toFixed(2);const sol=(parseFloat(tot)-(f.acompte_recu||0)).toFixed(2);
+    const b=f.prix_base||0;const bNet=Math.max(0,b-(f.remise||0));const tot=((bNet+(f.frais_deplacement||0)+(f.autres_frais||0))*1.14975).toFixed(2);const sol=(parseFloat(tot)-(f.acompte_recu||0)).toFixed(2);
     return `<tr onclick="ouvrirDossierDoc('${f.projet_id}','facture')"><td><strong>${f.num_facture||'—'}</strong></td><td>${f.client_nom||'—'}</td><td style="font-size:12px;">${f.type_service||'—'}</td><td>${b>0?fmt(parseFloat(tot)):'—'}</td><td style="color:var(--blue);font-weight:600;">${parseFloat(sol)>0?fmt(parseFloat(sol)):'✅ Soldé'}</td><td>${badgeDoc(f.statut)}</td><td onclick="event.stopPropagation()"><button class="btn-secondary" style="padding:5px 10px;font-size:11px;" onclick="window.open('${API}/api/crm/factures/${f.id}/apercu','_blank')">👁️</button></td></tr>`;
   }).join('');
 }
