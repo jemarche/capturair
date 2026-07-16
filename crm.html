@@ -2734,12 +2734,10 @@ function ouvrirEnvoiMassif(template){
   offreSection.style.display=template===3?'block':'none';
   const c=courtiers.find(x=>courtiersSelectionnes.has(x.id));
   if(c){
-    const prenom=c.prenom||'';
-    // Ne pas afficher le prénom s'il ressemble à une adresse email ou est trop long/contient des chiffres
-    const isValidPrenom = prenom && prenom.length < 20 && !prenom.includes('@') && !prenom.includes('.') && !/\d{4}/.test(prenom);
-    const prenomCap=isValidPrenom?(prenom.charAt(0).toUpperCase()+prenom.slice(1).toLowerCase()):'';
+    // Solution radicale : toujours "Bonjour," sans prénom
+    const prenomCap='';
     document.getElementById('envoi-apercu-prenom').textContent=prenomCap;
-    document.getElementById('envoi-apercu-prenom-wrapper').style.display=prenomCap?'inline':'none';
+    document.getElementById('envoi-apercu-prenom-wrapper').style.display='none';
     document.getElementById('envoi-apercu-email').textContent=c.email;
     // FIX BANNIERE: affiche banniere ou agence ou "Centris" comme fallback
     document.getElementById('envoi-apercu-banniere').textContent=c.banniere||c.agence||'Centris';
@@ -3378,11 +3376,10 @@ function corrMajApercu(){
   if(!firstId)return;
   const c=corrContacts.find(x=>x.id===firstId);
   if(!c)return;
-  const prenom=c.prenom||'';
-  // Ne pas afficher le prénom s'il ressemble à une adresse email ou est trop long/contient des chiffres
-  const isValidPrenom = prenom && prenom.length < 20 && !prenom.includes('@') && !prenom.includes('.') && !/\d{4}/.test(prenom);
-  const sal=isValidPrenom?`Bonjour ${prenom.charAt(0).toUpperCase()+prenom.slice(1).toLowerCase()},`:'Bonjour,';
-  document.getElementById('corr-apercu-salutation').textContent=sal;
+    const prenom=c.prenom||'';
+    // Solution radicale : toujours "Bonjour," sans prénom
+    const sal='Bonjour,';
+    document.getElementById('corr-apercu-salutation').textContent=sal;
   document.getElementById('corr-apercu-email').textContent=c.email;
 }
 
@@ -3476,20 +3473,18 @@ function corrApercu(){
   const firstId=[...corrSelectionnes][0];
   const c=firstId?corrContacts.find(x=>x.id===firstId):null;
   const prenom=c?.prenom||'';
-  // Ne pas afficher le prénom s'il ressemble à une adresse email ou est trop long/contient des chiffres
-  const isValidPrenom = prenom && prenom.length < 20 && !prenom.includes('@') && !prenom.includes('.') && !/\d{4}/.test(prenom);
-  const sal=isValidPrenom?`Bonjour ${prenom.charAt(0).toUpperCase()+prenom.slice(1).toLowerCase()},`:'Bonjour,';
+  // Solution radicale : toujours "Bonjour," sans prénom
+  const sal='Bonjour,';
   const LOGO_HEADER='https://raw.githubusercontent.com/jemarche/capturair/main/images/Logo%20carr%C3%A9%20headers.png';
   const LOGO_SIG='https://raw.githubusercontent.com/jemarche/capturair/main/images/android-chrome-2048x2048.png';
   let htmlPreview;
   if(modeHtml && templateId){
     const t=corrTemplates.find(x=>x.id===templateId);
     if(t?.contenu_html){
-      // Remplacer les variables pour l'aperçu
-      const prenomValideTemplate=isValidPrenom?prenom.charAt(0).toUpperCase()+prenom.slice(1).toLowerCase():'';
+      // Solution radicale : toujours "Bonjour," sans prénom
       htmlPreview=t.contenu_html
         .replace(/{{SALUTATION}}/g,sal)
-        .replace(/{{PRENOM}}/g,prenomValideTemplate)
+        .replace(/{{PRENOM}}/g,'')
         .replace(/{{NOM}}/g,c?.nom||'')
         .replace(/{{BANNIERE}}/g,'RE/MAX')
         .replace(/{{RABAIS}}/g,'15')
@@ -3501,8 +3496,7 @@ function corrApercu(){
     }
   }
   if(!htmlPreview){
-    const prenomValide=isValidPrenom?prenom.charAt(0).toUpperCase()+prenom.slice(1).toLowerCase():'';
-    const corpsPerso=corps.replace(/{{SALUTATION}}/g,sal).replace(/{{PRENOM}}/g,prenomValide).replace(/{{NOM}}/g,c?.nom||'').replace(/{{EMAIL}}/g,c?.email||'');
+    const corpsPerso=corps.replace(/{{SALUTATION}}/g,sal).replace(/{{PRENOM}}/g,'').replace(/{{NOM}}/g,c?.nom||'').replace(/{{EMAIL}}/g,c?.email||'');
     htmlPreview=`<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
 <body style="margin:0;padding:0;background:#F4F7FA;font-family:Arial,sans-serif;">
 <div style="max-width:620px;margin:0 auto;padding:20px 0;">
