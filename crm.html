@@ -3094,7 +3094,7 @@ async function prospVerifierStatut(){
   const dot=document.getElementById('prosp-statut-dot');
   const texte=document.getElementById('prosp-statut-texte');
   try{
-    const r=await fetch(`${PROSP_URL}/api/statut`,{signal:AbortSignal.timeout(5000)});
+    const r=await fetch(`${PROSP_URL}/api/statut`,{signal:AbortSignal.timeout(5000),headers:{'ngrok-skip-browser-warning':'true'}});
     if(r.ok){
       dot.style.background='var(--green)';
       texte.textContent='✅ Serveur en ligne';
@@ -3176,7 +3176,7 @@ function prospConnecterSSE(jobId){
 
 async function prospChargerJobs(){
   try{
-    const r=await fetch(`${PROSP_URL}/api/jobs`);
+    const r=await fetch(`${PROSP_URL}/api/jobs`,{headers:{'ngrok-skip-browser-warning':'true'}});
     const d=await r.json();
     const jobs=d.jobs||[];
     const container=document.getElementById('prosp-jobs-list');
