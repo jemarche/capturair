@@ -3486,9 +3486,10 @@ function corrApercu(){
     const t=corrTemplates.find(x=>x.id===templateId);
     if(t?.contenu_html){
       // Remplacer les variables pour l'aperçu
+      const prenomValideTemplate=isValidPrenom?prenom.charAt(0).toUpperCase()+prenom.slice(1).toLowerCase():'';
       htmlPreview=t.contenu_html
         .replace(/{{SALUTATION}}/g,sal)
-        .replace(/{{PRENOM}}/g,prenom?prenom.charAt(0).toUpperCase()+prenom.slice(1).toLowerCase():'')
+        .replace(/{{PRENOM}}/g,prenomValideTemplate)
         .replace(/{{NOM}}/g,c?.nom||'')
         .replace(/{{BANNIERE}}/g,'RE/MAX')
         .replace(/{{RABAIS}}/g,'15')
@@ -3500,7 +3501,8 @@ function corrApercu(){
     }
   }
   if(!htmlPreview){
-    const corpsPerso=corps.replace(/{{SALUTATION}}/g,sal).replace(/{{PRENOM}}/g,prenom?prenom.charAt(0).toUpperCase()+prenom.slice(1).toLowerCase():'').replace(/{{NOM}}/g,c?.nom||'').replace(/{{EMAIL}}/g,c?.email||'');
+    const prenomValide=isValidPrenom?prenom.charAt(0).toUpperCase()+prenom.slice(1).toLowerCase():'';
+    const corpsPerso=corps.replace(/{{SALUTATION}}/g,sal).replace(/{{PRENOM}}/g,prenomValide).replace(/{{NOM}}/g,c?.nom||'').replace(/{{EMAIL}}/g,c?.email||'');
     htmlPreview=`<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
 <body style="margin:0;padding:0;background:#F4F7FA;font-family:Arial,sans-serif;">
 <div style="max-width:620px;margin:0 auto;padding:20px 0;">
