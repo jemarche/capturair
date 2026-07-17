@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CapturAir — Duplicata des Envois</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--navy:#0B1F3A;--blue:#1A8FD1;--blue-light:#3AABEF;--teal:#1ABC9C;--orange:#E67E22;--red:#E74C3C;--green:#27AE60;--purple:#9B59B6;--offwhite:#F4F7FA;--white:#FFFFFF;--gray:#6B7C93;--border:#DEE4EF}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--offwhite);color:var(--navy);overflow-x:hidden}
+
+    /* ══ LOGIN (identique CRM) ══ */
+    .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#060E18 0%,#0B1F3A 50%,#0D2B50 100%);position:relative;overflow:hidden}
+    .login-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(26,143,209,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(26,143,209,0.05) 1px,transparent 1px);background-size:50px 50px}
+    .login-box{background:rgba(255,255,255,0.04);backdrop-filter:blur(20px);border:1px solid rgba(200,216,232,0.12);border-radius:24px;padding:48px;width:420px;position:relative;z-index:2}
+    .login-logo{text-align:center;margin-bottom:32px}
+    .login-logo img{width:80px;height:80px;border-radius:16px;margin-bottom:12px}
+    .login-logo h1{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:white}
+    .login-logo p{color:var(--blue-light);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+    .login-field{margin-bottom:16px}
+    .login-field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(200,216,232,0.5);margin-bottom:8px}
+    .login-field input{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(200,216,232,0.15);border-radius:10px;padding:13px 16px;color:white;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+    .login-field input:focus{border-color:var(--blue)}
+    .login-field input::placeholder{color:rgba(200,216,232,0.25)}
+    .btn-login{width:100%;background:linear-gradient(135deg,var(--blue),#0D5C8A);color:white;border:none;padding:14px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;font-family:'Syne',sans-serif;transition:all 0.2s}
+    .btn-login:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(26,143,209,0.4)}
+    .login-error{color:#E74C3C;font-size:13px;text-align:center;margin-top:12px;display:none}
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ══ APP ══ */
+    #app{display:none;min-height:100vh}
+    #app.visible{display:block}
+    .topbar{background:var(--navy);color:white;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(11,31,58,0.25)}
+    .topbar-left{display:flex;align-items:center;gap:14px}
+    .topbar-left img{width:38px;height:38px;border-radius:9px}
+    .topbar-left h1{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
+    .topbar-left span{font-size:11px;color:var(--blue-light);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-top:1px}
+    .topbar-right{display:flex;align-items:center;gap:14px}
+    .topbar-user{font-size:13px;color:rgba(200,216,232,0.8)}
+    .btn-logout{background:rgba(255,255,255,0.08);border:1px solid rgba(200,216,232,0.2);color:white;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s}
+    .btn-logout:hover{background:rgba(231,76,60,0.25);border-color:rgba(231,76,60,0.5)}
+    .btn-crm{background:rgba(26,143,209,0.18);border:1px solid rgba(26,143,209,0.45);color:white;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none}
+    .btn-crm:hover{background:rgba(26,143,209,0.35)}
+
+    .container{max-width:1400px;margin:0 auto;padding:28px 24px}
+
+    /* ══ CARDS STATS ══ */
+    .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-bottom:24px}
+    .stat-card{background:white;border:1px solid var(--border);border-radius:14px;padding:20px 22px;box-shadow:0 1px 4px rgba(11,31,58,0.05)}
+    .stat-card .stat-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:8px}
+    .stat-card .stat-value{font-family:'Syne',sans-serif;font-size:30px;font-weight:800}
+    .stat-card .stat-sub{font-size:11px;color:var(--gray);margin-top:4px}
+    .stat-green .stat-value{color:var(--green)}
+    .stat-red .stat-value{color:var(--red)}
+    .stat-blue .stat-value{color:var(--blue)}
+    .stat-navy .stat-value{color:var(--navy)}
+
+    /* ══ FILTRES ══ */
+    .filters{background:white;border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;box-shadow:0 1px 4px rgba(11,31,58,0.05)}
+    .filter-group{display:flex;flex-direction:column;gap:6px}
+    .filter-group label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gray)}
+    .filter-group select,.filter-group input{border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--navy);background:white;outline:none;min-width:150px}
+    .filter-group select:focus,.filter-group input:focus{border-color:var(--blue)}
+    .btn{border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px}
+    .btn:disabled{opacity:0.45;cursor:not-allowed}
+    .btn-primary{background:var(--blue);color:white}
+    .btn-primary:hover:not(:disabled){background:#157AB5}
+    .btn-secondary{background:var(--offwhite);color:var(--navy);border:1px solid var(--border)}
+    .btn-secondary:hover:not(:disabled){background:#E9EEF5}
+    .btn-danger{background:var(--red);color:white}
+    .btn-danger:hover:not(:disabled){background:#C0392B}
+    .btn-green{background:var(--green);color:white}
+    .btn-green:hover:not(:disabled){background:#1F8B4D}
+    .btn-sm{padding:6px 10px;font-size:12px;border-radius:6px}
+
+    /* ══ TABLEAU ══ */
+    .table-card{background:white;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(11,31,58,0.05)}
+    .table-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+    .table-header h2{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
+    .table-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .table-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    thead{background:#F0F3F7}
+    th{padding:12px 14px;text-align:left;font-weight:600;color:var(--navy);white-space:nowrap;cursor:pointer;user-select:none;border-bottom:2px solid var(--border)}
+    th:hover{background:#E6EBF2}
+    th .sort-ind{font-size:10px;color:var(--blue);margin-left:4px}
+    td{padding:11px 14px;border-bottom:1px solid var(--border);color:#44546A;vertical-align:middle}
+    tbody tr:hover{background:#F8FAFC}
+    .st-ok{color:var(--green);font-weight:600;white-space:nowrap}
+    .st-err{color:var(--red);font-weight:600;white-space:nowrap}
+    .cell-email{font-family:monospace;font-size:12px}
+    .badge-tentatives{display:inline-block;background:#EEF4FB;color:var(--blue);border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600}
+    .actions-cell{display:flex;gap:5px;flex-wrap:nowrap}
+    .btn-icon{border:1px solid var(--border);background:white;border-radius:6px;padding:5px 8px;font-size:13px;cursor:pointer;transition:all 0.15s}
+    .btn-icon:hover{background:var(--offwhite);border-color:var(--blue)}
+    .btn-icon.danger:hover{background:#FDECEA;border-color:var(--red)}
+
+    /* ══ PAGINATION ══ */
+    .pagination{padding:14px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border-top:1px solid var(--border)}
+    .pagination-info{font-size:12px;color:var(--gray)}
+    .pagination-controls{display:flex;gap:6px;align-items:center}
+    .page-btn{border:1px solid var(--border);background:white;border-radius:6px;padding:6px 11px;font-size:12px;cursor:pointer}
+    .page-btn.active{background:var(--blue);color:white;border-color:var(--blue)}
+    .page-btn:disabled{opacity:0.4;cursor:not-allowed}
+
+    /* ══ MODALES ══ */
+    .modal-overlay{position:fixed;inset:0;background:rgba(6,14,24,0.55);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:500;padding:20px}
+    .modal-overlay.open{display:flex}
+    .modal{background:white;border-radius:16px;width:100%;max-width:640px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(6,14,24,0.35);animation:modalIn 0.2s ease}
+    .modal.modal-lg{max-width:900px}
+    .modal.modal-xl{max-width:1100px}
+    @keyframes modalIn{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .modal-head{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+    .modal-head h3{font-family:'Syne',sans-serif;font-size:17px;font-weight:700}
+    .modal-close{border:none;background:none;font-size:22px;cursor:pointer;color:var(--gray);line-height:1}
+    .modal-body{padding:22px 24px;overflow-y:auto;flex:1}
+    .modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+    .warn-box{background:#FDECEA;border:1px solid #F5B7B1;color:#922B21;border-radius:10px;padding:13px 16px;font-size:13px;margin-bottom:16px}
+    .info-box{background:#EBF5FB;border:1px solid #AED6F1;color:#1B4F72;border-radius:10px;padding:13px 16px;font-size:13px;margin-bottom:16px}
+    .field{margin-bottom:14px}
+    .field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:6px}
+    .field input,.field textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--navy);outline:none}
+    .field input:focus,.field textarea:focus{border-color:var(--blue)}
+    .field textarea{resize:vertical;font-family:monospace;font-size:12px;line-height:1.5}
+    iframe.email-frame{width:100%;height:60vh;border:1px solid var(--border);border-radius:10px;background:white}
+    .edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media(max-width:860px){.edit-grid{grid-template-columns:1fr}}
+    .edit-grid .pane-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:6px}
+    .edit-grid textarea{width:100%;height:52vh;border:1px solid var(--border);border-radius:10px;padding:12px;font-family:monospace;font-size:12px;line-height:1.5;resize:none;outline:none}
+    .edit-grid iframe{width:100%;height:52vh;border:1px solid var(--border);border-radius:10px;background:white}
+
+    /* ══ TOASTS ══ */
+    #toasts{position:fixed;bottom:22px;right:22px;z-index:900;display:flex;flex-direction:column;gap:10px}
+    .toast{background:var(--navy);color:white;border-radius:10px;padding:13px 18px;font-size:13px;box-shadow:0 8px 24px rgba(6,14,24,0.3);animation:toastIn 0.25s ease;display:flex;align-items:center;gap:8px;max-width:380px}
+    .toast.ok{border-left:4px solid var(--green)}
+    .toast.err{border-left:4px solid var(--red)}
+    @keyframes toastIn{from{transform:translateX(30px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+    .loading-row td{text-align:center;padding:40px;color:var(--gray)}
+    .empty-row td{text-align:center;padding:40px;color:var(--gray)}
+    input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--blue)}
+
+    @media print{
+      .topbar,.filters,.table-actions,.pagination,.actions-cell,#toasts,.no-print,th:nth-last-child(-n+3),td:nth-last-child(-n+3),th:first-child,td:first-child{display:none !important}
+      body{background:white}
+      .table-card{border:none;box-shadow:none}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════ LOGIN (identique CRM) ══════════ -->
+<div class="login-screen" id="login-screen">
+  <div class="login-grid"></div>
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="images/android-chrome-2048x2048.png" alt="CapturAir" onerror="this.style.display='none'">
+      <h1>CapturAir</h1>
+      <p>Duplicata des envois</p>
+    </div>
+    <div class="login-field"><label id="lbl-email">Courriel</label><input type="email" id="login-email" placeholder="votre@email.com" autocomplete="email"></div>
+    <div class="login-field" id="field-pin"><label id="lbl-pin">PIN</label><input type="password" id="login-pin" placeholder="••••••" maxlength="6" autocomplete="current-password"></div>
+    <div id="login-methode" style="display:none;margin-bottom:16px;">
+      <label style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(200,216,232,0.5);margin-bottom:8px">Méthode de vérification</label>
+      <div style="display:flex;gap:8px;">
+        <button type="button" id="btn-otp" onclick="choisirMethode('otp')" style="flex:1;padding:11px;border-radius:10px;border:1px solid rgba(26,143,209,0.6);background:rgba(26,143,209,0.18);color:white;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;">📧 Code par courriel</button>
+        <button type="button" id="btn-totp" onclick="choisirMethode('totp')" style="flex:1;padding:11px;border-radius:10px;border:1px solid rgba(200,216,232,0.12);background:rgba(255,255,255,0.05);color:rgba(200,216,232,0.6);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;">🔐 Authenticator</button>
+      </div>
+    </div>
+    <button class="btn-login" onclick="login()"><span id="login-btn-text">Connexion →</span></button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <img src="images/android-chrome-2048x2048.png" alt="" onerror="this.style.display='none'">
+      <div>
+        <h1>Duplicata des Envois</h1>
+        <span>CapturAir — Prospection Courtiers</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-user" id="topbar-user"></span>
+      <a class="btn-crm" href="https://capturair.com/crm" target="_blank">← Retour CRM</a>
+      <button class="btn-logout" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card stat-navy"><div class="stat-label">📊 Total traités</div><div class="stat-value" id="stat-total">—</div><div class="stat-sub" id="stat-maj">Chargement…</div></div>
+      <div class="stat-card stat-green"><div class="stat-label">✅ Envoyés</div><div class="stat-value" id="stat-ok">—</div><div class="stat-sub">Emails livrés</div></div>
+      <div class="stat-card stat-red"><div class="stat-label">❌ Erreurs</div><div class="stat-value" id="stat-err">—</div><div class="stat-sub">Envois échoués</div></div>
+      <div class="stat-card stat-blue"><div class="stat-label">📈 Taux de succès</div><div class="stat-value" id="stat-taux">—</div><div class="stat-sub">Sur la sélection</div></div>
+    </div>
+
+    <!-- FILTRES -->
+    <div class="filters">
+      <div class="filter-group">
+        <label>📅 Période</label>
+        <select id="f-date" onchange="onDateFilterChange()">
+          <option value="today">Aujourd'hui</option>
+          <option value="yesterday">Hier</option>
+          <option value="week">Cette semaine</option>
+          <option value="all" selected>Tout</option>
+          <option value="custom">Personnalisé…</option>
+        </select>
+      </div>
+      <div class="filter-group" id="fg-from" style="display:none">
+        <label>Du</label>
+        <input type="date" id="f-from" onchange="applyFilters()">
+      </div>
+      <div class="filter-group" id="fg-to" style="display:none">
+        <label>Au</label>
+        <input type="date" id="f-to" onchange="applyFilters()">
+      </div>
+      <div class="filter-group">
+        <label>📧 Template</label>
+        <select id="f-template" onchange="applyFilters()"><option value="">Tous</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Statut</label>
+        <select id="f-statut" onchange="applyFilters()">
+          <option value="">Tous</option>
+          <option value="success">✅ Envoyés</option>
+          <option value="error">❌ Erreurs</option>
+        </select>
+      </div>
+      <div class="filter-group" style="flex:1;min-width:200px">
+        <label>🔎 Recherche courriel</label>
+        <input type="search" id="f-search" placeholder="ex: info@remax.ca" oninput="onSearchInput()">
+      </div>
+      <button class="btn btn-secondary" onclick="resetFilters()">Réinitialiser</button>
+      <button class="btn btn-primary" onclick="loadEnvois(true)">🔄 Actualiser</button>
+    </div>
+
+    <!-- TABLEAU -->
+    <div class="table-card">
+      <div class="table-header">
+        <h2 id="table-title">Historique des envois</h2>
+        <div class="table-actions">
+          <button class="btn btn-secondary btn-sm" onclick="exportExcel()">💾 Excel</button>
+          <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Imprimer le rapport</button>
+          <button class="btn btn-green btn-sm" id="btn-renvoyer-sel" onclick="renvoyerSelection()" disabled>🔄 Renvoyer sélection (<span id="sel-count">0</span>)</button>
+          <button class="btn btn-primary btn-sm" onclick="ouvrirDuplicata()">📧 Envoyer duplicata</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="tbl">
+          <thead>
+            <tr>
+              <th style="cursor:default"><input type="checkbox" id="chk-all" onchange="toggleAll(this)"></th>
+              <th onclick="sortBy('created_at')">Date/Heure <span class="sort-ind" data-k="created_at"></span></th>
+              <th onclick="sortBy('email')">Courriel <span class="sort-ind" data-k="email"></span></th>
+              <th onclick="sortBy('prenom')">Prénom <span class="sort-ind" data-k="prenom"></span></th>
+              <th onclick="sortBy('nom')">Nom <span class="sort-ind" data-k="nom"></span></th>
+              <th onclick="sortBy('banniere')">Bannière <span class="sort-ind" data-k="banniere"></span></th>
+              <th onclick="sortBy('template')">Template <span class="sort-ind" data-k="template"></span></th>
+              <th onclick="sortBy('statut')">Statut <span class="sort-ind" data-k="statut"></span></th>
+              <th onclick="sortBy('nb_tentatives')">Env. <span class="sort-ind" data-k="nb_tentatives"></span></th>
+              <th style="cursor:default">Actions</th>
+              <th style="cursor:default">Renvoyer</th>
+              <th style="cursor:default">Suppr.</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-body">
+            <tr class="loading-row"><td colspan="12"><span class="spinner" style="border-color:rgba(107,124,147,0.3);border-top-color:var(--gray)"></span> Chargement…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <div class="pagination-info" id="pag-info">—</div>
+        <div class="pagination-controls">
+          <select id="pag-size" onchange="changePageSize()" style="border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px">
+            <option value="10">10 / page</option>
+            <option value="25" selected>25 / page</option>
+            <option value="50">50 / page</option>
+            <option value="100">100 / page</option>
+          </select>
+          <button class="page-btn" id="pag-prev" onclick="goPage(currentPage-1)">« Précédent</button>
+          <span id="pag-pages" style="display:flex;gap:4px"></span>
+          <button class="page-btn" id="pag-next" onclick="goPage(currentPage+1)">Suivant »</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODALE VISUALISER ══════════ -->
+<div class="modal-overlay" id="m-view">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <h3>👁️ Visualiser le courriel</h3>
+      <button class="modal-close" onclick="closeModal('m-view')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="info-box" id="view-meta"></div>
+      <iframe class="email-frame" id="view-frame" sandbox="allow-same-origin"></iframe>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="imprimerEmail()">🖨️ Imprimer</button>
+      <button class="btn btn-primary" onclick="ouvrirModifierDepuisView()">✏️ Modifier</button>
+      <button class="btn btn-secondary" onclick="closeModal('m-view')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODALE MODIFIER ══════════ -->
+<div class="modal-overlay" id="m-edit">
+  <div class="modal modal-xl">
+    <div class="modal-head">
+      <h3>✏️ Modifier le courriel</h3>
+      <button class="modal-close" onclick="fermerEdit()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Sujet</label>
+        <input type="text" id="edit-sujet">
+      </div>
+      <div class="edit-grid">
+        <div>
+          <div class="pane-title">Code HTML</div>
+          <textarea id="edit-html" oninput="updatePreview()"></textarea>
+        </div>
+        <div>
+          <div class="pane-title">Aperçu en temps réel</div>
+          <iframe id="edit-preview" sandbox="allow-same-origin"></iframe>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="fermerEdit()">Annuler</button>
+      <button class="btn btn-green" onclick="enregistrerEdit()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODALE RENVOYER ══════════ -->
+<div class="modal-overlay" id="m-resend">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>🔄 Renvoyer le courriel</h3>
+      <button class="modal-close" onclick="closeModal('m-resend')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="warn-box">⚠️ Ce courriel <strong>remplace le précédent</strong> envoyé à ce destinataire. Le compteur d'envois sera incrémenté.</div>
+      <div class="info-box" id="resend-meta"></div>
+      <div class="field">
+        <label>Sujet (modifiable)</label>
+        <input type="text" id="resend-sujet">
+      </div>
+      <div class="field">
+        <label>Note interne (optionnelle)</label>
+        <textarea id="resend-note" rows="3" placeholder="Ex: renvoi suite à correction du prénom…" style="font-family:'DM Sans',sans-serif"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('m-resend')">❌ Annuler</button>
+      <button class="btn btn-green" id="btn-resend-go" onclick="confirmerRenvoyer()">✅ Confirmer et envoyer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODALE SUPPRIMER ══════════ -->
+<div class="modal-overlay" id="m-delete">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>🗑️ Supprimer l'envoi</h3>
+      <button class="modal-close" onclick="closeModal('m-delete')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="warn-box"><strong>Cette action est IRRÉVERSIBLE.</strong><br>L'enregistrement sera définitivement supprimé de la base D1.</div>
+      <div class="info-box" id="delete-meta"></div>
+      <div class="field">
+        <label>Tapez <strong>DELETE</strong> pour confirmer</label>
+        <input type="text" id="delete-confirm" placeholder="DELETE" oninput="document.getElementById('btn-delete-go').disabled=this.value!=='DELETE'">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('m-delete')">❌ Annuler</button>
+      <button class="btn btn-danger" id="btn-delete-go" onclick="confirmerSupprimer()" disabled>🗑️ Supprimer définitivement</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODALE DUPLICATA ══════════ -->
+<div class="modal-overlay" id="m-dup">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>📧 Envoyer le duplicata</h3>
+      <button class="modal-close" onclick="closeModal('m-dup')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="info-box">Un tableau récapitulatif des envois <strong>actuellement filtrés</strong> sera envoyé à <strong>duplicata@capturair.com</strong>.</div>
+      <div id="dup-recap" style="font-size:13px;line-height:2"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('m-dup')">❌ Annuler</button>
+      <button class="btn btn-primary" id="btn-dup-go" onclick="confirmerDuplicata()">📧 Envoyer le duplicata</button>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+/* ════════════════════════════════════════════════════════════
+   AUTHENTIFICATION — identique au CRM (OTP 3 étapes)
+════════════════════════════════════════════════════════════ */
+const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
+const AUTH_API = 'https://capturair-carnet.tumarchessurlatete.workers.dev';
+let authToken='', currentUser=null;
+const hdrs=()=>({'Authorization':`Bearer ${authToken}`,'Content-Type':'application/json'});
+
+let loginStep=1, loginEmail='', loginPin='', loginMethode='otp';
+
+function choisirMethode(m){
+  loginMethode=m;
+  const o=document.getElementById('btn-otp'),t=document.getElementById('btn-totp');
+  o.style.background=m==='otp'?'rgba(26,143,209,0.18)':'rgba(255,255,255,0.05)';
+  o.style.borderColor=m==='otp'?'rgba(26,143,209,0.6)':'rgba(200,216,232,0.12)';
+  o.style.color=m==='otp'?'white':'rgba(200,216,232,0.6)';
+  t.style.background=m==='totp'?'rgba(26,143,209,0.18)':'rgba(255,255,255,0.05)';
+  t.style.borderColor=m==='totp'?'rgba(26,143,209,0.6)':'rgba(200,216,232,0.12)';
+  t.style.color=m==='totp'?'white':'rgba(200,216,232,0.6)';
+}
+
+async function login(){
+  const btn=document.getElementById('login-btn-text');
+  const err=document.getElementById('login-error');
+  err.style.display='none';
+
+  if(loginStep===1){
+    loginEmail=document.getElementById('login-email').value.trim();
+    loginPin=document.getElementById('login-pin').value.trim();
+    if(!loginEmail||!loginPin){showLoginErr('Veuillez remplir tous les champs.');return;}
+    btn.innerHTML='<span class="spinner"></span>';
+    try{
+      const r=await fetch(`${AUTH_API}/api/carnet/auth/init`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:loginEmail,pin:loginPin})});
+      const d=await r.json();
+      if(!r.ok||!d.success){showLoginErr('Email ou PIN incorrect.');btn.textContent='Connexion →';return;}
+      loginStep=2;
+      document.getElementById('field-pin').style.display='none';
+      document.getElementById('login-email').closest('.login-field').style.display='none';
+      document.getElementById('login-methode').style.display='block';
+      btn.textContent='Envoyer le code →';
+    }catch(e){showLoginErr('Erreur de connexion.');btn.textContent='Connexion →';}
+
+  }else if(loginStep===2){
+    btn.innerHTML='<span class="spinner"></span>';
+    loginStep=3;
+    document.getElementById('login-methode').style.display='none';
+    document.getElementById('field-pin').style.display='block';
+    const pin=document.getElementById('login-pin');
+    if(loginMethode==='otp'){pin.placeholder='Code reçu par email';pin.type='text';document.getElementById('lbl-pin').textContent='Code OTP (reçu par email)';}
+    else{pin.placeholder='000000';pin.type='text';document.getElementById('lbl-pin').textContent='Code Authenticator (6 chiffres)';}
+    pin.value='';pin.focus();
+    btn.textContent='Valider →';
+
+  }else{
+    const otp=document.getElementById('login-pin').value.trim();
+    if(!otp){showLoginErr('Entrez le code reçu.');return;}
+    btn.innerHTML='<span class="spinner"></span>';
+    try{
+      const r=await fetch(`${AUTH_API}/api/carnet/auth/otp`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:loginEmail,otp,methode:loginMethode})});
+      const d=await r.json();
+      if(!r.ok||!d.token){showLoginErr('Code incorrect ou expiré.');btn.textContent='Valider →';return;}
+      authToken=d.token;
+      currentUser={email:loginEmail,role:d.role||'superadmin',nom:d.nom||''};
+      sessionStorage.setItem('crm_token',authToken);
+      sessionStorage.setItem('crm_user',JSON.stringify(currentUser));
+      document.getElementById('login-screen').style.display='none';
+      document.getElementById('app').classList.add('visible');
+      loginStep=1;loginMethode='otp';
+      initApp();
+    }catch(e){showLoginErr('Erreur de connexion.');btn.textContent='Valider →';}
+  }
+}
+function showLoginErr(m){const e=document.getElementById('login-error');e.textContent=m;e.style.display='block';}
+function logout(){
+  sessionStorage.clear();authToken='';currentUser=null;
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('login-screen').style.display='flex';
+  loginStep=1;
+  document.getElementById('login-email').disabled=false;
+  document.getElementById('login-email').closest('.login-field').style.display='block';
+  document.getElementById('field-pin').style.display='block';
+  document.getElementById('login-pin').type='password';
+  document.getElementById('login-pin').value='';
+  document.getElementById('login-btn-text').textContent='Connexion →';
+}
+document.getElementById('login-pin').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+
+// Session existante ?
+(function(){
+  const t=sessionStorage.getItem('crm_token'),u=sessionStorage.getItem('crm_user');
+  if(t&&u&&t.includes('.')){
+    authToken=t;currentUser=JSON.parse(u);
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').classList.add('visible');
+    initApp();
+  }
+})();
+
+/* ════════════════════════════════════════════════════════════
+   ÉTAT GLOBAL
+════════════════════════════════════════════════════════════ */
+let allEnvois=[];        // données brutes du serveur
+let filtered=[];         // après filtres
+let selection=new Set(); // ids sélectionnés
+let currentPage=1, pageSize=25;
+let sortKey='created_at', sortDir='desc';
+let currentEnvoi=null;   // envoi ouvert dans une modale
+let searchTimer=null;
+
+/* ════════════════════════════════════════════════════════════
+   INIT + CHARGEMENT
+════════════════════════════════════════════════════════════ */
+async function initApp(){
+  document.getElementById('topbar-user').textContent=currentUser?.email||'';
+  await loadEnvois();
+}
+
+async function loadEnvois(showToast){
+  try{
+    const r=await fetch(`${API}/api/crm/envois`,{headers:hdrs()});
+    if(r.status===401){toast('Session expirée. Reconnectez-vous.','err');logout();return;}
+    const d=await r.json();
+    allEnvois=(d.envois||[]).map(e=>({...e,nb_tentatives:e.nb_tentatives||1}));
+    remplirTemplates();
+    applyFilters();
+    if(showToast)toast('Données actualisées','ok');
+  }catch(e){
+    toast('Erreur de chargement. Vérifiez la connexion.','err');
+    document.getElementById('tbl-body').innerHTML='<tr class="empty-row"><td colspan="12">❌ Impossible de charger les données</td></tr>';
+  }
+}
+
+function remplirTemplates(){
+  const sel=document.getElementById('f-template');
+  const cur=sel.value;
+  const tpls=[...new Set(allEnvois.map(e=>e.template).filter(Boolean))].sort();
+  sel.innerHTML='<option value="">Tous</option>'+tpls.map(t=>`<option value="${escAttr(t)}">${escHtml(t)}</option>`).join('');
+  sel.value=cur;
+}
+
+/* ════════════════════════════════════════════════════════════
+   FILTRES / TRI / PAGINATION
+════════════════════════════════════════════════════════════ */
+function onDateFilterChange(){
+  const v=document.getElementById('f-date').value;
+  const custom=v==='custom';
+  document.getElementById('fg-from').style.display=custom?'flex':'none';
+  document.getElementById('fg-to').style.display=custom?'flex':'none';
+  applyFilters();
+}
+function onSearchInput(){clearTimeout(searchTimer);searchTimer=setTimeout(applyFilters,300);}
+function resetFilters(){
+  document.getElementById('f-date').value='all';
+  document.getElementById('f-template').value='';
+  document.getElementById('f-statut').value='';
+  document.getElementById('f-search').value='';
+  document.getElementById('fg-from').style.display='none';
+  document.getElementById('fg-to').style.display='none';
+  applyFilters();
+}
+
+function dateBounds(){
+  const v=document.getElementById('f-date').value;
+  const now=new Date();
+  const d0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  if(v==='today')return[d0,new Date(d0.getTime()+86400000)];
+  if(v==='yesterday')return[new Date(d0.getTime()-86400000),d0];
+  if(v==='week'){const monday=new Date(d0);monday.setDate(d0.getDate()-((d0.getDay()+6)%7));return[monday,new Date(d0.getTime()+86400000)];}
+  if(v==='custom'){
+    const f=document.getElementById('f-from').value,t=document.getElementById('f-to').value;
+    return[f?new Date(f+'T00:00:00'):null,t?new Date(t+'T23:59:59'):null];
+  }
+  return[null,null];
+}
+
+function applyFilters(){
+  const[from,to]=dateBounds();
+  const tpl=document.getElementById('f-template').value;
+  const st=document.getElementById('f-statut').value;
+  const q=document.getElementById('f-search').value.trim().toLowerCase();
+  filtered=allEnvois.filter(e=>{
+    const d=new Date(e.created_at);
+    if(from&&d<from)return false;
+    if(to&&d>=to)return false;
+    if(tpl&&e.template!==tpl)return false;
+    if(st&&e.statut!==st)return false;
+    if(q&&!(e.email||'').toLowerCase().includes(q)&&!(e.nom||'').toLowerCase().includes(q)&&!(e.prenom||'').toLowerCase().includes(q))return false;
+    return true;
+  });
+  sortData();
+  currentPage=1;
+  selection.clear();
+  render();
+}
+
+function sortBy(k){
+  if(sortKey===k)sortDir=sortDir==='asc'?'desc':'asc';
+  else{sortKey=k;sortDir=k==='created_at'?'desc':'asc';}
+  sortData();render();
+}
+function sortData(){
+  filtered.sort((a,b)=>{
+    let va=a[sortKey],vb=b[sortKey];
+    if(sortKey==='nb_tentatives'){va=+va||0;vb=+vb||0;}
+    else{va=(va||'').toString().toLowerCase();vb=(vb||'').toString().toLowerCase();}
+    if(va<vb)return sortDir==='asc'?-1:1;
+    if(va>vb)return sortDir==='asc'?1:-1;
+    return 0;
+  });
+}
+
+function changePageSize(){pageSize=+document.getElementById('pag-size').value;currentPage=1;render();}
+function goPage(p){
+  const max=Math.max(1,Math.ceil(filtered.length/pageSize));
+  currentPage=Math.min(Math.max(1,p),max);
+  render();
+}
+
+/* ════════════════════════════════════════════════════════════
+   RENDU
+════════════════════════════════════════════════════════════ */
+function render(){
+  // Stats
+  const ok=filtered.filter(e=>e.statut==='success').length;
+  const err=filtered.length-ok;
+  document.getElementById('stat-total').textContent=filtered.length;
+  document.getElementById('stat-ok').textContent=ok;
+  document.getElementById('stat-err').textContent=err;
+  document.getElementById('stat-taux').textContent=filtered.length?Math.round(ok/filtered.length*100)+'%':'—';
+  document.getElementById('stat-maj').textContent='Mis à jour à '+new Date().toLocaleTimeString('fr-CA');
+
+  // Tri indicateurs
+  document.querySelectorAll('.sort-ind').forEach(s=>{s.textContent=s.dataset.k===sortKey?(sortDir==='asc'?'▲':'▼'):'';});
+
+  // Pagination
+  const max=Math.max(1,Math.ceil(filtered.length/pageSize));
+  if(currentPage>max)currentPage=max;
+  const start=(currentPage-1)*pageSize;
+  const rows=filtered.slice(start,start+pageSize);
+  document.getElementById('pag-info').textContent=filtered.length?`Affichage ${start+1} à ${Math.min(start+pageSize,filtered.length)} sur ${filtered.length} envoi(s)`:'Aucun résultat';
+  document.getElementById('pag-prev').disabled=currentPage<=1;
+  document.getElementById('pag-next').disabled=currentPage>=max;
+  const pp=document.getElementById('pag-pages');pp.innerHTML='';
+  const pages=[];for(let i=1;i<=max;i++){if(i===1||i===max||Math.abs(i-currentPage)<=2)pages.push(i);else if(pages[pages.length-1]!=='…')pages.push('…');}
+  pages.forEach(p=>{
+    if(p==='…'){const s=document.createElement('span');s.textContent='…';s.style.padding='6px 4px';pp.appendChild(s);return;}
+    const b=document.createElement('button');b.className='page-btn'+(p===currentPage?' active':'');b.textContent=p;b.onclick=()=>goPage(p);pp.appendChild(b);
+  });
+
+  // Tableau
+  const tb=document.getElementById('tbl-body');
+  if(!rows.length){tb.innerHTML='<tr class="empty-row"><td colspan="12">Aucun envoi trouvé avec ces filtres</td></tr>';majSelUI();return;}
+  tb.innerHTML=rows.map(e=>{
+    const d=new Date(e.created_at);
+    const dh=d.toLocaleDateString('fr-CA')+' '+d.toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
+    return `<tr>
+      <td><input type="checkbox" ${selection.has(e.id)?'checked':''} onchange="toggleSel('${e.id}',this)"></td>
+      <td style="white-space:nowrap">${dh}</td>
+      <td class="cell-email">${escHtml(e.email)}</td>
+      <td>${escHtml(e.prenom)||'—'}</td>
+      <td>${escHtml(e.nom)||'—'}</td>
+      <td>${escHtml(e.banniere)||'—'}</td>
+      <td>${escHtml(e.template)||'—'}</td>
+      <td>${e.statut==='success'?'<span class="st-ok">✅ Envoyé</span>':'<span class="st-err">❌ Erreur</span>'}</td>
+      <td><span class="badge-tentatives">${e.nb_tentatives||1}×</span></td>
+      <td><div class="actions-cell">
+        <button class="btn-icon" title="Visualiser" onclick="ouvrirView('${e.id}')">👁️</button>
+        <button class="btn-icon" title="Imprimer" onclick="ouvrirView('${e.id}',true)">🖨️</button>
+        <button class="btn-icon" title="Modifier" onclick="ouvrirEdit('${e.id}')">✏️</button>
+      </div></td>
+      <td><button class="btn-icon" title="Renvoyer (annule et remplace)" onclick="ouvrirResend('${e.id}')">🔄</button></td>
+      <td><button class="btn-icon danger" title="Supprimer de D1" onclick="ouvrirDelete('${e.id}')">🗑️</button></td>
+    </tr>`;
+  }).join('');
+  majSelUI();
+}
+
+function toggleSel(id,cb){cb.checked?selection.add(id):selection.delete(id);majSelUI();}
+function toggleAll(cb){
+  const start=(currentPage-1)*pageSize;
+  filtered.slice(start,start+pageSize).forEach(e=>cb.checked?selection.add(e.id):selection.delete(e.id));
+  render();
+}
+function majSelUI(){
+  document.getElementById('sel-count').textContent=selection.size;
+  document.getElementById('btn-renvoyer-sel').disabled=selection.size===0;
+}
+
+/* ════════════════════════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════════════════════════ */
+function escHtml(s){return (s??'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escAttr(s){return escHtml(s).replace(/"/g,'&quot;');}
+function findEnvoi(id){return allEnvois.find(e=>e.id===id);}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function toast(msg,type){
+  const t=document.createElement('div');t.className='toast '+(type||'ok');
+  t.textContent=(type==='err'?'❌ ':'✅ ')+msg;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(()=>t.remove(),4000);
+}
+async function fetchEnvoiComplet(id){
+  // Récupère le contenu_html complet (la liste peut être allégée)
+  const local=findEnvoi(id);
+  if(local&&local.contenu_html)return local;
+  const r=await fetch(`${API}/api/crm/envois/${id}`,{headers:hdrs()});
+  const d=await r.json();
+  if(d.envoi){Object.assign(local||{},d.envoi);return d.envoi;}
+  throw new Error('Envoi introuvable');
+}
+
+/* ════════════════════════════════════════════════════════════
+   VISUALISER + IMPRIMER
+════════════════════════════════════════════════════════════ */
+async function ouvrirView(id,printAfter){
+  try{
+    currentEnvoi=await fetchEnvoiComplet(id);
+    document.getElementById('view-meta').innerHTML=
+      `<strong>À :</strong> ${escHtml(currentEnvoi.email)} &nbsp;|&nbsp; <strong>Sujet :</strong> ${escHtml(currentEnvoi.sujet)} &nbsp;|&nbsp; <strong>Envoyé :</strong> ${new Date(currentEnvoi.created_at).toLocaleString('fr-CA')} &nbsp;|&nbsp; <strong>Tentatives :</strong> ${currentEnvoi.nb_tentatives||1}`;
+    const fr=document.getElementById('view-frame');
+    fr.srcdoc=currentEnvoi.contenu_html||'<p style="font-family:sans-serif;color:#888;padding:20px">Contenu HTML non disponible pour cet envoi.</p>';
+    openModal('m-view');
+    if(printAfter)setTimeout(imprimerEmail,600);
+  }catch(e){toast('Impossible de charger le courriel','err');}
+}
+
+function imprimerEmail(){
+  const fr=document.getElementById('view-frame');
+  try{fr.contentWindow.focus();fr.contentWindow.print();}
+  catch(e){
+    const w=window.open('','_blank');
+    w.document.write(currentEnvoi.contenu_html||'');
+    w.document.close();w.focus();w.print();
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   MODIFIER + ENREGISTRER
+════════════════════════════════════════════════════════════ */
+let editDirty=false;
+function ouvrirModifierDepuisView(){closeModal('m-view');ouvrirEdit(currentEnvoi.id);}
+async function ouvrirEdit(id){
+  try{
+    currentEnvoi=await fetchEnvoiComplet(id);
+    document.getElementById('edit-sujet').value=currentEnvoi.sujet||'';
+    document.getElementById('edit-html').value=currentEnvoi.contenu_html||'';
+    updatePreview();
+    editDirty=false;
+    document.getElementById('edit-html').oninput=()=>{editDirty=true;updatePreview();};
+    document.getElementById('edit-sujet').oninput=()=>{editDirty=true;};
+    openModal('m-edit');
+  }catch(e){toast('Impossible de charger le courriel','err');}
+}
+function updatePreview(){
+  document.getElementById('edit-preview').srcdoc=document.getElementById('edit-html').value;
+}
+function fermerEdit(){
+  if(editDirty&&!confirm('Des modifications ne sont pas enregistrées. Fermer quand même ?'))return;
+  closeModal('m-edit');
+}
+async function enregistrerEdit(){
+  try{
+    const body={sujet:document.getElementById('edit-sujet').value,contenu_html:document.getElementById('edit-html').value};
+    const r=await fetch(`${API}/api/crm/envois/${currentEnvoi.id}`,{method:'PUT',headers:hdrs(),body:JSON.stringify(body)});
+    const d=await r.json();
+    if(!r.ok||!d.success)throw new Error(d.error||'Erreur');
+    Object.assign(currentEnvoi,body,{updated_at:new Date().toISOString()});
+    editDirty=false;
+    toast('Modifications enregistrées');
+    closeModal('m-edit');
+    render();
+  }catch(e){toast('Erreur lors de l\'enregistrement : '+e.message,'err');}
+}
+
+/* ════════════════════════════════════════════════════════════
+   RENVOYER (annule et remplace)
+════════════════════════════════════════════════════════════ */
+async function ouvrirResend(id){
+  try{
+    currentEnvoi=await fetchEnvoiComplet(id);
+    document.getElementById('resend-meta').innerHTML=
+      `<strong>Destinataire :</strong> ${escHtml(currentEnvoi.email)}<br><strong>Déjà envoyé :</strong> ${currentEnvoi.nb_tentatives||1} fois &nbsp;|&nbsp; <strong>Dernier envoi :</strong> ${new Date(currentEnvoi.updated_at||currentEnvoi.created_at).toLocaleString('fr-CA')}`;
+    document.getElementById('resend-sujet').value=currentEnvoi.sujet||'';
+    document.getElementById('resend-note').value='';
+    openModal('m-resend');
+  }catch(e){toast('Impossible de charger le courriel','err');}
+}
+async function confirmerRenvoyer(){
+  const btn=document.getElementById('btn-resend-go');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Envoi…';
+  try{
+    const body={sujet:document.getElementById('resend-sujet').value,note:document.getElementById('resend-note').value};
+    const r=await fetch(`${API}/api/crm/envois/${currentEnvoi.id}/renvoyer`,{method:'POST',headers:hdrs(),body:JSON.stringify(body)});
+    const d=await r.json();
+    if(!r.ok||!d.success)throw new Error(d.error||'Erreur d\'envoi');
+    toast(`Courriel renvoyé à ${currentEnvoi.email}`);
+    closeModal('m-resend');
+    await loadEnvois();
+  }catch(e){toast('Erreur : '+e.message,'err');}
+  btn.disabled=false;btn.textContent='✅ Confirmer et envoyer';
+}
+
+async function renvoyerSelection(){
+  if(!selection.size)return;
+  if(!confirm(`Renvoyer ${selection.size} courriel(s) ? Chaque envoi remplace le précédent.`))return;
+  let ok=0,err=0;
+  const btn=document.getElementById('btn-renvoyer-sel');
+  btn.disabled=true;
+  for(const id of selection){
+    try{
+      const r=await fetch(`${API}/api/crm/envois/${id}/renvoyer`,{method:'POST',headers:hdrs(),body:JSON.stringify({})});
+      const d=await r.json();
+      if(r.ok&&d.success)ok++;else err++;
+    }catch(e){err++;}
+  }
+  toast(`Renvoi terminé : ${ok} succès, ${err} erreur(s)`,err?'err':'ok');
+  selection.clear();
+  await loadEnvois();
+}
+
+/* ════════════════════════════════════════════════════════════
+   SUPPRIMER (D1)
+════════════════════════════════════════════════════════════ */
+function ouvrirDelete(id){
+  currentEnvoi=findEnvoi(id);
+  if(!currentEnvoi)return;
+  document.getElementById('delete-meta').innerHTML=
+    `<strong>Destinataire :</strong> ${escHtml(currentEnvoi.email)}<br><strong>Sujet :</strong> ${escHtml(currentEnvoi.sujet)}<br><strong>Date :</strong> ${new Date(currentEnvoi.created_at).toLocaleString('fr-CA')}`;
+  document.getElementById('delete-confirm').value='';
+  document.getElementById('btn-delete-go').disabled=true;
+  openModal('m-delete');
+}
+async function confirmerSupprimer(){
+  const btn=document.getElementById('btn-delete-go');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Suppression…';
+  try{
+    const r=await fetch(`${API}/api/crm/envois/${currentEnvoi.id}`,{method:'DELETE',headers:hdrs()});
+    const d=await r.json();
+    if(!r.ok||!d.success)throw new Error(d.error||'Erreur');
+    allEnvois=allEnvois.filter(e=>e.id!==currentEnvoi.id);
+    selection.delete(currentEnvoi.id);
+    toast('Envoi supprimé de la base D1');
+    closeModal('m-delete');
+    applyFilters();
+  }catch(e){toast('Erreur : '+e.message,'err');}
+  btn.textContent='🗑️ Supprimer définitivement';
+}
+
+/* ════════════════════════════════════════════════════════════
+   DUPLICATA → duplicata@capturair.com
+════════════════════════════════════════════════════════════ */
+function ouvrirDuplicata(){
+  const ok=filtered.filter(e=>e.statut==='success').length;
+  document.getElementById('dup-recap').innerHTML=
+    `📊 <strong>${filtered.length}</strong> envoi(s) dans la sélection filtrée<br>`+
+    `✅ <strong>${ok}</strong> succès &nbsp;|&nbsp; ❌ <strong>${filtered.length-ok}</strong> erreur(s)<br>`+
+    `👤 Demandé par : <strong>${escHtml(currentUser?.email||'')}</strong><br>`+
+    `📬 Destination : <strong>duplicata@capturair.com</strong>`;
+  openModal('m-dup');
+}
+async function confirmerDuplicata(){
+  const btn=document.getElementById('btn-dup-go');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Envoi…';
+  try{
+    const ids=filtered.map(e=>e.id);
+    const r=await fetch(`${API}/api/crm/envois/duplicata`,{method:'POST',headers:hdrs(),body:JSON.stringify({ids})});
+    const d=await r.json();
+    if(!r.ok||!d.success)throw new Error(d.error||'Erreur');
+    toast('Duplicata envoyé à duplicata@capturair.com');
+    closeModal('m-dup');
+  }catch(e){toast('Erreur : '+e.message,'err');}
+  btn.disabled=false;btn.textContent='📧 Envoyer le duplicata';
+}
+
+/* ════════════════════════════════════════════════════════════
+   EXPORT EXCEL
+════════════════════════════════════════════════════════════ */
+function exportExcel(){
+  if(!filtered.length){toast('Aucune donnée à exporter','err');return;}
+  const rows=filtered.map((e,i)=>({
+    '#':i+1,
+    'Date':new Date(e.created_at).toLocaleDateString('fr-CA'),
+    'Heure':new Date(e.created_at).toLocaleTimeString('fr-CA'),
+    'Courriel':e.email,
+    'Prénom':e.prenom||'',
+    'Nom':e.nom||'',
+    'Bannière':e.banniere||'',
+    'Template':e.template||'',
+    'Sujet':e.sujet||'',
+    'Statut':e.statut==='success'?'Envoyé':'Erreur',
+    'Nb envois':e.nb_tentatives||1,
+    'Envoyé par':e.envoye_par||''
+  }));
+  const ws=XLSX.utils.json_to_sheet(rows);
+  ws['!cols']=[{wch:4},{wch:11},{wch:9},{wch:34},{wch:14},{wch:16},{wch:12},{wch:14},{wch:40},{wch:9},{wch:9},{wch:26}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Envois');
+  XLSX.writeFile(wb,`duplicata_${new Date().toISOString().slice(0,10)}.xlsx`);
+  toast('Fichier Excel téléchargé');
+}
+</script>
+</body>
+</html>
