@@ -743,13 +743,22 @@ async function ouvrirView(id,printAfter){
 }
 
 function imprimerEmail(){
-  const fr=document.getElementById('view-frame');
-  try{fr.contentWindow.focus();fr.contentWindow.print();}
-  catch(e){
-    const w=window.open('','_blank');
-    w.document.write(currentEnvoi.contenu_html||'');
-    w.document.close();w.focus();w.print();
-  }
+  if(!currentEnvoi||!currentEnvoi.contenu_html){toast('Aucun contenu à imprimer','err');return;}
+  // iframe caché NON sandboxé → print() autorisé
+  const old=document.getElementById('print-frame');
+  if(old)old.remove();
+  const fr=document.createElement('iframe');
+  fr.id='print-frame';
+  fr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+  document.body.appendChild(fr);
+  const doc=fr.contentWindow.document;
+  doc.open();
+  doc.write(currentEnvoi.contenu_html);
+  doc.close();
+  // Attendre le chargement des images avant d'imprimer
+  fr.onload=()=>{setTimeout(()=>{try{fr.contentWindow.focus();fr.contentWindow.print();}catch(e){toast('Impression bloquée par le navigateur','err');}},300);};
+  // Si onload ne se déclenche pas (doc déjà prêt)
+  setTimeout(()=>{try{fr.contentWindow.focus();fr.contentWindow.print();}catch(e){}},800);
 }
 
 /* ════════════════════════════════════════════════════════════
