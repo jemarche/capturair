@@ -999,6 +999,30 @@
         </div>
       </div>
 
+      <!-- Section C2 — Relances (Projet 1) -->
+      <div class="section-card" style="margin-bottom:20px;">
+        <div class="section-card-title">🔁 Relances</div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+          <span style="font-size:12px;color:var(--gray);font-weight:600;">Mode :</span>
+          <select id="rel-mode" onchange="relChangerMode()" class="form-input" style="width:auto;padding:6px 10px;font-size:12px;">
+            <option value="off">🔴 OFF — aucune relance</option>
+            <option value="manuel" selected>🟡 Manuel — je valide chaque envoi</option>
+            <option value="auto">🟢 Auto — mar. à jeu. 10h00</option>
+          </select>
+          <button class="btn-secondary" onclick="relCharger()" style="font-size:12px;">🔍 Vérifier les relances dues</button>
+          <button class="btn-primary" id="rel-btn-envoyer" onclick="relEnvoyerSelection()" style="font-size:12px;display:none;">📤 Envoyer les relances sélectionnées (<span id="rel-count">0</span>)</button>
+        </div>
+        <div id="rel-liste" style="font-size:13px;color:var(--gray);">Cliquez sur « Vérifier les relances dues » pour voir qui attend une relance.</div>
+        <div style="font-size:11px;color:var(--gray);margin-top:10px;">Garde-fous : maximum 2 relances par courtier (3 contacts au total) · minimum 7 jours entre chaque · bouton 🚫 = ne plus jamais relancer ce courtier · Template 3 envoyé seulement si une offre valide (rabais + date de fin non expirée) a été configurée.</div>
+      </div>
+
+      <!-- Section C3 — Envois programmés (Projet 2) -->
+      <div class="section-card" style="margin-bottom:20px;">
+        <div class="section-card-title">⏰ Envois programmés</div>
+        <div id="ep-liste" style="font-size:13px;color:var(--gray);">Chargement...</div>
+        <div style="font-size:11px;color:var(--gray);margin-top:10px;">Pour programmer un envoi : page Courtiers → sélection → Envoi massif → champ « ⏰ Programmer pour plus tard ». Le serveur vérifie chaque heure et envoie à l'heure prévue (à ±1 h près), même si votre PC est éteint.</div>
+      </div>
+
       <!-- Section D — Historique des runs -->
       <div class="section-card">
         <div class="section-card-title">📋 Historique des runs</div>
@@ -1683,6 +1707,10 @@
       <div style="background:var(--border);border-radius:100px;height:6px;overflow:hidden;">
         <div id="envoi-progress-bar" style="height:100%;background:var(--blue);border-radius:100px;width:0%;transition:width 0.3s;"></div>
       </div>
+    </div>
+    <div style="background:rgba(255,166,0,0.06);border:1px solid rgba(255,166,0,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;">
+      <label style="font-size:12px;font-weight:600;color:var(--navy);">⏰ Programmer pour plus tard <span style="font-weight:400;color:var(--gray);">(optionnel — vide = envoi immédiat)</span></label><br>
+      <input type="datetime-local" id="envoi-massif-date" class="form-input" style="width:auto;margin-top:8px;padding:6px 10px;font-size:12px;">
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal('modal-envoi-massif')">Annuler</button>
@@ -2770,6 +2798,16 @@ let html=t?.contenu_html||'';
 
     html=html.replace(/{{RABAIS}}/g,rabais).replace(/{{DATE_FIN}}/g,dateFinStr).replace(/{{PRIX_1}}/g,String(prix1)).replace(/{{PRIX_2}}/g,String(prix2)).replace(/{{PRIX_3}}/g,String(prix3)).replace(/{{PRIX_4}}/g,String(prix4));
     const ids=Array.from(courtiersSelectionnes);
+    if(envoiMassifTemplate===3){apiPut('/api/crm/relances/config',{promo:{rabais:String(rabais),date_fin:dateFin}}).catch(()=>{});}
+    const dateProg=document.getElementById('envoi-massif-date')?.value||'';
+    if(dateProg){
+      if(new Date(dateProg).getTime()<Date.now()+60000){showNotif('⚠️ La date programmée doit être dans le futur','warning');btn.innerHTML='📧 Envoyer';btn.disabled=false;document.getElementById('envoi-progress').style.display='none';return;}
+      const dp=await apiPost('/api/crm/envois-programmes',{ids,template:envoiMassifTemplate,sujet:sujets[envoiMassifTemplate],contenu_html:html,date_prevue:new Date(dateProg).toISOString()});
+      if(dp.success){showNotif(`⏰ Envoi programmé pour ${new Date(dateProg).toLocaleString('fr-CA')} — ${ids.length} courtier(s)`,'success');document.getElementById('envoi-massif-date').value='';closeModal('modal-envoi-massif');courtiersSelectionnes.clear();await chargerCourtiers();epCharger();}
+      else{showNotif('❌ Erreur : '+(dp.error||'programmation impossible'),'error');}
+      btn.innerHTML='📧 Envoyer';btn.disabled=false;document.getElementById('envoi-progress').style.display='none';
+      return;
+    }
     const d=await apiPost('/api/crm/courtiers/envoyer',{ids,template:envoiMassifTemplate,sujet:sujets[envoiMassifTemplate],contenu_html:html});
     const envoyes=d.envoyes||0;
     document.getElementById('envoi-progress-bar').style.width='100%';
@@ -3070,8 +3108,105 @@ let prospSchedulerJour = 6;
 let prospSchedulerHeure = 20;
 let prospSSESource = null;
 
+// ── RELANCES (Projet 1) ──
+let relDues=[]; let relSel=new Set();
+async function relInit(){ try{ const d=await apiGet('/api/crm/relances/config'); if(d.mode){const s=document.getElementById('rel-mode'); if(s)s.value=d.mode;} }catch(e){} }
+async function relChangerMode(){
+  const mode=document.getElementById('rel-mode').value;
+  const d=await apiPut('/api/crm/relances/config',{mode});
+  if(d.success){showNotif(mode==='off'?'🔴 Relances désactivées':mode==='auto'?'🟢 Relances automatiques activées (mar-jeu 10h00)':'🟡 Mode manuel : rien ne part sans votre validation','success');}
+  else{showNotif('❌ Erreur de sauvegarde du mode','error');}
+}
+async function relCharger(){
+  const cont=document.getElementById('rel-liste');
+  cont.innerHTML='<span class="spinner"></span> Analyse des courtiers...';
+  const d=await apiGet('/api/crm/relances/dues');
+  relDues=d.dues||[];
+  relSel=new Set(relDues.map(x=>x.id));
+  relRender();
+}
+function relMajCount(){
+  const n=relSel.size;
+  const c=document.getElementById('rel-count'); if(c)c.textContent=n;
+  const b=document.getElementById('rel-btn-envoyer'); if(b)b.style.display=relDues.length?'inline-flex':'none';
+}
+function relRender(){
+  const cont=document.getElementById('rel-liste');
+  if(!relDues.length){cont.innerHTML='✅ Personne n\'est dû pour une relance en ce moment. Revenez après vos prochains envois !';relMajCount();return;}
+  cont.innerHTML=`<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr style="text-align:left;color:var(--gray);border-bottom:1px solid var(--border);">
+      <th style="padding:6px;"><input type="checkbox" checked onchange="relToutCocher(this.checked)"></th>
+      <th style="padding:6px;">Courriel</th><th style="padding:6px;">Bannière</th><th style="padding:6px;">Ville</th>
+      <th style="padding:6px;">Dernier envoi</th><th style="padding:6px;">Relance proposée</th><th style="padding:6px;">🚫</th>
+    </tr></thead><tbody>
+    ${relDues.map(c=>`<tr style="border-bottom:1px solid var(--border);">
+      <td style="padding:6px;"><input type="checkbox" ${relSel.has(c.id)?'checked':''} onchange="relToggle('${c.id}',this.checked)"></td>
+      <td style="padding:6px;font-family:monospace;">${c.email}</td>
+      <td style="padding:6px;">${c.banniere||c.agence||'—'}</td>
+      <td style="padding:6px;">${c.ville||'—'}</td>
+      <td style="padding:6px;">il y a ${c.jours_depuis} j</td>
+      <td style="padding:6px;"><span style="background:${c.template_propose===2?'rgba(26,143,209,0.1);color:var(--blue)':'rgba(255,100,50,0.1);color:#E67E22'};padding:2px 8px;border-radius:100px;font-size:11px;">Template ${c.template_propose}${c.template_propose===3?' (dernière)':''}</span></td>
+      <td style="padding:6px;"><button onclick="relOptOut('${c.id}')" title="Ne plus jamais relancer ce courtier" style="background:none;border:none;cursor:pointer;font-size:14px;">🚫</button></td>
+    </tr>`).join('')}
+    </tbody></table></div>`;
+  relMajCount();
+}
+function relToutCocher(ck){ relSel=ck?new Set(relDues.map(x=>x.id)):new Set(); relRender(); }
+function relToggle(id,ck){ ck?relSel.add(id):relSel.delete(id); relMajCount(); }
+async function relOptOut(id){
+  if(!confirm('Ne plus JAMAIS relancer ce courtier ? (réversible dans sa fiche)'))return;
+  const d=await apiPut(`/api/crm/courtiers/${id}/relances`,{actives:0});
+  if(d.success){showNotif('🚫 Courtier exclu des relances','success');relCharger();}
+}
+async function relEnvoyerSelection(){
+  const ids=[...relSel];
+  if(!ids.length){showNotif('⚠️ Aucune relance cochée','warning');return;}
+  const nbT3=relDues.filter(x=>relSel.has(x.id)&&x.template_propose===3).length;
+  if(!confirm(`Envoyer ${ids.length} relance(s) maintenant ?${nbT3?`\n(dont ${nbT3} en Template 3 — offre spéciale)`:''}`))return;
+  const btn=document.getElementById('rel-btn-envoyer');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Envoi en cours...';
+  const d=await apiPost('/api/crm/relances/envoyer',{ids});
+  btn.disabled=false;btn.innerHTML='📤 Envoyer les relances sélectionnées (<span id="rel-count">0</span>)';
+  if(d.success){
+    let msg=`✅ ${d.envoyes} relance(s) envoyée(s)`;
+    if(d.erreurs)msg+=` · ${d.erreurs} erreur(s)`;
+    if(d.ignores_t3)msg+=` · ⚠️ ${d.ignores_t3} Template 3 NON envoyée(s) : configurez d'abord une offre (rabais + date de fin) via un Envoi massif Template 3`;
+    showNotif(msg,d.ignores_t3?'warning':'success');
+    relCharger();
+  }else{showNotif('❌ Erreur : '+(d.error||'envoi impossible'),'error');}
+}
+
+// ── ENVOIS PROGRAMMES (Projet 2) ──
+async function epCharger(){
+  const cont=document.getElementById('ep-liste');
+  if(!cont)return;
+  const d=await apiGet('/api/crm/envois-programmes');
+  const envois=d.envois||[];
+  if(!envois.length){cont.innerHTML='Aucun envoi programmé pour l\'instant.';return;}
+  const badge={en_attente:'🕐 En attente',en_cours:'⏳ En cours',envoye:'✅ Envoyé',annule:'🚫 Annulé'};
+  cont.innerHTML=`<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr style="text-align:left;color:var(--gray);border-bottom:1px solid var(--border);">
+      <th style="padding:6px;">Prévu pour</th><th style="padding:6px;">Template</th><th style="padding:6px;">Courtiers</th>
+      <th style="padding:6px;">Statut</th><th style="padding:6px;">Résultat</th><th style="padding:6px;">Action</th>
+    </tr></thead><tbody>
+    ${envois.map(e=>`<tr style="border-bottom:1px solid var(--border);">
+      <td style="padding:6px;font-weight:600;">${new Date(e.date_prevue).toLocaleString('fr-CA',{dateStyle:'short',timeStyle:'short'})}</td>
+      <td style="padding:6px;">Template ${e.template}</td>
+      <td style="padding:6px;text-align:center;">${e.nb_courtiers}</td>
+      <td style="padding:6px;">${badge[e.statut]||e.statut}</td>
+      <td style="padding:6px;color:var(--gray);">${e.resultat||'—'}</td>
+      <td style="padding:6px;">${e.statut==='en_attente'?`<button class="btn-secondary" style="font-size:11px;padding:3px 10px;" onclick="epAnnuler('${e.id}')">Annuler</button>`:'—'}</td>
+    </tr>`).join('')}
+    </tbody></table></div>`;
+}
+async function epAnnuler(id){
+  if(!confirm('Annuler cet envoi programmé ?'))return;
+  const d=await apiDelete(`/api/crm/envois-programmes/${id}`);
+  if(d.success){showNotif('🚫 Envoi programmé annulé','success');epCharger();}
+}
+
 async function initProspection(){
-  await prospVerifierStatut();
+  await prospVerifierStatut(); relInit(); epCharger();
   prospChargerJobs();
   prospMajSchedulerUI();
   prospCalculerProchain();
