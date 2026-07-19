@@ -1001,7 +1001,7 @@
 
       <!-- Section C2 — Relances (Projet 1) -->
       <div class="section-card" style="margin-bottom:20px;">
-        <div class="section-card-title">🔁 Relances</div>
+        <div class="section-card-title">🔁 Relances<span id="rep-badge" style="font-size:12px;color:var(--gray);font-weight:400;"></span></div>
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
           <span style="font-size:12px;color:var(--gray);font-weight:600;">Mode :</span>
           <select id="rel-mode" onchange="relChangerMode()" class="form-input" style="width:auto;padding:6px 10px;font-size:12px;">
@@ -3137,7 +3137,7 @@ function relRender(){
     <thead><tr style="text-align:left;color:var(--gray);border-bottom:1px solid var(--border);">
       <th style="padding:6px;"><input type="checkbox" checked onchange="relToutCocher(this.checked)"></th>
       <th style="padding:6px;">Courriel</th><th style="padding:6px;">Bannière</th><th style="padding:6px;">Ville</th>
-      <th style="padding:6px;">Dernier envoi</th><th style="padding:6px;">Relance proposée</th><th style="padding:6px;">🚫</th>
+      <th style="padding:6px;">Dernier envoi</th><th style="padding:6px;">Relance proposée</th><th style="padding:6px;">💬</th><th style="padding:6px;">🚫</th>
     </tr></thead><tbody>
     ${relDues.map(c=>`<tr style="border-bottom:1px solid var(--border);">
       <td style="padding:6px;"><input type="checkbox" ${relSel.has(c.id)?'checked':''} onchange="relToggle('${c.id}',this.checked)"></td>
@@ -3146,6 +3146,7 @@ function relRender(){
       <td style="padding:6px;">${c.ville||'—'}</td>
       <td style="padding:6px;">il y a ${c.jours_depuis} j</td>
       <td style="padding:6px;"><span style="background:${c.template_propose===2?'rgba(26,143,209,0.1);color:var(--blue)':'rgba(255,100,50,0.1);color:#E67E22'};padding:2px 8px;border-radius:100px;font-size:11px;">Template ${c.template_propose}${c.template_propose===3?' (dernière)':''}</span></td>
+      <td style="padding:6px;"><button onclick="relMarquerRepondu('${c.id}')" title="Ce courtier m'a répondu — stopper ses relances" style="background:none;border:none;cursor:pointer;font-size:14px;">💬</button></td>
       <td style="padding:6px;"><button onclick="relOptOut('${c.id}')" title="Ne plus jamais relancer ce courtier" style="background:none;border:none;cursor:pointer;font-size:14px;">🚫</button></td>
     </tr>`).join('')}
     </tbody></table></div>`;
@@ -3153,6 +3154,14 @@ function relRender(){
 }
 function relToutCocher(ck){ relSel=ck?new Set(relDues.map(x=>x.id)):new Set(); relRender(); }
 function relToggle(id,ck){ ck?relSel.add(id):relSel.delete(id); relMajCount(); }
+async function relMarquerRepondu(id){
+  if(!confirm('Ce courtier vous a répondu ? Ses relances seront stoppées définitivement (il sort du cycle).'))return;
+  const d=await apiPut(`/api/crm/courtiers/${id}/repondu`,{repondu:1});
+  if(d.success){showNotif('💬 Marqué comme « a répondu » — relances stoppées','success');relCharger();repChargerBadge();}
+}
+async function repChargerBadge(){
+  try{const d=await apiGet('/api/crm/reponses');const n=(d.reponses||[]).length;const b=document.getElementById('rep-badge');if(b)b.textContent=n?` · ${n} réponse(s) reçue(s)`:'';}catch(e){}
+}
 async function relOptOut(id){
   if(!confirm('Ne plus JAMAIS relancer ce courtier ? (réversible dans sa fiche)'))return;
   const d=await apiPut(`/api/crm/courtiers/${id}/relances`,{actives:0});
@@ -3206,7 +3215,7 @@ async function epAnnuler(id){
 }
 
 async function initProspection(){
-  await prospVerifierStatut(); relInit(); epCharger();
+  await prospVerifierStatut(); relInit(); epCharger(); repChargerBadge();
   prospChargerJobs();
   prospMajSchedulerUI();
   prospCalculerProchain();
