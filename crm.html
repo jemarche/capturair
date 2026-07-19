@@ -312,6 +312,15 @@
       <a class="nav-item" id="nav-courtiers" style="display:none;" onclick="showPage('courtiers')" href="#"><span class="nav-icon">🏢</span> Courtiers</a>
       <a class="nav-item" id="nav-correspondances" style="display:none;" onclick="showPage('correspondances')" href="#"><span class="nav-icon">✉️</span> Correspondances</a>
       <a class="nav-item" id="nav-prospection" style="display:none;" onclick="showPage('prospection')" href="#"><span class="nav-icon">🔍</span> Prospection</a>
+      <a class="nav-item" id="nav-outlook" style="display:none;align-items:center;" href="#" onclick="outlookNav('reception')"><span class="nav-icon">📬</span> Outlook <span class="nav-badge" id="badge-outlook" style="display:none;">0</span><span id="outlook-plus" onclick="event.stopPropagation();event.preventDefault();outlookToggleTiroirs();" style="margin-left:auto;font-weight:800;cursor:pointer;padding:0 8px;font-size:15px;">+</span></a>
+      <div id="outlook-tiroirs" style="display:none;">
+        <a class="nav-item" href="#" onclick="outlookNav('reception')" style="padding-left:46px;font-size:13px;">📥 Réception</a>
+        <div id="outlook-sous-filtres"></div>
+        <a class="nav-item" href="#" onclick="outlookNav('envoi')" style="padding-left:46px;font-size:13px;">📤 Envoi</a>
+        <a class="nav-item" href="#" onclick="outlookNav('spams')" style="padding-left:46px;font-size:13px;">🚫 Spams</a>
+        <a class="nav-item" href="#" onclick="outlookNav('suivi')" style="padding-left:46px;font-size:13px;">⭐ Suivi</a>
+        <a class="nav-item" href="#" onclick="outlookNav('corbeille')" style="padding-left:46px;font-size:13px;">🗑️ Corbeille</a>
+      </div>
      
     </nav>
     <div class="sidebar-footer">
@@ -902,6 +911,100 @@
     </div>
 
     <!-- PROSPECTION -->
+    <!-- ══ PAGE OUTLOOK CAPTURAIR ══ -->
+    <div class="page" id="page-outlook">
+      <div class="section-card" style="margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div class="section-card-title" style="margin-bottom:0;" id="o-titre-vue">📥 Réception</div>
+          <button class="btn-secondary" onclick="oCharger()" style="font-size:12px;">🔄 Actualiser</button>
+          <input type="text" id="o-recherche" class="form-input" placeholder="🔍 Rechercher (sujet, contenu, adresse)..." style="width:260px;padding:7px 12px;font-size:12px;" onkeydown="if(event.key==='Enter')oCharger()">
+          <button class="btn-secondary" onclick="oFiltresToggle()" style="font-size:12px;">⚙️ Filtres avancés</button>
+          <span id="o-filtre-actif" style="font-size:11px;color:var(--blue);"></span>
+        </div>
+        <div id="o-filtres-panneau" style="display:none;margin-top:14px;padding:14px;background:var(--bg,#F7FAFC);border:1px solid var(--border);border-radius:10px;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;font-size:12px;">
+            <label>Statut<select id="of-statut" class="form-input" style="padding:6px;font-size:12px;"><option value="">Tous</option><option value="a_repondre">🔴 À répondre</option><option value="en_attente">🟡 En attente</option><option value="termine">🟢 Terminé</option></select></label>
+            <label>Type de contact<select id="of-type" class="form-input" style="padding:6px;font-size:12px;"><option value="">Tous</option><option value="courtier">Courtiers</option><option value="client">Clients</option><option value="inconnu">Inconnus</option></select></label>
+            <label>Période<select id="of-jours" class="form-input" style="padding:6px;font-size:12px;"><option value="">Tout</option><option value="1">Aujourd'hui</option><option value="7">7 jours</option><option value="30">30 jours</option></select></label>
+            <label>Expéditeur contient<input id="of-expediteur" class="form-input" style="padding:6px;font-size:12px;" placeholder="ex: remax"></label>
+            <label>Domaine<input id="of-domaine" class="form-input" style="padding:6px;font-size:12px;" placeholder="ex: remax.ca"></label>
+            <label>Mot-clé (sujet+corps)<input id="of-motcle" class="form-input" style="padding:6px;font-size:12px;" placeholder="ex: soumission"></label>
+            <label>Bannière<input id="of-banniere" class="form-input" style="padding:6px;font-size:12px;" placeholder="ex: Sutton"></label>
+          </div>
+          <div style="display:flex;gap:14px;margin-top:10px;font-size:12px;align-items:center;flex-wrap:wrap;">
+            <label><input type="checkbox" id="of-nonlus"> Non lus</label>
+            <label><input type="checkbox" id="of-prioritaire"> ⭐ Prioritaires</label>
+            <label><input type="checkbox" id="of-pj"> 📎 Avec pièces jointes</label>
+            <button class="btn-primary" onclick="oFiltreAppliquer()" style="font-size:12px;padding:6px 14px;">Appliquer</button>
+            <button class="btn-secondary" onclick="oFiltreSauvegarder()" style="font-size:12px;padding:6px 14px;">💾 Sauvegarder ce filtre</button>
+            <button class="btn-secondary" onclick="oFiltreReinit()" style="font-size:12px;padding:6px 14px;">Réinitialiser</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:380px 1fr;gap:14px;align-items:start;">
+        <!-- LISTE -->
+        <div class="section-card" style="padding:0;overflow:hidden;">
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;">
+            <input type="checkbox" id="o-tout" onchange="oToutCocher(this.checked)">
+            <span style="color:var(--gray);">Tout sélectionner</span>
+            <span style="margin-left:auto;" id="o-actions-sel"></span>
+          </div>
+          <div id="o-liste" style="max-height:640px;overflow-y:auto;">
+            <div style="padding:30px;text-align:center;color:var(--gray);font-size:13px;">Chargement...</div>
+          </div>
+        </div>
+        <!-- LECTURE -->
+        <div class="section-card" id="o-lecture" style="min-height:400px;">
+          <div style="padding:60px 20px;text-align:center;color:var(--gray);font-size:13px;">📬 Sélectionnez une conversation dans la liste pour la lire ici.</div>
+        </div>
+      </div>
+
+      <!-- MODAL RÉPONDRE -->
+      <div class="modal" id="modal-o-repondre">
+        <div class="modal-content" style="max-width:1000px;">
+          <div class="modal-header"><h3>↩️ Répondre à <span id="or-dest" style="color:var(--blue);"></span></h3><button class="modal-close" onclick="closeModal('modal-o-repondre')">×</button></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div>
+              <label style="font-size:12px;font-weight:600;">Modèle</label>
+              <select id="or-template" class="form-input" style="margin-bottom:10px;" onchange="orApercu()"><option value="">✍️ Réponse libre (gabarit CapturAir + signature)</option></select>
+              <label style="font-size:12px;font-weight:600;">Objet</label>
+              <input id="or-sujet" class="form-input" style="margin-bottom:10px;" oninput="orApercuDiffere()">
+              <div id="or-corps-zone">
+                <label style="font-size:12px;font-weight:600;">Votre message</label>
+                <textarea id="or-corps" class="form-input" rows="10" style="resize:vertical;font-size:13px;" oninput="orApercuDiffere()" placeholder="Écrivez votre réponse..."></textarea>
+              </div>
+              <label style="font-size:12px;margin-top:8px;display:block;"><input type="checkbox" id="or-citer" checked onchange="orApercu()"> Citer le message original en dessous</label>
+            </div>
+            <div>
+              <label style="font-size:12px;font-weight:600;">Aperçu en temps réel</label>
+              <iframe id="or-apercu" sandbox="allow-same-origin" style="width:100%;height:420px;border:1px solid var(--border);border-radius:10px;background:#F4F7FA;"></iframe>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('modal-o-repondre')">Annuler</button>
+            <button class="btn-primary" id="or-btn" onclick="orEnvoyer()">📧 Envoyer la réponse</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL TRANSFÉRER -->
+      <div class="modal" id="modal-o-transfert">
+        <div class="modal-content" style="max-width:560px;">
+          <div class="modal-header"><h3>↗️ Transférer</h3><button class="modal-close" onclick="closeModal('modal-o-transfert')">×</button></div>
+          <label style="font-size:12px;font-weight:600;">Destinataire</label>
+          <input id="ot-dest" class="form-input" style="margin-bottom:10px;" placeholder="adresse@exemple.com">
+          <label style="font-size:12px;font-weight:600;">Votre commentaire (optionnel)</label>
+          <textarea id="ot-commentaire" class="form-input" rows="4" style="margin-bottom:10px;resize:vertical;font-size:13px;" placeholder="Un mot d'introduction..."></textarea>
+          <label style="font-size:12px;"><input type="checkbox" id="ot-pj" checked> Inclure les pièces jointes</label>
+          <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('modal-o-transfert')">Annuler</button>
+            <button class="btn-primary" id="ot-btn" onclick="otEnvoyer()">📧 Transférer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="page" id="page-prospection">
 
       <!-- Statut serveur -->
@@ -1897,7 +2000,8 @@ async function initApp(){
     document.getElementById('nav-courtiers').style.display='flex';
     document.getElementById('nav-correspondances').style.display='flex';
     document.getElementById('nav-prospection').style.display='flex';
-    document.getElementById('nav-prospection').style.display='flex';
+    document.getElementById('nav-outlook').style.display='flex';
+    outlookBadge();
   }
   await Promise.all([chargerLeads(),chargerSoumissions(),chargerFactures(),chargerProjets(),chargerUtilisateurs()]);
   renderDashboard();
@@ -1936,13 +2040,292 @@ function peuplerAssignes(){
   if(v)sel.value=v;
 }
 
+// ══ OUTLOOK CAPTURAIR ═════════════════════════════════════════════════
+let oVue='reception', oFiltreId='', oFiltreNom='', oConvs=[], oSel=new Set(), oConvId=null, oConvData=null, oTemplates=null, oFiltreLocal=null;
+const O_TITRES={reception:'📥 Réception',envoi:'📤 Envoi',spams:'🚫 Spams',suivi:'⭐ Suivi',corbeille:'🗑️ Corbeille'};
+
+function outlookToggleTiroirs(){
+  const t=document.getElementById('outlook-tiroirs');
+  const p=document.getElementById('outlook-plus');
+  const ouvert=t.style.display!=='none';
+  t.style.display=ouvert?'none':'block';
+  p.textContent=ouvert?'+':'−';
+}
+function outlookNav(vue){
+  oVue=vue;oFiltreId='';oFiltreNom='';oFiltreLocal=null;oSel=new Set();oConvId=null;
+  const t=document.getElementById('outlook-tiroirs');
+  if(t&&t.style.display==='none'){t.style.display='block';document.getElementById('outlook-plus').textContent='−';}
+  showPage('outlook');
+}
+async function outlookInit(){
+  document.getElementById('o-titre-vue').textContent=(oFiltreNom?('🔖 '+oFiltreNom):O_TITRES[oVue]||'📥 Réception');
+  document.getElementById('o-filtre-actif').textContent='';
+  oSousFiltresCharger();
+  if(oTemplates===null){try{const d=await apiGet('/api/crm/correspondances/templates');oTemplates=d.templates||[];}catch(e){oTemplates=[];}}
+  await oCharger();
+}
+async function outlookBadge(){
+  try{const d=await apiGet('/api/crm/inbox/badge');const b=document.getElementById('badge-outlook');
+    if(b){b.textContent=d.non_lus||0;b.style.display=(d.non_lus>0)?'inline-flex':'none';}}catch(e){}
+}
+async function oSousFiltresCharger(){
+  try{const d=await apiGet('/api/crm/inbox/filtres');const cont=document.getElementById('outlook-sous-filtres');
+    if(!cont)return;
+    cont.innerHTML=(d.filtres||[]).map(f=>`<a class="nav-item" href="#" onclick="oFiltreOuvrir('${f.id}','${(f.nom||'').replace(/'/g,'')}')" style="padding-left:62px;font-size:12px;display:flex;align-items:center;">🔖 ${f.nom}<span onclick="event.stopPropagation();event.preventDefault();oFiltreSupprimerDef('${f.id}')" title="Supprimer ce filtre" style="margin-left:auto;padding:0 6px;color:var(--gray);">×</span></a>`).join('');
+  }catch(e){}
+}
+function oFiltreOuvrir(id,nom){oVue='reception';oFiltreId=id;oFiltreNom=nom;oFiltreLocal=null;oSel=new Set();oConvId=null;showPage('outlook');}
+async function oFiltreSupprimerDef(id){
+  if(!confirm('Supprimer ce filtre sauvegardé ?'))return;
+  await apiDelete(`/api/crm/inbox/filtres/${id}`);
+  if(oFiltreId===id){oFiltreId='';oFiltreNom='';}
+  oSousFiltresCharger();showNotif('Filtre supprimé','success');
+}
+
+function oDateRel(iso){
+  if(!iso)return'';const d=new Date(iso),n=Date.now(),diff=(n-d.getTime())/1000;
+  if(diff<3600)return`il y a ${Math.max(1,Math.floor(diff/60))} min`;
+  if(diff<86400)return`il y a ${Math.floor(diff/3600)} h`;
+  if(diff<172800)return'hier';
+  return d.toLocaleDateString('fr-CA',{day:'numeric',month:'short'});
+}
+
+async function oCharger(){
+  const cont=document.getElementById('o-liste');
+  cont.innerHTML='<div style="padding:30px;text-align:center;color:var(--gray);font-size:13px;"><span class="spinner"></span> Chargement...</div>';
+  const rech=encodeURIComponent(document.getElementById('o-recherche')?.value?.trim()||'');
+  const d=await apiGet(`/api/crm/inbox/liste?vue=${oVue}${oFiltreId?`&filtre_id=${oFiltreId}`:''}${rech?`&recherche=${rech}`:''}`);
+  oConvs=d.conversations||[];
+  if(oFiltreLocal)oConvs=oConvs.filter(oFiltreLocalTest);
+  oSel=new Set();oRenderListe();outlookBadge();
+  document.getElementById('o-titre-vue').textContent=(oFiltreNom?('🔖 '+oFiltreNom):O_TITRES[oVue])+` (${oConvs.length})`;
+}
+function oFiltreLocalTest(c){
+  const f=oFiltreLocal;if(!f)return true;
+  if(f.statut&&c.statut!==f.statut)return false;
+  if(f.type_contact&&c.contact_type!==f.type_contact)return false;
+  if(f.prioritaire&&!c.prioritaire)return false;
+  if(f.non_lus&&!(c.non_lus>0))return false;
+  if(f.avec_pj&&!(c.nb_pj>0))return false;
+  if(f.jours&&new Date(c.dernier_message).getTime()<Date.now()-f.jours*86400000)return false;
+  if(f.expediteur&&!c.contact_email.includes(f.expediteur.toLowerCase()))return false;
+  if(f.domaine&&!c.contact_email.split('@')[1]?.includes(f.domaine.toLowerCase().replace('@','')))return false;
+  if(f.banniere&&!(c.banniere||'').toLowerCase().includes(f.banniere.toLowerCase()))return false;
+  if(f.mot_cle){const k=f.mot_cle.toLowerCase();if(!((c.sujet_initial||'').toLowerCase().includes(k)||(c.extrait||'').toLowerCase().includes(k)||c.contact_email.includes(k)))return false;}
+  return true;
+}
+function oRenderListe(){
+  const cont=document.getElementById('o-liste');
+  if(!oConvs.length){cont.innerHTML='<div style="padding:30px;text-align:center;color:var(--gray);font-size:13px;">Aucune conversation ici.</div>';oMajActionsSel();return;}
+  const pastille={a_repondre:'🔴',en_attente:'🟡',termine:'🟢'};
+  cont.innerHTML=oConvs.map(c=>{
+    const gras=c.non_lus>0?'font-weight:800;':'';
+    return `<div onclick="oOuvrir('${c.id}')" style="display:flex;gap:8px;padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;${oConvId===c.id?'background:rgba(26,143,209,0.07);':''}">
+      <input type="checkbox" ${oSel.has(c.id)?'checked':''} onclick="event.stopPropagation();oToggleSel('${c.id}',this.checked)" style="margin-top:3px;">
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span>${pastille[c.statut]||''}</span>${c.prioritaire?'<span>⭐</span>':''}
+          <span style="font-size:13px;color:var(--navy);${gras}overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.contact_email}</span>
+          <span style="margin-left:auto;font-size:10px;color:var(--gray);white-space:nowrap;">${oDateRel(c.dernier_message)}</span>
+        </div>
+        <div style="font-size:11px;color:var(--navy);${gras}overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.sujet_initial||'(sans sujet)'} ${c.nb_pj>0?'📎':''}</div>
+        <div style="font-size:11px;color:var(--gray);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.banniere?`<span style="color:var(--blue);">[${c.banniere}]</span> `:''}${c.extrait||''}</div>
+      </div>
+    </div>`;
+  }).join('');
+  oMajActionsSel();
+}
+function oToggleSel(id,ck){ck?oSel.add(id):oSel.delete(id);oMajActionsSel();}
+function oToutCocher(ck){oSel=ck?new Set(oConvs.map(c=>c.id)):new Set();oRenderListe();}
+function oMajActionsSel(){
+  const z=document.getElementById('o-actions-sel');const n=oSel.size;
+  if(!n){z.innerHTML='';return;}
+  if(oVue==='corbeille'){
+    z.innerHTML=`<button class="btn-secondary" style="font-size:11px;padding:3px 10px;" onclick="oRestaurerSel()">♻️ Restaurer (${n})</button>
+      <button class="btn-secondary" style="font-size:11px;padding:3px 10px;color:#C0392B;" onclick="oPurgerSel()">❌ Supprimer définitivement (${n})</button>`;
+  }else{
+    z.innerHTML=`<button class="btn-secondary" style="font-size:11px;padding:3px 10px;" onclick="oCorbeilleSel()">🗑️ Corbeille (${n})</button>`;
+  }
+}
+async function oCorbeilleSel(){
+  const d=await apiPost('/api/crm/inbox/corbeille',{ids:[...oSel]});
+  if(d.success){showNotif(`🗑️ ${d.n} conversation(s) à la corbeille`,'success');oConvId=null;oRenderLecture(null);oCharger();}
+}
+async function oRestaurerSel(){
+  const d=await apiPost('/api/crm/inbox/restaurer',{ids:[...oSel]});
+  if(d.success){showNotif(`♻️ ${d.n} restaurée(s)`,'success');oCharger();}
+}
+async function oPurgerSel(){
+  const conf=prompt(`⚠️ SUPPRESSION DÉFINITIVE de ${oSel.size} conversation(s) : messages ET pièces jointes seront effacés de la base pour toujours.\n\nTapez DELETE pour confirmer :`);
+  if(conf!=='DELETE'){showNotif('Suppression annulée','warning');return;}
+  const d=await apiPost('/api/crm/inbox/purger',{ids:[...oSel]});
+  if(d.success){showNotif(`❌ ${d.n} supprimée(s) définitivement`,'success');oConvId=null;oRenderLecture(null);oCharger();}
+}
+
+async function oOuvrir(id){
+  oConvId=id;oRenderListe();
+  const d=await apiGet(`/api/crm/inbox/conversation/${id}`);
+  if(!d.conversation){showNotif('❌ Conversation introuvable','error');return;}
+  oConvData=d;oRenderLecture(d);outlookBadge();
+  const c=oConvs.find(x=>x.id===id);if(c)c.non_lus=0;oRenderListe();
+}
+function oRenderLecture(d){
+  const cont=document.getElementById('o-lecture');
+  if(!d){cont.innerHTML='<div style="padding:60px 20px;text-align:center;color:var(--gray);font-size:13px;">📬 Sélectionnez une conversation dans la liste pour la lire ici.</div>';return;}
+  const c=d.conversation,msgs=d.messages||[],pjs=d.pieces_jointes||[];
+  const pastille={a_repondre:'🔴 À répondre',en_attente:'🟡 En attente',termine:'🟢 Terminé'};
+  const ctx=d.contexte?`<div style="background:rgba(26,143,209,0.07);border:1px solid rgba(26,143,209,0.2);border-radius:8px;padding:8px 12px;font-size:12px;margin:10px 0;">💼 Courtier ${d.contexte.banniere||''} ${d.contexte.ville?('· '+d.contexte.ville):''} · ${d.contexte.nb_envois} prospection(s) reçue(s)${d.contexte.rdv_clique?' · 📅 a utilisé le lien RDV':''}</div>`:'';
+  const dernierId=msgs.length?msgs[msgs.length-1].id:null;
+  cont.innerHTML=`
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <strong style="font-size:15px;color:var(--navy);">${c.contact_email}</strong>
+      <span style="font-size:11px;background:var(--bg,#F7FAFC);border:1px solid var(--border);border-radius:100px;padding:2px 10px;">${c.contact_type}</span>
+      <span style="font-size:11px;">${pastille[c.statut]||''}</span>
+      ${c.prioritaire?'<span>⭐</span>':''}${c.spam?'<span style="font-size:11px;color:#C0392B;">🚫 Spam</span>':''}
+    </div>
+    ${ctx}
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 14px;">
+      <button class="btn-primary" style="font-size:12px;padding:6px 12px;" onclick="orOuvrir()">↩️ Répondre</button>
+      <button class="btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="otOuvrir()">↗️ Transférer</button>
+      <button class="btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="oMaj({statut:'${c.statut==='termine'?'a_repondre':'termine'}'})">${c.statut==='termine'?'🔄 Réouvrir':'🟢 Terminer'}</button>
+      <button class="btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="oMaj({prioritaire:${c.prioritaire?0:1}})">${c.prioritaire?'☆ Retirer des suivis':'⭐ Suivre'}</button>
+      <button class="btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="oSpamToggle()">${c.spam?'✅ Pas un spam':'🚫 Spam'}</button>
+      <button class="btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="oMaj({lu:0},true)">📖 Marquer non lu</button>
+      <button class="btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="oSel=new Set(['${c.id}']);${oVue==='corbeille'?'oPurgerSel()':'oCorbeilleSel()'}">🗑️</button>
+    </div>
+    ${pjs.length?`<div style="font-size:12px;margin-bottom:10px;">📎 ${pjs.map(p=>p.cle_r2?`<a href="${API}/api/crm/inbox/pj/${p.id}?t=${authToken}" target="_blank" style="color:var(--blue);margin-right:10px;">${p.nom_fichier} (${Math.round((p.taille||0)/1024)} Ko)</a>`:`<span style="color:var(--gray);margin-right:10px;">${p.nom_fichier} (non conservée)</span>`).join('')}</div>`:''}
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+      ${msgs.map(m=>`<button class="btn-secondary" id="o-fil-${m.id}" style="font-size:11px;padding:4px 10px;" onclick="oVoirMsg('${m.id}')">${m.direction==='entrant'?'📨 Lui':'📤 Vous'} · ${new Date(m.created_at).toLocaleDateString('fr-CA',{day:'numeric',month:'short'})}</button>`).join('')}
+    </div>
+    <iframe id="o-iframe" sandbox="allow-same-origin" style="width:100%;height:460px;border:1px solid var(--border);border-radius:10px;background:#F4F7FA;"></iframe>`;
+  if(dernierId)oVoirMsg(dernierId);
+}
+function oVoirMsg(mid){
+  const m=(oConvData?.messages||[]).find(x=>x.id===mid);if(!m)return;
+  document.querySelectorAll('[id^="o-fil-"]').forEach(b=>b.style.background='');
+  const b=document.getElementById('o-fil-'+mid);if(b)b.style.background='rgba(26,143,209,0.15)';
+  document.getElementById('o-iframe').srcdoc=m.corps_html||'<p>(vide)</p>';
+}
+async function oMaj(champs,rester){
+  const d=await apiPut(`/api/crm/inbox/conversation/${oConvId}/maj`,champs);
+  if(d.success){showNotif('✅ Mis à jour','success');if(!rester)await oOuvrir(oConvId);await oCharger();}
+}
+async function oSpamToggle(){
+  const c=oConvData?.conversation;if(!c)return;
+  if(c.spam){await oMaj({spam:0});return;}
+  if(!confirm('Classer cette conversation en Spam ?'))return;
+  const regle=confirm(`Voulez-vous AUSSI toujours classer les futurs courriels de ${c.contact_email} en spam ?\n\nOK = oui, toujours · Annuler = juste celle-ci`);
+  const d=await apiPut(`/api/crm/inbox/conversation/${oConvId}/maj`,{spam:1,spam_regle:regle});
+  if(d.success){showNotif(regle?'🚫 Spam + règle créée pour cet expéditeur':'🚫 Classé spam','success');oConvId=null;oRenderLecture(null);oCharger();}
+}
+
+// ── Répondre ──
+let orTimer=null;
+function orOuvrir(){
+  const c=oConvData?.conversation;if(!c)return;
+  document.getElementById('or-dest').textContent=c.contact_email;
+  document.getElementById('or-sujet').value='Re: '+(c.sujet_initial||'');
+  document.getElementById('or-corps').value='';
+  document.getElementById('or-citer').checked=true;
+  const sel=document.getElementById('or-template');
+  sel.innerHTML='<option value="">✍️ Réponse libre (gabarit CapturAir + signature)</option>'+(oTemplates||[]).map(t=>`<option value="${t.id}">${t.nom||t.titre||'Modèle'}</option>`).join('');
+  sel.value='';
+  document.getElementById('modal-o-repondre').classList.add('active');
+  orApercu();
+}
+function oGabaritJS(corps){
+  const LH='https://raw.githubusercontent.com/jemarche/capturair/main/images/Logo%20carr%C3%A9%20headers.png';
+  const LS='https://raw.githubusercontent.com/jemarche/capturair/main/images/android-chrome-2048x2048.png';
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#F4F7FA;font-family:Arial,sans-serif;"><div style="max-width:620px;margin:0 auto;padding:20px 0;"><div style="border-radius:20px 20px 0 0;overflow:hidden;line-height:0;"><img src="${LH}" alt="CapturAir" width="620" style="display:block;width:100%;max-width:620px;height:auto;"></div><div style="background:white;padding:36px 40px;border:1px solid #DEE4EF;border-top:none;"><div style="color:#4A5568;font-size:14px;line-height:1.8;white-space:pre-line;margin-bottom:28px;">${corps}</div><table cellpadding="0" cellspacing="0" style="width:100%;margin-top:24px;border-top:1px solid #DEE4EF;padding-top:20px;"><tr><td style="padding-right:16px;vertical-align:top;width:80px;"><img src="${LS}" alt="CapturAir" width="70" height="70" style="border-radius:12px;display:block;"></td><td style="vertical-align:top;border-left:3px solid #1A8FD1;padding-left:16px;"><strong style="color:#0B1F3A;font-size:15px;">Mohand Aidi</strong><br><span style="color:#1A8FD1;font-size:11px;letter-spacing:1px;text-transform:uppercase;">Fondateur · CapturAir</span><br><span style="font-size:12px;color:#6B7C93;">✉️ info@capturair.com · 📞 514 446-6078 · capturair.com</span></td></tr></table></div><div style="background:#0B1F3A;padding:16px 40px;border-radius:0 0 20px 20px;text-align:center;"><p style="color:rgba(255,255,255,0.4);font-size:11px;margin:0;">CapturAir · Drone &amp; Photo Aérienne · info@capturair.com · 514 446-6078 · capturair.com</p></div></div></body></html>`;
+}
+function orApercuDiffere(){clearTimeout(orTimer);orTimer=setTimeout(orApercu,400);}
+function orApercu(){
+  const tid=document.getElementById('or-template').value;
+  document.getElementById('or-corps-zone').style.display=tid?'none':'block';
+  let html='';
+  if(tid){const t=(oTemplates||[]).find(x=>x.id===tid);html=(t?.contenu_html||'').replace(/{{SALUTATION}}/g,'Bonjour,').replace(/{{PRENOM}}/g,'').replace(/{{NOM}}/g,'');}
+  else html=oGabaritJS(document.getElementById('or-corps').value||'(votre message ici)');
+  if(document.getElementById('or-citer').checked){
+    const dernier=[...(oConvData?.messages||[])].reverse().find(m=>m.direction==='entrant');
+    if(dernier?.corps_html){const cit=`<div style="margin-top:24px;padding:12px 16px;border-left:3px solid #DEE4EF;color:#6B7C93;font-size:12px;font-family:Arial,sans-serif;"><p style="margin:0 0 8px;">Le ${new Date(dernier.created_at).toLocaleDateString('fr-CA')}, ${dernier.de_email} a écrit :</p>${dernier.corps_html}</div>`;
+      html=html.includes('</body>')?html.replace('</body>',cit+'</body>'):html+cit;}
+  }
+  document.getElementById('or-apercu').srcdoc=html;
+}
+async function orEnvoyer(){
+  const tid=document.getElementById('or-template').value;
+  const corps=document.getElementById('or-corps').value.trim();
+  const sujet=document.getElementById('or-sujet').value.trim();
+  if(!sujet){showNotif('⚠️ Objet requis','warning');return;}
+  if(!tid&&!corps){showNotif('⚠️ Écrivez un message ou choisissez un modèle','warning');return;}
+  const btn=document.getElementById('or-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Envoi...';
+  const d=await apiPost(`/api/crm/inbox/conversation/${oConvId}/repondre`,{template_id:tid||null,corps,sujet,citer:document.getElementById('or-citer').checked});
+  btn.disabled=false;btn.innerHTML='📧 Envoyer la réponse';
+  if(d.success){showNotif('✅ Réponse envoyée (copie duplicata archivée)','success');closeModal('modal-o-repondre');await oOuvrir(oConvId);oCharger();}
+  else showNotif('❌ '+(d.error||'Envoi impossible'),'error');
+}
+
+// ── Transférer ──
+function otOuvrir(){
+  document.getElementById('ot-dest').value='';
+  document.getElementById('ot-commentaire').value='';
+  document.getElementById('ot-pj').checked=true;
+  document.getElementById('modal-o-transfert').classList.add('active');
+}
+async function otEnvoyer(){
+  const dest=document.getElementById('ot-dest').value.trim();
+  if(!dest||!dest.includes('@')){showNotif('⚠️ Adresse invalide','warning');return;}
+  const btn=document.getElementById('ot-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';
+  const d=await apiPost(`/api/crm/inbox/conversation/${oConvId}/transferer`,{destinataire:dest,commentaire:document.getElementById('ot-commentaire').value,inclure_pj:document.getElementById('ot-pj').checked});
+  btn.disabled=false;btn.innerHTML='📧 Transférer';
+  if(d.success){showNotif(`✅ Transféré à ${dest}`,'success');closeModal('modal-o-transfert');await oOuvrir(oConvId);}
+  else showNotif('❌ '+(d.error||'Transfert impossible'),'error');
+}
+
+// ── Filtres avancés ──
+function oFiltresToggle(){const p=document.getElementById('o-filtres-panneau');p.style.display=p.style.display==='none'?'block':'none';}
+function oFiltreCriteres(){
+  const v=id=>document.getElementById(id)?.value?.trim()||'';
+  const c={};
+  if(v('of-statut'))c.statut=v('of-statut');
+  if(v('of-type'))c.type_contact=v('of-type');
+  if(v('of-jours'))c.jours=Number(v('of-jours'));
+  if(v('of-expediteur'))c.expediteur=v('of-expediteur');
+  if(v('of-domaine'))c.domaine=v('of-domaine');
+  if(v('of-motcle'))c.mot_cle=v('of-motcle');
+  if(v('of-banniere'))c.banniere=v('of-banniere');
+  if(document.getElementById('of-nonlus').checked)c.non_lus=1;
+  if(document.getElementById('of-prioritaire').checked)c.prioritaire=1;
+  if(document.getElementById('of-pj').checked)c.avec_pj=1;
+  return c;
+}
+function oFiltreAppliquer(){
+  oFiltreLocal=oFiltreCriteres();
+  if(!Object.keys(oFiltreLocal).length){oFiltreLocal=null;showNotif('Aucun critère saisi','warning');return;}
+  document.getElementById('o-filtre-actif').textContent='(filtre appliqué)';
+  oCharger();
+}
+function oFiltreReinit(){
+  ['of-statut','of-type','of-jours','of-expediteur','of-domaine','of-motcle','of-banniere'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['of-nonlus','of-prioritaire','of-pj'].forEach(id=>{const e=document.getElementById(id);if(e)e.checked=false;});
+  oFiltreLocal=null;document.getElementById('o-filtre-actif').textContent='';oCharger();
+}
+async function oFiltreSauvegarder(){
+  const c=oFiltreCriteres();
+  if(!Object.keys(c).length){showNotif('⚠️ Remplissez au moins un critère avant de sauvegarder','warning');return;}
+  const nom=prompt('Nom de ce filtre (il apparaîtra comme sous-tiroir de Réception) :');
+  if(!nom)return;
+  const d=await apiPost('/api/crm/inbox/filtres',{nom,criteres:c});
+  if(d.success){showNotif(`💾 Filtre « ${nom} » sauvegardé`,'success');oSousFiltresCharger();}
+}
+
 // ══ NAVIGATION ════════════════════════════════════════════════════════
 function showPage(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById(`page-${page}`)?.classList.add('active');
   document.querySelector(`[onclick="showPage('${page}')"]`)?.classList.add('active');
-  const titles={dashboard:'Dashboard',leads:'Dossiers clients',soumissions:'Soumissions','projets-list':'Projets galerie',factures:'Factures',utilisateurs:'Utilisateurs',dossier:'Fiche dossier',courtiers:'Courtiers Immobiliers',correspondances:'Correspondances',prospection:'🔍 Prospection Courtiers'};
+  const titles={dashboard:'Dashboard',leads:'Dossiers clients',soumissions:'Soumissions','projets-list':'Projets galerie',factures:'Factures',utilisateurs:'Utilisateurs',dossier:'Fiche dossier',courtiers:'Courtiers Immobiliers',correspondances:'Correspondances',prospection:'🔍 Prospection Courtiers',outlook:'📬 Outlook CapturAir'};
   document.getElementById('topbar-title').textContent=titles[page]||page;
   if(page==='leads')renderLeads();
   if(page==='soumissions')renderSoumissions();
@@ -1952,7 +2335,7 @@ function showPage(page){
   if(page==='courtiers')chargerCourtiers();
   if(page==='correspondances')initCorrespondances();
   if(page==='prospection')initProspection();
-  if(page==='prospection')initProspection();
+  if(page==='outlook')outlookInit();
 }
 function confirmerRetour(){if(hasUnsaved){pendingNavigation=()=>{hasUnsaved=false;showPage('leads');};document.getElementById('modal-confirm-save').classList.add('active');}else showPage('leads');}
 function ignorerModifs(){hasUnsaved=false;closeModal('modal-confirm-save');if(pendingNavigation){pendingNavigation();pendingNavigation=null;}}
