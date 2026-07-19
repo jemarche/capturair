@@ -916,6 +916,29 @@
         <div style="font-size:11px;color:var(--gray);">Token: <input type="password" id="prosp-token" placeholder="votre-local-token" style="border:1px solid var(--border);border-radius:5px;padding:3px 8px;font-size:11px;width:200px;font-family:monospace;"></div>
       </div>
 
+      <!-- Section A0 — Tableau de bord (Projet 3) -->
+      <div class="section-card" style="margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div class="section-card-title" style="margin-bottom:0;">📊 Tableau de bord</div>
+          <button class="btn-secondary" onclick="statsCharger()" style="font-size:11px;padding:4px 12px;">🔄 Actualiser</button>
+        </div>
+        <div id="stats-tuiles" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px;">
+          <div style="color:var(--gray);font-size:12px;">Chargement des statistiques...</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:8px;">📈 Activité (14 derniers jours)</div>
+            <div id="stats-graph" style="display:flex;align-items:flex-end;gap:3px;height:70px;padding:4px 0;"></div>
+            <div style="font-size:12px;font-weight:600;color:var(--navy);margin:14px 0 8px;">💬 Dernières réponses</div>
+            <div id="stats-reponses" style="font-size:12px;color:var(--gray);">—</div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:8px;">🏢 Par bannière</div>
+            <div id="stats-bannieres" style="font-size:12px;color:var(--gray);">—</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Section A — Lancement -->
       <div class="section-card" style="margin-bottom:16px;">
         <div class="section-card-title">🚀 Lancer une prospection</div>
@@ -3110,6 +3133,47 @@ let prospSSESource = null;
 
 // ── RELANCES (Projet 1) ──
 let relDues=[]; let relSel=new Set();
+// ── TABLEAU DE BORD (Projet 3) ──
+async function statsCharger(){
+  try{
+    const d=await apiGet('/api/crm/prospection/stats');
+    const c=d.courtiers||{},e=d.envois||{},rep=d.reponses||{},rdv=d.rdv||{};
+    const taux=c.contactes?Math.round(100*(c.repondus||0)/c.contactes):0;
+    const tuile=(emoji,val,label,couleur)=>`<div style="background:var(--bg,#F7FAFC);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;">
+      <div style="font-size:20px;">${emoji}</div>
+      <div style="font-size:22px;font-weight:800;color:${couleur||'var(--navy)'};">${val}</div>
+      <div style="font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;">${label}</div></div>`;
+    document.getElementById('stats-tuiles').innerHTML=
+      tuile('📇',(c.total||0),'Courtiers en base')+
+      tuile('📤',(c.contactes||0),'Contactés')+
+      tuile('🆕',(c.jamais||0),'Jamais contactés')+
+      tuile('💬',(rep.total||0),'Réponses reçues','var(--green,#1E9E60)')+
+      tuile('📈',taux+' %','Taux de réponse',taux>=5?'var(--green,#1E9E60)':'var(--navy)')+
+      tuile('✉️',(e.derniers_30j||0),'Envois — 30 jours');
+    // Graphique par jour (barres CSS)
+    const pj=d.par_jour||[];const max=Math.max(1,...pj.map(x=>x.nb));
+    document.getElementById('stats-graph').innerHTML=pj.length?pj.map(x=>
+      `<div title="${x.jour} : ${x.nb} envoi(s)" style="flex:1;background:var(--blue,#1A8FD1);opacity:0.85;border-radius:3px 3px 0 0;height:${Math.max(8,Math.round(64*x.nb/max))}px;"></div>`).join('')
+      :'<div style="font-size:11px;color:var(--gray);">Aucun envoi sur la période</div>';
+    // Dernières réponses
+    document.getElementById('stats-reponses').innerHTML=(rep.dernieres&&rep.dernieres.length)?rep.dernieres.map(x=>
+      `<div style="padding:5px 0;border-bottom:1px solid var(--border);"><span style="font-family:monospace;">${x.email_expediteur}</span><br><span style="font-size:11px;">${(x.sujet||'').slice(0,50)} · ${new Date(x.recu_at).toLocaleDateString('fr-CA')}</span></div>`).join('')
+      :'Aucune réponse encore — elles apparaîtront ici.';
+    // Par bannière
+    const bs=d.bannieres||[];
+    document.getElementById('stats-bannieres').innerHTML=bs.length?`<table style="width:100%;border-collapse:collapse;">
+      <thead><tr style="text-align:left;color:var(--gray);font-size:11px;border-bottom:1px solid var(--border);"><th style="padding:4px;">Bannière</th><th style="padding:4px;text-align:center;">Contactés</th><th style="padding:4px;text-align:center;">Réponses</th><th style="padding:4px;text-align:center;">Taux</th></tr></thead>
+      <tbody>${bs.map(b=>{const t=b.contactes?Math.round(100*b.repondus/b.contactes):0;return `<tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:5px 4px;font-weight:600;">${b.banniere}</td>
+        <td style="padding:5px 4px;text-align:center;">${b.contactes}</td>
+        <td style="padding:5px 4px;text-align:center;">${b.repondus}</td>
+        <td style="padding:5px 4px;text-align:center;color:${t>=5?'var(--green,#1E9E60)':'var(--gray)'};font-weight:600;">${t} %</td></tr>`;}).join('')}</tbody></table>`
+      :'Les statistiques par bannière apparaîtront après vos premiers envois.';
+  }catch(err){
+    const el=document.getElementById('stats-tuiles');
+    if(el)el.innerHTML='<div style="color:var(--gray);font-size:12px;">Statistiques indisponibles (serveur Worker à redéployer ?)</div>';
+  }
+}
 async function relInit(){ try{ const d=await apiGet('/api/crm/relances/config'); if(d.mode){const s=document.getElementById('rel-mode'); if(s)s.value=d.mode;} }catch(e){} }
 async function relChangerMode(){
   const mode=document.getElementById('rel-mode').value;
@@ -3215,7 +3279,7 @@ async function epAnnuler(id){
 }
 
 async function initProspection(){
-  await prospVerifierStatut(); relInit(); epCharger(); repChargerBadge();
+  await prospVerifierStatut(); statsCharger(); relInit(); epCharger(); repChargerBadge();
   prospChargerJobs();
   prospMajSchedulerUI();
   prospCalculerProchain();
