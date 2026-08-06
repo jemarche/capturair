@@ -2562,7 +2562,9 @@ async function executeDelete(){
 // ══ SOUMISSION ════════════════════════════════════════════════════════
 async function creerSoumission(){
   if(!currentLead)return;
-  const d=await apiPost('/api/crm/soumissions',{projet_id:currentLead.id,source_lead:'MANUEL'});
+  // Ajouter un timestamp aléatoire pour garantir l'unicité
+  const randomSeed = Math.random().toString(36).substring(2, 10) + Date.now();
+  const d=await apiPost('/api/crm/soumissions',{projet_id:currentLead.id,source_lead:'MANUEL',_seed:randomSeed});
   if(d.success){
     await chargerSoumissions();
     currentSoumission=soumissions.find(s=>s.id===d.id)||{id:d.id,num_soumission:d.num_soumission,statut:'BROUILLON',projet_id:currentLead.id};
@@ -2745,7 +2747,7 @@ function ouvrirAgenda(){
   if(date){const d=date.replace(/-/g,'');url+=`&dates=${d}T090000/${d}T100000`;}
   window.open(url,'_blank');
 }
-async function dupliquerSoumission(){if(!currentSoumission)return;const d=await apiPost(`/api/crm/soumissions/${currentSoumission.id}/dupliquer`,{});if(d.success){showNotif('✅ Soumission dupliquée — '+d.num_soumission,'success');await chargerSoumissions();chargerSoumissionDossier();}else showNotif('❌ '+d.error,'error');}
+async function dupliquerSoumission(){if(!currentSoumission)return;const randomSeed = Math.random().toString(36).substring(2, 10) + Date.now();const d=await apiPost(`/api/crm/soumissions/${currentSoumission.id}/dupliquer`,{_seed:randomSeed});if(d.success){showNotif('✅ Soumission dupliquée — '+d.num_soumission,'success');await chargerSoumissions();chargerSoumissionDossier();}else showNotif('❌ '+d.error,'error');}
 function supprimerSoumission(){pendingDelete={type:'soumission',id:currentSoumission?.id};document.getElementById('delete-title').textContent='🗑️ Supprimer la soumission';document.getElementById('delete-msg').textContent=`Supprimer ${currentSoumission?.num_soumission} ?`;document.getElementById('modal-confirm-delete').classList.add('active');}
 async function envoyerSoumission(){
   await sauverSoumissionManuel(true);
