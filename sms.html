@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0B1F3A">
+<title>CapturAir SMS</title>
+<link rel="icon" href="https://raw.githubusercontent.com/jemarche/capturair/main/images/android-chrome-2048x2048.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0B1F3A;--blue:#1A8FD1;--blue-light:#3AABEF;--teal:#1ABC9C;--orange:#E67E22;--red:#E74C3C;--green:#27AE60;--offwhite:#F4F7FA;--white:#FFFFFF;--gray:#6B7C93;--border:#DEE4EF}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--offwhite);color:var(--navy);-webkit-font-smoothing:antialiased}
+button,input,textarea{font-family:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--blue-light);outline-offset:2px}
+[hidden]{display:none!important}
+
+/* ── CONNEXION (identique au CRM) ── */
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#060E18 0%,#0B1F3A 50%,#0D2B50 100%);position:relative;overflow:hidden;padding:20px}
+.login-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(26,143,209,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(26,143,209,0.05) 1px,transparent 1px);background-size:50px 50px}
+.login-box{background:rgba(255,255,255,0.04);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(200,216,232,0.12);border-radius:24px;padding:48px;width:420px;max-width:100%;position:relative;z-index:2}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo img{width:80px;height:80px;border-radius:16px;margin-bottom:12px}
+.login-logo h1{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:white}
+.login-logo p{color:var(--blue-light);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.login-field{margin-bottom:16px}
+.login-field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(200,216,232,0.5);margin-bottom:8px}
+.login-field input{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(200,216,232,0.15);border-radius:10px;padding:13px 16px;color:white;font-size:14px;outline:none;transition:border-color 0.2s}
+.login-field input:focus{border-color:var(--blue)}
+.login-field input::placeholder{color:rgba(200,216,232,0.25)}
+.methodes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.methodes-titre{font-size:11px;color:rgba(200,216,232,0.45);text-align:center;margin-bottom:12px;letter-spacing:0.5px}
+.methode{background:rgba(255,255,255,0.05);border:1px solid rgba(200,216,232,0.12);border-radius:12px;padding:14px 10px;text-align:center;color:rgba(200,216,232,0.6)}
+.methode.actif{background:rgba(26,143,209,0.18);border-color:rgba(26,143,209,0.6);color:white}
+.methode .ico{font-size:22px;margin-bottom:6px}
+.methode .t{font-size:12px;font-weight:600;font-family:'Syne',sans-serif}
+.methode .s{font-size:10px;opacity:0.6;margin-top:3px}
+.btn-login{width:100%;background:linear-gradient(135deg,var(--blue),#0D5C8A);color:white;border:none;padding:14px;border-radius:10px;font-size:15px;font-weight:600;margin-top:8px;font-family:'Syne',sans-serif;transition:all 0.2s}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(26,143,209,0.4)}
+.login-error{color:#E74C3C;font-size:13px;text-align:center;margin-top:12px;min-height:1.2em}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.6s linear infinite;display:inline-block;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── APPLICATION ── */
+.app{height:100%;display:flex;flex-direction:column}
+.topbar{background:var(--navy);color:white;display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top)) 16px 10px}
+.marque{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;display:flex;align-items:baseline;gap:8px;min-width:0}
+.marque b{font-weight:700;color:var(--blue-light)}
+.marque small{font-family:'DM Sans',sans-serif;font-weight:400;font-size:12px;color:rgba(200,216,232,0.6)}
+.quota{margin-left:auto;font-size:12px;background:rgba(255,255,255,0.08);border:1px solid rgba(200,216,232,0.15);border-radius:100px;padding:5px 11px;white-space:nowrap;color:rgba(200,216,232,0.85)}
+.quota.plein{background:rgba(231,76,60,0.25);border-color:rgba(231,76,60,0.6);color:white}
+.btn-logout{background:none;border:none;color:rgba(200,216,232,0.5);font-size:18px;padding:4px 6px}
+.btn-logout:hover{color:var(--red)}
+.onglets{display:flex;background:var(--white);border-bottom:1px solid var(--border);padding:0 8px}
+.onglet{background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;padding:12px 14px;font-size:14px;font-weight:500;color:var(--gray);display:flex;align-items:center;gap:8px}
+.onglet.actif{color:var(--blue);border-bottom-color:var(--blue)}
+.nav-badge{background:var(--blue);color:white;font-size:11px;padding:1px 7px;border-radius:100px;font-weight:600}
+.corps{flex:1;min-height:0;min-width:0;display:flex;overflow:hidden}
+.vue{flex:1;min-height:0;min-width:0;width:100%;display:flex}
+
+/* boutons (CRM) */
+.btn-primary{background:var(--blue);color:white;border:none;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:background 0.2s}
+.btn-primary:hover{background:#1578B0}
+.btn-primary:disabled{opacity:0.5;cursor:default}
+.btn-secondary{background:var(--offwhite);color:var(--navy);border:1px solid var(--border);padding:9px 16px;border-radius:8px;font-size:13px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
+.btn-danger{background:rgba(231,76,60,0.1);color:var(--red);border:1px solid rgba(231,76,60,0.3);padding:9px 16px;border-radius:8px;font-size:13px}
+.btn-danger:hover{background:var(--red);color:white}
+.search-input{flex:1;min-width:0;background:white;border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-size:14px;outline:none}
+.search-input:focus{border-color:var(--blue)}
+
+/* liste des conversations */
+.col-liste{width:100%;display:flex;flex-direction:column;background:var(--white);min-height:0}
+.barre{display:flex;gap:8px;padding:12px;border-bottom:1px solid var(--border)}
+.liste{list-style:none;overflow-y:auto;flex:1}
+.item{width:100%;background:none;border:none;border-bottom:1px solid var(--border);text-align:left;padding:12px 14px;display:grid;grid-template-columns:auto 1fr auto;gap:2px 12px;align-items:center}
+.item:hover,.item.courant{background:var(--offwhite)}
+.item.courant{box-shadow:inset 3px 0 0 var(--blue)}
+.avatar{grid-row:span 2;width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--blue),#0D5C8A);color:white;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:15px}
+.avatar.inconnu{background:var(--border);color:var(--gray)}
+.item .nom{font-weight:500;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .quand{font-size:12px;color:var(--gray);text-align:right}
+.item .apercu{font-size:13px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item.non-lu .apercu{color:var(--navy);font-weight:500}
+.item .droite{display:flex;justify-content:flex-end}
+.pastille{background:var(--blue);color:white;font-size:11px;font-weight:600;min-width:20px;height:20px;line-height:20px;border-radius:10px;text-align:center;padding:0 6px}
+.empty-state{text-align:center;padding:48px 24px;color:var(--gray);font-size:14px;line-height:1.5}
+.empty-state .ico{font-size:40px;opacity:0.5;margin-bottom:10px}
+
+/* fil */
+.col-fil{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--offwhite)}
+.fil-vide{flex:1;display:flex;align-items:center;justify-content:center;color:var(--gray);font-size:14px;padding:24px;text-align:center}
+.fil{flex:1;display:flex;flex-direction:column;min-height:0;min-width:0}
+.fil-entete{background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:10px 12px}
+.retour{background:none;border:none;font-size:26px;line-height:1;width:36px;height:36px;border-radius:18px;color:var(--navy)}
+.fil-entete .avatar{grid-row:auto;width:38px;height:38px;border-radius:10px;font-size:14px;flex-shrink:0}
+.fil-titre{flex:1;min-width:0}
+.fil-titre h2{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fil-titre p{font-size:12px;color:var(--gray)}
+.fil-actions{display:flex;gap:6px}
+.fil-actions a,.fil-actions button{font-size:13px;padding:7px 11px;text-decoration:none}
+.messages{flex:1;overflow-y:auto;padding:14px 12px 8px;display:flex;flex-direction:column;gap:6px}
+.jour{align-self:center;font-size:12px;color:var(--gray);background:var(--white);border:1px solid var(--border);border-radius:100px;padding:3px 10px;margin:8px 0 4px}
+.bulle{max-width:min(80%,540px);padding:9px 13px 6px;border-radius:14px;font-size:15px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;font-weight:400}
+.bulle .meta{display:flex;justify-content:flex-end;gap:6px;font-size:11px;margin-top:3px;opacity:0.75}
+.entrant{align-self:flex-start;background:var(--white);border:1px solid var(--border);border-bottom-left-radius:4px}
+.sortant{align-self:flex-end;background:var(--blue);color:white;border-bottom-right-radius:4px}
+.sortant.crm{background:var(--navy)}
+.sortant.echec{background:rgba(231,76,60,0.12);color:var(--navy);border:1px solid rgba(231,76,60,0.4)}
+.sortant.attente{opacity:0.6}
+.statut-echec{color:var(--red);font-weight:500}
+.bulle.nouvelle{animation:arrivee 0.22s ease-out}
+@keyframes arrivee{from{transform:translateY(6px);opacity:0}to{transform:none;opacity:1}}
+
+/* rédaction */
+.composer{background:var(--white);border-top:1px solid var(--border);padding:10px 10px calc(10px + env(safe-area-inset-bottom));position:relative}
+.composer-ligne{display:flex;align-items:flex-end;gap:8px;min-width:0}
+.btn-emoji{background:var(--offwhite);border:1px solid var(--border);width:42px;height:42px;border-radius:10px;font-size:20px;flex-shrink:0}
+.composer textarea{flex:1;min-width:0;resize:none;border:1px solid var(--border);border-radius:10px;background:var(--offwhite);padding:10px 12px;font-size:15px;line-height:1.4;outline:none;max-height:160px;font-weight:400}
+.composer textarea:focus{border-color:var(--blue);background:white;box-shadow:0 0 0 3px rgba(26,143,209,0.08)}
+.compteur{flex-shrink:0;width:66px;height:42px;border:1px solid var(--border);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;background:var(--offwhite)}
+.compteur strong{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.compteur span{font-size:10px;color:var(--gray)}
+.compteur.depasse{border-color:var(--orange);background:rgba(230,126,34,0.1)}
+.compteur.depasse strong,.compteur.depasse span{color:var(--orange)}
+.btn-envoyer{height:42px;padding:0 16px;flex-shrink:0}
+.note-compteur{font-size:12px;color:var(--orange);margin:6px 2px 0}
+.emoji-pop{position:absolute;bottom:calc(100% + 6px);left:10px;background:var(--white);border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 24px rgba(11,31,58,0.15);padding:8px;display:grid;grid-template-columns:repeat(8,1fr);gap:2px;width:min(340px,calc(100vw - 20px));z-index:20}
+.emoji-pop button{background:none;border:none;font-size:22px;height:38px;border-radius:8px}
+.emoji-pop button:hover{background:var(--offwhite)}
+
+/* répertoire */
+.vue-rep{flex-direction:column;background:var(--white)}
+.rep-contenu{flex:1;overflow-y:auto}
+.contact{display:grid;grid-template-columns:auto 1fr auto;gap:2px 12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border)}
+.contact .nom{font-weight:500;font-size:15px}
+.contact .tel{font-size:13px;color:var(--gray)}
+.contact .note{grid-column:2;font-size:12px;color:var(--gray);font-style:italic}
+.contact .actions{grid-row:span 2;display:flex;gap:6px}
+.contact .actions button{padding:7px 11px;font-size:13px}
+.carte-import{margin:16px;padding:16px;border:1px dashed var(--border);border-radius:12px;background:var(--offwhite);font-size:13px;color:var(--gray);line-height:1.5}
+.carte-import strong{display:block;color:var(--navy);font-family:'Syne',sans-serif;font-size:14px;margin-bottom:4px}
+.carte-import button{margin-top:10px}
+
+/* modales */
+.modal-fond{position:fixed;inset:0;background:rgba(11,31,58,0.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal{background:white;border-radius:16px;padding:24px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(11,31,58,0.3)}
+.modal-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:18px}
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.form-label{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray);font-weight:600}
+.form-input{background:var(--offwhite);border:1px solid var(--border);border-radius:8px;padding:10px 13px;font-size:15px;outline:none;font-weight:400}
+.form-input:focus{border-color:var(--blue);background:white;box-shadow:0 0 0 3px rgba(26,143,209,0.08)}
+.form-hint{font-size:12px;color:var(--gray)}
+.form-error{font-size:13px;color:var(--red);min-height:1.2em;margin-bottom:6px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.modal-actions .gauche{margin-right:auto}
+.suggestions{list-style:none;border:1px solid var(--border);border-radius:8px;max-height:200px;overflow-y:auto}
+.suggestions button{width:100%;background:none;border:none;border-bottom:1px solid var(--border);text-align:left;padding:9px 12px;font-size:14px}
+.suggestions li:last-child button{border-bottom:none}
+.suggestions button:hover{background:var(--offwhite)}
+.suggestions small{color:var(--gray);margin-left:6px}
+
+.notif{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:100;background:var(--navy);color:white;padding:12px 18px;border-radius:10px;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,0.2);max-width:calc(100vw - 32px)}
+.notif.erreur{background:var(--red)}
+
+/* disposition responsive */
+.vue-conv .col-fil{display:none}
+.vue-conv.fil-ouvert .col-liste{display:none}
+.vue-conv.fil-ouvert .col-fil{display:flex}
+@media(min-width:860px){
+  .vue-conv .col-liste,.vue-conv.fil-ouvert .col-liste{display:flex;width:360px;flex-shrink:0;border-right:1px solid var(--border)}
+  .vue-conv .col-fil{display:flex}
+  .retour{display:none}
+  .vue-rep .rep-contenu,.vue-rep .barre{width:100%;max-width:760px;margin:0 auto}
+}
+@media(max-width:480px){.login-box{padding:32px 24px}.marque small{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ══ CONNEXION ══ -->
+<div class="login-screen" id="login-screen">
+  <div class="login-grid"></div>
+  <form class="login-box" id="form-login" novalidate>
+    <div class="login-logo">
+      <img src="https://raw.githubusercontent.com/jemarche/capturair/main/images/android-chrome-2048x2048.png" alt="CapturAir">
+      <h1>Captur<span style="color:var(--blue-light)">Air</span></h1>
+      <p>SMS · (450) 800-0009</p>
+    </div>
+    <div class="login-field" id="field-email"><label for="login-email">Courriel</label><input type="email" id="login-email" placeholder="votre@email.com" autocomplete="email"></div>
+    <div class="login-field" id="field-pin"><label for="login-pin" id="lbl-pin">PIN</label><input type="password" id="login-pin" placeholder="••••••" maxlength="6" autocomplete="current-password" inputmode="numeric"></div>
+    <div id="login-methode" hidden>
+      <div class="methodes-titre">Choisissez votre méthode de vérification</div>
+      <div class="methodes">
+        <button type="button" class="methode actif" data-methode="otp"><div class="ico">📧</div><div class="t">Par email</div><div class="s">Code par courriel</div></button>
+        <button type="button" class="methode" data-methode="totp"><div class="ico">📱</div><div class="t">Authenticator</div><div class="s">Google Auth / Authy</div></button>
+      </div>
+    </div>
+    <button type="submit" class="btn-login" id="btn-login">Connexion →</button>
+    <div class="login-error" id="login-error" role="alert"></div>
+  </form>
+</div>
+
+<!-- ══ APPLICATION ══ -->
+<div class="app" id="app" hidden>
+  <header class="topbar">
+    <div class="marque"><span>Captur<b>Air</b></span><small>SMS (450) 800-0009</small></div>
+    <div class="quota" id="quota" title="SMS envoyés depuis cette page dans les dernières 24 heures">…</div>
+    <button class="btn-logout" id="btn-logout" title="Se déconnecter" aria-label="Se déconnecter">⏻</button>
+  </header>
+  <nav class="onglets">
+    <button class="onglet actif" data-onglet="conv">💬 Conversations <span class="nav-badge" id="badge-nonlus" hidden></span></button>
+    <button class="onglet" data-onglet="rep">📒 Répertoire</button>
+  </nav>
+
+  <main class="corps">
+    <!-- Conversations -->
+    <section class="vue vue-conv" id="vue-conv">
+      <div class="col-liste">
+        <div class="barre">
+          <input class="search-input" id="recherche-conv" type="search" placeholder="Rechercher un nom ou un numéro">
+          <button class="btn-primary" id="btn-nouveau">＋ Nouveau</button>
+        </div>
+        <ul class="liste" id="liste-conv"></ul>
+      </div>
+      <div class="col-fil">
+        <div class="fil-vide" id="fil-vide">Choisis une conversation, ou appuie sur « Nouveau » pour écrire à quelqu'un.</div>
+        <div class="fil" id="fil" hidden>
+          <div class="fil-entete">
+            <button class="retour" id="btn-retour" aria-label="Retour aux conversations">‹</button>
+            <div class="avatar" id="fil-avatar"></div>
+            <div class="fil-titre"><h2 id="fil-nom"></h2><p id="fil-tel"></p></div>
+            <div class="fil-actions">
+              <a class="btn-secondary" id="fil-appeler" href="#" title="Appeler">📞</a>
+              <button class="btn-secondary" id="fil-contact" title="Répertoire">📒</button>
+            </div>
+          </div>
+          <div class="messages" id="messages" aria-live="polite"></div>
+          <form class="composer" id="composer">
+            <div class="emoji-pop" id="emoji-pop" hidden></div>
+            <div class="composer-ligne">
+              <button type="button" class="btn-emoji" id="btn-emoji" aria-label="Ajouter un emoji" aria-expanded="false">😊</button>
+              <textarea id="texte" rows="1" placeholder="Écris ton message" aria-label="Message"></textarea>
+              <div class="compteur" id="compteur" title="Caractères utilisés sur la limite d'un SMS"><strong id="cpt-car">0/160</strong><span id="cpt-sms">0 SMS</span></div>
+              <button type="submit" class="btn-primary btn-envoyer" id="btn-envoyer" disabled>Envoyer</button>
+            </div>
+            <div class="note-compteur" id="note-compteur" hidden></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Répertoire -->
+    <section class="vue vue-rep" id="vue-rep" hidden>
+      <div class="barre">
+        <input class="search-input" id="recherche-rep" type="search" placeholder="Rechercher un contact">
+        <button class="btn-primary" id="btn-ajout-contact">＋ Ajouter</button>
+      </div>
+      <div class="rep-contenu">
+        <div id="liste-rep"></div>
+        <div class="carte-import">
+          <strong>Anciennes conversations</strong>
+          Récupère l'historique des SMS envoyés et reçus sur le (450) 800-0009 directement depuis Twilio. Tu peux le relancer sans créer de doublons.
+          <div><button class="btn-secondary" id="btn-importer">⬇ Récupérer l'historique Twilio</button></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Modale : nouveau message -->
+<div class="modal-fond" id="modal-nouveau" hidden>
+  <form class="modal" id="form-nouveau" novalidate>
+    <h3 class="modal-title">Nouveau message</h3>
+    <div class="form-group">
+      <label class="form-label" for="nouveau-dest">À</label>
+      <input class="form-input" id="nouveau-dest" autocomplete="off" placeholder="Nom du contact ou numéro">
+      <span class="form-hint">Canada : 514 555-1234. International : +33 6 12 34 56 78.</span>
+    </div>
+    <ul class="suggestions" id="suggestions" hidden></ul>
+    <div class="form-error" id="nouveau-erreur" role="alert"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn-secondary" data-fermer>Annuler</button>
+      <button type="submit" class="btn-primary">Écrire</button>
+    </div>
+  </form>
+</div>
+
+<!-- Modale : contact -->
+<div class="modal-fond" id="modal-contact" hidden>
+  <form class="modal" id="form-contact" novalidate>
+    <h3 class="modal-title" id="contact-titre">Ajouter un contact</h3>
+    <input type="hidden" id="contact-id">
+    <div class="form-group"><label class="form-label" for="contact-nom">Nom</label><input class="form-input" id="contact-nom" maxlength="120" placeholder="Ex. Julie Tremblay (Remax)"></div>
+    <div class="form-group"><label class="form-label" for="contact-tel">Téléphone</label><input class="form-input" id="contact-tel" type="tel" placeholder="514 555-1234 ou +33 6 12 34 56 78"></div>
+    <div class="form-group"><label class="form-label" for="contact-note">Note</label><input class="form-input" id="contact-note" maxlength="500" placeholder="Facultatif"></div>
+    <div class="form-error" id="contact-erreur" role="alert"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn-danger gauche" id="btn-suppr-contact" hidden>Supprimer</button>
+      <button type="button" class="btn-secondary" data-fermer>Annuler</button>
+      <button type="submit" class="btn-primary">Enregistrer</button>
+    </div>
+  </form>
+</div>
+
+<div class="notif" id="notif" role="status" hidden></div>
+
+<script>
+(function(){
+  'use strict';
+  var CARNET = 'https://capturair-carnet.tumarchessurlatete.workers.dev';
+  var SMS = 'https://capturair-sms.tumarchessurlatete.workers.dev';
+  var EMOJIS = ['🙂','😊','😀','😉','😅','🙏','👍','👌','👋','🤝','🎉','✨','❤️','🔥','⭐','✅','❌','⚠️','ℹ️','➡️','📸','🎥','🚁','📍','📅','🗓️','⏰','📞','💬','📧','🧾','💰','🏡','🏢','🏔️','🌅','☀️','🌤️','🌧️','❄️','🌳','🚗','🛩️','📷','🎬','🙌','😎','🤩'];
+  var GSM_BASE = "@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !\"#¤%&'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà";
+  var GSM_EXT = "^{}\\[~]|€";
+
+  var token = sessionStorage.getItem('crm_token') || '';
+  var etape = 1, emailLogin = '', methode = 'otp';
+  var conversations = [], contacts = [], courant = null, nbAffiches = 0, minuterie = null;
+
+  function $(id){ return document.getElementById(id); }
+  function el(tag, cls, txt){ var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+
+  /* ── Outils ── */
+  function normaliser(brut){
+    var n = String(brut || '').trim().replace(/[^\d+]/g, '');
+    if (n.indexOf('011') === 0) n = '+' + n.slice(3);
+    else if (n.indexOf('00') === 0) n = '+' + n.slice(2);
+    else if (/^\d{10}$/.test(n)) n = '+1' + n;
+    else if (/^1\d{10}$/.test(n)) n = '+' + n;
+    return /^\+[1-9]\d{7,14}$/.test(n) ? n : null;
+  }
+  function fmtTel(t){
+    var m = /^\+1(\d{3})(\d{3})(\d{4})$/.exec(t || '');
+    if (m) return '(' + m[1] + ') ' + m[2] + '-' + m[3];
+    m = /^\+33(\d)(\d{2})(\d{2})(\d{2})(\d{2})$/.exec(t || '');
+    if (m) return '+33 ' + m[1] + ' ' + m[2] + ' ' + m[3] + ' ' + m[4] + ' ' + m[5];
+    return t || 'Inconnu';
+  }
+  function initiales(nom){
+    if (!nom) return '#';
+    var p = nom.trim().split(/\s+/);
+    return ((p[0] || '')[0] + ((p[1] || '')[0] || '')).toUpperCase();
+  }
+  function nomDe(tel){
+    for (var i = 0; i < contacts.length; i++) if (contacts[i].telephone === tel) return contacts[i];
+    return null;
+  }
+  function heure(d){ return d.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' }); }
+  function jourTexte(d){
+    var a = new Date(), h = new Date(); h.setDate(a.getDate() - 1);
+    if (d.toDateString() === a.toDateString()) return "Aujourd'hui";
+    if (d.toDateString() === h.toDateString()) return 'Hier';
+    return d.toLocaleDateString('fr-CA', { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+  function quandCourt(ms){
+    var d = new Date(ms);
+    return d.toDateString() === new Date().toDateString() ? heure(d) : d.toLocaleDateString('fr-CA', { day: 'numeric', month: 'short' });
+  }
+  function statutTexte(s, erreur){
+    if (s === 'delivered') return { ico: '✓✓', txt: 'Livré' };
+    if (s === 'sent') return { ico: '✓', txt: 'Envoyé' };
+    if (s === 'failed' || s === 'undelivered') return { ico: '❌', txt: 'Non livré' + (erreur ? ' (code ' + erreur + ')' : ''), echec: true };
+    if (s === 'crm') return { ico: '✓', txt: 'Envoyé depuis le CRM' };
+    if (s === 'sending' || s === 'queued' || s === 'accepted' || s === 'scheduled') return { ico: '🕓', txt: 'En cours d\u2019envoi' };
+    return { ico: '✓', txt: 'Envoyé' };
+  }
+  var notifTimer;
+  function notif(msg, erreur){
+    var n = $('notif'); n.textContent = msg; n.className = 'notif' + (erreur ? ' erreur' : ''); n.hidden = false;
+    clearTimeout(notifTimer); notifTimer = setTimeout(function(){ n.hidden = true; }, 4000);
+  }
+
+  async function api(chemin, opts){
+    opts = opts || {};
+    opts.headers = Object.assign({ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, opts.headers || {});
+    var r = await fetch(SMS + chemin, opts);
+    var d = {}; try { d = await r.json(); } catch (e) {}
+    if (r.status === 401) { deconnecter('Ta session a expiré. Reconnecte-toi.'); throw new Error('Session expirée'); }
+    if (!r.ok) { var err = new Error(d.error || ('Erreur ' + r.status)); err.data = d; throw err; }
+    return d;
+  }
+
+  /* ── CONNEXION (même flux que le CRM) ── */
+  function montrerErreurLogin(m){ $('login-error').textContent = m; }
+  function reinitLogin(){
+    etape = 1; methode = 'otp';
+    $('field-email').hidden = false; $('field-pin').hidden = false; $('login-methode').hidden = true;
+    $('lbl-pin').textContent = 'PIN'; $('login-pin').type = 'password'; $('login-pin').placeholder = '••••••'; $('login-pin').value = '';
+    $('btn-login').textContent = 'Connexion →';
+    document.querySelectorAll('.methode').forEach(function(b){ b.classList.toggle('actif', b.dataset.methode === 'otp'); });
+  }
+  document.querySelectorAll('.methode').forEach(function(b){
+    b.addEventListener('click', function(){
+      methode = b.dataset.methode;
+      document.querySelectorAll('.methode').forEach(function(x){ x.classList.toggle('actif', x === b); });
+    });
+  });
+  $('form-login').addEventListener('submit', async function(ev){
+    ev.preventDefault();
+    var btn = $('btn-login'); montrerErreurLogin('');
+    if (etape === 1) {
+      emailLogin = $('login-email').value.trim();
+      var pin = $('login-pin').value.trim();
+      if (!emailLogin || !pin) { montrerErreurLogin('Veuillez remplir tous les champs.'); return; }
+      btn.innerHTML = '<span class="spinner"></span>';
+      try {
+        var r = await fetch(CARNET + '/api/carnet/auth/init', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: emailLogin, pin: pin }) });
+        var d = await r.json();
+        if (!r.ok || !d.success) { montrerErreurLogin('Email ou PIN incorrect.'); btn.textContent = 'Connexion →'; return; }
+        etape = 2;
+        $('field-email').hidden = true; $('field-pin').hidden = true; $('login-methode').hidden = false;
+        btn.textContent = 'Envoyer le code →';
+      } catch (e) { montrerErreurLogin('Erreur de connexion.'); btn.textContent = 'Connexion →'; }
+    } else if (etape === 2) {
+      etape = 3;
+      $('login-methode').hidden = true; $('field-pin').hidden = false;
+      $('login-pin').type = 'text'; $('login-pin').value = '';
+      if (methode === 'otp') { $('lbl-pin').textContent = 'Code OTP (reçu par email)'; $('login-pin').placeholder = 'Code reçu par email'; }
+      else { $('lbl-pin').textContent = 'Code Authenticator (6 chiffres)'; $('login-pin').placeholder = '000000'; }
+      $('login-pin').focus();
+      btn.textContent = 'Valider →';
+    } else {
+      var otp = $('login-pin').value.trim();
+      if (!otp) { montrerErreurLogin('Entrez le code reçu.'); return; }
+      btn.innerHTML = '<span class="spinner"></span>';
+      try {
+        var r2 = await fetch(CARNET + '/api/carnet/auth/otp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: emailLogin, otp: otp, methode: methode }) });
+        var d2 = await r2.json();
+        if (!r2.ok || !d2.token) { montrerErreurLogin('Code incorrect ou expiré.'); btn.textContent = 'Valider →'; return; }
+        token = d2.token;
+        sessionStorage.setItem('crm_token', token);
+        sessionStorage.setItem('crm_user', JSON.stringify({ email: emailLogin, role: d2.role || 'superadmin', nom: d2.nom || '' }));
+        reinitLogin();
+        demarrer();
+      } catch (e) { montrerErreurLogin('Erreur de connexion.'); btn.textContent = 'Valider →'; }
+    }
+  });
+  function deconnecter(message){
+    var emailPrec = '';
+    try { emailPrec = JSON.parse(sessionStorage.getItem('crm_user') || '{}').email || ''; } catch (e) {}
+    sessionStorage.removeItem('crm_token'); sessionStorage.removeItem('crm_user');
+    token = ''; clearInterval(minuterie); courant = null;
+    $('app').hidden = true; $('login-screen').hidden = false;
+    reinitLogin();
+    if (emailPrec) $('login-email').value = emailPrec;
+    if (message) montrerErreurLogin(message);
+  }
+  $('btn-logout').addEventListener('click', function(){ deconnecter(); });
+
+  /* ── Onglets ── */
+  document.querySelectorAll('.onglet').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('.onglet').forEach(function(x){ x.classList.toggle('actif', x === b); });
+      $('vue-conv').hidden = b.dataset.onglet !== 'conv';
+      $('vue-rep').hidden = b.dataset.onglet !== 'rep';
+      if (b.dataset.onglet === 'rep') dessinerRepertoire();
+    });
+  });
+
+  /* ── Quota ── */
+  function majQuota(q){
+    if (!q) return;
+    var e = $('quota');
+    e.textContent = q.utilises + '/' + q.max + ' SMS (24 h)';
+    e.title = q.utilises + ' SMS envoyés depuis cette page sur 24 heures, dont ' + q.intl_utilises + '/' + q.intl_max + ' à l\u2019international';
+    e.classList.toggle('plein', q.utilises >= q.max);
+  }
+
+  /* ── Conversations ── */
+  async function chargerConversations(){
+    try {
+      var d = await api('/api/sms/page/conversations');
+      conversations = d.conversations || [];
+      majQuota(d.quota);
+      dessinerListe();
+      var nonLus = conversations.reduce(function(s, c){ return s + (c.non_lus || 0); }, 0);
+      $('badge-nonlus').hidden = !nonLus; $('badge-nonlus').textContent = nonLus;
+      document.title = (nonLus ? '(' + nonLus + ') ' : '') + 'CapturAir SMS';
+    } catch (e) { if (token) notif(e.message, true); }
+  }
+  function dessinerListe(){
+    var ul = $('liste-conv'); ul.textContent = '';
+    var q = $('recherche-conv').value.trim().toLowerCase();
+    var liste = conversations.filter(function(c){
+      if (!q) return true;
+      var nom = (nomDe(c.telephone) || {}).nom || c.nom || '';
+      return nom.toLowerCase().indexOf(q) >= 0 || c.telephone.indexOf(q.replace(/[^\d+]/g, '')) >= 0 || fmtTel(c.telephone).indexOf(q) >= 0;
+    });
+    if (!liste.length) {
+      var v = el('li', 'empty-state');
+      v.appendChild(el('div', 'ico', '💬'));
+      v.appendChild(el('div', null, q ? 'Aucune conversation ne correspond à ta recherche.' : 'Aucune conversation pour le moment. Appuie sur « Nouveau » pour écrire à quelqu\u2019un.'));
+      ul.appendChild(v); return;
+    }
+    liste.forEach(function(c){
+      var contact = nomDe(c.telephone);
+      var nom = contact ? contact.nom : null;
+      var li = el('li');
+      var b = el('button', 'item' + (c.non_lus ? ' non-lu' : '') + (c.telephone === courant ? ' courant' : ''));
+      b.type = 'button';
+      b.appendChild(el('div', 'avatar' + (nom ? '' : ' inconnu'), initiales(nom)));
+      b.appendChild(el('div', 'nom', nom || fmtTel(c.telephone)));
+      b.appendChild(el('div', 'quand', c.date ? quandCourt(c.date) : ''));
+      var prefixe = c.sens === 'sortant' ? 'Toi : ' : '';
+      b.appendChild(el('div', 'apercu', prefixe + (c.dernier || '')));
+      var droite = el('div', 'droite');
+      if (c.non_lus) droite.appendChild(el('span', 'pastille', String(c.non_lus)));
+      b.appendChild(droite);
+      b.addEventListener('click', function(){ ouvrirFil(c.telephone); });
+      li.appendChild(b); ul.appendChild(li);
+    });
+  }
+  $('recherche-conv').addEventListener('input', dessinerListe);
+
+  /* ── Fil ── */
+  function majEnteteFil(tel){
+    var c = nomDe(tel);
+    $('fil-avatar').textContent = initiales(c && c.nom);
+    $('fil-avatar').className = 'avatar' + (c ? '' : ' inconnu');
+    $('fil-nom').textContent = c ? c.nom : fmtTel(tel);
+    $('fil-tel').textContent = c ? fmtTel(tel) : (tel.indexOf('+1') === 0 ? 'Pas dans le répertoire' : 'International, pas dans le répertoire');
+    $('fil-appeler').href = 'tel:' + tel;
+    $('fil-contact').textContent = c ? '✏️' : '➕';
+    $('fil-contact').title = c ? 'Modifier le contact' : 'Ajouter au répertoire';
+  }
+  async function ouvrirFil(tel){
+    courant = tel; nbAffiches = 0;
+    document.querySelectorAll('.onglet').forEach(function(x){ x.classList.toggle('actif', x.dataset.onglet === 'conv'); });
+    $('vue-conv').hidden = false; $('vue-rep').hidden = true;
+    $('vue-conv').classList.add('fil-ouvert');
+    $('fil-vide').hidden = true; $('fil').hidden = false;
+    majEnteteFil(tel);
+    $('messages').textContent = '';
+    dessinerListe();
+    await chargerFil(true);
+    chargerConversations();
+    if (window.matchMedia('(min-width:860px)').matches) $('texte').focus();
+  }
+  async function chargerFil(defiler){
+    if (!courant) return;
+    var tel = courant;
+    try {
+      var d = await api('/api/sms/page/fil?telephone=' + encodeURIComponent(tel));
+      if (tel === courant) dessinerFil(d.messages || [], defiler);
+    } catch (e) { notif(e.message, true); }
+  }
+  function dessinerFil(msgs, defiler){
+    var zone = $('messages');
+    var enBas = zone.scrollHeight - zone.scrollTop - zone.clientHeight < 80;
+    var animer = nbAffiches > 0 && msgs.length > nbAffiches;
+    zone.textContent = '';
+    if (!msgs.length) {
+      var v = el('div', 'empty-state');
+      v.appendChild(el('div', 'ico', '✍️'));
+      v.appendChild(el('div', null, 'Aucun message avec ce numéro. Écris le premier ci-dessous.'));
+      zone.appendChild(v);
+    }
+    var jourPrec = '';
+    msgs.forEach(function(m, i){
+      var d = new Date(m.date);
+      if (d.toDateString() !== jourPrec) { zone.appendChild(el('div', 'jour', jourTexte(d))); jourPrec = d.toDateString(); }
+      var cls = 'bulle ' + m.sens;
+      var st = null;
+      if (m.sens === 'sortant') {
+        st = statutTexte(m.statut, m.erreur);
+        if (m.statut === 'crm') cls += ' crm';
+        if (st.echec) cls += ' echec';
+      }
+      if (animer && i >= nbAffiches) cls += ' nouvelle';
+      var b = el('div', cls, m.message || '');
+      var meta = el('div', 'meta');
+      meta.appendChild(el('span', null, heure(d)));
+      if (st) { var s = el('span', st.echec ? 'statut-echec' : null, st.ico); s.title = st.txt; s.setAttribute('aria-label', st.txt); meta.appendChild(s); }
+      b.appendChild(meta);
+      zone.appendChild(b);
+    });
+    nbAffiches = msgs.length;
+    if (defiler || enBas) zone.scrollTop = zone.scrollHeight;
+  }
+  $('btn-retour').addEventListener('click', function(){
+    courant = null; $('vue-conv').classList.remove('fil-ouvert');
+    $('fil').hidden = true; $('fil-vide').hidden = false;
+    chargerConversations();
+  });
+  $('fil-contact').addEventListener('click', function(){
+    var c = nomDe(courant);
+    ouvrirContact(c || { telephone: courant });
+  });
+
+  /* ── Compteur de caractères (non bloquant) ── */
+  function analyser(txt){
+    var unites = 0, gsm = true, special = '';
+    for (var ch of txt) {
+      if (GSM_BASE.indexOf(ch) >= 0) unites += 1;
+      else if (GSM_EXT.indexOf(ch) >= 0) unites += 2;
+      else { gsm = false; special = ch; break; }
+    }
+    if (!gsm) unites = txt.length;
+    var limite = gsm ? 160 : 70, parSeg = gsm ? 153 : 67;
+    var seg = unites === 0 ? 0 : (unites <= limite ? 1 : Math.ceil(unites / parSeg));
+    return { unites: unites, gsm: gsm, special: special, limite: limite, seg: seg };
+  }
+  function majCompteur(){
+    var ta = $('texte'), a = analyser(ta.value);
+    $('cpt-car').textContent = a.unites + '/' + a.limite;
+    $('cpt-sms').textContent = a.seg + ' SMS';
+    $('compteur').classList.toggle('depasse', a.seg > 1);
+    $('compteur').title = a.seg > 1 ? 'Ce message sera facturé comme ' + a.seg + ' SMS' : 'Tient dans 1 SMS';
+    var note = $('note-compteur');
+    if (!a.gsm && a.unites > 0) {
+      var quoi = /\p{Extended_Pictographic}/u.test(a.special) ? 'L\u2019emoji ' + a.special : 'Le caractère « ' + a.special + ' »';
+      note.textContent = quoi + ' réduit la limite à 70 caractères par SMS.' + (a.seg > 1 ? ' Ce message comptera pour ' + a.seg + ' SMS.' : '');
+      note.hidden = false;
+    } else if (a.seg > 1) {
+      note.textContent = 'Plus de 160 caractères : ce message comptera pour ' + a.seg + ' SMS.';
+      note.hidden = false;
+    } else note.hidden = true;
+    $('btn-envoyer').disabled = !ta.value.trim();
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight + 2, 160) + 'px';
+  }
+  $('texte').addEventListener('input', majCompteur);
+  $('texte').addEventListener('keydown', function(ev){
+    if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); $('composer').requestSubmit(); }
+  });
+
+  /* ── Emojis ── */
+  (function(){
+    var pop = $('emoji-pop');
+    EMOJIS.forEach(function(e){
+      var b = el('button', null, e); b.type = 'button'; b.setAttribute('aria-label', 'Insérer ' + e);
+      b.addEventListener('click', function(){
+        var ta = $('texte'), deb = ta.selectionStart, fin = ta.selectionEnd;
+        ta.value = ta.value.slice(0, deb) + e + ta.value.slice(fin);
+        ta.selectionStart = ta.selectionEnd = deb + e.length;
+        majCompteur(); ta.focus();
+      });
+      pop.appendChild(b);
+    });
+    $('btn-emoji').addEventListener('click', function(){
+      pop.hidden = !pop.hidden; $('btn-emoji').setAttribute('aria-expanded', String(!pop.hidden));
+    });
+    document.addEventListener('click', function(ev){
+      if (!pop.hidden && !pop.contains(ev.target) && ev.target !== $('btn-emoji')) { pop.hidden = true; $('btn-emoji').setAttribute('aria-expanded', 'false'); }
+    });
+  })();
+
+  /* ── Envoi ── */
+  $('composer').addEventListener('submit', async function(ev){
+    ev.preventDefault();
+    var ta = $('texte'), texte = ta.value;
+    if (!texte.trim() || !courant) return;
+    $('btn-envoyer').disabled = true; $('emoji-pop').hidden = true;
+    var zone = $('messages');
+    var vide = zone.querySelector('.empty-state'); if (vide) vide.remove();
+    var temp = el('div', 'bulle sortant attente', texte);
+    var meta = el('div', 'meta'); meta.appendChild(el('span', null, 'Envoi…')); temp.appendChild(meta);
+    zone.appendChild(temp); zone.scrollTop = zone.scrollHeight;
+    try {
+      var d = await api('/api/sms/page/envoyer', { method: 'POST', body: JSON.stringify({ telephone: courant, message: texte }) });
+      ta.value = ''; majCompteur(); majQuota(d.quota);
+      await chargerFil(true); chargerConversations();
+    } catch (e) {
+      temp.remove(); if (e.data && e.data.quota) majQuota(e.data.quota);
+      notif('Message non envoyé : ' + e.message, true);
+      $('btn-envoyer').disabled = false;
+    }
+  });
+
+  /* ── Nouveau message ── */
+  function ouvrirModal(id){ $(id).hidden = false; var i = $(id).querySelector('input:not([type=hidden])'); if (i) setTimeout(function(){ i.focus(); }, 30); }
+  function fermerModal(id){ $(id).hidden = true; }
+  document.querySelectorAll('[data-fermer]').forEach(function(b){ b.addEventListener('click', function(){ fermerModal(b.closest('.modal-fond').id); }); });
+  document.querySelectorAll('.modal-fond').forEach(function(f){ f.addEventListener('click', function(ev){ if (ev.target === f) fermerModal(f.id); }); });
+  document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape') document.querySelectorAll('.modal-fond').forEach(function(f){ f.hidden = true; }); });
+
+  $('btn-nouveau').addEventListener('click', function(){
+    $('nouveau-dest').value = ''; $('nouveau-erreur').textContent = ''; majSuggestions(); ouvrirModal('modal-nouveau');
+  });
+  function majSuggestions(){
+    var q = $('nouveau-dest').value.trim().toLowerCase(), ul = $('suggestions');
+    ul.textContent = '';
+    var liste = contacts.filter(function(c){ return !q || c.nom.toLowerCase().indexOf(q) >= 0 || c.telephone.indexOf(q.replace(/[^\d+]/g, '') || '§') >= 0; }).slice(0, 8);
+    ul.hidden = !liste.length;
+    liste.forEach(function(c){
+      var li = el('li'), b = el('button', null, c.nom); b.type = 'button';
+      b.appendChild(el('small', null, fmtTel(c.telephone)));
+      b.addEventListener('click', function(){ fermerModal('modal-nouveau'); ouvrirFil(c.telephone); });
+      li.appendChild(b); ul.appendChild(li);
+    });
+  }
+  $('nouveau-dest').addEventListener('input', majSuggestions);
+  $('form-nouveau').addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var saisie = $('nouveau-dest').value;
+    var tel = normaliser(saisie);
+    if (!tel) {
+      var q = saisie.trim().toLowerCase();
+      var trouve = contacts.filter(function(c){ return c.nom.toLowerCase().indexOf(q) >= 0; });
+      if (q && trouve.length === 1) tel = trouve[0].telephone;
+    }
+    if (!tel) { $('nouveau-erreur').textContent = 'Numéro invalide. Exemples : 514 555-1234 ou +33 6 12 34 56 78.'; return; }
+    fermerModal('modal-nouveau'); ouvrirFil(tel);
+  });
+
+  /* ── Répertoire ── */
+  async function chargerContacts(){
+    try { var d = await api('/api/sms/contacts'); contacts = d.contacts || []; } catch (e) {}
+  }
+  function dessinerRepertoire(){
+    var box = $('liste-rep'); box.textContent = '';
+    var q = $('recherche-rep').value.trim().toLowerCase();
+    var liste = contacts.filter(function(c){ return !q || c.nom.toLowerCase().indexOf(q) >= 0 || c.telephone.indexOf(q.replace(/[^\d+]/g, '') || '§') >= 0 || (c.note || '').toLowerCase().indexOf(q) >= 0; });
+    if (!liste.length) {
+      var v = el('div', 'empty-state');
+      v.appendChild(el('div', 'ico', '📒'));
+      v.appendChild(el('div', null, q ? 'Aucun contact ne correspond à ta recherche.' : 'Ton répertoire est vide. Appuie sur « Ajouter » pour enregistrer un premier contact.'));
+      box.appendChild(v); return;
+    }
+    liste.forEach(function(c){
+      var row = el('div', 'contact');
+      row.appendChild(el('div', 'avatar', initiales(c.nom)));
+      var info = el('div'); info.appendChild(el('div', 'nom', c.nom)); info.appendChild(el('div', 'tel', fmtTel(c.telephone)));
+      row.appendChild(info);
+      var act = el('div', 'actions');
+      var bEcrire = el('button', 'btn-primary', '💬 Écrire'); bEcrire.type = 'button';
+      bEcrire.addEventListener('click', function(){ ouvrirFil(c.telephone); });
+      var bModif = el('button', 'btn-secondary', '✏️'); bModif.type = 'button'; bModif.title = 'Modifier'; bModif.setAttribute('aria-label', 'Modifier ' + c.nom);
+      bModif.addEventListener('click', function(){ ouvrirContact(c); });
+      act.appendChild(bEcrire); act.appendChild(bModif); row.appendChild(act);
+      if (c.note) row.appendChild(el('div', 'note', c.note));
+      box.appendChild(row);
+    });
+  }
+  $('recherche-rep').addEventListener('input', dessinerRepertoire);
+  $('btn-ajout-contact').addEventListener('click', function(){ ouvrirContact({}); });
+
+  function ouvrirContact(c){
+    $('contact-id').value = c.id || '';
+    $('contact-nom').value = c.nom || '';
+    $('contact-tel').value = c.telephone ? fmtTel(c.telephone) : '';
+    $('contact-note').value = c.note || '';
+    $('contact-titre').textContent = c.id ? 'Modifier le contact' : 'Ajouter un contact';
+    $('btn-suppr-contact').hidden = !c.id;
+    $('contact-erreur').textContent = '';
+    ouvrirModal('modal-contact');
+  }
+  $('form-contact').addEventListener('submit', async function(ev){
+    ev.preventDefault();
+    var tel = normaliser($('contact-tel').value);
+    if (!$('contact-nom').value.trim()) { $('contact-erreur').textContent = 'Le nom est obligatoire.'; return; }
+    if (!tel) { $('contact-erreur').textContent = 'Numéro invalide. Exemples : 514 555-1234 ou +33 6 12 34 56 78.'; return; }
+    try {
+      await api('/api/sms/contacts', { method: 'POST', body: JSON.stringify({ id: $('contact-id').value || undefined, nom: $('contact-nom').value, telephone: tel, note: $('contact-note').value }) });
+      fermerModal('modal-contact'); notif('Contact enregistré');
+      await chargerContacts(); dessinerRepertoire(); dessinerListe(); if (courant) majEnteteFil(courant);
+    } catch (e) { $('contact-erreur').textContent = e.message; }
+  });
+  $('btn-suppr-contact').addEventListener('click', async function(){
+    var id = $('contact-id').value;
+    if (!id || !confirm('Supprimer ce contact du répertoire ? Les messages échangés sont conservés.')) return;
+    try {
+      await api('/api/sms/contacts/' + encodeURIComponent(id), { method: 'DELETE' });
+      fermerModal('modal-contact'); notif('Contact supprimé');
+      await chargerContacts(); dessinerRepertoire(); dessinerListe(); if (courant) majEnteteFil(courant);
+    } catch (e) { $('contact-erreur').textContent = e.message; }
+  });
+
+  $('btn-importer').addEventListener('click', async function(){
+    var b = $('btn-importer'); b.disabled = true; b.textContent = 'Récupération en cours…';
+    try {
+      var d = await api('/api/sms/page/importer', { method: 'POST' });
+      notif('Historique récupéré : ' + d.entrants + ' reçus, ' + d.sortants + ' envoyés ajoutés');
+      chargerConversations();
+    } catch (e) { notif('Récupération impossible : ' + e.message, true); }
+    b.disabled = false; b.textContent = '⬇ Récupérer l\u2019historique Twilio';
+  });
+
+  /* ── Démarrage ── */
+  async function demarrer(){
+    $('login-screen').hidden = true; $('app').hidden = false;
+    await chargerContacts();
+    await chargerConversations();
+    clearInterval(minuterie);
+    minuterie = setInterval(function(){
+      if (document.hidden || !token) return;
+      chargerConversations(); if (courant) chargerFil(false);
+    }, 15000);
+  }
+  document.addEventListener('visibilitychange', function(){
+    if (!document.hidden && token) { chargerConversations(); if (courant) chargerFil(false); }
+  });
+  majCompteur();
+  if (token) demarrer(); else $('login-screen').hidden = false;
+})();
+</script>
+</body>
+</html>
