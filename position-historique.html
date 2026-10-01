@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>CapturAir — Historique des positions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --marine: #0B1F3A;
+    --ciel: #1A8FD1;
+    --fond: #F3F6FA;
+    --texte: #13243B;
+    --gris: #5B6B80;
+    --trait: #D9E2EC;
+    --vert: #1E9E5A;
+    --ambre: #C98A0B;
+    --pale: #9AA7B6;
+    --erreur: #C0392B;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { font-family: 'DM Sans', system-ui, sans-serif; color: var(--texte); background: var(--fond); }
+  button, input { font: inherit; }
+  :focus-visible { outline: 3px solid var(--ciel); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+
+  /* Connexion */
+  #login { min-height: 100%; display: flex; align-items: center; justify-content: center; background: var(--marine); padding: 24px; }
+  .login-boite { width: 100%; max-width: 360px; color: #fff; }
+  .login-boite h1 { font-family: 'Syne', sans-serif; font-size: 1.75rem; margin: 0 0 4px; }
+  .login-boite h1 span { color: var(--ciel); }
+  .login-boite p { margin: 0 0 28px; color: #B8C7D8; }
+  .login-boite label { display: block; font-size: .9rem; color: #B8C7D8; margin-bottom: 6px; }
+  .login-boite input { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06); color: #fff; font-size: 1.05rem; letter-spacing: .08em; }
+  .methodes { display: flex; gap: 8px; margin-bottom: 4px; }
+  .methodes button { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.04); color: #B8C7D8; cursor: pointer; }
+  .methodes button[aria-pressed="true"] { border-color: var(--ciel); background: rgba(26,143,209,.2); color: #fff; }
+  .btn-principal { width: 100%; margin-top: 18px; padding: 13px; border: 0; border-radius: 8px; background: var(--ciel); color: #fff; font-weight: 700; cursor: pointer; }
+  .btn-principal:disabled { opacity: .6; cursor: wait; }
+  #login-erreur { margin-top: 14px; color: #FFB4A9; min-height: 1.2em; }
+
+  /* Application */
+  #app { height: 100%; display: grid; grid-template-rows: 56px 1fr; }
+  header { background: var(--marine); color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; }
+  header h1 { font-family: 'Syne', sans-serif; font-size: 1.1rem; margin: 0; }
+  header h1 span { color: var(--ciel); }
+  header h1 small { font-family: 'DM Sans', sans-serif; font-weight: 400; color: #B8C7D8; margin-left: 10px; font-size: .85rem; }
+  .btn-discret { background: transparent; color: #B8C7D8; border: 1px solid rgba(255,255,255,.2); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+  .corps { display: grid; grid-template-columns: 320px 1fr; min-height: 0; }
+  aside { background: #fff; border-right: 1px solid var(--trait); overflow-y: auto; padding: 18px 16px 24px; }
+  aside h2 { font-family: 'Syne', sans-serif; font-size: 1rem; margin: 0 0 10px; }
+  aside section + section { margin-top: 22px; }
+
+  .appareil { width: 100%; display: grid; grid-template-columns: 12px 1fr; gap: 2px 10px; align-items: center; text-align: left; padding: 10px 12px; margin-bottom: 6px; border: 1px solid var(--trait); border-radius: 8px; background: #fff; cursor: pointer; color: var(--texte); }
+  .appareil:hover { border-color: var(--ciel); }
+  .appareil[aria-pressed="true"] { border-color: var(--ciel); background: #EAF5FC; }
+  .pastille { width: 10px; height: 10px; border-radius: 50%; background: var(--pale); grid-row: span 2; }
+  .pastille.recente { background: var(--vert); }
+  .pastille.moyenne { background: var(--ambre); }
+  .pastille.aucune { background: transparent; border: 2px solid var(--pale); }
+  .appareil strong { font-weight: 500; }
+  .appareil small { color: var(--gris); font-size: .82rem; }
+
+  .periodes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .periodes button { padding: 8px 4px; border: 1px solid var(--trait); border-radius: 6px; background: #fff; cursor: pointer; color: var(--texte); font-size: .9rem; }
+  .periodes button[aria-pressed="true"] { background: var(--marine); border-color: var(--marine); color: #fff; }
+
+  #resume { font-size: .92rem; line-height: 1.5; }
+  #resume .nombre { font-family: 'Syne', sans-serif; font-size: 1.6rem; display: block; }
+  #resume .vide { color: var(--gris); }
+  .options { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; font-size: .9rem; }
+  .options label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+  .options button { padding: 8px; border: 1px solid var(--trait); border-radius: 6px; background: #fff; cursor: pointer; }
+  .note { margin-top: 18px; font-size: .8rem; color: var(--gris); line-height: 1.45; }
+  #etat { font-size: .85rem; color: var(--gris); margin-top: 8px; min-height: 1.2em; }
+  #etat.erreur { color: var(--erreur); }
+
+  main { position: relative; min-height: 0; }
+  #carte { position: absolute; inset: 0; }
+
+  .fiche { font-family: 'DM Sans', sans-serif; color: var(--texte); min-width: 210px; line-height: 1.45; }
+  .fiche h3 { font-family: 'Syne', sans-serif; font-size: 1rem; margin: 0 0 6px; }
+  .fiche .heure { font-size: 1.15rem; font-weight: 700; }
+  .fiche .approx { color: var(--ambre); font-size: .8rem; }
+  .fiche dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; margin: 8px 0 0; font-size: .85rem; }
+  .fiche dt { color: var(--gris); }
+  .fiche dd { margin: 0; }
+  .fiche .rang { margin-top: 8px; font-size: .78rem; color: var(--gris); }
+
+  @media (max-width: 760px) {
+    .corps { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    aside { border-right: 0; border-bottom: 1px solid var(--trait); max-height: 46vh; }
+    main { min-height: 54vh; }
+    header h1 small { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <form class="login-boite" id="form-login" autocomplete="off">
+    <h1>Captur<span>Air</span></h1>
+    <p>Historique des positions</p>
+
+    <div id="champ-code">
+      <label for="code" id="label-code">PIN de sécurité</label>
+      <input id="code" type="password" inputmode="numeric" autocomplete="off">
+    </div>
+
+    <div id="choix-methode" hidden>
+      <label>Recevoir le code par</label>
+      <div class="methodes">
+        <button type="button" data-methode="otp" aria-pressed="true">Courriel</button>
+        <button type="button" data-methode="totp" aria-pressed="false">Authenticator</button>
+      </div>
+    </div>
+
+    <button class="btn-principal" id="btn-login" type="submit">Continuer</button>
+    <div id="login-erreur" role="alert"></div>
+  </form>
+</div>
+
+<div id="app" hidden>
+  <header>
+    <h1>Captur<span>Air</span><small>Historique des positions</small></h1>
+    <button class="btn-discret" id="btn-deconnexion" type="button">Se déconnecter</button>
+  </header>
+  <div class="corps">
+    <aside>
+      <section>
+        <h2>Appareil</h2>
+        <div id="liste-appareils"><p class="vide">Chargement…</p></div>
+      </section>
+      <section>
+        <h2>Période</h2>
+        <div class="periodes" id="periodes">
+          <button type="button" data-periode="jour" aria-pressed="false">Aujourd'hui</button>
+          <button type="button" data-periode="24h" aria-pressed="true">24 h</button>
+          <button type="button" data-periode="7j" aria-pressed="false">7 j</button>
+          <button type="button" data-periode="30j" aria-pressed="false">30 j</button>
+        </div>
+        <div id="etat" role="status"></div>
+      </section>
+      <section>
+        <h2>Observations</h2>
+        <div id="resume"><span class="vide">Choisissez un appareil.</span></div>
+        <div class="options">
+          <label><input type="checkbox" id="opt-ligne" checked> Relier les observations dans l'ordre</label>
+          <button type="button" id="btn-ajuster">Afficher tous les points</button>
+        </div>
+        <p class="note">Chaque point est une position réellement observée. La ligne pointillée relie les observations dans l'ordre chronologique : elle ne représente pas le trajet réellement parcouru.</p>
+      </section>
+    </aside>
+    <main><div id="carte" aria-label="Carte des observations"></div></main>
+  </div>
+</div>
+
+<script>
+// ── Configuration (aucun secret : uniquement des adresses publiques) ──────────
+const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
+const AUTH_API = 'https://capturair-carnet.tumarchessurlatete.workers.dev';
+const OTP_EMAIL = 'mohand.aidi@mohand.ca';
+const CLE_SESSION = 'posh_token';
+const TZ = 'America/Toronto';
+
+// ── État ──────────────────────────────────────────────────────────────────────
+let jeton = '';
+let etapeLogin = 1;
+let methode = 'otp';
+let appareils = [];
+let choix = null;
+let periode = '24h';
+let points = [];
+let carte = null, infoWin = null, ligne = null, cercle = null;
+let marqueurs = [];
+let carteResoudre;
+const carteDispo = new Promise(r => { carteResoudre = r; });
+window.carteApiPrete = () => carteResoudre();
+
+// ── Utilitaires ───────────────────────────────────────────────────────────────
+const fmtDate  = new Intl.DateTimeFormat('fr-CA', { timeZone: TZ, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+const fmtHeure = new Intl.DateTimeFormat('fr-CA', { timeZone: TZ, hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
+const fmtCourt = new Intl.DateTimeFormat('fr-CA', { timeZone: TZ, day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+
+function age(iso) {
+  const m = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+  if (m < 1) return "à l'instant";
+  if (m < 60) return `il y a ${m} min`;
+  const h = Math.floor(m / 60);
+  if (h < 48) return `il y a ${h} h`;
+  return `il y a ${Math.floor(h / 24)} j`;
+}
+function fraicheur(iso) {
+  if (!iso) return 'aucune';
+  const m = (Date.now() - new Date(iso).getTime()) / 60000;
+  return m < 30 ? 'recente' : m < 360 ? 'moyenne' : 'ancienne';
+}
+function libelleSource(s) {
+  return s === 'google_find_hub' ? 'Google Localiser (Find Hub)' : 'Home Assistant';
+}
+function jetonValide(t) {
+  try { return !!t && JSON.parse(atob(t.split('.')[0])).exp > Date.now(); } catch { return false; }
+}
+
+async function api(chemin) {
+  const r = await fetch(API + chemin, { headers: { Authorization: 'Bearer ' + jeton } });
+  if (r.status === 401) { deconnecter('Session expirée. Reconnectez-vous.'); throw new Error('Session expirée'); }
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || d.success === false) throw new Error(d.error || `Erreur ${r.status}`);
+  return d;
+}
+
+// ── Connexion (même service que position.html) ────────────────────────────────
+function erreurLogin(m) { $('login-erreur').textContent = m; }
+
+function choisirMethode(m) {
+  methode = m;
+  document.querySelectorAll('.methodes button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.methode === m)));
+}
+
+async function soumettreLogin(ev) {
+  ev.preventDefault();
+  erreurLogin('');
+  const btn = $('btn-login');
+  const champ = $('code');
+
+  if (etapeLogin === 1) {
+    const pin = champ.value.trim();
+    if (!pin) return erreurLogin('Entrez votre PIN.');
+    btn.disabled = true;
+    try {
+      const r = await fetch(`${AUTH_API}/api/carnet/auth/init`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: OTP_EMAIL, pin }) });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || !d.success) return erreurLogin('PIN refusé.');
+      etapeLogin = 2;
+      $('champ-code').hidden = true;
+      $('choix-methode').hidden = false;
+      btn.textContent = 'Recevoir le code';
+    } catch { erreurLogin('Connexion au service impossible.'); }
+    finally { btn.disabled = false; }
+
+  } else if (etapeLogin === 2) {
+    etapeLogin = 3;
+    $('choix-methode').hidden = true;
+    $('champ-code').hidden = false;
+    $('label-code').textContent = methode === 'otp' ? 'Code reçu par courriel' : 'Code Authenticator';
+    champ.type = 'text';
+    champ.value = '';
+    champ.focus();
+    btn.textContent = 'Valider';
+
+  } else {
+    const otp = champ.value.trim();
+    if (!otp) return erreurLogin('Entrez le code.');
+    btn.disabled = true;
+    try {
+      const r = await fetch(`${AUTH_API}/api/carnet/auth/otp`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: OTP_EMAIL, otp, methode }) });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || !d.token) return erreurLogin('Code incorrect ou expiré.');
+      jeton = d.token;
+      sessionStorage.setItem(CLE_SESSION, jeton);
+      reinitialiserLogin();
+      afficherApp();
+    } catch { erreurLogin('Connexion au service impossible.'); }
+    finally { btn.disabled = false; }
+  }
+}
+
+function reinitialiserLogin() {
+  etapeLogin = 1;
+  choisirMethode('otp');
+  $('champ-code').hidden = false;
+  $('choix-methode').hidden = true;
+  $('label-code').textContent = 'PIN de sécurité';
+  $('code').type = 'password';
+  $('code').value = '';
+  $('btn-login').textContent = 'Continuer';
+}
+
+function deconnecter(message) {
+  sessionStorage.removeItem(CLE_SESSION);
+  jeton = '';
+  $('app').hidden = true;
+  $('login').hidden = false;
+  reinitialiserLogin();
+  erreurLogin(message || '');
+}
+
+// ── Application ───────────────────────────────────────────────────────────────
+async function afficherApp() {
+  $('login').hidden = true;
+  $('app').hidden = false;
+  await chargerAppareils();
+}
+
+async function chargerAppareils() {
+  try {
+    const d = await api('/api/position/appareils');
+    appareils = d.appareils || [];
+    afficherListe();
+    const premier = appareils.find(a => a.latitude != null) || appareils[0];
+    if (premier) selectionner(premier.id);
+  } catch (e) {
+    $('liste-appareils').innerHTML = `<p class="vide">${esc(e.message)}</p>`;
+  }
+}
+
+function afficherListe() {
+  if (!appareils.length) { $('liste-appareils').innerHTML = '<p class="vide">Aucun appareil suivi.</p>'; return; }
+  $('liste-appareils').innerHTML = appareils.map(a => `
+    <button type="button" class="appareil" data-id="${esc(a.id)}" aria-pressed="${a.id === choix}">
+      <span class="pastille ${fraicheur(a.observed_at)}" aria-hidden="true"></span>
+      <strong>${esc(a.nom)}</strong>
+      <small>${a.observed_at ? 'Vu ' + age(a.observed_at) : 'Aucune position enregistrée'}</small>
+    </button>`).join('');
+}
+
+function selectionner(id) {
+  choix = id;
+  afficherListe();
+  chargerHistorique();
+}
+
+function bornes() {
+  const fin = new Date();
+  let debut;
+  if (periode === 'jour') { debut = new Date(); debut.setHours(0, 0, 0, 0); }
+  else if (periode === '7j') debut = new Date(fin.getTime() - 7 * 86400000);
+  else if (periode === '30j') debut = new Date(fin.getTime() - 30 * 86400000);
+  else debut = new Date(fin.getTime() - 86400000);
+  return { debut, fin };
+}
+
+async function chargerHistorique() {
+  if (!choix) return;
+  const { debut, fin } = bornes();
+  $('etat').className = '';
+  $('etat').textContent = 'Chargement…';
+  try {
+    const q = `?appareils=${encodeURIComponent(choix)}&debut=${encodeURIComponent(debut.toISOString())}&fin=${encodeURIComponent(fin.toISOString())}`;
+    const d = await api('/api/position/historique' + q);
+    points = (d.points || []).filter(p => Number.isFinite(p.latitude) && Number.isFinite(p.longitude));
+    $('etat').textContent = d.tronque ? 'Période très chargée : seuls les 5 000 premiers points sont affichés.' : '';
+    await dessiner();
+    afficherResume();
+  } catch (e) {
+    $('etat').className = 'erreur';
+    $('etat').textContent = e.message;
+  }
+}
+
+function afficherResume() {
+  const a = appareils.find(x => x.id === choix);
+  const nom = a ? a.nom : '';
+  if (!points.length) {
+    $('resume').innerHTML = a && a.observed_at
+      ? `<span class="vide">Aucune observation de ${esc(nom)} pendant cette période. Dernière position connue : ${esc(fmtCourt.format(new Date(a.observed_at)))} (${esc(age(a.observed_at))}).</span>`
+      : `<span class="vide">Aucune observation enregistrée pour ${esc(nom)}.</span>`;
+    return;
+  }
+  const premier = points[0], dernier = points[points.length - 1];
+  $('resume').innerHTML = `
+    <span class="nombre">${points.length}</span>
+    observation${points.length > 1 ? 's' : ''} de ${esc(nom)}<br>
+    Première : ${esc(fmtCourt.format(new Date(premier.observed_at)))}<br>
+    Dernière : ${esc(fmtCourt.format(new Date(dernier.observed_at)))} (${esc(age(dernier.observed_at))})`;
+}
+
+// ── Carte ─────────────────────────────────────────────────────────────────────
+async function assurerCarte() {
+  await carteDispo;
+  if (carte) return;
+  carte = new google.maps.Map($('carte'), {
+    center: { lat: 45.87, lng: -73.30 }, zoom: 12,
+    mapTypeControl: false, streetViewControl: false, clickableIcons: false, fullscreenControl: true
+  });
+  infoWin = new google.maps.InfoWindow();
+}
+
+function viderCarte() {
+  marqueurs.forEach(m => m.setMap(null));
+  marqueurs = [];
+  if (ligne) { ligne.setMap(null); ligne = null; }
+  if (cercle) { cercle.setMap(null); cercle = null; }
+  if (infoWin) infoWin.close();
+}
+
+async function dessiner() {
+  await assurerCarte();
+  viderCarte();
+
+  if (!points.length) {
+    const a = appareils.find(x => x.id === choix);
+    if (a && a.latitude != null) {
+      const pos = { lat: a.latitude, lng: a.longitude };
+      marqueurs.push(new google.maps.Marker({
+        map: carte, position: pos, title: 'Dernière position connue (hors période)',
+        icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillOpacity: 0, strokeColor: '#5B6B80', strokeWeight: 2 }
+      }));
+      carte.setCenter(pos); carte.setZoom(15);
+    }
+    return;
+  }
+
+  const chemin = points.map(p => ({ lat: p.latitude, lng: p.longitude }));
+  ligne = new google.maps.Polyline({
+    path: chemin, strokeOpacity: 0, clickable: false,
+    icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: .7, strokeColor: '#1A8FD1', scale: 2 }, offset: '0', repeat: '12px' }],
+    map: $('opt-ligne').checked ? carte : null
+  });
+
+  points.forEach((p, i) => {
+    const dernier = i === points.length - 1;
+    const m = new google.maps.Marker({
+      map: carte, position: chemin[i], zIndex: dernier ? 1000 : i,
+      title: fmtCourt.format(new Date(p.observed_at)),
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: dernier ? 9 : 6,
+        fillColor: dernier ? '#0B1F3A' : '#1A8FD1', fillOpacity: 1,
+        strokeColor: '#FFFFFF', strokeWeight: 2
+      }
+    });
+    m.addListener('click', () => ouvrirFiche(i));
+    marqueurs.push(m);
+  });
+  ajuster();
+}
+
+function ajuster() {
+  if (!carte || !points.length) return;
+  if (points.length === 1) { carte.setCenter({ lat: points[0].latitude, lng: points[0].longitude }); carte.setZoom(16); return; }
+  const b = new google.maps.LatLngBounds();
+  points.forEach(p => b.extend({ lat: p.latitude, lng: p.longitude }));
+  carte.fitBounds(b, 48);
+}
+
+function ouvrirFiche(i) {
+  const p = points[i];
+  const a = appareils.find(x => x.id === p.appareil_id);
+  const d = new Date(p.observed_at);
+  const approx = p.source !== 'google_find_hub';
+  if (cercle) cercle.setMap(null);
+  cercle = Number.isFinite(p.precision_m) && p.precision_m > 0
+    ? new google.maps.Circle({ map: carte, center: { lat: p.latitude, lng: p.longitude }, radius: p.precision_m, strokeColor: '#1A8FD1', strokeOpacity: .6, strokeWeight: 1, fillColor: '#1A8FD1', fillOpacity: .12, clickable: false })
+    : null;
+  infoWin.setContent(`
+    <div class="fiche">
+      <h3>${esc(a ? a.nom : p.appareil_id)}</h3>
+      <div>${esc(fmtDate.format(d))}</div>
+      <div class="heure">${esc(fmtHeure.format(d))}</div>
+      ${approx ? '<div class="approx">Heure approximative : dernière mise à jour reçue par Home Assistant</div>' : ''}
+      <dl>
+        <dt>Précision</dt><dd>${Number.isFinite(p.precision_m) && p.precision_m > 0 ? '±' + Math.round(p.precision_m) + ' m' : 'non fournie'}</dd>
+        <dt>Source</dt><dd>${esc(libelleSource(p.source))}</dd>
+        ${p.zone ? `<dt>Zone</dt><dd>${esc(p.zone)}</dd>` : ''}
+        <dt>Latitude</dt><dd>${p.latitude.toFixed(5)}</dd>
+        <dt>Longitude</dt><dd>${p.longitude.toFixed(5)}</dd>
+      </dl>
+      <div class="rang">Observation ${i + 1} sur ${points.length}</div>
+    </div>`);
+  infoWin.open({ map: carte, anchor: marqueurs[i] });
+}
+
+// ── Événements ────────────────────────────────────────────────────────────────
+$('form-login').addEventListener('submit', soumettreLogin);
+document.querySelectorAll('.methodes button').forEach(b => b.addEventListener('click', () => choisirMethode(b.dataset.methode)));
+$('btn-deconnexion').addEventListener('click', () => deconnecter());
+$('liste-appareils').addEventListener('click', e => { const b = e.target.closest('.appareil'); if (b) selectionner(b.dataset.id); });
+$('periodes').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  periode = b.dataset.periode;
+  document.querySelectorAll('#periodes button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  chargerHistorique();
+});
+$('opt-ligne').addEventListener('change', e => { if (ligne) ligne.setMap(e.target.checked ? carte : null); });
+$('btn-ajuster').addEventListener('click', ajuster);
+
+// Reprise de session dans le même onglet
+const enregistre = sessionStorage.getItem(CLE_SESSION);
+if (jetonValide(enregistre)) { jeton = enregistre; afficherApp(); }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZFZghTG1cukavcPF8VOPoon84Ajv1TI0&callback=carteApiPrete&loading=async" async defer></script>
+</body>
+</html>
