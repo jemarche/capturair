@@ -131,6 +131,16 @@
   #resume { font-size: .92rem; line-height: 1.5; }
   #resume .nombre { font-family: 'Syne', sans-serif; font-size: 1.6rem; display: block; }
   #resume .vide { color: var(--gris); }
+  /* P2 — Panneau de diagnostic du moteur (?diag=1) */
+  #diag { border: 1.5px dashed var(--gris); border-radius: 8px; padding: 10px; background: #FAFBFC; }
+  #diag h2 { margin-top: 0; }
+  .diag-app { margin-top: 10px; font-size: .78rem; }
+  .diag-app h4 { margin: 0 0 4px; border-left: 4px solid var(--c, var(--trait)); padding-left: 6px; font-size: .86rem; }
+  .diag-app table { width: 100%; border-collapse: collapse; }
+  .diag-app td { padding: 1px 4px; border-bottom: 1px solid #EEF2F7; vertical-align: top; }
+  .diag-app td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .diag-app details { margin-top: 4px; }
+  .diag-note { font-size: .75rem; color: var(--gris); margin: 0; }
   /* B3c — Résumé détaillé par appareil */
   .carte-app { border: 1px solid var(--trait); border-left: 4px solid var(--c, var(--trait)); border-radius: 8px; padding: 8px 10px; margin-top: 8px; font-size: .84rem; }
   .carte-app h4 { margin: 0 0 4px; font-size: .92rem; font-weight: 700; display: flex; justify-content: space-between; gap: 6px; }
@@ -274,6 +284,11 @@
         </div>
         <p class="note">Chaque point est une position réellement observée. La ligne pointillée relie les observations dans l'ordre chronologique : elle ne représente pas le trajet réellement parcouru. <span id="note-trou"></span></p>
       </section>
+      <section id="diag" hidden>
+        <h2>Diagnostic moteur</h2>
+        <p class="diag-note">Visible avec <code>?diag=1</code>. Distance <strong>brute</strong> : somme de tous les segments, sans aucun filtrage (P2). Ce n'est pas la distance observée.</p>
+        <div id="diag-contenu"></div>
+      </section>
     </aside>
     <main>
       <div class="synthese" id="synthese" hidden></div>
@@ -293,6 +308,7 @@
   </div>
 </div>
 
+<script src="position-moteur.js?v=P2"></script>
 <script>
 // ── Configuration (aucun secret : uniquement des adresses publiques) ──────────
 const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
@@ -381,18 +397,11 @@ function age(iso) {
 }
 // DS4 / B11 — Seuil provisoire d'absence d'observations entre deux observations successives d'un même appareil.
 // Unique constante, à calibrer avec les vraies données CapturAir. Une absence d'observations n'est jamais une panne.
-const SEUIL_TROU_MIN = 30;
-const SEUIL_TROU_MS = SEUIL_TROU_MIN * 60000;
-// Intervalles sans observation (> seuil) entre observations successives d'un appareil (liste déjà chronologique).
-// Rien avant la première ni après la dernière observation.
-function trous(ptsAppareil) {
-  const liste = [];
-  for (let k = 1; k < ptsAppareil.length; k++) {
-    const a = Date.parse(ptsAppareil[k - 1].observed_at), b = Date.parse(ptsAppareil[k].observed_at);
-    if (b - a > SEUIL_TROU_MS) liste.push({ debut: a, fin: b, duree: b - a });
-  }
-  return liste;
-}
+// P1 — Le seuil et la détection sont désormais dans le moteur (position-moteur.js), source unique.
+const MOTEUR = globalThis.CapturAirMoteur || null;
+const SEUIL_TROU_MIN = MOTEUR ? MOTEUR.PARAMETRES.seuilTrouMin : null;
+const SEUIL_TROU_MS = MOTEUR ? SEUIL_TROU_MIN * 60000 : Infinity;   // moteur absent : aucune absence marquée
+function trous(ptsAppareil) { return MOTEUR ? MOTEUR.detecterTrous(ptsAppareil) : []; }
 function dureeLisible(ms) {
   const m = Math.round(ms / 60000);
   if (m < 60) return `${m} min`;
@@ -882,6 +891,7 @@ async function chargerHistorique() {
     const d = await lireHistorique(ids, debut, fin);
     if (n !== numRequete) return;   // une sélection plus récente a été demandée entre-temps
     points = attribuerUid((d.points || []).filter(p => Number.isFinite(p.latitude) && Number.isFinite(p.longitude)));
+    nbObservationsSansCoordonnees = (d.points || []).length - points.length;   // P2 — signalé dans le diagnostic
     selection = null;
     periodeAffichee = { debut, fin };
     vue = null;
@@ -913,8 +923,34 @@ function afficherSynthese() {
 }
 
 // B3c — Résumé détaillé par appareil sélectionné (faits de la période uniquement)
+// P2 — Diagnostic : faits du moteur par appareil (distance BRUTE, aucun filtrage, aucun classement)
+const km = m => (m / 1000).toLocaleString('fr-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' km';
+function afficherDiagnostic() {
+  if (!DIAG || !MOTEUR) return;
+  const ids = idsChoisis();
+  const r = MOTEUR.calculerDistanceBrute(points.filter(p => ids.includes(p.appareil_id)));
+  const html = ids.map(id => {
+    const a = appareils.find(x => x.id === id), idt = identite(id);
+    const d = r.appareils.find(x => x.appareil_id === id);
+    if (!d) return `<div class="diag-app" style="--c:${idt.couleur}"><h4>${idt.emoji} ${esc(a.nom)}</h4><p class="diag-note">Aucune observation sur la période.</p></div>`;
+    const top = [...d.segments].sort((x, y) => y.distanceM - x.distanceM).slice(0, 5).map(s =>
+      `<tr><td>${esc(heureHMS(new Date(s.debutMs)))} → ${esc(heureHMS(new Date(s.finMs)))}<br><small>±${Math.round(s.precisionDepartM)}${s.precisionDepartInconnue ? '?' : ''} / ±${Math.round(s.precisionArriveeM)}${s.precisionArriveeInconnue ? '?' : ''} m · ${esc(dureeLisible(s.dureeMs))}${s.traverseAbsence ? ' · absence' : ''}</small></td>`
+      + `<td>${esc(km(s.distanceM))}<br><small>${s.vitesseMoyenneEntreObservationsKmh == null ? '—' : Math.round(s.vitesseMoyenneEntreObservationsKmh) + ' km/h moy.'}</small></td></tr>`).join('');
+    return `<div class="diag-app" style="--c:${idt.couleur}"><h4>${idt.emoji} ${esc(a.nom)}</h4><table>
+      <tr><td>Observations · segments</td><td>${d.nbObservations} · ${d.nbSegments}</td></tr>
+      <tr><td>Distance brute</td><td><b>${esc(km(d.distanceBruteM))}</b></td></tr>
+      <tr><td>dont segments traversant une absence (${d.nbAbsences})</td><td>${esc(km(d.distanceSurAbsencesM))}</td></tr>
+      <tr><td>Précisions inconnues (défaut ${MOTEUR.PARAMETRES.precisionParDefautM} m)</td><td>${d.nbPrecisionsInconnues}</td></tr>
+      <tr><td>Vitesse moyenne entre observations, max.</td><td>${d.vitesseMoyenneMaxKmh == null ? '—' : Math.round(d.vitesseMoyenneMaxKmh) + ' km/h'}</td></tr>
+    </table>${top ? `<details><summary>5 plus longs segments</summary><table>${top}</table></details>` : ''}</div>`;
+  }).join('');
+  const invalides = nbObservationsSansCoordonnees + r.ignorees.length;
+  $('diag-contenu').innerHTML = `<p class="diag-note">Moteur ${esc(MOTEUR.VERSION)}${invalides ? ` · ${invalides} observation(s) reçue(s) sans coordonnées exploitables : non affichée(s), toujours présente(s) dans D1` : ''}</p>` + html;
+}
+
 function afficherResume() {
   afficherSynthese();   // B5
+  afficherDiagnostic();   // P2
   const ids = idsChoisis();
   if (!ids.length) { $('resume').innerHTML = '<span class="vide">Sélectionnez au moins un appareil.</span>'; return; }
   const cartes = ids.map(id => {
@@ -1437,7 +1473,12 @@ $('perso-ok').addEventListener('click', () => {   // B4b
 });
 $('per-suiv').addEventListener('click', () => naviguerPeriode(1));
 majNavPeriode();
-$('note-trou').textContent = `Une liaison grise signale plus de ${SEUIL_TROU_MIN} min sans observation : rien n'est connu entre ces deux points.`;   // B11
+if (MOTEUR) $('note-trou').textContent = `Une liaison grise signale plus de ${SEUIL_TROU_MIN} min sans observation : rien n'est connu entre ces deux points.`;   // B11
+else { $('etat').className = 'erreur'; $('etat').textContent = 'position-moteur.js n’a pas pu être chargé : les absences d’observations ne sont pas marquées.'; }
+// P2 — Panneau de diagnostic, uniquement avec ?diag=1
+const DIAG = new URLSearchParams(location.search).get('diag') === '1';
+let nbObservationsSansCoordonnees = 0;
+$('diag').hidden = !(DIAG && MOTEUR);
 // DS2 — Les âges (« Vu il y a … ») et les pastilles sont recalculés chaque minute : une page restée ouverte
 // ne doit pas présenter une position vieillie comme récente. Pas de rechargement des données ici.
 setInterval(() => {
