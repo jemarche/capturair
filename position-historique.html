@@ -92,6 +92,14 @@
   .navperiode button:disabled { opacity: .35; cursor: default; }
   #per-libelle { text-align: center; font-size: .86rem; font-weight: 500; line-height: 1.25; }
   #per-libelle small { display: block; font-weight: 400; color: var(--gris); }
+  /* B4b — Période personnalisée */
+  .periodes button[data-periode="perso"] { grid-column: 1 / -1; }
+  .perso { margin-top: 8px; padding: 10px; border: 1px solid var(--trait); border-radius: 8px; display: grid; grid-template-columns: 42px 1fr 1fr; gap: 6px; align-items: center; font-size: .84rem; }
+  .perso input { min-width: 0; padding: 5px 6px; border: 1px solid var(--trait); border-radius: 6px; font: inherit; }
+  .perso .actions { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; }
+  .perso button { padding: 6px 12px; border: 0; border-radius: 6px; background: var(--marine); color: #fff; cursor: pointer; font: inherit; }
+  #perso-message { grid-column: 1 / -1; font-size: .8rem; color: var(--gris); }
+  #perso-message.erreur { color: var(--erreur); }
 
   #resume { font-size: .92rem; line-height: 1.5; }
   #resume .nombre { font-family: 'Syne', sans-serif; font-size: 1.6rem; display: block; }
@@ -210,6 +218,13 @@
           <button type="button" data-periode="24h" aria-pressed="true">24 h</button>
           <button type="button" data-periode="7j" aria-pressed="false">7 j</button>
           <button type="button" data-periode="30j" aria-pressed="false">30 j</button>
+          <button type="button" data-periode="perso" aria-pressed="false">Personnalisé</button>
+        </div>
+        <div class="perso" id="perso" hidden>
+          <label for="perso-d0">Début</label><input type="date" id="perso-d0"><input type="time" step="1" id="perso-h0" aria-label="Heure de début">
+          <label for="perso-d1">Fin</label><input type="date" id="perso-d1"><input type="time" step="1" id="perso-h1" aria-label="Heure de fin">
+          <div class="actions"><button type="button" id="perso-ok">Afficher</button><small>heure de Montréal</small></div>
+          <div id="perso-message" role="status"></div>
         </div>
         <div class="navperiode">
           <button type="button" id="per-prec" aria-label="Période précédente">‹</button>
@@ -263,6 +278,7 @@ let choisis = new Set();   // B3a — identifiants des appareils sélectionnés
 let numRequete = 0;        // B3a — seule la réponse de la dernière requête est affichée
 let periode = '24h';
 let decalage = 0;   // B4a — 0 = période courante ; -1 = la précédente (jour ou même durée), etc.
+let perso = null;   // B4b — { w0, w1 } : heures murales locales (ms) saisies, en America/Toronto
 let points = [];
 let carte = null, infoWin = null, lignes = [], cercle = null;   // B3a — une ligne pointillée par appareil
 let marqueurs = [];
@@ -659,9 +675,50 @@ function bornes(maintenant = Date.now()) {
     const fin = new Date(decalage === 0 ? maintenant : muraleVersUtc(w0 + 86400000));
     return { debut, fin };
   }
+  if (periode === 'perso' && perso) {
+    // < 24 h : même plage horaire, un jour plus tôt/tard ; sinon décalage de sa propre durée (en heure locale)
+    const pas = perso.w1 - perso.w0 < 86400000 ? 86400000 : perso.w1 - perso.w0;
+    const debut = muraleVersUtc(perso.w0 + decalage * pas);
+    const fin = Math.min(maintenant, muraleVersUtc(perso.w1 + decalage * pas));   // jamais au-delà de maintenant
+    return { debut: new Date(debut), fin: new Date(fin) };
+  }
   const D = DUREE_PERIODE[periode] || DUREE_PERIODE['24h'];
   const fin = maintenant + decalage * D;
   return { debut: new Date(fin - D), fin: new Date(fin) };
+}
+
+// B4b — Saisie « AAAA-MM-JJ » + « HH:mm[:ss] » interprétée en America/Toronto.
+// Heure inexistante (8 mars, 02:00–02:59) : refusée. Heure ambiguë (1er nov., 01:00–01:59) : 1re occurrence (HAE).
+function lireHeureLocale(date, heure) {
+  const md = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date || ''), mh = /^(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(heure || '');
+  if (!md || !mh) return { erreur: 'Date ou heure incomplète.' };
+  const w = Date.UTC(+md[1], +md[2] - 1, +md[3], +mh[1], +mh[2], +(mh[3] || 0));
+  const t = muraleVersUtc(w);
+  if (heureMurale(t) !== w) return { erreur: `${heure} n'existe pas ce jour-là (passage à l'heure d'été).` };
+  return { w, t, ambigue: heureAmbigue(new Date(t)) };
+}
+const JOUR_MAX_PLAGE = 365;   // limite de l'API historique
+function validerPerso(maintenant = Date.now()) {
+  const a = lireHeureLocale($('perso-d0').value, $('perso-h0').value);
+  const b = lireHeureLocale($('perso-d1').value, $('perso-h1').value);
+  if (a.erreur) return { erreur: 'Début : ' + a.erreur };
+  if (b.erreur) return { erreur: 'Fin : ' + b.erreur };
+  if (b.t <= a.t) return { erreur: 'La fin doit être après le début.' };
+  if (a.t >= maintenant) return { erreur: 'Le début est dans le futur.' };
+  if (b.t - a.t > JOUR_MAX_PLAGE * 86400000) return { erreur: `La plage ne peut pas dépasser ${JOUR_MAX_PLAGE} jours.` };
+  const notes = [];
+  if (a.ambigue || b.ambigue) notes.push("Heure ambiguë (changement d'heure) : la première occurrence, en HAE, est retenue.");
+  if (b.t > maintenant) notes.push('La fin est ramenée à maintenant.');
+  return { w0: a.w, w1: b.w, note: notes.join(' ') };
+}
+// Préremplit le formulaire avec la période affichée (heure locale)
+function remplirPerso() {
+  const { debut, fin } = bornes();
+  const parts = d => { const p = {}; fmtMural.formatToParts(d).forEach(x => { p[x.type] = x.value; }); return p; };
+  const a = parts(debut), b = parts(fin);
+  $('perso-d0').value = `${a.year}-${a.month}-${a.day}`; $('perso-h0').value = `${a.hour}:${a.minute}:${a.second}`;
+  $('perso-d1').value = `${b.year}-${b.month}-${b.day}`; $('perso-h1').value = `${b.hour}:${b.minute}:${b.second}`;
+  $('perso-message').className = ''; $('perso-message').textContent = '';
 }
 
 // B4a — Libellé de la période et état des flèches
@@ -671,14 +728,24 @@ function majNavPeriode() {
     const jour = fmtDate.format(debut);
     $('per-libelle').innerHTML = `${esc(jour.charAt(0).toUpperCase() + jour.slice(1))}`
       + (decalage === 0 ? `<small>aujourd'hui, jusqu'à maintenant</small>` : '');
+  } else if (periode === 'perso') {
+    $('per-libelle').innerHTML = `${esc(dateHeure(debut))} → ${esc(dateHeure(fin))}<small>période personnalisée</small>`;
   } else {
     $('per-libelle').innerHTML = `${esc(dateHeure(debut))} → ${esc(dateHeure(fin))}`
       + (decalage === 0 ? `<small>jusqu'à maintenant</small>` : '');
   }
-  $('per-suiv').disabled = decalage >= 0;
+  $('per-suiv').disabled = !suivantPossible();
+}
+// › possible tant que la période suivante commence avant maintenant
+function suivantPossible() {
+  if (periode !== 'perso') return decalage < 0;
+  decalage++;
+  const { debut } = bornes();
+  decalage--;
+  return debut.getTime() < Date.now();
 }
 function naviguerPeriode(sens) {
-  if (sens > 0 && decalage >= 0) return;
+  if (sens > 0 && !suivantPossible()) return;
   decalage += sens;
   majNavPeriode();
   chargerHistorique();
@@ -1234,6 +1301,17 @@ $('liste-appareils').addEventListener('click', e => {
 });
 $('btn-ordre').addEventListener('click', retablirOrdre);
 $('per-prec').addEventListener('click', () => naviguerPeriode(-1));   // B4a
+$('perso-ok').addEventListener('click', () => {   // B4b
+  const r = validerPerso();
+  $('perso-message').className = r.erreur ? 'erreur' : '';
+  $('perso-message').textContent = r.erreur || r.note || '';
+  if (r.erreur) return;
+  perso = { w0: r.w0, w1: r.w1 };
+  periode = 'perso';
+  decalage = 0;
+  majNavPeriode();
+  chargerHistorique();
+});
 $('per-suiv').addEventListener('click', () => naviguerPeriode(1));
 majNavPeriode();
 $('note-trou').textContent = `Une liaison grise signale plus de ${SEUIL_TROU_MIN} min sans observation : rien n'est connu entre ces deux points.`;   // B11
@@ -1250,6 +1328,14 @@ $('btn-tous').addEventListener('click', () => choisirTous(true));
 $('btn-aucun').addEventListener('click', () => choisirTous(false));
 $('periodes').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.periode === 'perso') {   // B4b — ouvre le formulaire ; rien n'est chargé avant « Afficher »
+    remplirPerso();
+    $('perso').hidden = false;
+    document.querySelectorAll('#periodes button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    $('perso-d0').focus();
+    return;
+  }
+  $('perso').hidden = true;
   periode = b.dataset.periode;
   decalage = 0;   // B4a — un préréglage repart toujours de la période courante
   majNavPeriode();
