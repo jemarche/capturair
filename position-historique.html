@@ -54,7 +54,7 @@
   aside h2 { font-family: 'Syne', sans-serif; font-size: 1rem; margin: 0 0 10px; }
   aside section + section { margin-top: 22px; }
 
-  .appareil { width: 100%; display: grid; grid-template-columns: 12px 1fr; gap: 2px 10px; align-items: center; text-align: left; padding: 10px 12px; margin-bottom: 6px; border: 1px solid var(--trait); border-radius: 8px; background: #fff; cursor: pointer; color: var(--texte); }
+  .appareil { width: 100%; display: grid; grid-template-columns: 18px 12px 1fr; gap: 2px 10px; align-items: center; text-align: left; padding: 10px 12px; margin-bottom: 6px; border: 1px solid var(--trait); border-radius: 8px; background: #fff; cursor: pointer; color: var(--texte); }
   .appareil:hover { border-color: var(--ciel); }
   .appareil[aria-pressed="true"] { border-color: var(--ciel); background: #EAF5FC; }
   .pastille { width: 10px; height: 10px; border-radius: 50%; background: var(--pale); grid-row: span 2; }
@@ -62,6 +62,17 @@
   .pastille.moyenne { background: var(--ambre); }
   .pastille.aucune { background: transparent; border: 2px solid var(--pale); }
   .appareil strong { font-weight: 500; }
+  /* B3a — Multi-sélection */
+  .case { width: 16px; height: 16px; border: 2px solid var(--pale); border-radius: 4px; grid-row: span 2; display: flex; align-items: center; justify-content: center; font-size: 11px; line-height: 1; color: #fff; }
+  .appareil[aria-checked="true"] { border-color: var(--ciel); background: #EAF5FC; }
+  .appareil[aria-checked="true"] .case { background: var(--ciel); border-color: var(--ciel); }
+  .appareil[aria-checked="true"] .case::after { content: "✓"; }
+  .outils-appareils { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; font-size: .8rem; color: var(--gris); }
+  .outils-appareils button { padding: 4px 8px; border: 1px solid var(--trait); border-radius: 6px; background: #fff; cursor: pointer; font-size: .8rem; color: var(--texte); }
+  #nb-choisis { margin-left: auto; }
+  #timeline { max-height: 42vh; overflow-y: auto; }
+  .resume-ligne { display: flex; justify-content: space-between; gap: 8px; }
+  .resume-ligne small { color: var(--gris); }
   .appareil small { color: var(--gris); font-size: .82rem; }
 
   .periodes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
@@ -156,7 +167,12 @@
   <div class="corps">
     <aside>
       <section>
-        <h2>Appareil</h2>
+        <h2>Appareils</h2>
+        <div class="outils-appareils">
+          <button type="button" id="btn-tous">Tout sélectionner</button>
+          <button type="button" id="btn-aucun">Tout désélectionner</button>
+          <span id="nb-choisis"></span>
+        </div>
         <div id="liste-appareils"><p class="vide">Chargement…</p></div>
       </section>
       <section>
@@ -209,10 +225,11 @@ let jeton = '';
 let etapeLogin = 1;
 let methode = 'otp';
 let appareils = [];
-let choix = null;
+let choisis = new Set();   // B3a — identifiants des appareils sélectionnés
+let numRequete = 0;        // B3a — seule la réponse de la dernière requête est affichée
 let periode = '24h';
 let points = [];
-let carte = null, infoWin = null, ligne = null, cercle = null;
+let carte = null, infoWin = null, lignes = [], cercle = null;   // B3a — une ligne pointillée par appareil
 let marqueurs = [];
 // B2a — État de sélection unique, partagé par la carte (et, à partir de B2b/B2c, par la timeline)
 let selection = null;   // _uid de l'observation sélectionnée, ou null
@@ -397,7 +414,7 @@ async function chargerAppareils() {
     appareils = d.appareils || [];
     afficherListe();
     const premier = appareils.find(a => a.latitude != null) || appareils[0];
-    if (premier) selectionner(premier.id);
+    if (premier) { choisis = new Set([premier.id]); afficherListe(); chargerHistorique(); }
   } catch (e) {
     $('liste-appareils').innerHTML = `<p class="vide">${esc(e.message)}</p>`;
   }
@@ -405,18 +422,45 @@ async function chargerAppareils() {
 
 function afficherListe() {
   if (!appareils.length) { $('liste-appareils').innerHTML = '<p class="vide">Aucun appareil suivi.</p>'; return; }
+  $('nb-choisis').textContent = `${choisis.size} / ${appareils.length}`;
   $('liste-appareils').innerHTML = appareils.map(a => `
-    <button type="button" class="appareil" data-id="${esc(a.id)}" aria-pressed="${a.id === choix}">
+    <button type="button" class="appareil" role="checkbox" data-id="${esc(a.id)}" aria-checked="${choisis.has(a.id)}">
+      <span class="case" aria-hidden="true"></span>
       <span class="pastille ${fraicheur(a.observed_at)}" aria-hidden="true"></span>
       <strong>${esc(a.nom)}</strong>
       <small>${a.observed_at ? 'Vu ' + age(a.observed_at) : 'Aucune position enregistrée'}</small>
     </button>`).join('');
 }
 
-function selectionner(id) {
-  choix = id;
+// B3a — Cocher / décocher un appareil ; rechargement groupé si plusieurs clics rapprochés
+let minuterieChoix = 0;
+function basculer(id) {
+  if (choisis.has(id)) choisis.delete(id); else choisis.add(id);
   afficherListe();
+  clearTimeout(minuterieChoix);
+  minuterieChoix = setTimeout(chargerHistorique, 350);
+}
+function choisirTous(tous) {
+  choisis = new Set(tous ? appareils.map(a => a.id) : []);
+  afficherListe();
+  clearTimeout(minuterieChoix);
   chargerHistorique();
+}
+// Appareils sélectionnés, dans l'ordre de la liste
+function idsChoisis() { return appareils.filter(a => choisis.has(a.id)).map(a => a.id); }
+
+// B3a — L'API accepte au plus 10 appareils par requête : découpage puis fusion chronologique
+const MAX_APPAREILS_REQUETE = 10;
+async function lireHistorique(ids, debut, fin) {
+  const paquets = [];
+  for (let k = 0; k < ids.length; k += MAX_APPAREILS_REQUETE) paquets.push(ids.slice(k, k + MAX_APPAREILS_REQUETE));
+  const reponses = await Promise.all(paquets.map(paquet => api('/api/position/historique'
+    + `?appareils=${encodeURIComponent(paquet.join(','))}&debut=${encodeURIComponent(debut.toISOString())}&fin=${encodeURIComponent(fin.toISOString())}`)));
+  const tous = [];
+  reponses.forEach(d => (d.points || []).forEach(p => tous.push(p)));
+  // Tri chronologique stable (à égalité, l'ordre reçu est conservé)
+  const tries = tous.map((p, k) => [Date.parse(p.observed_at), k, p]).sort((a, b) => a[0] - b[0] || a[1] - b[1]).map(x => x[2]);
+  return { points: tries, tronque: reponses.some(d => d.tronque) };
 }
 
 function bornes() {
@@ -430,42 +474,52 @@ function bornes() {
 }
 
 async function chargerHistorique() {
-  if (!choix) return;
+  const n = ++numRequete;
+  const ids = idsChoisis();
+  if (!ids.length) {
+    points = []; selection = null; periodeAffichee = null; vue = null;
+    $('etat').className = ''; $('etat').textContent = '';
+    if (carte) viderCarte();
+    dessinerTimeline();
+    afficherResume();
+    return;
+  }
   const { debut, fin } = bornes();
   $('etat').className = '';
   $('etat').textContent = 'Chargement…';
   try {
-    const q = `?appareils=${encodeURIComponent(choix)}&debut=${encodeURIComponent(debut.toISOString())}&fin=${encodeURIComponent(fin.toISOString())}`;
-    const d = await api('/api/position/historique' + q);
+    const d = await lireHistorique(ids, debut, fin);
+    if (n !== numRequete) return;   // une sélection plus récente a été demandée entre-temps
     points = attribuerUid((d.points || []).filter(p => Number.isFinite(p.latitude) && Number.isFinite(p.longitude)));
     selection = null;
     periodeAffichee = { debut, fin };
     vue = null;
-    $('etat').textContent = d.tronque ? 'Période très chargée : seuls les 5 000 premiers points sont affichés.' : '';
+    $('etat').textContent = d.tronque ? 'Période très chargée : certains points ne sont pas affichés (limite de 5 000 par requête).' : '';
     await dessiner();
     dessinerTimeline();
     afficherResume();
   } catch (e) {
+    if (n !== numRequete) return;
     $('etat').className = 'erreur';
     $('etat').textContent = e.message;
   }
 }
 
+// B3a — Résumé minimal multi-appareils (le résumé détaillé par appareil viendra en B3c)
 function afficherResume() {
-  const a = appareils.find(x => x.id === choix);
-  const nom = a ? a.nom : '';
-  if (!points.length) {
-    $('resume').innerHTML = a && a.observed_at
-      ? `<span class="vide">Aucune observation de ${esc(nom)} pendant cette période. Dernière position connue : ${esc(dateHeure(new Date(a.observed_at)))} (${esc(age(a.observed_at))}).</span>`
-      : `<span class="vide">Aucune observation enregistrée pour ${esc(nom)}.</span>`;
-    return;
-  }
-  const premier = points[0], dernier = points[points.length - 1];
-  $('resume').innerHTML = `
-    <span class="nombre">${points.length}</span>
-    observation${points.length > 1 ? 's' : ''} de ${esc(nom)}<br>
-    Première : ${esc(dateHeure(new Date(premier.observed_at)))}<br>
-    Dernière : ${esc(dateHeure(new Date(dernier.observed_at)))} (${esc(age(dernier.observed_at))})`;
+  const ids = idsChoisis();
+  if (!ids.length) { $('resume').innerHTML = '<span class="vide">Sélectionnez au moins un appareil.</span>'; return; }
+  const lignes = ids.map(id => {
+    const a = appareils.find(x => x.id === id);
+    const pts = points.filter(p => p.appareil_id === id);
+    if (pts.length) {
+      const der = pts[pts.length - 1];
+      return `<div class="resume-ligne"><span>${esc(a.nom)}</span><small>${pts.length} obs. · dernière ${esc(heureHMS(new Date(der.observed_at)))}</small></div>`;
+    }
+    return `<div class="resume-ligne"><span>${esc(a.nom)}</span><small>${a.observed_at ? `aucune sur la période · vu ${esc(age(a.observed_at))}` : 'aucune position enregistrée'}</small></div>`;
+  }).join('');
+  $('resume').innerHTML = `<span class="nombre">${points.length}</span>
+    observation${points.length > 1 ? 's' : ''} · ${ids.length} appareil${ids.length > 1 ? 's' : ''}${lignes}`;
 }
 
 // ── Carte ─────────────────────────────────────────────────────────────────────
@@ -484,7 +538,8 @@ function viderCarte() {
   marqueurs = [];
   if (halo) { halo.setMap(null); halo = null; }
   if (apercu) { apercu.setMap(null); apercu = null; }
-  if (ligne) { ligne.setMap(null); ligne = null; }
+  lignes.forEach(l => l.setMap(null));
+  lignes = [];
   if (cercle) { cercle.setMap(null); cercle = null; }
   if (infoWin) infoWin.close();
 }
@@ -494,27 +549,37 @@ async function dessiner() {
   viderCarte();
 
   if (!points.length) {
-    const a = appareils.find(x => x.id === choix);
-    if (a && a.latitude != null) {
-      const pos = { lat: a.latitude, lng: a.longitude };
-      marqueurs.push(new google.maps.Marker({
-        map: carte, position: pos, title: 'Dernière position connue (hors période)',
-        icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillOpacity: 0, strokeColor: '#5B6B80', strokeWeight: 2 }
-      }));
-      carte.setCenter(pos); carte.setZoom(15);
+    // Aucune observation sur la période : dernières positions connues (hors période) des appareils choisis
+    const connus = idsChoisis().map(id => appareils.find(x => x.id === id)).filter(a => a && a.latitude != null);
+    connus.forEach(a => marqueurs.push(new google.maps.Marker({
+      map: carte, position: { lat: a.latitude, lng: a.longitude }, title: `${a.nom} — dernière position connue (hors période)`,
+      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillOpacity: 0, strokeColor: '#5B6B80', strokeWeight: 2 }
+    })));
+    if (connus.length === 1) { carte.setCenter({ lat: connus[0].latitude, lng: connus[0].longitude }); carte.setZoom(15); }
+    else if (connus.length > 1) {
+      const b = new google.maps.LatLngBounds();
+      connus.forEach(a => b.extend({ lat: a.latitude, lng: a.longitude }));
+      carte.fitBounds(b, 48);
     }
     return;
   }
 
   const chemin = points.map(p => ({ lat: p.latitude, lng: p.longitude }));
-  ligne = new google.maps.Polyline({
-    path: chemin, strokeOpacity: 0, clickable: false,
-    icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: .7, strokeColor: '#1A8FD1', scale: 2 }, offset: '0', repeat: '12px' }],
-    map: $('opt-ligne').checked ? carte : null
+  // B3a — Liaison chronologique par appareil : jamais entre deux appareils différents
+  const derniers = new Set();
+  [...new Set(points.map(p => p.appareil_id))].forEach(id => {
+    const pts = points.filter(p => p.appareil_id === id);
+    derniers.add(pts[pts.length - 1]._uid);
+    if (pts.length < 2) return;
+    lignes.push(new google.maps.Polyline({
+      path: pts.map(p => ({ lat: p.latitude, lng: p.longitude })), strokeOpacity: 0, clickable: false,
+      icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: .7, strokeColor: '#1A8FD1', scale: 2 }, offset: '0', repeat: '12px' }],
+      map: $('opt-ligne').checked ? carte : null
+    }));
   });
 
   points.forEach((p, i) => {
-    const dernier = i === points.length - 1;
+    const dernier = derniers.has(p._uid);   // dernière observation de cet appareil
     const m = new google.maps.Marker({
       map: carte, position: chemin[i], zIndex: dernier ? 1000 : i,
       title: dateHeure(new Date(p.observed_at)),
@@ -594,9 +659,8 @@ function dessinerTimeline() {
   majOutilsTimeline(t0, t1);
 
   // Une ligne par appareil présent dans les observations (plusieurs à partir de B3)
-  const ids = [...new Set(points.map(p => p.appareil_id))];
-  if (!ids.length && choix) ids.push(choix);
-  const H_LIGNE = 36, haut = 4;
+  const ids = idsChoisis();   // B3a — une ligne par appareil sélectionné, même sans observation
+  const H_LIGNE = ids.length > 3 ? 30 : 36, haut = 4;
   const yAxe = haut + ids.length * H_LIGNE + 2;
   geoTimeline.lignes = { ids, haut, H: H_LIGNE };
   const hauteur = yAxe + 18;
@@ -862,6 +926,12 @@ function afficherSelectionCarte(i, centrer) {
   ouvrirFiche(i);
 }
 
+// B3a — Rang d'une observation parmi celles de son appareil
+function rangDansAppareil(p) {
+  const pts = points.filter(x => x.appareil_id === p.appareil_id);
+  return { rang: pts.indexOf(p) + 1, total: pts.length };
+}
+
 function ouvrirFiche(i) {
   const p = points[i];
   const a = appareils.find(x => x.id === p.appareil_id);
@@ -884,7 +954,7 @@ function ouvrirFiche(i) {
         <dt>Latitude</dt><dd>${p.latitude.toFixed(5)}</dd>
         <dt>Longitude</dt><dd>${p.longitude.toFixed(5)}</dd>
       </dl>
-      <div class="rang">Observation ${i + 1} sur ${points.length}</div>
+      <div class="rang">Observation ${rangDansAppareil(p).rang} sur ${rangDansAppareil(p).total}</div>
     </div>`);
   infoWin.open({ map: carte, anchor: marqueurs[i] });
 }
@@ -893,14 +963,16 @@ function ouvrirFiche(i) {
 $('form-login').addEventListener('submit', soumettreLogin);
 document.querySelectorAll('.methodes button').forEach(b => b.addEventListener('click', () => choisirMethode(b.dataset.methode)));
 $('btn-deconnexion').addEventListener('click', () => deconnecter());
-$('liste-appareils').addEventListener('click', e => { const b = e.target.closest('.appareil'); if (b) selectionner(b.dataset.id); });
+$('liste-appareils').addEventListener('click', e => { const b = e.target.closest('.appareil'); if (b) basculer(b.dataset.id); });
+$('btn-tous').addEventListener('click', () => choisirTous(true));
+$('btn-aucun').addEventListener('click', () => choisirTous(false));
 $('periodes').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   periode = b.dataset.periode;
   document.querySelectorAll('#periodes button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
   chargerHistorique();
 });
-$('opt-ligne').addEventListener('change', e => { if (ligne) ligne.setMap(e.target.checked ? carte : null); });
+$('opt-ligne').addEventListener('change', e => { lignes.forEach(l => l.setMap(e.target.checked ? carte : null)); });
 $('btn-ajuster').addEventListener('click', ajuster);
 
 // Reprise de session dans le même onglet
