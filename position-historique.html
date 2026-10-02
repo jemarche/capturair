@@ -83,22 +83,35 @@
   #timeline { max-height: 42vh; overflow-y: auto; }
   .appareil small { color: var(--gris); font-size: .82rem; }
 
-  .periodes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-  .periodes button { padding: 8px 4px; border: 1px solid var(--trait); border-radius: 6px; background: #fff; cursor: pointer; color: var(--texte); font-size: .9rem; }
-  .periodes button[aria-pressed="true"] { background: var(--marine); border-color: var(--marine); color: #fff; }
+  /* V1 — Préréglages : barre segmentée d'un seul tenant (un choix parmi quatre) */
+  .periodes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+  .periodes button { padding: 9px 4px; border: 1.5px solid var(--marine); border-left-width: 0; border-radius: 0; background: #fff; cursor: pointer; color: var(--marine); font-size: .88rem; font-weight: 500; }
+  .periodes button:first-child { border-left-width: 1.5px; border-radius: 8px 0 0 8px; }
+  .periodes button:nth-child(4) { border-radius: 0 8px 8px 0; }
+  .periodes button[aria-pressed="true"] { background: var(--marine); color: #fff; }
+  .periodes button:not([aria-pressed="true"]):hover { background: #EEF2F7; }
+  .periodes button:focus-visible, .navperiode button:focus-visible, .plages button:focus-visible { outline: 3px solid var(--ciel); outline-offset: 2px; position: relative; z-index: 1; }
   /* B4a — Navigation dans les périodes */
-  .navperiode { display: grid; grid-template-columns: 36px 1fr 36px; align-items: center; gap: 6px; margin-top: 8px; }
-  .navperiode button { height: 32px; border: 1px solid var(--trait); border-radius: 6px; background: #fff; cursor: pointer; font-size: 1.1rem; color: var(--texte); }
-  .navperiode button:disabled { opacity: .35; cursor: default; }
-  #per-libelle { text-align: center; font-size: .86rem; font-weight: 500; line-height: 1.25; }
-  #per-libelle small { display: block; font-weight: 400; color: var(--gris); }
+  /* V1 — Navigation : la date affichée est le point focal de la section */
+  .navperiode { display: grid; grid-template-columns: 38px 1fr 38px; align-items: center; gap: 8px; margin-top: 12px; padding: 8px; background: #EAF5FC; border-radius: 12px; }
+  .navperiode button { width: 38px; height: 38px; border: 0; border-radius: 50%; background: var(--marine); cursor: pointer; font-size: 1.25rem; line-height: 1; color: #fff; }
+  .navperiode button:hover:not(:disabled) { background: var(--ciel); }
+  .navperiode button:disabled { background: #C9D6E3; cursor: default; }
+  #per-libelle { text-align: center; font-family: 'Syne', sans-serif; font-size: .95rem; font-weight: 700; color: var(--marine); line-height: 1.25; }
+  #per-libelle small { display: block; margin-top: 2px; font-family: 'DM Sans', sans-serif; font-size: .78rem; font-weight: 500; color: var(--ciel); }
   /* B4c — Plages du jour */
-  .plages { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
-  .plages button { padding: 4px 9px; border: 1px solid var(--trait); border-radius: 14px; background: #fff; cursor: pointer; font-size: .8rem; color: var(--texte); }
-  .plages button[aria-pressed="true"] { background: var(--ciel); border-color: var(--ciel); color: #fff; }
-  .plages button:disabled { opacity: .4; cursor: default; }
+  /* V1 — Plages : la couleur code le moment de la journée (n'apparaît jamais sur la carte) */
+  .plages { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+  .plages button { padding: 6px 4px; border: 1.5px solid var(--pc); border-radius: 18px; background: #fff; background: color-mix(in srgb, var(--pc) 12%, #fff); cursor: pointer; font-size: .8rem; font-weight: 600; color: var(--pc); color: color-mix(in srgb, var(--pc) 75%, #000); white-space: nowrap; }
+  .plages button:hover:not(:disabled):not([aria-pressed="true"]) { background: color-mix(in srgb, var(--pc) 24%, #fff); }
+  .plages button[aria-pressed="true"] { background: var(--pc); color: #fff; box-shadow: 0 2px 6px rgba(11,31,58,.18); box-shadow: 0 2px 6px color-mix(in srgb, var(--pc) 40%, transparent); }
+  .plages button:disabled { border-style: dashed; background: #fff; color: #A9B6C4; border-color: #D3DCE6; cursor: default; }
   /* B4b — Période personnalisée */
-  .periodes button[data-periode="perso"] { grid-column: 1 / -1; }
+  /* V1 — « Personnalisé » ouvre un formulaire : action secondaire, distincte de la barre */
+  .periodes button[data-periode="perso"] { grid-column: 1 / -1; margin-top: 8px; border: 1.5px dashed var(--ciel); border-radius: 8px; color: var(--ciel); font-weight: 600; }
+  .periodes button[data-periode="perso"]::before { content: "🗓  "; }
+  .periodes button[data-periode="perso"][aria-pressed="true"] { border-style: solid; background: var(--ciel); color: #fff; }
+  .periodes button[data-periode="perso"]:not([aria-pressed="true"]):hover { background: #EAF5FC; }
   /* Champs empilés sur toute la largeur : le format d'heure fr-CA (« 17 h 22 min 38 s ») est trop long pour deux colonnes */
   .perso { margin-top: 8px; padding: 10px; border: 1px solid var(--trait); border-radius: 8px; display: grid; grid-template-columns: 1fr; gap: 5px; font-size: .84rem; }
   .perso label { font-weight: 700; color: var(--texte); }
@@ -737,12 +750,12 @@ function remplirPerso() {
 // B4c — Plages prédéfinies (minutes depuis minuit du jour affiché, heure de Montréal). Modifiables ici.
 // Nuit : de 22:00 la veille à 06:00 le jour affiché.
 const PLAGES = [
-  { id: 'journee',   nom: 'Journée',    debut: 0,       fin: 24 * 60 },
-  { id: 'matin',     nom: 'Matin',      debut: 6 * 60,  fin: 12 * 60 },
-  { id: 'apresmidi', nom: 'Après-midi', debut: 12 * 60, fin: 18 * 60 },
-  { id: 'soiree',    nom: 'Soirée',     debut: 18 * 60, fin: 23 * 60 },
-  { id: 'nuit',      nom: 'Nuit',       debut: -2 * 60, fin: 6 * 60 },
-  { id: 'travail',   nom: 'Travail',    debut: 8 * 60,  fin: 17 * 60 }
+  { id: 'journee',   nom: 'Journée',    debut: 0,       fin: 24 * 60, emoji: '📅', couleur: '#0B1F3A' },
+  { id: 'matin',     nom: 'Matin',      debut: 6 * 60,  fin: 12 * 60, emoji: '🌅', couleur: '#E59400' },
+  { id: 'apresmidi', nom: 'Après-midi', debut: 12 * 60, fin: 18 * 60, emoji: '☀️', couleur: '#1A8FD1' },
+  { id: 'soiree',    nom: 'Soirée',     debut: 18 * 60, fin: 23 * 60, emoji: '🌇', couleur: '#D35454' },
+  { id: 'nuit',      nom: 'Nuit',       debut: -2 * 60, fin: 6 * 60,  emoji: '🌙', couleur: '#3B3F8F' },
+  { id: 'travail',   nom: 'Travail',    debut: 8 * 60,  fin: 17 * 60, emoji: '💼', couleur: '#4F6D7A' }
 ];
 const hhmm = min => { const m = ((min % 1440) + 1440) % 1440; return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; };
 // Une plage d'aujourd'hui qui n'a pas encore commencé n'est pas proposée
@@ -759,7 +772,7 @@ function afficherPlages() {
   z.innerHTML = PLAGES.map(P => {
     const ok = plageCommencee(P.id);
     const titre = P.id === 'journee' ? 'Toute la journée' : `${hhmm(P.debut)} → ${hhmm(P.fin)}${P.debut < 0 ? ' (depuis la veille)' : ''}`;
-    return `<button type="button" data-plage="${P.id}" aria-pressed="${P.id === plage}" title="${ok ? titre : "Cette plage n'a pas encore commencé"}"${ok ? '' : ' disabled'}>${P.nom}</button>`;
+    return `<button type="button" data-plage="${P.id}" style="--pc:${P.couleur}" aria-pressed="${P.id === plage}" title="${ok ? titre : "Cette plage n'a pas encore commencé"}"${ok ? '' : ' disabled'}><span aria-hidden="true">${P.emoji}</span> ${P.nom}</button>`;
   }).join('');
 }
 
