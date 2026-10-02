@@ -2,20 +2,27 @@
  * CapturAir — position-moteur.js
  * Moteur pur de calcul sur les observations de position.
  *
- * Contrat (P1/P2) :
+ * Contrat (P1/P2, inchangé en P3) :
  *   - aucun DOM, aucune dépendance Google Maps, aucun appel réseau, aucun token, aucun accès D1 ou Home Assistant ;
  *   - reçoit des observations, retourne des résultats calculés ; ne modifie jamais les observations reçues ;
  *   - ne supprime aucune observation : une observation sans coordonnées valides est signalée, jamais effacée ;
- *   - ne classe AUCUN segment (bruit / incertain / significatif / suspect) : c'est le rôle de P3 ;
+ *   - construireSegments / calculerDistanceBrute ne classent AUCUN segment ;
  *   - expose les faits nécessaires au diagnostic : distance géodésique, durée, précisions, vitesse moyenne
  *     entre observations, traversée d'une absence d'observations.
+ *
+ * P3 (calculerDistanceObservee) :
+ *   - première étape autorisée à classer (bruit_probable / incertain / significatif) et à écarter des pics ;
+ *   - n'écarte que du CUMUL : aucune observation n'est modifiée ni supprimée ; tout est rapporté au diagnostic ;
+ *   - orthogonal à B11 : une absence d'observations n'invalide jamais la distance entre ses deux extrémités ;
+ *   - un segment très rapide (> seuilVitesseSuspecteKmH) est SIGNALÉ, jamais supprimé.
+ *   Tous les seuils sont des paramètres de calibration PROVISOIRES.
  *
  * Utilisable dans le navigateur (globalThis.CapturAirMoteur) et sous Node (module.exports).
  */
 (function (racine) {
   'use strict';
 
-  const VERSION = 'P2';
+  const VERSION = 'P3';
 
   // Paramètres de calibration : provisoires, centralisés, à ajuster sur les données réelles CapturAir.
   const PARAMETRES = Object.freeze({
@@ -23,7 +30,12 @@
     // Chez CapturAir, precision_m = 0 (ex. RAV4) signifie « précision non disponible », jamais « 0 m ».
     precisionParDefautM: 30,
     // DS4 / B11 : écart au-delà duquel on parle d'absence d'observations (jamais de panne).
-    seuilTrouMin: 30
+    seuilTrouMin: 30,
+    // P3 — calibrés sur le jeu terrain du 2 octobre 2026 (5 appareils). Provisoires, à recalibrer.
+    facteurSignificatif: 3,          // significatif si distance > facteur × (précision A + précision B)
+    facteurPic: 4,                   // pic si l'écart vers X ≤ facteur × (précision voisin + précision X)
+    seuilGrandeVitesseKmH: 300,      // pic à grande vitesse : aller ET retour au-delà, retour près du départ
+    seuilVitesseSuspecteKmH: 1000    // au-delà : segment suspect, signalé, jamais supprimé
   });
 
   const RAYON_TERRE_M = 6371008.8;   // rayon terrestre moyen (UGGI)
@@ -157,9 +169,101 @@
     return { appareils: [...resultats.values()], ignorees };
   }
 
+  // ── P3 — Filtrage ────────────────────────────────────────────────────────────────────────────
+
+  function kmh(distanceM, dureeMs) { return dureeMs > 0 ? (distanceM / 1000) / (dureeMs / 3600000) : null; }
+
+  // Pics A → X → B : X est écarté du cumul (jamais de la base) si A et B sont proches et que
+  //  - (précision) les deux écarts vers X s'expliquent par l'imprécision de X : ≤ facteurPic × (p voisin + p X) ;
+  //  - ou (grande vitesse) aller et retour dépassent seuilGrandeVitesseKmH.
+  // Les extrémités de la chaîne ne sont jamais des pics.
+  function detecterPics(chaine, params) {
+    const pics = new Map();
+    for (let k = 1; k < chaine.length - 1; k++) {
+      const A = chaine[k - 1], X = chaine[k], B = chaine[k + 1];
+      const pA = precisionEffective(A.precision_m, params).m, pX = precisionEffective(X.precision_m, params).m;
+      const pB = precisionEffective(B.precision_m, params).m;
+      const dAB = calculerDistance(A.latitude, A.longitude, B.latitude, B.longitude);
+      if (dAB > pA + pB) continue;   // A et B ne sont pas proches : pas un aller-retour
+      const dAX = calculerDistance(A.latitude, A.longitude, X.latitude, X.longitude);
+      const dXB = calculerDistance(X.latitude, X.longitude, B.latitude, B.longitude);
+      if (dAX <= pA + pX && dXB <= pX + pB) continue;   // simple bruit, pas une excursion
+      const tA = Date.parse(A.observed_at), tX = Date.parse(X.observed_at), tB = Date.parse(B.observed_at);
+      const vAller = kmh(dAX, tX - tA), vRetour = kmh(dXB, tB - tX);
+      if (dAX <= params.facteurPic * (pA + pX) && dXB <= params.facteurPic * (pX + pB)) {
+        pics.set(X, { observation: X, type: 'precision', ecartM: Math.max(dAX, dXB), precisionM: pX, vitesseAllerKmh: vAller, vitesseRetourKmh: vRetour });
+      } else if (vAller != null && vRetour != null && vAller > params.seuilGrandeVitesseKmH && vRetour > params.seuilGrandeVitesseKmH) {
+        pics.set(X, { observation: X, type: 'grande_vitesse', ecartM: Math.max(dAX, dXB), precisionM: pX, vitesseAllerKmh: vAller, vitesseRetourKmh: vRetour });
+      }
+    }
+    return pics;
+  }
+
+  // P3 — Distance observée filtrée (candidate), par appareil.
+  // Chaque point (hors pics) est évalué depuis le DERNIER POINT RETENU (ancre) :
+  //   distance ≤ tolérance                       → bruit_probable (l'ancre reste)
+  //   ≤ facteurSignificatif × tolérance          → incertain      (l'ancre reste)
+  //   > facteurSignificatif × tolérance          → significatif   (compté ; le point devient l'ancre)
+  // tolérance = précision effective de l'ancre + précision effective du point.
+  // Les absences d'observations (B11) n'interviennent PAS.
+  function calculerDistanceObservee(observations, options) {
+    const opt = options || {};
+    const params = parametres(opt.parametres);
+    const { parAppareil, ignorees } = partitionner(observations);
+    const contexte = partitionner(opt.contexte || []).parAppareil;
+    const brut = calculerDistanceBrute(observations, options).appareils;
+    const resultats = [];
+
+    parAppareil.forEach((obs, id) => {
+      const ctx = contexte.get(id);
+      const avant = ctx ? ctx.filter(c => Date.parse(c.observed_at) < Date.parse(obs[0].observed_at)).pop() : null;
+      const chaine = avant ? [avant, ...obs] : obs;
+      const pics = detecterPics(chaine, params);
+      const r = {
+        appareil_id: id,
+        distanceBruteM: (brut.find(b => b.appareil_id === id) || {}).distanceBruteM || 0,
+        distanceFiltreeM: 0,
+        nbSignificatifs: 0, nbIncertains: 0, nbBruitProbable: 0,
+        incertainMaxM: 0,
+        pics: [...pics.values()],
+        suspects: [],
+        evaluations: []
+      };
+      let ancre = null;
+      chaine.forEach(P => {
+        if (pics.has(P)) return;
+        if (!ancre) { ancre = P; return; }
+        const pa = precisionEffective(ancre.precision_m, params).m, pp = precisionEffective(P.precision_m, params).m;
+        const tolerance = pa + pp;
+        const d = calculerDistance(ancre.latitude, ancre.longitude, P.latitude, P.longitude);
+        const duree = Date.parse(P.observed_at) - Date.parse(ancre.observed_at);
+        const classe = d <= tolerance ? 'bruit_probable' : d <= params.facteurSignificatif * tolerance ? 'incertain' : 'significatif';
+        const ev = { classe, depart: ancre, arrivee: P, distanceM: d, toleranceM: tolerance, dureeMs: duree,
+                     vitesseMoyenneEntreObservationsKmh: kmh(d, duree) };
+        r.evaluations.push(ev);
+        if (classe === 'significatif') {
+          r.nbSignificatifs++;
+          r.distanceFiltreeM += d;
+          if (ev.vitesseMoyenneEntreObservationsKmh != null && ev.vitesseMoyenneEntreObservationsKmh > params.seuilVitesseSuspecteKmH)
+            r.suspects.push(ev);   // signalé, conservé dans le cumul
+          ancre = P;
+        } else if (classe === 'incertain') {
+          r.nbIncertains++;
+          r.incertainMaxM = Math.max(r.incertainMaxM, d);
+        } else {
+          r.nbBruitProbable++;
+        }
+      });
+      resultats.push(r);
+    });
+    return { appareils: resultats, ignorees, parametres: params };
+  }
+
   const API = Object.freeze({
     VERSION, PARAMETRES, parametres,
-    calculerDistance, precisionEffective, construireSegments, detecterTrous, calculerDistanceBrute
+    calculerDistance, precisionEffective, construireSegments, detecterTrous, calculerDistanceBrute,
+    detecterPics: (chaine, surcharges) => [...detecterPics(chaine, parametres(surcharges)).values()],
+    calculerDistanceObservee
   });
 
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
