@@ -80,6 +80,17 @@
   .outils-appareils { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; font-size: .8rem; color: var(--gris); }
   .outils-appareils button { padding: 4px 8px; border: 1px solid var(--trait); border-radius: 6px; background: #fff; cursor: pointer; font-size: .8rem; color: var(--texte); }
   #nb-choisis { margin-left: auto; }
+  /* V2 — Ruban des appareils sélectionnés (mode replié) */
+  .ruban { display: flex; gap: 6px; align-items: center; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+  .puce { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 5px 4px 5px 9px; border: 1.5px solid var(--c); border-radius: 18px; background: #fff; background: color-mix(in srgb, var(--c) 10%, #fff); font-size: .84rem; font-weight: 600; color: var(--texte); white-space: nowrap; }
+  .puce .pastille { grid-row: auto; width: 8px; height: 8px; }
+  .puce button { width: 22px; height: 22px; border: 0; border-radius: 50%; background: transparent; cursor: pointer; color: var(--gris); font-size: .8rem; line-height: 1; }
+  .puce button:hover { background: rgba(11,31,58,.08); color: var(--texte); }
+  .ruban .modifier { flex: none; padding: 6px 12px; border: 1.5px dashed var(--marine); border-radius: 18px; background: #fff; cursor: pointer; font-size: .82rem; font-weight: 600; color: var(--marine); white-space: nowrap; }
+  .ruban .modifier:hover { background: #EEF2F7; }
+  .ruban .rien { color: var(--gris); font-size: .84rem; }
+  #btn-termine { width: 100%; margin-top: 8px; padding: 8px; border: 0; border-radius: 8px; background: var(--marine); color: #fff; cursor: pointer; font-weight: 600; }
+  .puce button:focus-visible, .ruban .modifier:focus-visible, #btn-termine:focus-visible { outline: 3px solid var(--ciel); outline-offset: 2px; }
   #timeline { max-height: 42vh; overflow-y: auto; }
   .appareil small { color: var(--gris); font-size: .82rem; }
 
@@ -225,6 +236,8 @@
     <aside>
       <section>
         <h2>Appareils</h2>
+        <div class="ruban" id="ruban" aria-label="Appareils sélectionnés"></div>
+        <div id="panneau-appareils" hidden>
         <div class="outils-appareils">
           <button type="button" id="btn-tous">Tout sélectionner</button>
           <button type="button" id="btn-aucun">Tout désélectionner</button>
@@ -232,6 +245,8 @@
           <span id="nb-choisis"></span>
         </div>
         <div id="liste-appareils"><p class="vide">Chargement…</p></div>
+        <button type="button" id="btn-termine">Terminé</button>
+        </div>
       </section>
       <section>
         <h2>Période</h2>
@@ -552,15 +567,45 @@ async function chargerAppareils() {
     appareils = appliquerOrdre(d.appareils || []);
     afficherListe();
     afficherSynthese();   // B5
+    // V2 — Sélection mémorisée (appareils encore existants) ; sinon le premier appareil localisé
+    const memo = lireSelection().filter(id => appareils.some(a => a.id === id));
     const premier = appareils.find(a => a.latitude != null) || appareils[0];
-    if (premier) { choisis = new Set([premier.id]); afficherListe(); chargerHistorique(); }
+    choisis = new Set(memo.length ? memo : premier ? [premier.id] : []);
+    listeOuverte = choisis.size === 0;
+    afficherListe();
+    if (choisis.size) chargerHistorique();
   } catch (e) {
     $('liste-appareils').innerHTML = `<p class="vide">${esc(e.message)}</p>`;
   }
 }
 
+// V2 — Liste repliée (ruban des appareils sélectionnés) ou dépliée (liste complète)
+let listeOuverte = false;
+function afficherRuban() {
+  $('ruban').hidden = listeOuverte;
+  $('panneau-appareils').hidden = !listeOuverte;
+  if (listeOuverte) return;
+  const ids = idsChoisis();
+  const puces = ids.map(id => {
+    const a = appareils.find(x => x.id === id), idt = identite(id);
+    const vu = a.observed_at ? `vu ${age(a.observed_at)}` : 'aucune position enregistrée';
+    return `<span class="puce" style="--c:${idt.couleur}" title="${esc(a.nom)} — ${esc(vu)}">`
+      + `<span class="pastille ${fraicheur(a.observed_at)}" aria-hidden="true"></span>`
+      + `<span>${idt.emoji} ${esc(tronquer(a.nom, 18))}</span>`
+      + `<button type="button" data-retirer="${esc(id)}" aria-label="Retirer ${esc(a.nom)}">✕</button></span>`;
+  }).join('');
+  $('ruban').innerHTML = (ids.length ? puces : '<span class="rien">Aucun appareil sélectionné</span>')
+    + `<button type="button" class="modifier" id="btn-modifier">${ids.length ? '＋ Modifier' : '＋ Choisir des appareils'} · ${ids.length} / ${appareils.length}</button>`;
+}
+function ouvrirListe(ouvrir) {
+  listeOuverte = ouvrir;
+  afficherListe();
+  (ouvrir ? $('btn-termine') : $('btn-modifier')).focus();
+}
+
 function afficherListe() {
   if (!appareils.length) { $('liste-appareils').innerHTML = '<p class="vide">Aucun appareil suivi.</p>'; return; }
+  afficherRuban();
   $('nb-choisis').textContent = `${choisis.size} / ${appareils.length}`;
   $('liste-appareils').innerHTML = appareils.map(a => `
     <button type="button" class="appareil" role="checkbox" data-id="${esc(a.id)}" aria-checked="${choisis.has(a.id)}" style="--c:${identite(a.id).couleur}">
@@ -658,14 +703,25 @@ $('liste-appareils').addEventListener('keydown', e => {
 
 // B3a — Cocher / décocher un appareil ; rechargement groupé si plusieurs clics rapprochés
 let minuterieChoix = 0;
+// V2 — Sélection mémorisée dans ce navigateur uniquement
+const CLE_SELECTION = 'posh_selection_appareils';
+function lireSelection() {
+  try { const v = JSON.parse(localStorage.getItem(CLE_SELECTION) || '[]'); return Array.isArray(v) ? v : []; }
+  catch (e) { return []; }
+}
+function enregistrerSelection() {
+  try { localStorage.setItem(CLE_SELECTION, JSON.stringify([...choisis])); } catch (e) { /* stockage indisponible */ }
+}
 function basculer(id) {
   if (choisis.has(id)) choisis.delete(id); else choisis.add(id);
+  enregistrerSelection();
   afficherListe();
   clearTimeout(minuterieChoix);
   minuterieChoix = setTimeout(chargerHistorique, 350);
 }
 function choisirTous(tous) {
   choisis = new Set(tous ? appareils.map(a => a.id) : []);
+  enregistrerSelection();
   afficherListe();
   clearTimeout(minuterieChoix);
   chargerHistorique();
@@ -1361,6 +1417,13 @@ $('liste-appareils').addEventListener('click', e => {
   const b = e.target.closest('.appareil'); if (b) basculer(b.dataset.id);
 });
 $('btn-ordre').addEventListener('click', retablirOrdre);
+// V2 — Ruban : retirer un appareil, ouvrir/fermer la liste complète
+$('ruban').addEventListener('click', e => {
+  const r = e.target.closest('[data-retirer]');
+  if (r) { basculer(r.dataset.retirer); return; }
+  if (e.target.closest('#btn-modifier')) ouvrirListe(true);
+});
+$('btn-termine').addEventListener('click', () => ouvrirListe(false));
 $('per-prec').addEventListener('click', () => naviguerPeriode(-1));   // B4a
 $('plages').addEventListener('click', e => {   // B4c
   const b = e.target.closest('[data-plage]');
