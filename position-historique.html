@@ -313,11 +313,21 @@ function age(iso) {
   if (h < 48) return `il y a ${h} h`;
   return `il y a ${Math.floor(h / 24)} j`;
 }
+// DS2 — Fraîcheur de la dernière observation (sur observed_at). La couleur n'est qu'un raccourci :
+// l'âge textuel est toujours affiché. Seuils provisoires, à calibrer après usage réel.
+const FRAICHEUR_RECENTE_MIN = 20;
+const FRAICHEUR_MOYENNE_MIN = 60;
 function fraicheur(iso) {
   if (!iso) return 'aucune';
   const m = (Date.now() - new Date(iso).getTime()) / 60000;
-  return m < 30 ? 'recente' : m < 360 ? 'moyenne' : 'ancienne';
+  return m <= FRAICHEUR_RECENTE_MIN ? 'recente' : m <= FRAICHEUR_MOYENNE_MIN ? 'moyenne' : 'ancienne';
 }
+const LIBELLE_FRAICHEUR = {
+  recente:  `Récente (${FRAICHEUR_RECENTE_MIN} min ou moins)`,
+  moyenne:  `Vieillissante (${FRAICHEUR_RECENTE_MIN} à ${FRAICHEUR_MOYENNE_MIN} min)`,
+  ancienne: `Ancienne (plus de ${FRAICHEUR_MOYENNE_MIN} min)`,
+  aucune:   'Jamais localisé'
+};
 // B2a — Clé frontend déterministe, valable uniquement dans le jeu chargé (l'API ne renvoie pas d'id D1).
 // Ordinal local par appareil : n'impose aucune hypothèse d'unicité sur observed_at.
 function attribuerUid(liste) {
@@ -475,7 +485,7 @@ function afficherListe() {
     <button type="button" class="appareil" role="checkbox" data-id="${esc(a.id)}" aria-checked="${choisis.has(a.id)}" style="--c:${identite(a.id).couleur}">
       <span class="poignee" title="Glisser pour réordonner (ou Alt + ↑ / ↓)" aria-hidden="true">⠿</span>
       <span class="case" aria-hidden="true"></span>
-      <span class="pastille ${fraicheur(a.observed_at)}" aria-hidden="true"></span>
+      <span class="pastille ${fraicheur(a.observed_at)}" title="${LIBELLE_FRAICHEUR[fraicheur(a.observed_at)]}" aria-hidden="true"></span>
       <strong><span class="emoji" aria-hidden="true">${identite(a.id).emoji}</span>${esc(a.nom)}</strong>
       <small>${a.observed_at ? 'Vu ' + age(a.observed_at) : 'Aucune position enregistrée'}</small>
     </button>`).join('');
@@ -1116,6 +1126,13 @@ $('liste-appareils').addEventListener('click', e => {
   const b = e.target.closest('.appareil'); if (b) basculer(b.dataset.id);
 });
 $('btn-ordre').addEventListener('click', retablirOrdre);
+// DS2 — Les âges (« Vu il y a … ») et les pastilles sont recalculés chaque minute : une page restée ouverte
+// ne doit pas présenter une position vieillie comme récente. Pas de rechargement des données ici.
+setInterval(() => {
+  if ($('app').hidden || tri) return;   // pas pendant un glisser d'appareil (B3d)
+  afficherListe();
+  afficherResume();
+}, 60000);
 // B3c — « Voir la dernière observation » : même sélection que depuis la timeline (halo, fiche, recentrage)
 $('resume').addEventListener('click', e => { const b = e.target.closest('[data-voir]'); if (b) selectionnerObservation(b.dataset.voir, 'timeline'); });
 $('btn-tous').addEventListener('click', () => choisirTous(true));
