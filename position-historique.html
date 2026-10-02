@@ -74,7 +74,6 @@
   .appareil.deplace { opacity: .85; box-shadow: 0 6px 16px rgba(11,31,58,.18); position: relative; z-index: 2; }
   body.tri-en-cours, body.tri-en-cours .poignee { cursor: grabbing; user-select: none; }
   .emoji { font-size: 1.05em; margin-right: 4px; }
-  .resume-ligne span { border-left: 3px solid var(--c, var(--trait)); padding-left: 6px; }
   .fiche-tete { color: #fff; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; padding: 7px 10px; border-radius: 6px; margin: 0 0 8px; }
   .fiche-tete .emoji { margin-right: 6px; }
   .appareil[aria-checked="true"] .case::after { content: "✓"; }
@@ -82,8 +81,6 @@
   .outils-appareils button { padding: 4px 8px; border: 1px solid var(--trait); border-radius: 6px; background: #fff; cursor: pointer; font-size: .8rem; color: var(--texte); }
   #nb-choisis { margin-left: auto; }
   #timeline { max-height: 42vh; overflow-y: auto; }
-  .resume-ligne { display: flex; justify-content: space-between; gap: 8px; }
-  .resume-ligne small { color: var(--gris); }
   .appareil small { color: var(--gris); font-size: .82rem; }
 
   .periodes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
@@ -93,6 +90,15 @@
   #resume { font-size: .92rem; line-height: 1.5; }
   #resume .nombre { font-family: 'Syne', sans-serif; font-size: 1.6rem; display: block; }
   #resume .vide { color: var(--gris); }
+  /* B3c — Résumé détaillé par appareil */
+  .carte-app { border: 1px solid var(--trait); border-left: 4px solid var(--c, var(--trait)); border-radius: 8px; padding: 8px 10px; margin-top: 8px; font-size: .84rem; }
+  .carte-app h4 { margin: 0 0 4px; font-size: .92rem; font-weight: 700; display: flex; justify-content: space-between; gap: 6px; }
+  .carte-app h4 small { font-weight: 500; color: var(--gris); white-space: nowrap; }
+  .carte-app dl { display: grid; grid-template-columns: auto 1fr; gap: 1px 8px; margin: 0; }
+  .carte-app dt { color: var(--gris); }
+  .carte-app dd { margin: 0; }
+  .carte-app .vide { color: var(--gris); margin: 0; }
+  .carte-app button { margin-top: 6px; padding: 3px 8px; border: 1px solid var(--trait); border-radius: 6px; background: #fff; cursor: pointer; font-size: .78rem; color: var(--texte); }
   .options { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; font-size: .9rem; }
   .options label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
   .options button { padding: 8px; border: 1px solid var(--trait); border-radius: 6px; background: #fff; cursor: pointer; }
@@ -348,6 +354,10 @@ const ANNEAU_POINTILLE = Array.from({ length: 8 }, (_, k) => {
   return `M ${Math.cos(a).toFixed(3)} ${Math.sin(a).toFixed(3)} A 1 1 0 0 1 ${Math.cos(b).toFixed(3)} ${Math.sin(b).toFixed(3)}`;
 }).join(' ');
 
+// B3c — Précision : 0 ou absente signifie « inconnue » (ex. RAV4), jamais « ±0 m »
+function libellePrecision(m) {
+  return Number.isFinite(m) && m > 0 ? '±' + Math.round(m) + ' m' : 'Précision non disponible';
+}
 function libelleSource(s) {
   return s === 'google_find_hub' ? 'Google Localiser (Find Hub)' : 'Home Assistant';
 }
@@ -628,21 +638,34 @@ async function chargerHistorique() {
   }
 }
 
-// B3a — Résumé minimal multi-appareils (le résumé détaillé par appareil viendra en B3c)
+// B3c — Résumé détaillé par appareil sélectionné (faits de la période uniquement)
 function afficherResume() {
   const ids = idsChoisis();
   if (!ids.length) { $('resume').innerHTML = '<span class="vide">Sélectionnez au moins un appareil.</span>'; return; }
-  const lignes = ids.map(id => {
+  const cartes = ids.map(id => {
     const a = appareils.find(x => x.id === id);
+    const idt = identite(id);
     const pts = points.filter(p => p.appareil_id === id);
-    if (pts.length) {
-      const der = pts[pts.length - 1];
-      return `<div class="resume-ligne"><span style="--c:${identite(id).couleur}">${identite(id).emoji} ${esc(a.nom)}</span><small>${pts.length} obs. · dernière ${esc(heureHMS(new Date(der.observed_at)))}</small></div>`;
+    const tete = `<h4><span>${idt.emoji} ${esc(a.nom)}</span><small>${pts.length ? `${pts.length} obs.` : ''}</small></h4>`;
+    if (!pts.length) {
+      return `<div class="carte-app" style="--c:${idt.couleur}">${tete}<p class="vide">Aucune observation pendant cette période.<br>${a.observed_at
+        ? `Dernière position connue : ${esc(dateHeure(new Date(a.observed_at)))} (${esc(age(a.observed_at))})`
+        : 'Aucune position enregistrée.'}</p></div>`;
     }
-    return `<div class="resume-ligne"><span style="--c:${identite(id).couleur}">${identite(id).emoji} ${esc(a.nom)}</span><small>${a.observed_at ? `aucune sur la période · vu ${esc(age(a.observed_at))}` : 'aucune position enregistrée'}</small></div>`;
+    const prem = pts[0], der = pts[pts.length - 1];
+    return `<div class="carte-app" style="--c:${idt.couleur}">${tete}
+      <dl>
+        <dt>Première</dt><dd>${esc(dateHeure(new Date(prem.observed_at)))}</dd>
+        <dt>Dernière</dt><dd>${esc(dateHeure(new Date(der.observed_at)))}</dd>
+        <dt>Âge</dt><dd>${esc(age(der.observed_at))}</dd>
+        <dt>Précision</dt><dd>${esc(libellePrecision(der.precision_m))}</dd>
+        <dt>Source</dt><dd>${esc(libelleSource(der.source))}</dd>
+      </dl>
+      <button type="button" data-voir="${esc(der._uid)}">Voir la dernière observation</button>
+    </div>`;
   }).join('');
   $('resume').innerHTML = `<span class="nombre">${points.length}</span>
-    observation${points.length > 1 ? 's' : ''} · ${ids.length} appareil${ids.length > 1 ? 's' : ''}${lignes}`;
+    observation${points.length > 1 ? 's' : ''} · ${ids.length} appareil${ids.length > 1 ? 's' : ''}${cartes}`;
 }
 
 // ── Carte ─────────────────────────────────────────────────────────────────────
@@ -1073,7 +1096,7 @@ function ouvrirFiche(i) {
       <div class="heure">🕐 ${esc(heureHMS(d))}</div>
       ${approx ? '<div class="approx">Heure approximative : dernière mise à jour reçue par Home Assistant</div>' : ''}
       <dl>
-        <dt>🎯 Précision</dt><dd>${Number.isFinite(p.precision_m) && p.precision_m > 0 ? '±' + Math.round(p.precision_m) + ' m' : 'non fournie'}</dd>
+        <dt>🎯 Précision</dt><dd>${libellePrecision(p.precision_m)}</dd>
         <dt>📡 Source</dt><dd>${esc(libelleSource(p.source))}</dd>
         ${p.zone ? `<dt>📍 Zone</dt><dd>${esc(p.zone)}</dd>` : ''}
         <dt>🌐 Latitude</dt><dd>${p.latitude.toFixed(5)}</dd>
@@ -1093,6 +1116,8 @@ $('liste-appareils').addEventListener('click', e => {
   const b = e.target.closest('.appareil'); if (b) basculer(b.dataset.id);
 });
 $('btn-ordre').addEventListener('click', retablirOrdre);
+// B3c — « Voir la dernière observation » : même sélection que depuis la timeline (halo, fiche, recentrage)
+$('resume').addEventListener('click', e => { const b = e.target.closest('[data-voir]'); if (b) selectionnerObservation(b.dataset.voir, 'timeline'); });
 $('btn-tous').addEventListener('click', () => choisirTous(true));
 $('btn-aucun').addEventListener('click', () => choisirTous(false));
 $('periodes').addEventListener('click', e => {
