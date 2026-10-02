@@ -92,6 +92,11 @@
   .navperiode button:disabled { opacity: .35; cursor: default; }
   #per-libelle { text-align: center; font-size: .86rem; font-weight: 500; line-height: 1.25; }
   #per-libelle small { display: block; font-weight: 400; color: var(--gris); }
+  /* B4c — Plages du jour */
+  .plages { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .plages button { padding: 4px 9px; border: 1px solid var(--trait); border-radius: 14px; background: #fff; cursor: pointer; font-size: .8rem; color: var(--texte); }
+  .plages button[aria-pressed="true"] { background: var(--ciel); border-color: var(--ciel); color: #fff; }
+  .plages button:disabled { opacity: .4; cursor: default; }
   /* B4b — Période personnalisée */
   .periodes button[data-periode="perso"] { grid-column: 1 / -1; }
   /* Champs empilés sur toute la largeur : le format d'heure fr-CA (« 17 h 22 min 38 s ») est trop long pour deux colonnes */
@@ -235,6 +240,7 @@
           <span id="per-libelle" aria-live="polite"></span>
           <button type="button" id="per-suiv" aria-label="Période suivante">›</button>
         </div>
+        <div class="plages" id="plages" hidden></div>
         <div id="etat" role="status"></div>
       </section>
       <section>
@@ -282,6 +288,7 @@ let choisis = new Set();   // B3a — identifiants des appareils sélectionnés
 let numRequete = 0;        // B3a — seule la réponse de la dernière requête est affichée
 let periode = '24h';
 let decalage = 0;   // B4a — 0 = période courante ; -1 = la précédente (jour ou même durée), etc.
+let plage = 'journee';   // B4c — plage du jour affiché (mode « jour » uniquement)
 let perso = null;   // B4b — { w0, w1 } : heures murales locales (ms) saisies, en America/Toronto
 let points = [];
 let carte = null, infoWin = null, lignes = [], cercle = null;   // B3a — une ligne pointillée par appareil
@@ -675,9 +682,11 @@ function bornes(maintenant = Date.now()) {
   if (periode === 'jour') {
     const minuitAujourdhui = Math.floor(heureMurale(maintenant) / 86400000) * 86400000;   // heure murale locale
     const w0 = minuitAujourdhui + decalage * 86400000;
-    const debut = new Date(muraleVersUtc(w0));
-    const fin = new Date(decalage === 0 ? maintenant : muraleVersUtc(w0 + 86400000));
-    return { debut, fin };
+    // B4c — plage du jour (Journée = minuit → minuit suivant) ; jamais au-delà de maintenant
+    const P = PLAGES.find(x => x.id === plage) || PLAGES[0];
+    const debut = muraleVersUtc(w0 + P.debut * 60000);
+    const fin = Math.min(maintenant, muraleVersUtc(w0 + P.fin * 60000));
+    return { debut: new Date(debut), fin: new Date(fin) };
   }
   if (periode === 'perso' && perso) {
     // < 24 h : même plage horaire, un jour plus tôt/tard ; sinon décalage de sa propre durée (en heure locale)
@@ -725,13 +734,46 @@ function remplirPerso() {
   $('perso-message').className = ''; $('perso-message').textContent = '';
 }
 
+// B4c — Plages prédéfinies (minutes depuis minuit du jour affiché, heure de Montréal). Modifiables ici.
+// Nuit : de 22:00 la veille à 06:00 le jour affiché.
+const PLAGES = [
+  { id: 'journee',   nom: 'Journée',    debut: 0,       fin: 24 * 60 },
+  { id: 'matin',     nom: 'Matin',      debut: 6 * 60,  fin: 12 * 60 },
+  { id: 'apresmidi', nom: 'Après-midi', debut: 12 * 60, fin: 18 * 60 },
+  { id: 'soiree',    nom: 'Soirée',     debut: 18 * 60, fin: 23 * 60 },
+  { id: 'nuit',      nom: 'Nuit',       debut: -2 * 60, fin: 6 * 60 },
+  { id: 'travail',   nom: 'Travail',    debut: 8 * 60,  fin: 17 * 60 }
+];
+const hhmm = min => { const m = ((min % 1440) + 1440) % 1440; return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; };
+// Une plage d'aujourd'hui qui n'a pas encore commencé n'est pas proposée
+function plageCommencee(id, maintenant = Date.now()) {
+  const garde = plage; plage = id;
+  const { debut } = bornes(maintenant);
+  plage = garde;
+  return debut.getTime() < maintenant;
+}
+function afficherPlages() {
+  const z = $('plages');
+  z.hidden = periode !== 'jour';
+  if (z.hidden) return;
+  z.innerHTML = PLAGES.map(P => {
+    const ok = plageCommencee(P.id);
+    const titre = P.id === 'journee' ? 'Toute la journée' : `${hhmm(P.debut)} → ${hhmm(P.fin)}${P.debut < 0 ? ' (depuis la veille)' : ''}`;
+    return `<button type="button" data-plage="${P.id}" aria-pressed="${P.id === plage}" title="${ok ? titre : "Cette plage n'a pas encore commencé"}"${ok ? '' : ' disabled'}>${P.nom}</button>`;
+  }).join('');
+}
+
 // B4a — Libellé de la période et état des flèches
 function majNavPeriode() {
   const { debut, fin } = bornes();
   if (periode === 'jour') {
-    const jour = fmtDate.format(debut);
-    $('per-libelle').innerHTML = `${esc(jour.charAt(0).toUpperCase() + jour.slice(1))}`
-      + (decalage === 0 ? `<small>aujourd'hui, jusqu'à maintenant</small>` : '');
+    // Le jour affiché est celui de la fin de plage (la Nuit commence la veille)
+    const jour = fmtDate.format(plage === 'nuit' ? new Date(debut.getTime() + 3 * 3600000) : debut);
+    const P = PLAGES.find(x => x.id === plage) || PLAGES[0];
+    const detail = P.id === 'journee'
+      ? (decalage === 0 ? "aujourd'hui, jusqu'à maintenant" : '')
+      : `${P.nom} · ${hhmm(P.debut)} → ${hhmm(P.fin)}${decalage === 0 && fin.getTime() >= Date.now() - 1000 ? " · jusqu'à maintenant" : ''}`;
+    $('per-libelle').innerHTML = `${esc(jour.charAt(0).toUpperCase() + jour.slice(1))}${detail ? `<small>${esc(detail)}</small>` : ''}`;
   } else if (periode === 'perso') {
     $('per-libelle').innerHTML = `${esc(dateHeure(debut))} → ${esc(dateHeure(fin))}<small>période personnalisée</small>`;
   } else {
@@ -739,6 +781,7 @@ function majNavPeriode() {
       + (decalage === 0 ? `<small>jusqu'à maintenant</small>` : '');
   }
   $('per-suiv').disabled = !suivantPossible();
+  afficherPlages();   // B4c
 }
 // › possible tant que la période suivante commence avant maintenant
 function suivantPossible() {
@@ -751,6 +794,7 @@ function suivantPossible() {
 function naviguerPeriode(sens) {
   if (sens > 0 && !suivantPossible()) return;
   decalage += sens;
+  if (periode === 'jour' && !plageCommencee(plage)) plage = 'journee';   // B4c — retour à aujourd'hui avant le début de la plage
   majNavPeriode();
   chargerHistorique();
 }
@@ -1305,6 +1349,13 @@ $('liste-appareils').addEventListener('click', e => {
 });
 $('btn-ordre').addEventListener('click', retablirOrdre);
 $('per-prec').addEventListener('click', () => naviguerPeriode(-1));   // B4a
+$('plages').addEventListener('click', e => {   // B4c
+  const b = e.target.closest('[data-plage]');
+  if (!b || b.disabled || b.dataset.plage === plage) return;
+  plage = b.dataset.plage;
+  majNavPeriode();
+  chargerHistorique();
+});
 $('perso-ok').addEventListener('click', () => {   // B4b
   const r = validerPerso();
   $('perso-message').className = r.erreur ? 'erreur' : '';
@@ -1341,7 +1392,8 @@ $('periodes').addEventListener('click', e => {
   }
   $('perso').hidden = true;
   periode = b.dataset.periode;
-  decalage = 0;   // B4a — un préréglage repart toujours de la période courante
+  decalage = 0;
+  plage = 'journee';   // B4c   // B4a — un préréglage repart toujours de la période courante
   majNavPeriode();
   document.querySelectorAll('#periodes button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
   chargerHistorique();
