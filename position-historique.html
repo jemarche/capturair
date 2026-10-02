@@ -90,6 +90,9 @@
   .tl-grad { stroke: var(--trait); stroke-width: 1; stroke-dasharray: 2 3; }
   .tl-lib { font-size: 11px; fill: var(--gris); }
   .tl-vide { font-size: 12px; font-style: italic; fill: var(--gris); }
+  .tl-compte { font-size: 11px; fill: var(--gris); }
+  .tl-obs { stroke: var(--ciel); stroke-width: 1; stroke-opacity: .55; }
+  .tl-cible { stroke: transparent; stroke-width: 7; }
 
   .fiche { font-family: 'DM Sans', sans-serif; color: var(--texte); min-width: 210px; line-height: 1.45; }
   .fiche h3 { font-family: 'Syne', sans-serif; font-size: 1rem; margin: 0 0 6px; }
@@ -511,8 +514,9 @@ function ajuster() {
 }
 
 // ── Timeline (B2b) ────────────────────────────────────────────────────────────
-// Échelle proportionnelle au temps, axe couvrant toute la période demandée,
-// points seulement (aucune liaison), une ligne par appareil.
+// Échelle proportionnelle au temps, axe couvrant toute la période demandée, une ligne par appareil.
+// B2b′ — Chaque observation réelle = une marque verticale fine. Aucune agrégation, aucune barre continue :
+// la densité visuelle des marques reflète uniquement la densité d'observations. Trous : réservés à B11.
 
 // Pas de graduation possibles ; le plus fin qui reste lisible est retenu (adaptable aux périodes B4)
 const PAS_GRADUATION = [15, 30, 60, 120, 180, 360, 720].map(m => m * 60000)
@@ -561,7 +565,7 @@ function dessinerTimeline() {
   // Une ligne par appareil présent dans les observations (plusieurs à partir de B3)
   const ids = [...new Set(points.map(p => p.appareil_id))];
   if (!ids.length && choix) ids.push(choix);
-  const H_LIGNE = 30, haut = 4;
+  const H_LIGNE = 36, haut = 4;
   const yAxe = haut + ids.length * H_LIGNE + 2;
   const hauteur = yAxe + 18;
 
@@ -575,18 +579,25 @@ function dessinerTimeline() {
     const y = haut + r * H_LIGNE + H_LIGNE / 2;
     const a = appareils.find(x => x.id === id);
     const nom = a ? a.nom : id;
-    svg += `<text class="tl-nom" x="0" y="${y + 4}"><title>${esc(nom)}</title>${esc(tronquer(nom, 15))}</text>`;
     const pts = points.filter(p => p.appareil_id === id);
+    svg += `<text class="tl-nom" x="0" y="${y - 2}"><title>${esc(nom)}</title>${esc(tronquer(nom, 15))}</text>`;
+    if (pts.length) svg += `<text class="tl-compte" x="0" y="${y + 12}">${pts.length} observation${pts.length > 1 ? 's' : ''}</text>`;
     if (!pts.length) {
       svg += `<text class="tl-vide" x="${((x0 + x1) / 2).toFixed(1)}" y="${y + 4}" text-anchor="middle">Aucune observation pendant cette période</text>`;
       return;
     }
     svg += `<line class="tl-axe" x1="${x0}" x2="${x1}" y1="${y}" y2="${y}"/>`;
     pts.forEach((p, i) => {
-      const dernier = i === pts.length - 1;
-      svg += `<circle cx="${X(Date.parse(p.observed_at)).toFixed(1)}" cy="${y}" r="${dernier ? 6 : 4}"`
-           + ` fill="${dernier ? '#0B1F3A' : '#1A8FD1'}" stroke="#FFFFFF" stroke-width="1.5">`
-           + `<title>${esc(dateHeure(new Date(p.observed_at)))}</title></circle>`;
+      const x = X(Date.parse(p.observed_at)).toFixed(1);
+      const titre = `<title>${esc(dateHeure(new Date(p.observed_at)))}</title>`;
+      if (i === pts.length - 1) {
+        // Dernière observation : symbole distinct (cercle marine, comme sur la carte)
+        svg += `<circle cx="${x}" cy="${y}" r="6" fill="#0B1F3A" stroke="#FFFFFF" stroke-width="1.5">${titre}</circle>`;
+      } else {
+        // Marque fine + zone de survol invisible plus large
+        svg += `<g>${titre}<line class="tl-obs" x1="${x}" x2="${x}" y1="${y - 9}" y2="${y + 9}"/>`
+             + `<line class="tl-cible" x1="${x}" x2="${x}" y1="${y - 11}" y2="${y + 11}"/></g>`;
+      }
     });
   });
   zone.innerHTML = svg + '</svg>';
