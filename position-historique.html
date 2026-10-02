@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+oui<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -190,7 +190,33 @@ const fmtJour  = new Intl.DateTimeFormat('fr-CA', { timeZone: TZ, day: 'numeric'
 function heureHMS(d) {
   const p = {};
   fmtHeure.formatToParts(d).forEach(x => { p[x.type] = x.value; });
-  return `${p.hour}:${p.minute}:${p.second}`;
+  const hms = `${p.hour}:${p.minute}:${p.second}`;
+  return heureAmbigue(d) ? `${hms} ${libelleDecalage(d)}` : hms;
+}
+
+// B1b — Lors du passage à l'heure normale, une même heure locale (ex. 01:30:00) correspond à deux
+// instants différents. Dans ce seul cas, on précise HAE ou HNE. Affichage uniquement : les timestamps
+// UTC et les calculs ne sont jamais modifiés.
+const fmtMural = new Intl.DateTimeFormat('fr-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
+// Heure murale locale exprimée en millisecondes (pour comparer des heures locales entre elles)
+function heureMurale(ms) {
+  const p = {};
+  fmtMural.formatToParts(new Date(ms)).forEach(x => { p[x.type] = x.value; });
+  return Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second);
+}
+// Ambiguë si la même heure murale se répète une heure avant ou après (recul d'une heure en novembre)
+function heureAmbigue(d) {
+  const t = d.getTime(), m = heureMurale(t);
+  return heureMurale(t + 3600000) === m || heureMurale(t - 3600000) === m;
+}
+// Libellé déduit du décalage calculé, indépendamment du texte fourni par le navigateur
+function libelleDecalage(d) {
+  const t = Math.floor(d.getTime() / 1000) * 1000;
+  const minutes = Math.round((heureMurale(t) - t) / 60000);
+  if (minutes === -240) return 'HAE';
+  if (minutes === -300) return 'HNE';
+  const s = minutes < 0 ? '−' : '+', a = Math.abs(minutes);
+  return `UTC${s}${String(Math.floor(a / 60)).padStart(2, '0')}:${String(a % 60).padStart(2, '0')}`;
 }
 // Date courte + heure complète, ex. « 1 oct. 07:58:07 »
 function dateHeure(d) {
