@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html> -->
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -78,8 +78,18 @@
   #etat { font-size: .85rem; color: var(--gris); margin-top: 8px; min-height: 1.2em; }
   #etat.erreur { color: var(--erreur); }
 
-  main { position: relative; min-height: 0; }
+  main { display: grid; grid-template-rows: 1fr auto; min-height: 0; }
+  .zone-carte { position: relative; min-height: 220px; }
   #carte { position: absolute; inset: 0; }
+
+  /* B2b — Timeline */
+  #timeline { background: #fff; border-top: 1px solid var(--trait); padding: 8px 14px 6px; }
+  #timeline svg { display: block; }
+  .tl-nom { font-size: 12px; font-weight: 500; fill: var(--texte); }
+  .tl-axe { stroke: var(--trait); stroke-width: 2; }
+  .tl-grad { stroke: var(--trait); stroke-width: 1; stroke-dasharray: 2 3; }
+  .tl-lib { font-size: 11px; fill: var(--gris); }
+  .tl-vide { font-size: 12px; font-style: italic; fill: var(--gris); }
 
   .fiche { font-family: 'DM Sans', sans-serif; color: var(--texte); min-width: 210px; line-height: 1.45; }
   .fiche h3 { font-family: 'Syne', sans-serif; font-size: 1rem; margin: 0 0 6px; }
@@ -154,7 +164,10 @@
         <p class="note">Chaque point est une position réellement observée. La ligne pointillée relie les observations dans l'ordre chronologique : elle ne représente pas le trajet réellement parcouru.</p>
       </section>
     </aside>
-    <main><div id="carte" aria-label="Carte des observations"></div></main>
+    <main>
+      <div class="zone-carte"><div id="carte" aria-label="Carte des observations"></div></div>
+      <section id="timeline" aria-label="Chronologie des observations" hidden></section>
+    </main>
   </div>
 </div>
 
@@ -179,6 +192,7 @@ let marqueurs = [];
 // B2a — État de sélection unique, partagé par la carte (et, à partir de B2b/B2c, par la timeline)
 let selection = null;   // _uid de l'observation sélectionnée, ou null
 let halo = null;        // marqueur de mise en évidence du point sélectionné sur la carte
+let periodeAffichee = null;   // B2b — { debut, fin } de la dernière période chargée (axe de la timeline)
 let carteResoudre;
 const carteDispo = new Promise(r => { carteResoudre = r; });
 window.carteApiPrete = () => carteResoudre();
@@ -398,8 +412,10 @@ async function chargerHistorique() {
     const d = await api('/api/position/historique' + q);
     points = attribuerUid((d.points || []).filter(p => Number.isFinite(p.latitude) && Number.isFinite(p.longitude)));
     selection = null;
+    periodeAffichee = { debut, fin };
     $('etat').textContent = d.tronque ? 'Période très chargée : seuls les 5 000 premiers points sont affichés.' : '';
     await dessiner();
+    dessinerTimeline();
     afficherResume();
   } catch (e) {
     $('etat').className = 'erreur';
@@ -493,6 +509,94 @@ function ajuster() {
   points.forEach(p => b.extend({ lat: p.latitude, lng: p.longitude }));
   carte.fitBounds(b, 48);
 }
+
+// ── Timeline (B2b) ────────────────────────────────────────────────────────────
+// Échelle proportionnelle au temps, axe couvrant toute la période demandée,
+// points seulement (aucune liaison), une ligne par appareil.
+
+// Pas de graduation possibles ; le plus fin qui reste lisible est retenu (adaptable aux périodes B4)
+const PAS_GRADUATION = [15, 30, 60, 120, 180, 360, 720].map(m => m * 60000)
+  .concat([1, 2, 7].map(j => j * 86400000));
+
+// Heure murale locale (ms) → instant UTC (ms), en tenant compte du décalage HAE/HNE
+function muraleVersUtc(w) {
+  const t0 = w - (heureMurale(w) - w);
+  return w - (heureMurale(t0) - t0);
+}
+
+// Graduations alignées sur l'heure locale America/Toronto : [{ t (UTC ms), libelle }]
+function graduations(debutMs, finMs, largeurPx) {
+  const maxGrad = Math.max(2, Math.floor(largeurPx / 70));
+  const wDebut = heureMurale(debutMs), wFin = heureMurale(finMs);
+  const pas = PAS_GRADUATION.find(p => (wFin - wDebut) / p <= maxGrad) || PAS_GRADUATION[PAS_GRADUATION.length - 1];
+  const liste = [];
+  for (let w = Math.ceil(wDebut / pas) * pas; w <= wFin; w += pas) {
+    const t = muraleVersUtc(w);
+    if (t < debutMs || t > finMs) continue;
+    if (heureMurale(t) !== w) continue;   // heure locale inexistante (passage à l'heure d'été)
+    if (liste.length && t <= liste[liste.length - 1].t) continue;
+    const d = new Date(w);
+    const minuit = d.getUTCHours() === 0 && d.getUTCMinutes() === 0;
+    const libelle = (pas >= 86400000 || minuit)
+      ? fmtJour.format(new Date(t))
+      : `${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
+    liste.push({ t, libelle });
+  }
+  return liste;
+}
+
+function tronquer(s, n) { return s.length > n ? s.slice(0, n - 1) + '…' : s; }
+
+let largeurTimeline = 0;
+function dessinerTimeline() {
+  const zone = $('timeline');
+  if (!periodeAffichee) { zone.hidden = true; return; }
+  zone.hidden = false;
+  const largeur = Math.max(280, zone.clientWidth - 28);
+  largeurTimeline = zone.clientWidth;
+  const x0 = 110, x1 = largeur - 12;
+  const t0 = periodeAffichee.debut.getTime(), t1 = periodeAffichee.fin.getTime();
+  const X = t => Math.min(x1, Math.max(x0, x0 + (x1 - x0) * (t - t0) / (t1 - t0)));
+
+  // Une ligne par appareil présent dans les observations (plusieurs à partir de B3)
+  const ids = [...new Set(points.map(p => p.appareil_id))];
+  if (!ids.length && choix) ids.push(choix);
+  const H_LIGNE = 30, haut = 4;
+  const yAxe = haut + ids.length * H_LIGNE + 2;
+  const hauteur = yAxe + 18;
+
+  let svg = `<svg width="${largeur}" height="${hauteur}" viewBox="0 0 ${largeur} ${hauteur}" role="img" aria-label="Chronologie des observations">`;
+  graduations(t0, t1, x1 - x0).forEach(g => {
+    const x = X(g.t).toFixed(1);
+    svg += `<line class="tl-grad" x1="${x}" x2="${x}" y1="${haut}" y2="${yAxe}"/>`
+         + `<text class="tl-lib" x="${x}" y="${yAxe + 14}" text-anchor="middle">${esc(g.libelle)}</text>`;
+  });
+  ids.forEach((id, r) => {
+    const y = haut + r * H_LIGNE + H_LIGNE / 2;
+    const a = appareils.find(x => x.id === id);
+    const nom = a ? a.nom : id;
+    svg += `<text class="tl-nom" x="0" y="${y + 4}"><title>${esc(nom)}</title>${esc(tronquer(nom, 15))}</text>`;
+    const pts = points.filter(p => p.appareil_id === id);
+    if (!pts.length) {
+      svg += `<text class="tl-vide" x="${((x0 + x1) / 2).toFixed(1)}" y="${y + 4}" text-anchor="middle">Aucune observation pendant cette période</text>`;
+      return;
+    }
+    svg += `<line class="tl-axe" x1="${x0}" x2="${x1}" y1="${y}" y2="${y}"/>`;
+    pts.forEach((p, i) => {
+      const dernier = i === pts.length - 1;
+      svg += `<circle cx="${X(Date.parse(p.observed_at)).toFixed(1)}" cy="${y}" r="${dernier ? 6 : 4}"`
+           + ` fill="${dernier ? '#0B1F3A' : '#1A8FD1'}" stroke="#FFFFFF" stroke-width="1.5">`
+           + `<title>${esc(dateHeure(new Date(p.observed_at)))}</title></circle>`;
+    });
+  });
+  zone.innerHTML = svg + '</svg>';
+}
+
+// Redessin au redimensionnement (seulement si la largeur change)
+new ResizeObserver(() => {
+  const z = $('timeline');
+  if (!z.hidden && z.clientWidth !== largeurTimeline) requestAnimationFrame(dessinerTimeline);
+}).observe($('timeline'));
 
 // B2a — Point d'entrée unique de toute sélection d'observation (carte aujourd'hui, timeline ensuite)
 function selectionnerObservation(uid) {
