@@ -286,7 +286,7 @@
       </section>
       <section id="diag" hidden>
         <h2>Diagnostic moteur</h2>
-        <p class="diag-note">Visible avec <code>?diag=1</code>. Distance <strong>brute</strong> : somme de tous les segments, sans aucun filtrage (P2). Ce n'est pas la distance observée.</p>
+        <p class="diag-note">Visible avec <code>?diag=1</code>. <strong>Brut</strong> (P2) : somme de tous les segments, sans filtrage. <strong>Filtré candidat</strong> (P3) : seuils provisoires en calibration, pas encore affiché dans le résumé.</p>
         <div id="diag-contenu"></div>
       </section>
     </aside>
@@ -308,7 +308,7 @@
   </div>
 </div>
 
-<script src="position-moteur.js?v=P2"></script>
+<script src="position-moteur.js?v=P3"></script>
 <script>
 // ── Configuration (aucun secret : uniquement des adresses publiques) ──────────
 const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
@@ -929,23 +929,32 @@ function afficherDiagnostic() {
   if (!DIAG || !MOTEUR) return;
   const ids = idsChoisis();
   const r = MOTEUR.calculerDistanceBrute(points.filter(p => ids.includes(p.appareil_id)));
+  const f = MOTEUR.calculerDistanceObservee(points.filter(p => ids.includes(p.appareil_id)));   // P3
   const html = ids.map(id => {
     const a = appareils.find(x => x.id === id), idt = identite(id);
     const d = r.appareils.find(x => x.appareil_id === id);
+    const df = f.appareils.find(x => x.appareil_id === id);
     if (!d) return `<div class="diag-app" style="--c:${idt.couleur}"><h4>${idt.emoji} ${esc(a.nom)}</h4><p class="diag-note">Aucune observation sur la période.</p></div>`;
     const top = [...d.segments].sort((x, y) => y.distanceM - x.distanceM).slice(0, 5).map(s =>
       `<tr><td>${esc(heureHMS(new Date(s.debutMs)))} → ${esc(heureHMS(new Date(s.finMs)))}<br><small>±${Math.round(s.precisionDepartM)}${s.precisionDepartInconnue ? '?' : ''} / ±${Math.round(s.precisionArriveeM)}${s.precisionArriveeInconnue ? '?' : ''} m · ${esc(dureeLisible(s.dureeMs))}${s.traverseAbsence ? ' · absence' : ''}</small></td>`
       + `<td>${esc(km(s.distanceM))}<br><small>${s.vitesseMoyenneEntreObservationsKmh == null ? '—' : Math.round(s.vitesseMoyenneEntreObservationsKmh) + ' km/h moy.'}</small></td></tr>`).join('');
     return `<div class="diag-app" style="--c:${idt.couleur}"><h4>${idt.emoji} ${esc(a.nom)}</h4><table>
       <tr><td>Observations · segments</td><td>${d.nbObservations} · ${d.nbSegments}</td></tr>
-      <tr><td>Distance brute</td><td><b>${esc(km(d.distanceBruteM))}</b></td></tr>
+      <tr><td>Distance brute (P2)</td><td>${esc(km(d.distanceBruteM))}</td></tr>
+      <tr><td>Distance filtrée candidate (P3)</td><td><b>${esc(km(df.distanceFiltreeM))}</b></td></tr>
+      <tr><td>Évaluations : significatives · incertaines · bruit</td><td>${df.nbSignificatifs} · ${df.nbIncertains} · ${df.nbBruitProbable}</td></tr>
+      <tr><td>Plus grand écart incertain</td><td>${df.nbIncertains ? esc(km(df.incertainMaxM)) : '—'}</td></tr>
+      <tr><td>Pics écartés du cumul</td><td>${df.pics.length}</td></tr>
+      <tr><td>Segments suspects (&gt; ${MOTEUR.PARAMETRES.seuilVitesseSuspecteKmH} km/h, conservés)</td><td>${df.suspects.length}</td></tr>
       <tr><td>dont segments traversant une absence (${d.nbAbsences})</td><td>${esc(km(d.distanceSurAbsencesM))}</td></tr>
       <tr><td>Précisions inconnues (défaut ${MOTEUR.PARAMETRES.precisionParDefautM} m)</td><td>${d.nbPrecisionsInconnues}</td></tr>
       <tr><td>Vitesse moyenne entre observations, max.</td><td>${d.vitesseMoyenneMaxKmh == null ? '—' : Math.round(d.vitesseMoyenneMaxKmh) + ' km/h'}</td></tr>
-    </table>${top ? `<details><summary>5 plus longs segments</summary><table>${top}</table></details>` : ''}</div>`;
+    </table>${top ? `<details><summary>5 plus longs segments (bruts)</summary><table>${top}</table></details>` : ''}${df.pics.length ? `<details><summary>Pics écartés (${df.pics.length})</summary><table>${df.pics.map(pc =>
+      `<tr><td>${esc(heureHMS(new Date(pc.observation.observed_at)))}<br><small>${pc.type === 'precision' ? 'expliqué par la précision' : 'grande vitesse'} · ±${Math.round(pc.precisionM)} m</small></td><td>${esc(km(pc.ecartM))}</td></tr>`).join('')}</table></details>` : ''}</div>`;
   }).join('');
   const invalides = nbObservationsSansCoordonnees + r.ignorees.length;
-  $('diag-contenu').innerHTML = `<p class="diag-note">Moteur ${esc(MOTEUR.VERSION)}${invalides ? ` · ${invalides} observation(s) reçue(s) sans coordonnées exploitables : non affichée(s), toujours présente(s) dans D1` : ''}</p>` + html;
+  const P = MOTEUR.PARAMETRES;
+  $('diag-contenu').innerHTML = `<p class="diag-note">Moteur ${esc(MOTEUR.VERSION)} · significatif ×${P.facteurSignificatif} · pic ×${P.facteurPic} · défaut ${P.precisionParDefautM} m · grande vitesse ${P.seuilGrandeVitesseKmH} km/h${invalides ? ` · ${invalides} observation(s) reçue(s) sans coordonnées exploitables : non affichée(s), toujours présente(s) dans D1` : ''}</p>` + html;
 }
 
 function afficherResume() {
