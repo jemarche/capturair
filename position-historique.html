@@ -65,7 +65,13 @@
   /* B3a — Multi-sélection */
   .case { width: 16px; height: 16px; border: 2px solid var(--pale); border-radius: 4px; grid-row: span 2; display: flex; align-items: center; justify-content: center; font-size: 11px; line-height: 1; color: #fff; }
   .appareil[aria-checked="true"] { border-color: var(--ciel); background: #EAF5FC; }
-  .appareil[aria-checked="true"] .case { background: var(--ciel); border-color: var(--ciel); }
+  .appareil[aria-checked="true"] .case { background: var(--c, var(--ciel)); border-color: var(--c, var(--ciel)); }
+  /* B3b — Identité visuelle par appareil */
+  .appareil { border-left: 4px solid var(--c, var(--trait)) !important; }
+  .emoji { font-size: 1.05em; margin-right: 4px; }
+  .resume-ligne span { border-left: 3px solid var(--c, var(--trait)); padding-left: 6px; }
+  .fiche-tete { color: #fff; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; padding: 7px 10px; border-radius: 6px; margin: 0 0 8px; }
+  .fiche-tete .emoji { margin-right: 6px; }
   .appareil[aria-checked="true"] .case::after { content: "✓"; }
   .outils-appareils { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; font-size: .8rem; color: var(--gris); }
   .outils-appareils button { padding: 4px 8px; border: 1px solid var(--trait); border-radius: 6px; background: #fff; cursor: pointer; font-size: .8rem; color: var(--texte); }
@@ -114,8 +120,8 @@
   #tl-graphe.glisse { cursor: grabbing; }
   /* B2c — Sélection et navigation */
   .tl-nav { padding: 3px 8px !important; font-weight: 700; }
-  .tl-sel { stroke: var(--ciel); stroke-width: 2.5; }
-  .tl-compte.sel { fill: var(--ciel); font-weight: 700; }
+  .tl-sel { stroke: var(--marine); stroke-width: 2.5; }
+  .tl-compte.sel { fill: var(--marine); font-weight: 700; }
 
   .fiche { font-family: 'DM Sans', sans-serif; color: var(--texte); min-width: 210px; line-height: 1.45; }
   .fiche h3 { font-family: 'Syne', sans-serif; font-size: 1rem; margin: 0 0 6px; }
@@ -310,6 +316,32 @@ function attribuerUid(liste) {
   });
   return liste;
 }
+// B3b — Identité visuelle stable par appareil (DS7) : couleur = appareil. Jamais stockée dans les observations.
+const IDENTITE = {
+  'cles':                                 { couleur: '#E67E22', emoji: '🔑' },
+  'galaxy_s24_fe':                        { couleur: '#8E44AD', emoji: '📱' },
+  'b77c200e-d535-4d6d-bd6d-02266e65230e': { couleur: '#1565C0', emoji: '🚗' },
+  '1':                                    { couleur: '#00897B', emoji: '📱' },
+  'valise':                               { couleur: '#D81B60', emoji: '🧳' },
+  'velo':                                 { couleur: '#43A047', emoji: '🚲' },
+  'iphone':                               { couleur: '#039BE5', emoji: '📱' },
+  'iphone_astronaute':                    { couleur: '#E53935', emoji: '🧑‍🚀' },
+  'etoile':                               { couleur: '#C49000', emoji: '⭐' }
+};
+// Appareils futurs non listés : couleur de réserve déterministe (hachage de l'identifiant)
+const COULEURS_RESERVE = ['#6D4C41', '#546E7A', '#3949AB', '#00ACC1', '#7CB342', '#F4511E'];
+function identite(id) {
+  if (IDENTITE[id]) return IDENTITE[id];
+  let h = 0;
+  for (const ch of String(id)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return { couleur: COULEURS_RESERVE[h % COULEURS_RESERVE.length], emoji: '🏷️' };
+}
+// Anneau en pointillés (aperçu au survol) : 8 arcs de cercle, neutre quelle que soit la couleur de l'appareil
+const ANNEAU_POINTILLE = Array.from({ length: 8 }, (_, k) => {
+  const a = k * Math.PI / 4, b = a + Math.PI / 7;
+  return `M ${Math.cos(a).toFixed(3)} ${Math.sin(a).toFixed(3)} A 1 1 0 0 1 ${Math.cos(b).toFixed(3)} ${Math.sin(b).toFixed(3)}`;
+}).join(' ');
+
 function libelleSource(s) {
   return s === 'google_find_hub' ? 'Google Localiser (Find Hub)' : 'Home Assistant';
 }
@@ -424,10 +456,10 @@ function afficherListe() {
   if (!appareils.length) { $('liste-appareils').innerHTML = '<p class="vide">Aucun appareil suivi.</p>'; return; }
   $('nb-choisis').textContent = `${choisis.size} / ${appareils.length}`;
   $('liste-appareils').innerHTML = appareils.map(a => `
-    <button type="button" class="appareil" role="checkbox" data-id="${esc(a.id)}" aria-checked="${choisis.has(a.id)}">
+    <button type="button" class="appareil" role="checkbox" data-id="${esc(a.id)}" aria-checked="${choisis.has(a.id)}" style="--c:${identite(a.id).couleur}">
       <span class="case" aria-hidden="true"></span>
       <span class="pastille ${fraicheur(a.observed_at)}" aria-hidden="true"></span>
-      <strong>${esc(a.nom)}</strong>
+      <strong><span class="emoji" aria-hidden="true">${identite(a.id).emoji}</span>${esc(a.nom)}</strong>
       <small>${a.observed_at ? 'Vu ' + age(a.observed_at) : 'Aucune position enregistrée'}</small>
     </button>`).join('');
 }
@@ -514,9 +546,9 @@ function afficherResume() {
     const pts = points.filter(p => p.appareil_id === id);
     if (pts.length) {
       const der = pts[pts.length - 1];
-      return `<div class="resume-ligne"><span>${esc(a.nom)}</span><small>${pts.length} obs. · dernière ${esc(heureHMS(new Date(der.observed_at)))}</small></div>`;
+      return `<div class="resume-ligne"><span style="--c:${identite(id).couleur}">${identite(id).emoji} ${esc(a.nom)}</span><small>${pts.length} obs. · dernière ${esc(heureHMS(new Date(der.observed_at)))}</small></div>`;
     }
-    return `<div class="resume-ligne"><span>${esc(a.nom)}</span><small>${a.observed_at ? `aucune sur la période · vu ${esc(age(a.observed_at))}` : 'aucune position enregistrée'}</small></div>`;
+    return `<div class="resume-ligne"><span style="--c:${identite(id).couleur}">${identite(id).emoji} ${esc(a.nom)}</span><small>${a.observed_at ? `aucune sur la période · vu ${esc(age(a.observed_at))}` : 'aucune position enregistrée'}</small></div>`;
   }).join('');
   $('resume').innerHTML = `<span class="nombre">${points.length}</span>
     observation${points.length > 1 ? 's' : ''} · ${ids.length} appareil${ids.length > 1 ? 's' : ''}${lignes}`;
@@ -573,7 +605,7 @@ async function dessiner() {
     if (pts.length < 2) return;
     lignes.push(new google.maps.Polyline({
       path: pts.map(p => ({ lat: p.latitude, lng: p.longitude })), strokeOpacity: 0, clickable: false,
-      icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: .7, strokeColor: '#1A8FD1', scale: 2 }, offset: '0', repeat: '12px' }],
+      icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: .7, strokeColor: identite(id).couleur, scale: 2 }, offset: '0', repeat: '12px' }],
       map: $('opt-ligne').checked ? carte : null
     }));
   });
@@ -582,12 +614,13 @@ async function dessiner() {
     const dernier = derniers.has(p._uid);   // dernière observation de cet appareil
     const m = new google.maps.Marker({
       map: carte, position: chemin[i], zIndex: dernier ? 1000 : i,
-      title: dateHeure(new Date(p.observed_at)),
+      title: `${identite(p.appareil_id).emoji} ${dateHeure(new Date(p.observed_at))}`,
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
         scale: dernier ? 9 : 6,
-        fillColor: dernier ? '#0B1F3A' : '#1A8FD1', fillOpacity: 1,
-        strokeColor: '#FFFFFF', strokeWeight: 2
+        fillColor: identite(p.appareil_id).couleur, fillOpacity: 1,
+        // dernière observation de l'appareil : contour marine épais (DS7)
+        strokeColor: dernier ? '#0B1F3A' : '#FFFFFF', strokeWeight: dernier ? 3 : 2
       }
     });
     m.addListener('click', () => selectionnerObservation(p._uid));
@@ -677,7 +710,8 @@ function dessinerTimeline() {
     const nom = a ? a.nom : id;
     const pts = points.filter(p => p.appareil_id === id);
     const nbVisibles = vue ? pts.filter(p => visible(Date.parse(p.observed_at))).length : pts.length;
-    svg += `<text class="tl-nom" x="0" y="${y - 2}"><title>${esc(nom)}</title>${esc(tronquer(nom, 15))}</text>`;
+    const idt = identite(id);
+    svg += `<text class="tl-nom" x="0" y="${y - 2}"><title>${esc(nom)}</title>${idt.emoji} ${esc(tronquer(nom, 13))}</text>`;
     const rangSel = selection ? pts.findIndex(p => p._uid === selection) : -1;
     if (rangSel >= 0) {
       svg += `<text class="tl-compte sel" x="0" y="${y + 12}">${rangSel + 1} / ${pts.length} · ${esc(heureHMS(new Date(pts[rangSel].observed_at)))}</text>`;
@@ -696,10 +730,10 @@ function dessinerTimeline() {
       const titre = `<title>${esc(dateHeure(new Date(p.observed_at)))}</title>`;
       if (i === pts.length - 1) {
         // Dernière observation : symbole distinct (cercle marine, comme sur la carte)
-        svg += `<circle cx="${x}" cy="${y}" r="6" fill="#0B1F3A" stroke="#FFFFFF" stroke-width="1.5">${titre}</circle>`;
+        svg += `<circle cx="${x}" cy="${y}" r="6" fill="${idt.couleur}" stroke="#0B1F3A" stroke-width="2">${titre}</circle>`;
       } else {
         // Marque fine + zone de survol invisible plus large
-        svg += `<g>${titre}<line class="tl-obs" x1="${x}" x2="${x}" y1="${y - 9}" y2="${y + 9}"/>`
+        svg += `<g>${titre}<line class="tl-obs" style="stroke:${idt.couleur}" x1="${x}" x2="${x}" y1="${y - 9}" y2="${y + 9}"/>`
              + `<line class="tl-cible" x1="${x}" x2="${x}" y1="${y - 11}" y2="${y + 11}"/></g>`;
       }
     });
@@ -709,7 +743,7 @@ function dessinerTimeline() {
       if (visible(t)) {
         const x = X(t).toFixed(1);
         svg += `<line class="tl-sel" x1="${x}" x2="${x}" y1="${y - 13}" y2="${y + 13}"/>`
-             + `<circle cx="${x}" cy="${y}" r="${rangSel === pts.length - 1 ? 10 : 7}" fill="none" stroke="#1A8FD1" stroke-width="2.5"/>`;
+             + `<circle cx="${x}" cy="${y}" r="${rangSel === pts.length - 1 ? 10 : 7}" fill="none" stroke="#0B1F3A" stroke-width="2.5"/>`;
       }
     }
   });
@@ -849,7 +883,7 @@ $('tl-graphe').addEventListener('pointermove', e => {
   if (!apercu) {
     apercu = new google.maps.Marker({
       clickable: false, zIndex: 2100,
-      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 12, fillOpacity: 0, strokeColor: '#C0392B', strokeOpacity: .95, strokeWeight: 3 }
+      icon: { path: ANNEAU_POINTILLE, scale: 15, fillOpacity: 0, strokeColor: '#000000', strokeOpacity: .9, strokeWeight: 3 }
     });
   }
   apercu.setPosition({ lat: p.latitude, lng: p.longitude });
@@ -918,7 +952,7 @@ function afficherSelectionCarte(i, centrer) {
   if (!halo) {
     halo = new google.maps.Marker({
       clickable: false, zIndex: 2000,
-      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 14, fillOpacity: 0, strokeColor: '#1A8FD1', strokeOpacity: .9, strokeWeight: 3 }
+      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 14, fillOpacity: 0, strokeColor: '#0B1F3A', strokeOpacity: .9, strokeWeight: 4 }
     });
   }
   halo.setPosition(pos);
@@ -939,20 +973,20 @@ function ouvrirFiche(i) {
   const approx = p.source !== 'google_find_hub';
   if (cercle) cercle.setMap(null);
   cercle = Number.isFinite(p.precision_m) && p.precision_m > 0
-    ? new google.maps.Circle({ map: carte, center: { lat: p.latitude, lng: p.longitude }, radius: p.precision_m, strokeColor: '#1A8FD1', strokeOpacity: .6, strokeWeight: 1, fillColor: '#1A8FD1', fillOpacity: .12, clickable: false })
+    ? new google.maps.Circle({ map: carte, center: { lat: p.latitude, lng: p.longitude }, radius: p.precision_m, strokeColor: identite(p.appareil_id).couleur, strokeOpacity: .6, strokeWeight: 1, fillColor: identite(p.appareil_id).couleur, fillOpacity: .12, clickable: false })
     : null;
   infoWin.setContent(`
     <div class="fiche">
-      <h3>${esc(a ? a.nom : p.appareil_id)}</h3>
-      <div>${esc(fmtDate.format(d))}</div>
-      <div class="heure">${esc(heureHMS(d))}</div>
+      <h3 class="fiche-tete" style="background:${identite(p.appareil_id).couleur}"><span class="emoji" aria-hidden="true">${identite(p.appareil_id).emoji}</span>${esc(a ? a.nom : p.appareil_id)}</h3>
+      <div>📅 ${esc(fmtDate.format(d))}</div>
+      <div class="heure">🕐 ${esc(heureHMS(d))}</div>
       ${approx ? '<div class="approx">Heure approximative : dernière mise à jour reçue par Home Assistant</div>' : ''}
       <dl>
-        <dt>Précision</dt><dd>${Number.isFinite(p.precision_m) && p.precision_m > 0 ? '±' + Math.round(p.precision_m) + ' m' : 'non fournie'}</dd>
-        <dt>Source</dt><dd>${esc(libelleSource(p.source))}</dd>
-        ${p.zone ? `<dt>Zone</dt><dd>${esc(p.zone)}</dd>` : ''}
-        <dt>Latitude</dt><dd>${p.latitude.toFixed(5)}</dd>
-        <dt>Longitude</dt><dd>${p.longitude.toFixed(5)}</dd>
+        <dt>🎯 Précision</dt><dd>${Number.isFinite(p.precision_m) && p.precision_m > 0 ? '±' + Math.round(p.precision_m) + ' m' : 'non fournie'}</dd>
+        <dt>📡 Source</dt><dd>${esc(libelleSource(p.source))}</dd>
+        ${p.zone ? `<dt>📍 Zone</dt><dd>${esc(p.zone)}</dd>` : ''}
+        <dt>🌐 Latitude</dt><dd>${p.latitude.toFixed(5)}</dd>
+        <dt>🌐 Longitude</dt><dd>${p.longitude.toFixed(5)}</dd>
       </dl>
       <div class="rang">Observation ${rangDansAppareil(p).rang} sur ${rangDansAppareil(p).total}</div>
     </div>`);
