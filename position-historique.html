@@ -183,7 +183,19 @@ window.carteApiPrete = () => carteResoudre();
 // ── Utilitaires ───────────────────────────────────────────────────────────────
 const fmtDate  = new Intl.DateTimeFormat('fr-CA', { timeZone: TZ, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 const fmtHeure = new Intl.DateTimeFormat('fr-CA', { timeZone: TZ, hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
-const fmtCourt = new Intl.DateTimeFormat('fr-CA', { timeZone: TZ, day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+const fmtJour  = new Intl.DateTimeFormat('fr-CA', { timeZone: TZ, day: 'numeric', month: 'short' });
+
+// B1 — Heure HH:mm:ss en America/Toronto. fr-CA produit nativement « 07 h 58 min 07 s » :
+// on reconstruit donc l'heure à partir des parties, indépendamment de la mise en forme du navigateur.
+function heureHMS(d) {
+  const p = {};
+  fmtHeure.formatToParts(d).forEach(x => { p[x.type] = x.value; });
+  return `${p.hour}:${p.minute}:${p.second}`;
+}
+// Date courte + heure complète, ex. « 1 oct. 07:58:07 »
+function dateHeure(d) {
+  return `${fmtJour.format(d)} ${heureHMS(d)}`;
+}
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -360,7 +372,7 @@ function afficherResume() {
   const nom = a ? a.nom : '';
   if (!points.length) {
     $('resume').innerHTML = a && a.observed_at
-      ? `<span class="vide">Aucune observation de ${esc(nom)} pendant cette période. Dernière position connue : ${esc(fmtCourt.format(new Date(a.observed_at)))} (${esc(age(a.observed_at))}).</span>`
+      ? `<span class="vide">Aucune observation de ${esc(nom)} pendant cette période. Dernière position connue : ${esc(dateHeure(new Date(a.observed_at)))} (${esc(age(a.observed_at))}).</span>`
       : `<span class="vide">Aucune observation enregistrée pour ${esc(nom)}.</span>`;
     return;
   }
@@ -368,8 +380,8 @@ function afficherResume() {
   $('resume').innerHTML = `
     <span class="nombre">${points.length}</span>
     observation${points.length > 1 ? 's' : ''} de ${esc(nom)}<br>
-    Première : ${esc(fmtCourt.format(new Date(premier.observed_at)))}<br>
-    Dernière : ${esc(fmtCourt.format(new Date(dernier.observed_at)))} (${esc(age(dernier.observed_at))})`;
+    Première : ${esc(dateHeure(new Date(premier.observed_at)))}<br>
+    Dernière : ${esc(dateHeure(new Date(dernier.observed_at)))} (${esc(age(dernier.observed_at))})`;
 }
 
 // ── Carte ─────────────────────────────────────────────────────────────────────
@@ -419,7 +431,7 @@ async function dessiner() {
     const dernier = i === points.length - 1;
     const m = new google.maps.Marker({
       map: carte, position: chemin[i], zIndex: dernier ? 1000 : i,
-      title: fmtCourt.format(new Date(p.observed_at)),
+      title: dateHeure(new Date(p.observed_at)),
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
         scale: dernier ? 9 : 6,
@@ -454,7 +466,7 @@ function ouvrirFiche(i) {
     <div class="fiche">
       <h3>${esc(a ? a.nom : p.appareil_id)}</h3>
       <div>${esc(fmtDate.format(d))}</div>
-      <div class="heure">${esc(fmtHeure.format(d))}</div>
+      <div class="heure">${esc(heureHMS(d))}</div>
       ${approx ? '<div class="approx">Heure approximative : dernière mise à jour reçue par Home Assistant</div>' : ''}
       <dl>
         <dt>Précision</dt><dd>${Number.isFinite(p.precision_m) && p.precision_m > 0 ? '±' + Math.round(p.precision_m) + ' m' : 'non fournie'}</dd>
