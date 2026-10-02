@@ -93,6 +93,14 @@
   .tl-compte { font-size: 11px; fill: var(--gris); }
   .tl-obs { stroke: var(--ciel); stroke-width: 1; stroke-opacity: .55; }
   .tl-cible { stroke: transparent; stroke-width: 7; }
+  /* B2d — Zoom de la timeline */
+  .tl-outils { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-bottom: 4px; font-size: .8rem; color: var(--gris); }
+  .tl-outils button { padding: 3px 9px; border: 1px solid var(--trait); border-radius: 6px; background: #fff; color: var(--texte); cursor: pointer; font-size: .8rem; }
+  .tl-outils button:disabled { opacity: .45; cursor: default; }
+  #tl-fenetre { font-weight: 500; color: var(--texte); }
+  .tl-aide { margin-left: auto; }
+  #tl-graphe { touch-action: none; cursor: grab; user-select: none; }
+  #tl-graphe.glisse { cursor: grabbing; }
 
   .fiche { font-family: 'DM Sans', sans-serif; color: var(--texte); min-width: 210px; line-height: 1.45; }
   .fiche h3 { font-family: 'Syne', sans-serif; font-size: 1rem; margin: 0 0 6px; }
@@ -169,7 +177,15 @@
     </aside>
     <main>
       <div class="zone-carte"><div id="carte" aria-label="Carte des observations"></div></div>
-      <section id="timeline" aria-label="Chronologie des observations" hidden></section>
+      <section id="timeline" aria-label="Chronologie des observations" hidden>
+        <div class="tl-outils">
+          <span id="tl-fenetre"></span>
+          <button type="button" id="tl-cadrer">Cadrer sur les observations</button>
+          <button type="button" id="tl-entiere">Période entière</button>
+          <span class="tl-aide">Zoom : molette ou pincement · glisser pour se déplacer</span>
+        </div>
+        <div id="tl-graphe"></div>
+      </section>
     </main>
   </div>
 </div>
@@ -196,6 +212,7 @@ let marqueurs = [];
 let selection = null;   // _uid de l'observation sélectionnée, ou null
 let halo = null;        // marqueur de mise en évidence du point sélectionné sur la carte
 let periodeAffichee = null;   // B2b — { debut, fin } de la dernière période chargée (axe de la timeline)
+let vue = null;               // B2d — fenêtre visible { t0, t1 } (ms) de la timeline ; null = période entière
 let carteResoudre;
 const carteDispo = new Promise(r => { carteResoudre = r; });
 window.carteApiPrete = () => carteResoudre();
@@ -416,6 +433,7 @@ async function chargerHistorique() {
     points = attribuerUid((d.points || []).filter(p => Number.isFinite(p.latitude) && Number.isFinite(p.longitude)));
     selection = null;
     periodeAffichee = { debut, fin };
+    vue = null;
     $('etat').textContent = d.tronque ? 'Période très chargée : seuls les 5 000 premiers points sont affichés.' : '';
     await dessiner();
     dessinerTimeline();
@@ -519,7 +537,7 @@ function ajuster() {
 // la densité visuelle des marques reflète uniquement la densité d'observations. Trous : réservés à B11.
 
 // Pas de graduation possibles ; le plus fin qui reste lisible est retenu (adaptable aux périodes B4)
-const PAS_GRADUATION = [15, 30, 60, 120, 180, 360, 720].map(m => m * 60000)
+const PAS_GRADUATION = [5, 10, 15, 30, 60, 120, 180, 360, 720].map(m => m * 60000)
   .concat([1, 2, 7].map(j => j * 86400000));
 
 // Heure murale locale (ms) → instant UTC (ms), en tenant compte du décalage HAE/HNE
@@ -559,8 +577,13 @@ function dessinerTimeline() {
   const largeur = Math.max(280, zone.clientWidth - 28);
   largeurTimeline = zone.clientWidth;
   const x0 = 110, x1 = largeur - 12;
-  const t0 = periodeAffichee.debut.getTime(), t1 = periodeAffichee.fin.getTime();
-  const X = t => Math.min(x1, Math.max(x0, x0 + (x1 - x0) * (t - t0) / (t1 - t0)));
+  // B2d — fenêtre visible (zoom) ou période entière
+  const t0 = vue ? vue.t0 : periodeAffichee.debut.getTime();
+  const t1 = vue ? vue.t1 : periodeAffichee.fin.getTime();
+  geoTimeline = { x0, x1, t0, t1 };
+  const X = t => x0 + (x1 - x0) * (t - t0) / (t1 - t0);
+  const visible = t => t >= t0 && t <= t1;   // hors fenêtre : non dessiné (jamais écrasé sur le bord)
+  majOutilsTimeline(t0, t1);
 
   // Une ligne par appareil présent dans les observations (plusieurs à partir de B3)
   const ids = [...new Set(points.map(p => p.appareil_id))];
@@ -580,15 +603,18 @@ function dessinerTimeline() {
     const a = appareils.find(x => x.id === id);
     const nom = a ? a.nom : id;
     const pts = points.filter(p => p.appareil_id === id);
+    const nbVisibles = vue ? pts.filter(p => visible(Date.parse(p.observed_at))).length : pts.length;
     svg += `<text class="tl-nom" x="0" y="${y - 2}"><title>${esc(nom)}</title>${esc(tronquer(nom, 15))}</text>`;
-    if (pts.length) svg += `<text class="tl-compte" x="0" y="${y + 12}">${pts.length} observation${pts.length > 1 ? 's' : ''}</text>`;
+    if (pts.length) svg += `<text class="tl-compte" x="0" y="${y + 12}">${vue ? `${nbVisibles} / ${pts.length} visibles` : `${pts.length} observation${pts.length > 1 ? 's' : ''}`}</text>`;
     if (!pts.length) {
       svg += `<text class="tl-vide" x="${((x0 + x1) / 2).toFixed(1)}" y="${y + 4}" text-anchor="middle">Aucune observation pendant cette période</text>`;
       return;
     }
     svg += `<line class="tl-axe" x1="${x0}" x2="${x1}" y1="${y}" y2="${y}"/>`;
     pts.forEach((p, i) => {
-      const x = X(Date.parse(p.observed_at)).toFixed(1);
+      const t = Date.parse(p.observed_at);
+      if (!visible(t)) return;
+      const x = X(t).toFixed(1);
       const titre = `<title>${esc(dateHeure(new Date(p.observed_at)))}</title>`;
       if (i === pts.length - 1) {
         // Dernière observation : symbole distinct (cercle marine, comme sur la carte)
@@ -600,8 +626,104 @@ function dessinerTimeline() {
       }
     });
   });
-  zone.innerHTML = svg + '</svg>';
+  $('tl-graphe').innerHTML = svg + '</svg>';
 }
+
+// ── Zoom de la timeline (B2d) ─────────────────────────────────────────────────
+// Ne modifie que la fenêtre affichée : ni les données chargées, ni la carte.
+const VUE_MIN_MS = 20 * 60000;   // fenêtre la plus étroite : 20 min
+let geoTimeline = null;          // géométrie du dernier rendu { x0, x1, t0, t1 }
+
+function majOutilsTimeline(t0, t1) {
+  $('tl-fenetre').textContent = `${dateHeure(new Date(t0))} → ${dateHeure(new Date(t1))}`;
+  $('tl-entiere').disabled = !vue;
+  $('tl-cadrer').disabled = !points.length;
+}
+
+// Applique une fenêtre en la gardant dans la période chargée ; pleine période → null
+function appliquerVue(a, b) {
+  const P0 = periodeAffichee.debut.getTime(), P1 = periodeAffichee.fin.getTime();
+  let span = Math.max(VUE_MIN_MS, b - a);
+  if (span >= P1 - P0) { vue = null; }
+  else {
+    if (a < P0) a = P0;
+    if (a + span > P1) a = P1 - span;
+    vue = { t0: a, t1: a + span };
+  }
+  planifierTimeline();
+}
+
+let rafTimeline = 0;
+function planifierTimeline() {
+  if (!rafTimeline) rafTimeline = requestAnimationFrame(() => { rafTimeline = 0; dessinerTimeline(); });
+}
+
+// Instant (ms) sous une abscisse écran
+function tempsSousX(clientX) {
+  const svg = $('tl-graphe').querySelector('svg');
+  if (!svg || !geoTimeline) return null;
+  const g = geoTimeline, x = clientX - svg.getBoundingClientRect().left;
+  const r = Math.min(1, Math.max(0, (x - g.x0) / (g.x1 - g.x0)));
+  return g.t0 + r * (g.t1 - g.t0);
+}
+
+// Zoom d'un facteur autour d'un instant (facteur < 1 : rapprocher)
+function zoomerAutour(tc, facteur) {
+  const g = geoTimeline;
+  appliquerVue(tc - (tc - g.t0) * facteur, tc + (g.t1 - tc) * facteur);
+}
+
+$('tl-graphe').addEventListener('wheel', e => {
+  if (!geoTimeline) return;
+  e.preventDefault();
+  const tc = tempsSousX(e.clientX);
+  if (tc !== null) zoomerAutour(tc, Math.exp(e.deltaY * 0.0015));
+}, { passive: false });
+
+// Glisser (1 pointeur) et pincement (2 pointeurs)
+const pointeurs = new Map();
+let pinceDepart = null;
+$('tl-graphe').addEventListener('pointerdown', e => {
+  if (!geoTimeline) return;
+  $('tl-graphe').setPointerCapture(e.pointerId);
+  pointeurs.set(e.pointerId, e.clientX);
+  $('tl-graphe').classList.add('glisse');
+  if (pointeurs.size === 2) {
+    const [xa, xb] = [...pointeurs.values()];
+    pinceDepart = { ecart: Math.abs(xb - xa) || 1, tc: tempsSousX((xa + xb) / 2), g: { ...geoTimeline } };
+  }
+});
+$('tl-graphe').addEventListener('pointermove', e => {
+  if (!pointeurs.has(e.pointerId) || !geoTimeline) return;
+  const avant = pointeurs.get(e.pointerId);
+  pointeurs.set(e.pointerId, e.clientX);
+  const g = geoTimeline;
+  if (pointeurs.size === 1) {
+    const dt = (avant - e.clientX) / (g.x1 - g.x0) * (g.t1 - g.t0);
+    if (vue && dt) appliquerVue(g.t0 + dt, g.t1 + dt);
+  } else if (pointeurs.size === 2 && pinceDepart) {
+    const [xa, xb] = [...pointeurs.values()];
+    const f = pinceDepart.ecart / (Math.abs(xb - xa) || 1);
+    const d = pinceDepart.g, tc = pinceDepart.tc;
+    appliquerVue(tc - (tc - d.t0) * f, tc + (d.t1 - tc) * f);
+  }
+});
+function finPointeur(e) {
+  pointeurs.delete(e.pointerId);
+  if (pointeurs.size < 2) pinceDepart = null;
+  if (!pointeurs.size) $('tl-graphe').classList.remove('glisse');
+}
+$('tl-graphe').addEventListener('pointerup', finPointeur);
+$('tl-graphe').addEventListener('pointercancel', finPointeur);
+
+$('tl-entiere').addEventListener('click', () => { vue = null; planifierTimeline(); });
+$('tl-cadrer').addEventListener('click', () => {
+  if (!points.length) return;
+  const ts = points.map(p => Date.parse(p.observed_at));
+  const a = Math.min(...ts), b = Math.max(...ts);
+  const marge = Math.max(5 * 60000, (b - a) * 0.03);
+  appliquerVue(a - marge, b + marge);
+});
 
 // Redessin au redimensionnement (seulement si la largeur change)
 new ResizeObserver(() => {
