@@ -86,6 +86,12 @@
   .periodes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
   .periodes button { padding: 8px 4px; border: 1px solid var(--trait); border-radius: 6px; background: #fff; cursor: pointer; color: var(--texte); font-size: .9rem; }
   .periodes button[aria-pressed="true"] { background: var(--marine); border-color: var(--marine); color: #fff; }
+  /* B4a — Navigation dans les périodes */
+  .navperiode { display: grid; grid-template-columns: 36px 1fr 36px; align-items: center; gap: 6px; margin-top: 8px; }
+  .navperiode button { height: 32px; border: 1px solid var(--trait); border-radius: 6px; background: #fff; cursor: pointer; font-size: 1.1rem; color: var(--texte); }
+  .navperiode button:disabled { opacity: .35; cursor: default; }
+  #per-libelle { text-align: center; font-size: .86rem; font-weight: 500; line-height: 1.25; }
+  #per-libelle small { display: block; font-weight: 400; color: var(--gris); }
 
   #resume { font-size: .92rem; line-height: 1.5; }
   #resume .nombre { font-family: 'Syne', sans-serif; font-size: 1.6rem; display: block; }
@@ -205,6 +211,11 @@
           <button type="button" data-periode="7j" aria-pressed="false">7 j</button>
           <button type="button" data-periode="30j" aria-pressed="false">30 j</button>
         </div>
+        <div class="navperiode">
+          <button type="button" id="per-prec" aria-label="Période précédente">‹</button>
+          <span id="per-libelle" aria-live="polite"></span>
+          <button type="button" id="per-suiv" aria-label="Période suivante">›</button>
+        </div>
         <div id="etat" role="status"></div>
       </section>
       <section>
@@ -251,6 +262,7 @@ let appareils = [];
 let choisis = new Set();   // B3a — identifiants des appareils sélectionnés
 let numRequete = 0;        // B3a — seule la réponse de la dernière requête est affichée
 let periode = '24h';
+let decalage = 0;   // B4a — 0 = période courante ; -1 = la précédente (jour ou même durée), etc.
 let points = [];
 let carte = null, infoWin = null, lignes = [], cercle = null;   // B3a — une ligne pointillée par appareil
 let marqueurs = [];
@@ -635,14 +647,41 @@ async function lireHistorique(ids, debut, fin) {
   return { points: tries, tronque: reponses.some(d => d.tronque) };
 }
 
-function bornes() {
-  const fin = new Date();
-  let debut;
-  if (periode === 'jour') { debut = new Date(); debut.setHours(0, 0, 0, 0); }
-  else if (periode === '7j') debut = new Date(fin.getTime() - 7 * 86400000);
-  else if (periode === '30j') debut = new Date(fin.getTime() - 30 * 86400000);
-  else debut = new Date(fin.getTime() - 86400000);
-  return { debut, fin };
+// B4a — Bornes de la période, calculées en America/Toronto (jamais avec le fuseau du navigateur).
+// Jour : minuit local → minuit local suivant (25 h le 1er novembre, 23 h le 8 mars) ; aujourd'hui s'arrête à maintenant.
+// 24 h / 7 j / 30 j : fenêtres glissantes ; ‹ › les décalent de leur propre durée. Durées en temps absolu.
+const DUREE_PERIODE = { '24h': 86400000, '7j': 7 * 86400000, '30j': 30 * 86400000 };
+function bornes(maintenant = Date.now()) {
+  if (periode === 'jour') {
+    const minuitAujourdhui = Math.floor(heureMurale(maintenant) / 86400000) * 86400000;   // heure murale locale
+    const w0 = minuitAujourdhui + decalage * 86400000;
+    const debut = new Date(muraleVersUtc(w0));
+    const fin = new Date(decalage === 0 ? maintenant : muraleVersUtc(w0 + 86400000));
+    return { debut, fin };
+  }
+  const D = DUREE_PERIODE[periode] || DUREE_PERIODE['24h'];
+  const fin = maintenant + decalage * D;
+  return { debut: new Date(fin - D), fin: new Date(fin) };
+}
+
+// B4a — Libellé de la période et état des flèches
+function majNavPeriode() {
+  const { debut, fin } = bornes();
+  if (periode === 'jour') {
+    const jour = fmtDate.format(debut);
+    $('per-libelle').innerHTML = `${esc(jour.charAt(0).toUpperCase() + jour.slice(1))}`
+      + (decalage === 0 ? `<small>aujourd'hui, jusqu'à maintenant</small>` : '');
+  } else {
+    $('per-libelle').innerHTML = `${esc(dateHeure(debut))} → ${esc(dateHeure(fin))}`
+      + (decalage === 0 ? `<small>jusqu'à maintenant</small>` : '');
+  }
+  $('per-suiv').disabled = decalage >= 0;
+}
+function naviguerPeriode(sens) {
+  if (sens > 0 && decalage >= 0) return;
+  decalage += sens;
+  majNavPeriode();
+  chargerHistorique();
 }
 
 async function chargerHistorique() {
@@ -1194,6 +1233,9 @@ $('liste-appareils').addEventListener('click', e => {
   const b = e.target.closest('.appareil'); if (b) basculer(b.dataset.id);
 });
 $('btn-ordre').addEventListener('click', retablirOrdre);
+$('per-prec').addEventListener('click', () => naviguerPeriode(-1));   // B4a
+$('per-suiv').addEventListener('click', () => naviguerPeriode(1));
+majNavPeriode();
 $('note-trou').textContent = `Une liaison grise signale plus de ${SEUIL_TROU_MIN} min sans observation : rien n'est connu entre ces deux points.`;   // B11
 // DS2 — Les âges (« Vu il y a … ») et les pastilles sont recalculés chaque minute : une page restée ouverte
 // ne doit pas présenter une position vieillie comme récente. Pas de rechargement des données ici.
@@ -1209,6 +1251,8 @@ $('btn-aucun').addEventListener('click', () => choisirTous(false));
 $('periodes').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   periode = b.dataset.periode;
+  decalage = 0;   // B4a — un préréglage repart toujours de la période courante
+  majNavPeriode();
   document.querySelectorAll('#periodes button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
   chargerHistorique();
 });
