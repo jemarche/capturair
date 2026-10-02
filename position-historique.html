@@ -94,8 +94,12 @@
   #per-libelle small { display: block; font-weight: 400; color: var(--gris); }
   /* B4b — Période personnalisée */
   .periodes button[data-periode="perso"] { grid-column: 1 / -1; }
-  .perso { margin-top: 8px; padding: 10px; border: 1px solid var(--trait); border-radius: 8px; display: grid; grid-template-columns: 42px 1fr 1fr; gap: 6px; align-items: center; font-size: .84rem; }
-  .perso input { min-width: 0; padding: 5px 6px; border: 1px solid var(--trait); border-radius: 6px; font: inherit; }
+  /* Champs empilés sur toute la largeur : le format d'heure fr-CA (« 17 h 22 min 38 s ») est trop long pour deux colonnes */
+  .perso { margin-top: 8px; padding: 10px; border: 1px solid var(--trait); border-radius: 8px; display: grid; grid-template-columns: 1fr; gap: 5px; font-size: .84rem; }
+  .perso label { font-weight: 700; color: var(--texte); }
+  .perso label[for="perso-d1"] { margin-top: 6px; }
+  .perso input { width: 100%; box-sizing: border-box; min-width: 0; padding: 6px 8px; border: 1px solid var(--trait); border-radius: 6px; font: inherit; }
+  .perso .actions { margin-top: 4px; }
   .perso .actions { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; }
   .perso button { padding: 6px 12px; border: 0; border-radius: 6px; background: var(--marine); color: #fff; cursor: pointer; font: inherit; }
   #perso-message { grid-column: 1 / -1; font-size: .8rem; color: var(--gris); }
