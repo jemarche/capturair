@@ -106,7 +106,11 @@
   #etat { font-size: .85rem; color: var(--gris); margin-top: 8px; min-height: 1.2em; }
   #etat.erreur { color: var(--erreur); }
 
-  main { display: grid; grid-template-rows: 1fr auto; min-height: 0; }
+  main { display: grid; grid-template-rows: auto 1fr auto; min-height: 0; }
+  /* B5 — Barre de synthèse */
+  .synthese { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding: 7px 14px; background: #fff; border-bottom: 1px solid var(--trait); font-size: .84rem; color: var(--gris); }
+  .synthese b { color: var(--texte); font-weight: 700; }
+  .synthese .sep { width: 1px; height: 14px; background: var(--trait); }
   .zone-carte { position: relative; min-height: 220px; }
   #carte { position: absolute; inset: 0; }
 
@@ -210,10 +214,11 @@
           <label><input type="checkbox" id="opt-ligne" checked> Relier les observations dans l'ordre</label>
           <button type="button" id="btn-ajuster">Afficher tous les points</button>
         </div>
-        <p class="note">Chaque point est une position réellement observée. La ligne pointillée relie les observations dans l'ordre chronologique : elle ne représente pas le trajet réellement parcouru.</p>
+        <p class="note">Chaque point est une position réellement observée. La ligne pointillée relie les observations dans l'ordre chronologique : elle ne représente pas le trajet réellement parcouru. <span id="note-trou"></span></p>
       </section>
     </aside>
     <main>
+      <div class="synthese" id="synthese" hidden></div>
       <div class="zone-carte"><div id="carte" aria-label="Carte des observations"></div></div>
       <section id="timeline" aria-label="Chronologie des observations" hidden>
         <div class="tl-outils">
@@ -313,6 +318,29 @@ function age(iso) {
   if (h < 48) return `il y a ${h} h`;
   return `il y a ${Math.floor(h / 24)} j`;
 }
+// DS4 / B11 — Seuil provisoire d'absence d'observations entre deux observations successives d'un même appareil.
+// Unique constante, à calibrer avec les vraies données CapturAir. Une absence d'observations n'est jamais une panne.
+const SEUIL_TROU_MIN = 30;
+const SEUIL_TROU_MS = SEUIL_TROU_MIN * 60000;
+// Intervalles sans observation (> seuil) entre observations successives d'un appareil (liste déjà chronologique).
+// Rien avant la première ni après la dernière observation.
+function trous(ptsAppareil) {
+  const liste = [];
+  for (let k = 1; k < ptsAppareil.length; k++) {
+    const a = Date.parse(ptsAppareil[k - 1].observed_at), b = Date.parse(ptsAppareil[k].observed_at);
+    if (b - a > SEUIL_TROU_MS) liste.push({ debut: a, fin: b, duree: b - a });
+  }
+  return liste;
+}
+function dureeLisible(ms) {
+  const m = Math.round(ms / 60000);
+  if (m < 60) return `${m} min`;
+  const h = Math.floor(m / 60), r = m % 60;
+  if (h < 24) return r ? `${h} h ${String(r).padStart(2, '0')} min` : `${h} h`;
+  const j = Math.floor(h / 24), hr = h % 24;
+  return hr ? `${j} j ${hr} h` : `${j} j`;
+}
+
 // DS2 — Fraîcheur de la dernière observation (sur observed_at). La couleur n'est qu'un raccourci :
 // l'âge textuel est toujours affiché. Seuils provisoires, à calibrer après usage réel.
 const FRAICHEUR_RECENTE_MIN = 20;
@@ -471,6 +499,7 @@ async function chargerAppareils() {
     const d = await api('/api/position/appareils');
     appareils = appliquerOrdre(d.appareils || []);
     afficherListe();
+    afficherSynthese();   // B5
     const premier = appareils.find(a => a.latitude != null) || appareils[0];
     if (premier) { choisis = new Set([premier.id]); afficherListe(); chargerHistorique(); }
   } catch (e) {
@@ -648,8 +677,25 @@ async function chargerHistorique() {
   }
 }
 
+// B5 — Barre de synthèse. « Dernière observation reçue » : la plus récente tous appareils confondus.
+// Ce n'est PAS l'heure de la dernière collecte (inconnue tant que DS5 n'existe pas).
+function afficherSynthese() {
+  const z = $('synthese');
+  if (!appareils.length) { z.hidden = true; return; }
+  z.hidden = false;
+  const avec = appareils.filter(a => a.observed_at && a.latitude != null).length;
+  const recente = appareils.filter(a => a.observed_at).map(a => a.observed_at)
+    .sort((x, y) => Date.parse(y) - Date.parse(x))[0];
+  z.innerHTML = `<span><b>${appareils.length}</b> appareil${appareils.length > 1 ? 's' : ''}</span>`
+    + `<span>🟢 <b>${avec}</b> avec position</span>`
+    + `<span>◯ <b>${appareils.length - avec}</b> sans position</span><span class="sep"></span>`
+    + `<span><b>${points.length}</b> observation${points.length > 1 ? 's' : ''} (appareils cochés)</span><span class="sep"></span>`
+    + `<span>Dernière observation reçue : ${recente ? `<b>${esc(dateHeure(new Date(recente)))}</b> (${esc(age(recente))})` : '<b>aucune</b>'}</span>`;
+}
+
 // B3c — Résumé détaillé par appareil sélectionné (faits de la période uniquement)
 function afficherResume() {
+  afficherSynthese();   // B5
   const ids = idsChoisis();
   if (!ids.length) { $('resume').innerHTML = '<span class="vide">Sélectionnez au moins un appareil.</span>'; return; }
   const cartes = ids.map(id => {
@@ -727,11 +773,24 @@ async function dessiner() {
     const pts = points.filter(p => p.appareil_id === id);
     derniers.add(pts[pts.length - 1]._uid);
     if (pts.length < 2) return;
-    lignes.push(new google.maps.Polyline({
-      path: pts.map(p => ({ lat: p.latitude, lng: p.longitude })), strokeOpacity: 0, clickable: false,
-      icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: .7, strokeColor: identite(id).couleur, scale: 2 }, offset: '0', repeat: '12px' }],
+    // B11 — Les liaisons qui traversent une absence d'observations (> seuil) sont tracées en gris clair
+    const tracer = (morceau, couleur, opacite) => lignes.push(new google.maps.Polyline({
+      path: morceau.map(p => ({ lat: p.latitude, lng: p.longitude })), strokeOpacity: 0, clickable: false,
+      icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: opacite, strokeColor: couleur, scale: 2 }, offset: '0', repeat: '12px' }],
       map: $('opt-ligne').checked ? carte : null
     }));
+    let morceau = [pts[0]];
+    for (let k = 1; k < pts.length; k++) {
+      const ecart = Date.parse(pts[k].observed_at) - Date.parse(pts[k - 1].observed_at);
+      if (ecart > SEUIL_TROU_MS) {
+        if (morceau.length > 1) tracer(morceau, identite(id).couleur, .7);
+        tracer([pts[k - 1], pts[k]], '#B0BEC5', .9);
+        morceau = [pts[k]];
+      } else {
+        morceau.push(pts[k]);
+      }
+    }
+    if (morceau.length > 1) tracer(morceau, identite(id).couleur, .7);
   });
 
   points.forEach((p, i) => {
@@ -822,7 +881,9 @@ function dessinerTimeline() {
   geoTimeline.lignes = { ids, haut, H: H_LIGNE };
   const hauteur = yAxe + 18;
 
-  let svg = `<svg width="${largeur}" height="${hauteur}" viewBox="0 0 ${largeur} ${hauteur}" role="img" aria-label="Chronologie des observations">`;
+  let svg = `<svg width="${largeur}" height="${hauteur}" viewBox="0 0 ${largeur} ${hauteur}" role="img" aria-label="Chronologie des observations">`
+    + `<defs><pattern id="hachure-trou" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">`
+    + `<rect width="6" height="6" fill="#F1F4F8"/><line x1="0" y1="0" x2="0" y2="6" stroke="#B0BEC5" stroke-width="2"/></pattern></defs>`;
   graduations(t0, t1, x1 - x0).forEach(g => {
     const x = X(g.t).toFixed(1);
     svg += `<line class="tl-grad" x1="${x}" x2="${x}" y1="${haut}" y2="${yAxe}"/>`
@@ -847,6 +908,13 @@ function dessinerTimeline() {
       return;
     }
     svg += `<line class="tl-axe" x1="${x0}" x2="${x1}" y1="${y}" y2="${y}"/>`;
+    // B11 — Absences d'observations (> seuil), sous les marques ; découpées à la fenêtre visible
+    trous(pts).forEach(tr => {
+      if (tr.fin < t0 || tr.debut > t1) return;
+      const xa = X(Math.max(tr.debut, t0)), xb = X(Math.min(tr.fin, t1));
+      svg += `<rect x="${xa.toFixed(1)}" y="${y - 6}" width="${Math.max(1, xb - xa).toFixed(1)}" height="12" fill="url(#hachure-trou)">`
+           + `<title>Aucune observation pendant ${esc(dureeLisible(tr.duree))} (${esc(dateHeure(new Date(tr.debut)))} → ${esc(dateHeure(new Date(tr.fin)))})</title></rect>`;
+    });
     pts.forEach((p, i) => {
       const t = Date.parse(p.observed_at);
       if (!visible(t)) return;
@@ -1126,6 +1194,7 @@ $('liste-appareils').addEventListener('click', e => {
   const b = e.target.closest('.appareil'); if (b) basculer(b.dataset.id);
 });
 $('btn-ordre').addEventListener('click', retablirOrdre);
+$('note-trou').textContent = `Une liaison grise signale plus de ${SEUIL_TROU_MIN} min sans observation : rien n'est connu entre ces deux points.`;   // B11
 // DS2 — Les âges (« Vu il y a … ») et les pastilles sont recalculés chaque minute : une page restée ouverte
 // ne doit pas présenter une position vieillie comme récente. Pas de rechargement des données ici.
 setInterval(() => {
