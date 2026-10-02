@@ -54,7 +54,7 @@
   aside h2 { font-family: 'Syne', sans-serif; font-size: 1rem; margin: 0 0 10px; }
   aside section + section { margin-top: 22px; }
 
-  .appareil { width: 100%; display: grid; grid-template-columns: 18px 12px 1fr; gap: 2px 10px; align-items: center; text-align: left; padding: 10px 12px; margin-bottom: 6px; border: 1px solid var(--trait); border-radius: 8px; background: #fff; cursor: pointer; color: var(--texte); }
+  .appareil { width: 100%; display: grid; grid-template-columns: 14px 18px 12px 1fr; gap: 2px 10px; align-items: center; text-align: left; padding: 10px 12px; margin-bottom: 6px; border: 1px solid var(--trait); border-radius: 8px; background: #fff; cursor: pointer; color: var(--texte); }
   .appareil:hover { border-color: var(--ciel); }
   .appareil[aria-pressed="true"] { border-color: var(--ciel); background: #EAF5FC; }
   .pastille { width: 10px; height: 10px; border-radius: 50%; background: var(--pale); grid-row: span 2; }
@@ -68,6 +68,11 @@
   .appareil[aria-checked="true"] .case { background: var(--c, var(--ciel)); border-color: var(--c, var(--ciel)); }
   /* B3b — Identité visuelle par appareil */
   .appareil { border-left: 4px solid var(--c, var(--trait)) !important; }
+  /* B3d — Réordonnancement par poignée */
+  .poignee { grid-row: span 2; color: var(--pale); cursor: grab; touch-action: none; user-select: none; font-size: 1rem; line-height: 1; padding: 6px 0; text-align: center; }
+  .poignee:hover { color: var(--texte); }
+  .appareil.deplace { opacity: .85; box-shadow: 0 6px 16px rgba(11,31,58,.18); position: relative; z-index: 2; }
+  body.tri-en-cours, body.tri-en-cours .poignee { cursor: grabbing; user-select: none; }
   .emoji { font-size: 1.05em; margin-right: 4px; }
   .resume-ligne span { border-left: 3px solid var(--c, var(--trait)); padding-left: 6px; }
   .fiche-tete { color: #fff; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; padding: 7px 10px; border-radius: 6px; margin: 0 0 8px; }
@@ -177,6 +182,7 @@
         <div class="outils-appareils">
           <button type="button" id="btn-tous">Tout sélectionner</button>
           <button type="button" id="btn-aucun">Tout désélectionner</button>
+          <button type="button" id="btn-ordre" title="Revenir à l'ordre d'origine des appareils" aria-label="Revenir à l'ordre d'origine">↺</button>
           <span id="nb-choisis"></span>
         </div>
         <div id="liste-appareils"><p class="vide">Chargement…</p></div>
@@ -443,7 +449,7 @@ async function afficherApp() {
 async function chargerAppareils() {
   try {
     const d = await api('/api/position/appareils');
-    appareils = d.appareils || [];
+    appareils = appliquerOrdre(d.appareils || []);
     afficherListe();
     const premier = appareils.find(a => a.latitude != null) || appareils[0];
     if (premier) { choisis = new Set([premier.id]); afficherListe(); chargerHistorique(); }
@@ -457,12 +463,97 @@ function afficherListe() {
   $('nb-choisis').textContent = `${choisis.size} / ${appareils.length}`;
   $('liste-appareils').innerHTML = appareils.map(a => `
     <button type="button" class="appareil" role="checkbox" data-id="${esc(a.id)}" aria-checked="${choisis.has(a.id)}" style="--c:${identite(a.id).couleur}">
+      <span class="poignee" title="Glisser pour réordonner (ou Alt + ↑ / ↓)" aria-hidden="true">⠿</span>
       <span class="case" aria-hidden="true"></span>
       <span class="pastille ${fraicheur(a.observed_at)}" aria-hidden="true"></span>
       <strong><span class="emoji" aria-hidden="true">${identite(a.id).emoji}</span>${esc(a.nom)}</strong>
       <small>${a.observed_at ? 'Vu ' + age(a.observed_at) : 'Aucune position enregistrée'}</small>
     </button>`).join('');
 }
+
+// ── Ordre des appareils (B3d) ─────────────────────────────────────────────────
+// Préférence d'affichage mémorisée dans ce navigateur uniquement. Ne touche ni D1 ni le backend.
+const CLE_ORDRE = 'posh_ordre_appareils';
+let ordreOrigine = [];   // ordre renvoyé par l'API
+function lireOrdre() {
+  try { const v = JSON.parse(localStorage.getItem(CLE_ORDRE) || '[]'); return Array.isArray(v) ? v : []; }
+  catch (e) { return []; }
+}
+function enregistrerOrdre() {
+  try { localStorage.setItem(CLE_ORDRE, JSON.stringify(appareils.map(a => a.id))); } catch (e) { /* stockage indisponible : ordre non mémorisé */ }
+}
+// Appareils connus dans l'ordre mémorisé ; appareils nouveaux ajoutés à la fin, dans l'ordre de l'API
+function appliquerOrdre(liste) {
+  ordreOrigine = liste.map(a => a.id);
+  const ordre = lireOrdre();
+  const rang = id => { const k = ordre.indexOf(id); return k < 0 ? ordre.length + ordreOrigine.indexOf(id) : k; };
+  return [...liste].sort((a, b) => rang(a.id) - rang(b.id));
+}
+// Après un changement d'ordre : liste, timeline et résumé suivent ; la carte n'est pas concernée
+function ordreChange(memoriser = true) {
+  if (memoriser) enregistrerOrdre();
+  afficherListe();
+  if (periodeAffichee) dessinerTimeline();
+  afficherResume();
+}
+function deplacerAppareil(id, sens) {
+  const k = appareils.findIndex(a => a.id === id), j = k + sens;
+  if (k < 0 || j < 0 || j >= appareils.length) return;
+  [appareils[k], appareils[j]] = [appareils[j], appareils[k]];
+  ordreChange();
+  const b = document.querySelector(`.appareil[data-id="${CSS.escape(id)}"]`);
+  if (b) b.focus();
+}
+function retablirOrdre() {
+  try { localStorage.removeItem(CLE_ORDRE); } catch (e) { /* rien */ }
+  appareils.sort((a, b) => ordreOrigine.indexOf(a.id) - ordreOrigine.indexOf(b.id));
+  ordreChange(false);   // retour à l'ordre de l'API, sans le figer
+}
+
+// Glisser par la poignée ⠿ (souris, doigt, stylet). Les éléments sont déplacés dans la liste pendant le geste,
+// puis l'ordre final est relu dans le DOM.
+let tri = null;   // { el, decalage }
+$('liste-appareils').addEventListener('pointerdown', e => {
+  const poignee = e.target.closest('.poignee');
+  if (!poignee) return;
+  e.preventDefault();
+  const el = poignee.closest('.appareil');
+  tri = { el, id: e.pointerId };
+  el.classList.add('deplace');
+  document.body.classList.add('tri-en-cours');
+});
+document.addEventListener('pointermove', e => {
+  if (!tri || e.pointerId !== tri.id) return;
+  e.preventDefault();
+  const liste = $('liste-appareils');
+  const autres = [...liste.querySelectorAll('.appareil')].filter(x => x !== tri.el);
+  const avant = autres.find(x => { const r = x.getBoundingClientRect(); return e.clientY < r.top + r.height / 2; });
+  if (avant) { if (tri.el.nextElementSibling !== avant) liste.insertBefore(tri.el, avant); }
+  else if (liste.lastElementChild !== tri.el) liste.appendChild(tri.el);
+});
+function finTri(e) {
+  if (!tri || e.pointerId !== tri.id) return;
+  const ids = [...$('liste-appareils').querySelectorAll('.appareil')].map(x => x.dataset.id);
+  tri.el.classList.remove('deplace');
+  document.body.classList.remove('tri-en-cours');
+  tri = null;
+  const avant = appareils.map(a => a.id).join('|');
+  appareils.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+  if (appareils.map(a => a.id).join('|') !== avant) ordreChange();
+  ignorerClic = true;   // le relâchement ne doit pas cocher/décocher l'appareil
+  setTimeout(() => { ignorerClic = false; }, 0);
+}
+let ignorerClic = false;
+document.addEventListener('pointerup', finTri);
+document.addEventListener('pointercancel', finTri);
+// Clavier : Alt + ↑ / ↓ sur un appareil
+$('liste-appareils').addEventListener('keydown', e => {
+  if (!e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+  const b = e.target.closest('.appareil');
+  if (!b) return;
+  e.preventDefault();
+  deplacerAppareil(b.dataset.id, e.key === 'ArrowUp' ? -1 : 1);
+});
 
 // B3a — Cocher / décocher un appareil ; rechargement groupé si plusieurs clics rapprochés
 let minuterieChoix = 0;
@@ -997,7 +1088,11 @@ function ouvrirFiche(i) {
 $('form-login').addEventListener('submit', soumettreLogin);
 document.querySelectorAll('.methodes button').forEach(b => b.addEventListener('click', () => choisirMethode(b.dataset.methode)));
 $('btn-deconnexion').addEventListener('click', () => deconnecter());
-$('liste-appareils').addEventListener('click', e => { const b = e.target.closest('.appareil'); if (b) basculer(b.dataset.id); });
+$('liste-appareils').addEventListener('click', e => {
+  if (ignorerClic || e.target.closest('.poignee')) return;   // B3d — la poignée ne coche pas
+  const b = e.target.closest('.appareil'); if (b) basculer(b.dataset.id);
+});
+$('btn-ordre').addEventListener('click', retablirOrdre);
 $('btn-tous').addEventListener('click', () => choisirTous(true));
 $('btn-aucun').addEventListener('click', () => choisirTous(false));
 $('periodes').addEventListener('click', e => {
