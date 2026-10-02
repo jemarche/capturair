@@ -101,6 +101,10 @@
   .tl-aide { margin-left: auto; }
   #tl-graphe { touch-action: none; cursor: grab; user-select: none; }
   #tl-graphe.glisse { cursor: grabbing; }
+  /* B2c — Sélection et navigation */
+  .tl-nav { padding: 3px 8px !important; font-weight: 700; }
+  .tl-sel { stroke: var(--ciel); stroke-width: 2.5; }
+  .tl-compte.sel { fill: var(--ciel); font-weight: 700; }
 
   .fiche { font-family: 'DM Sans', sans-serif; color: var(--texte); min-width: 210px; line-height: 1.45; }
   .fiche h3 { font-family: 'Syne', sans-serif; font-size: 1rem; margin: 0 0 6px; }
@@ -179,6 +183,8 @@
       <div class="zone-carte"><div id="carte" aria-label="Carte des observations"></div></div>
       <section id="timeline" aria-label="Chronologie des observations" hidden>
         <div class="tl-outils">
+          <button type="button" class="tl-nav" id="tl-prec" title="Observation précédente (←)" aria-label="Observation précédente">◀</button>
+          <button type="button" class="tl-nav" id="tl-suiv" title="Observation suivante (→)" aria-label="Observation suivante">▶</button>
           <span id="tl-fenetre"></span>
           <button type="button" id="tl-cadrer">Cadrer sur les observations</button>
           <button type="button" id="tl-entiere">Période entière</button>
@@ -211,6 +217,7 @@ let marqueurs = [];
 // B2a — État de sélection unique, partagé par la carte (et, à partir de B2b/B2c, par la timeline)
 let selection = null;   // _uid de l'observation sélectionnée, ou null
 let halo = null;        // marqueur de mise en évidence du point sélectionné sur la carte
+let apercu = null;      // B2c — anneau rouge d'aperçu au survol de la timeline (souris uniquement)
 let periodeAffichee = null;   // B2b — { debut, fin } de la dernière période chargée (axe de la timeline)
 let vue = null;               // B2d — fenêtre visible { t0, t1 } (ms) de la timeline ; null = période entière
 let carteResoudre;
@@ -476,6 +483,7 @@ function viderCarte() {
   marqueurs.forEach(m => m.setMap(null));
   marqueurs = [];
   if (halo) { halo.setMap(null); halo = null; }
+  if (apercu) { apercu.setMap(null); apercu = null; }
   if (ligne) { ligne.setMap(null); ligne = null; }
   if (cercle) { cercle.setMap(null); cercle = null; }
   if (infoWin) infoWin.close();
@@ -576,7 +584,7 @@ function dessinerTimeline() {
   zone.hidden = false;
   const largeur = Math.max(280, zone.clientWidth - 28);
   largeurTimeline = zone.clientWidth;
-  const x0 = 110, x1 = largeur - 12;
+  const x0 = 120, x1 = largeur - 12;
   // B2d — fenêtre visible (zoom) ou période entière
   const t0 = vue ? vue.t0 : periodeAffichee.debut.getTime();
   const t1 = vue ? vue.t1 : periodeAffichee.fin.getTime();
@@ -590,6 +598,7 @@ function dessinerTimeline() {
   if (!ids.length && choix) ids.push(choix);
   const H_LIGNE = 36, haut = 4;
   const yAxe = haut + ids.length * H_LIGNE + 2;
+  geoTimeline.lignes = { ids, haut, H: H_LIGNE };
   const hauteur = yAxe + 18;
 
   let svg = `<svg width="${largeur}" height="${hauteur}" viewBox="0 0 ${largeur} ${hauteur}" role="img" aria-label="Chronologie des observations">`;
@@ -605,7 +614,12 @@ function dessinerTimeline() {
     const pts = points.filter(p => p.appareil_id === id);
     const nbVisibles = vue ? pts.filter(p => visible(Date.parse(p.observed_at))).length : pts.length;
     svg += `<text class="tl-nom" x="0" y="${y - 2}"><title>${esc(nom)}</title>${esc(tronquer(nom, 15))}</text>`;
-    if (pts.length) svg += `<text class="tl-compte" x="0" y="${y + 12}">${vue ? `${nbVisibles} / ${pts.length} visibles` : `${pts.length} observation${pts.length > 1 ? 's' : ''}`}</text>`;
+    const rangSel = selection ? pts.findIndex(p => p._uid === selection) : -1;
+    if (rangSel >= 0) {
+      svg += `<text class="tl-compte sel" x="0" y="${y + 12}">${rangSel + 1} / ${pts.length} · ${esc(heureHMS(new Date(pts[rangSel].observed_at)))}</text>`;
+    } else if (pts.length) {
+      svg += `<text class="tl-compte" x="0" y="${y + 12}">${vue ? `${nbVisibles} / ${pts.length} visibles` : `${pts.length} observation${pts.length > 1 ? 's' : ''}`}</text>`;
+    }
     if (!pts.length) {
       svg += `<text class="tl-vide" x="${((x0 + x1) / 2).toFixed(1)}" y="${y + 4}" text-anchor="middle">Aucune observation pendant cette période</text>`;
       return;
@@ -625,6 +639,15 @@ function dessinerTimeline() {
              + `<line class="tl-cible" x1="${x}" x2="${x}" y1="${y - 11}" y2="${y + 11}"/></g>`;
       }
     });
+    // B2c — Repère de l'observation sélectionnée : trait renforcé + anneau, comme le halo de la carte
+    if (rangSel >= 0) {
+      const t = Date.parse(pts[rangSel].observed_at);
+      if (visible(t)) {
+        const x = X(t).toFixed(1);
+        svg += `<line class="tl-sel" x1="${x}" x2="${x}" y1="${y - 13}" y2="${y + 13}"/>`
+             + `<circle cx="${x}" cy="${y}" r="${rangSel === pts.length - 1 ? 10 : 7}" fill="none" stroke="#1A8FD1" stroke-width="2.5"/>`;
+      }
+    }
   });
   $('tl-graphe').innerHTML = svg + '</svg>';
 }
@@ -683,10 +706,13 @@ $('tl-graphe').addEventListener('wheel', e => {
 // Glisser (1 pointeur) et pincement (2 pointeurs)
 const pointeurs = new Map();
 let pinceDepart = null;
+const SEUIL_GLISSE_PX = 5;   // B2c — en deçà : clic (sélection) ; au-delà : glissement (déplacement)
+let departClic = null;       // { id, x, y, glisse }
 $('tl-graphe').addEventListener('pointerdown', e => {
   if (!geoTimeline) return;
   $('tl-graphe').setPointerCapture(e.pointerId);
   pointeurs.set(e.pointerId, e.clientX);
+  departClic = pointeurs.size === 1 ? { id: e.pointerId, x: e.clientX, y: e.clientY, glisse: false } : null;
   $('tl-graphe').classList.add('glisse');
   if (pointeurs.size === 2) {
     const [xa, xb] = [...pointeurs.values()];
@@ -699,6 +725,12 @@ $('tl-graphe').addEventListener('pointermove', e => {
   pointeurs.set(e.pointerId, e.clientX);
   const g = geoTimeline;
   if (pointeurs.size === 1) {
+    if (departClic && !departClic.glisse) {
+      if (Math.abs(e.clientX - departClic.x) < SEUIL_GLISSE_PX) return;
+      departClic.glisse = true;
+      avantGlisse(e.clientX);
+      return;
+    }
     const dt = (avant - e.clientX) / (g.x1 - g.x0) * (g.t1 - g.t0);
     if (vue && dt) appliquerVue(g.t0 + dt, g.t1 + dt);
   } else if (pointeurs.size === 2 && pinceDepart) {
@@ -708,6 +740,14 @@ $('tl-graphe').addEventListener('pointermove', e => {
     appliquerVue(tc - (tc - d.t0) * f, tc + (d.t1 - tc) * f);
   }
 });
+function avantGlisse(x) { pointeurs.set(departClic.id, departClic.x); }   // le glissement part du point d'appui
+$('tl-graphe').addEventListener('pointerup', e => {
+  if (departClic && departClic.id === e.pointerId && !departClic.glisse && pointeurs.size === 1) {
+    const p = observationSous(e.clientX, e.clientY);
+    if (p) selectionnerObservation(p._uid, 'timeline');
+  }
+  departClic = null;
+});
 function finPointeur(e) {
   pointeurs.delete(e.pointerId);
   if (pointeurs.size < 2) pinceDepart = null;
@@ -715,6 +755,64 @@ function finPointeur(e) {
 }
 $('tl-graphe').addEventListener('pointerup', finPointeur);
 $('tl-graphe').addEventListener('pointercancel', finPointeur);
+
+// B2c — Observation dessinée la plus proche d'un point écran (tolérance horizontale), dans la ligne visée
+const TOLERANCE_PX = 8;
+function observationSous(clientX, clientY) {
+  const svg = $('tl-graphe').querySelector('svg');
+  if (!svg || !geoTimeline || !geoTimeline.lignes) return null;
+  const g = geoTimeline, r = svg.getBoundingClientRect();
+  const x = clientX - r.left, y = clientY - r.top;
+  const L = g.lignes;
+  const ligne = Math.floor((y - L.haut) / L.H);
+  if (ligne < 0 || ligne >= L.ids.length) return null;
+  let meilleur = null, dmin = TOLERANCE_PX + 0.01;
+  points.forEach(p => {
+    if (p.appareil_id !== L.ids[ligne]) return;
+    const t = Date.parse(p.observed_at);
+    if (t < g.t0 || t > g.t1) return;
+    const d = Math.abs(g.x0 + (g.x1 - g.x0) * (t - g.t0) / (g.t1 - g.t0) - x);
+    if (d < dmin) { dmin = d; meilleur = p; }
+  });
+  return meilleur;
+}
+
+// B2c — Aperçu au survol (souris) : anneau rouge sur la carte, sans changer la sélection
+$('tl-graphe').addEventListener('pointermove', e => {
+  if (e.pointerType !== 'mouse' || pointeurs.size || !carte) return;
+  const p = observationSous(e.clientX, e.clientY);
+  if (!p) { if (apercu) apercu.setMap(null); return; }
+  if (!apercu) {
+    apercu = new google.maps.Marker({
+      clickable: false, zIndex: 2100,
+      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 12, fillOpacity: 0, strokeColor: '#C0392B', strokeOpacity: .95, strokeWeight: 3 }
+    });
+  }
+  apercu.setPosition({ lat: p.latitude, lng: p.longitude });
+  apercu.setMap(carte);
+});
+$('tl-graphe').addEventListener('pointerleave', () => { if (apercu) apercu.setMap(null); });
+
+// B2c — Précédente / suivante, dans la ligne de l'observation sélectionnée
+function naviguer(sens) {
+  if (!points.length) return;
+  const courant = points.find(p => p._uid === selection);
+  const appareil = courant ? courant.appareil_id : points[0].appareil_id;
+  const pts = points.filter(p => p.appareil_id === appareil);
+  let i = courant ? pts.indexOf(courant) + sens : (sens > 0 ? 0 : pts.length - 1);
+  if (i < 0 || i >= pts.length) return;
+  selectionnerObservation(pts[i]._uid, 'timeline');
+}
+$('tl-prec').addEventListener('click', () => naviguer(-1));
+$('tl-suiv').addEventListener('click', () => naviguer(1));
+document.addEventListener('keydown', e => {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  if ($('timeline').hidden || e.altKey || e.ctrlKey || e.metaKey) return;
+  const cible = e.target;
+  if (cible.closest && (cible.closest('#carte') || cible.closest('input, textarea, select'))) return;   // flèches de la carte et des champs préservées
+  e.preventDefault();
+  naviguer(e.key === 'ArrowLeft' ? -1 : 1);
+});
 
 $('tl-entiere').addEventListener('click', () => { vue = null; planifierTimeline(); });
 $('tl-cadrer').addEventListener('click', () => {
@@ -732,16 +830,27 @@ new ResizeObserver(() => {
 }).observe($('timeline'));
 
 // B2a — Point d'entrée unique de toute sélection d'observation (carte aujourd'hui, timeline ensuite)
-function selectionnerObservation(uid) {
+// origine : 'carte' (clic sur un point) ou 'timeline' (clic, ◀ ▶, flèches)
+function selectionnerObservation(uid, origine = 'carte') {
   const i = points.findIndex(p => p._uid === uid);
   if (i < 0) return;
   selection = uid;
-  afficherSelectionCarte(i);
+  afficherSelectionCarte(i, origine === 'timeline');
+  rendreVisibleDansTimeline(Date.parse(points[i].observed_at));
+  planifierTimeline();
 }
 
-function afficherSelectionCarte(i) {
+// B2c — Si l'observation sélectionnée est hors de la fenêtre zoomée, la fenêtre se décale (même durée)
+function rendreVisibleDansTimeline(t) {
+  if (!vue || (t >= vue.t0 && t <= vue.t1)) return;
+  const span = vue.t1 - vue.t0;
+  appliquerVue(t - span / 2, t + span / 2);
+}
+
+function afficherSelectionCarte(i, centrer) {
   const p = points[i];
   const pos = { lat: p.latitude, lng: p.longitude };
+  if (centrer) carte.panTo(pos);   // recentrage sans changer le zoom
   if (!halo) {
     halo = new google.maps.Marker({
       clickable: false, zIndex: 2000,
