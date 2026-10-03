@@ -176,6 +176,12 @@
   .modes-carte button[aria-pressed="true"] { background: var(--marine); color: #fff; box-shadow: 0 1px 4px rgba(11,31,58,.35); }
   .modes-carte button:disabled { color: #A9B6C4; cursor: default; }
   .modes-carte button:focus-visible { outline: 3px solid var(--ciel); outline-offset: 1px; }
+  /* B10b — Légende de densité (contrôle Google, en bas à gauche) */
+  .legende-densite { margin: 10px; padding: 9px 11px; max-width: 290px; background: rgba(255,255,255,.96); border-radius: 10px; box-shadow: 0 2px 8px rgba(11,31,58,.22); font: .74rem/1.35 'DM Sans', sans-serif; color: var(--texte); }
+  .legende-densite b { display: block; font-size: .82rem; margin-bottom: 4px; }
+  .legende-densite .degrade { height: 9px; border-radius: 5px; background: linear-gradient(90deg, #CFE8FF, #4FD1C5, #F6E05E, #F6993F, #E53E3E); }
+  .legende-densite .bornes { display: flex; justify-content: space-between; color: var(--gris); margin: 2px 0 5px; }
+  .legende-densite p { margin: 2px 0 0; color: var(--gris); }
   /* B5 — Barre de synthèse */
   .synthese { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding: 7px 14px; background: #fff; border-bottom: 1px solid var(--trait); font-size: .84rem; color: var(--gris); }
   .synthese b { color: var(--texte); font-weight: 700; }
@@ -314,7 +320,14 @@
       <div class="modes-carte" id="modes-carte" role="group" aria-label="Mode de carte" hidden>
         <button type="button" data-mode="points" aria-pressed="false" title="Observations seulement, sans liaison">● Points</button>
         <button type="button" data-mode="deplacement" aria-pressed="true" title="Observations et liaisons chronologiques par appareil">〰 Déplacement</button>
-        <button type="button" data-mode="densite" aria-pressed="false" disabled title="Densité d'observations : en préparation (B10b)">▦ Densité</button>
+        <button type="button" data-mode="densite" aria-pressed="false" title="Densité d'observations enregistrées (pas le temps passé)">▦ Densité</button>
+      </div>
+      <div class="legende-densite" id="legende-densite" hidden>
+        <b>▦ Densité d'observations</b>
+        <div class="degrade" aria-hidden="true"></div>
+        <div class="bornes"><span>Peu d'observations</span><span>Beaucoup</span></div>
+        <p>La couleur représente le nombre de positions enregistrées, <strong>pas le temps passé sur place</strong>.</p>
+        <p>Les positions identifiées comme pics ou excursions fantômes sont exclues<span id="legende-exclues"></span>.</p>
       </div>
       <section id="timeline" aria-label="Chronologie des observations" hidden>
         <div class="tl-outils">
@@ -331,7 +344,7 @@
   </div>
 </div>
 
-<script src="position-moteur.js?v=P4.1"></script>
+<script src="position-moteur.js?v=B10b"></script>
 <script>
 // ── Configuration (aucun secret : uniquement des adresses publiques) ──────────
 const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
@@ -360,7 +373,7 @@ let halo = null;        // marqueur de mise en évidence du point sélectionné 
 let apercu = null;      // B2c — anneau rouge d'aperçu au survol de la timeline (souris uniquement)
 // B10a — Mode de carte mémorisé dans ce navigateur ; Déplacement par défaut
 const CLE_MODE_CARTE = 'posh_mode_carte';
-const MODES_DISPONIBLES = ['points', 'deplacement'];   // 'densite' : B10b
+const MODES_DISPONIBLES = ['points', 'deplacement', 'densite'];
 let modeCarte = (() => {
   try { const m = localStorage.getItem(CLE_MODE_CARTE); return MODES_DISPONIBLES.includes(m) ? m : 'deplacement'; }
   catch (e) { return 'deplacement'; }
@@ -373,7 +386,70 @@ function choisirModeCarte(mode) {
   modeCarte = mode;
   try { localStorage.setItem(CLE_MODE_CARTE, mode); } catch (e) { /* stockage indisponible */ }
   afficherModeCarte();
-  lignes.forEach(l => l.setMap(modeCarte === 'deplacement' ? carte : null));   // liaisons seulement en Déplacement
+  appliquerModeCarte();
+}
+
+// B10a/B10b — Applique le mode : marqueurs (sauf en Densité), liaisons (Déplacement seulement), densité.
+// Le halo de sélection, l'aperçu et la fiche restent disponibles dans les trois modes.
+function appliquerModeCarte() {
+  if (!carte) return;
+  const densite = modeCarte === 'densite';
+  marqueurs.forEach(m => m.setMap(densite ? null : carte));
+  lignes.forEach(l => l.setMap(modeCarte === 'deplacement' ? carte : null));
+  $('legende-densite').hidden = !densite;
+  dessinerDensite(true);
+  // la fiche ouverte suit le changement de mode (ancrée sur le marqueur, ou posée sur la position en Densité)
+  if (selection && infoWin && infoWin.getMap()) {
+    const i = points.findIndex(p => p._uid === selection);
+    if (i >= 0) ouvrirFiche(i);
+  }
+}
+
+// ── B10b — Densité ────────────────────────────────────────────────────────────────────────────
+// Cellules ≈ 25 px à l'écran, recalculées au zoom ; grille stable (latitude de référence arrondie à 0,5°).
+const CELLULE_PX = 25;
+const COULEURS_DENSITE = ['#CFE8FF', '#4FD1C5', '#F6E05E', '#F6993F', '#E53E3E'];   // faible → très fort
+let rectangles = [], cleDensite = '';
+function couleurDensite(n, max) {
+  const t = max > 1 ? Math.log(n) / Math.log(max) : 0;   // échelle logarithmique : 1 → bleu clair, max → rouge
+  const x = Math.min(1, Math.max(0, t)) * (COULEURS_DENSITE.length - 1);
+  const k = Math.min(COULEURS_DENSITE.length - 2, Math.floor(x)), f = x - k;
+  const rgb = h => [1, 3, 5].map(o => parseInt(h.slice(o, o + 2), 16));
+  const a = rgb(COULEURS_DENSITE[k]), b = rgb(COULEURS_DENSITE[k + 1]);
+  return '#' + a.map((v, q) => Math.round(v + (b[q] - v) * f).toString(16).padStart(2, '0')).join('');
+}
+function effacerDensite() { rectangles.forEach(r => r.setMap(null)); rectangles = []; cleDensite = ''; }
+function dessinerDensite(forcer) {
+  if (!carte || modeCarte !== 'densite' || !MOTEUR) { effacerDensite(); return; }
+  const zoom = carte.getZoom(), centre = carte.getCenter();
+  if (zoom == null || !centre) return;
+  const latRef = Math.round(centre.lat() * 2) / 2;
+  const tailleM = CELLULE_PX * 156543.03392 * Math.cos(latRef * Math.PI / 180) / Math.pow(2, zoom);
+  const cle = `${zoom}|${latRef}|${points.length}|${numRequete}`;
+  if (!forcer && cle === cleDensite) return;   // simple déplacement de la carte : rien à recalculer
+  effacerDensite();
+  cleDensite = cle;
+  const r = MOTEUR.agregerDensite(points, { tailleCelluleM: tailleM, latitudeReference: latRef, contexte: contexteListe() });
+  $('legende-exclues').textContent = r.nbExclues ? ` (${r.nbExclues} sur cette période)` : ' (aucune sur cette période)';
+  r.cellules.forEach(c => {
+    const marge = 0.08;   // léger espace entre les cellules : la carte reste lisible dessous
+    const dLat = (c.nord - c.sud) * marge, dLon = (c.est - c.ouest) * marge;
+    const rect = new google.maps.Rectangle({
+      map: carte, clickable: true, zIndex: 1,
+      bounds: { north: c.nord - dLat, south: c.sud + dLat, east: c.est - dLon, west: c.ouest + dLon },
+      strokeWeight: 0, fillColor: couleurDensite(c.n, r.maxParCellule), fillOpacity: 0.6
+    });
+    rect.addListener('click', () => {
+      const detail = Object.entries(c.parAppareil).map(([id, n]) => {
+        const a = appareils.find(x => x.id === id);
+        return `${identite(id).emoji} ${esc(a ? a.nom : id)} : ${n}`;
+      }).join('<br>');
+      infoWin.setContent(`<div class="fiche"><b>${c.n} observation${c.n > 1 ? 's' : ''} enregistrée${c.n > 1 ? 's' : ''}</b><br><small>${detail}</small></div>`);
+      infoWin.setPosition({ lat: (c.nord + c.sud) / 2, lng: (c.est + c.ouest) / 2 });
+      infoWin.open({ map: carte });
+    });
+    rectangles.push(rect);
+  });
 }
 let periodeAffichee = null;   // B2b — { debut, fin } de la dernière période chargée (axe de la timeline)
 let vue = null;               // B2d — fenêtre visible { t0, t1 } (ms) de la timeline ; null = période entière
@@ -441,7 +517,7 @@ function age(iso) {
 // PV — La page déclare la version de moteur qu'elle attend. Toute différence (ou moteur absent) :
 // AUCUN calcul du moteur n'est utilisé — ni distances, ni absences d'observations. Pas de repli silencieux.
 // Garder synchronisé avec <script src="position-moteur.js?v=…"> ci-dessus.
-const VERSION_MOTEUR_ATTENDUE = 'P4.1';
+const VERSION_MOTEUR_ATTENDUE = 'B10b';
 const MOTEUR_CHARGE = globalThis.CapturAirMoteur || null;
 const VERSION_MOTEUR_CHARGEE = MOTEUR_CHARGE ? String(MOTEUR_CHARGE.VERSION) : null;
 const MOTEUR = VERSION_MOTEUR_CHARGEE === VERSION_MOTEUR_ATTENDUE ? MOTEUR_CHARGE : null;
@@ -1125,6 +1201,13 @@ async function assurerCarte() {
   const barre = $('modes-carte');
   barre.hidden = false;
   carte.controls[google.maps.ControlPosition.TOP_LEFT].push(barre);
+  carte.controls[google.maps.ControlPosition.LEFT_BOTTOM].push($('legende-densite'));   // B10b
+  carte.addListener('idle', () => dessinerDensite(false));                               // B10b — zoom
+  if (!MOTEUR) {   // B10b — densité calculée par le moteur : indisponible s'il est refusé
+    const b = document.querySelector('#modes-carte [data-mode="densite"]');
+    b.disabled = true; b.title = 'Densité indisponible : module de calcul refusé';
+    if (modeCarte === 'densite') { modeCarte = 'deplacement'; afficherModeCarte(); }
+  }
 }
 
 function viderCarte() {
@@ -1134,6 +1217,7 @@ function viderCarte() {
   if (apercu) { apercu.setMap(null); apercu = null; }
   lignes.forEach(l => l.setMap(null));
   lignes = [];
+  effacerDensite();   // B10b
   if (cercle) { cercle.setMap(null); cercle = null; }
   if (infoWin) infoWin.close();
 }
@@ -1202,6 +1286,7 @@ async function dessiner() {
     marqueurs.push(m);
   });
   ajuster();
+  appliquerModeCarte();   // B10a/B10b
 }
 
 function ajuster() {
@@ -1574,7 +1659,12 @@ function ouvrirFiche(i) {
       </dl>
       <div class="rang">Observation ${rangDansAppareil(p).rang} sur ${rangDansAppareil(p).total}</div>
     </div>`);
-  infoWin.open({ map: carte, anchor: marqueurs[i] });
+  if (modeCarte === 'densite') {   // B10b — marqueurs masqués : fiche posée sur la position
+    infoWin.setPosition({ lat: p.latitude, lng: p.longitude });
+    infoWin.open({ map: carte });
+  } else {
+    infoWin.open({ map: carte, anchor: marqueurs[i] });
+  }
 }
 
 // ── Événements ────────────────────────────────────────────────────────────────
