@@ -320,7 +320,7 @@
   </div>
 </div>
 
-<script src="position-moteur.js?v=P4"></script>
+<script src="position-moteur.js?v=P4.1"></script>
 <script>
 // ── Configuration (aucun secret : uniquement des adresses publiques) ──────────
 const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
@@ -413,7 +413,7 @@ function age(iso) {
 // PV — La page déclare la version de moteur qu'elle attend. Toute différence (ou moteur absent) :
 // AUCUN calcul du moteur n'est utilisé — ni distances, ni absences d'observations. Pas de repli silencieux.
 // Garder synchronisé avec <script src="position-moteur.js?v=…"> ci-dessus.
-const VERSION_MOTEUR_ATTENDUE = 'P4';
+const VERSION_MOTEUR_ATTENDUE = 'P4.1';
 const MOTEUR_CHARGE = globalThis.CapturAirMoteur || null;
 const VERSION_MOTEUR_CHARGEE = MOTEUR_CHARGE ? String(MOTEUR_CHARGE.VERSION) : null;
 const MOTEUR = VERSION_MOTEUR_CHARGEE === VERSION_MOTEUR_ATTENDUE ? MOTEUR_CHARGE : null;
