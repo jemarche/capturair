@@ -145,6 +145,10 @@
   .diag-app details { margin-top: 4px; }
   .diag-note { font-size: .75rem; color: var(--gris); margin: 0; }
   .diag-alerte { margin: 6px 0 0; padding: 6px 8px; border-left: 3px solid #E59400; background: #FFF6E5; font-size: .74rem; color: #6B4A00; }
+  /* P4 — Distance observée dans le résumé */
+  .carte-app .distance { font-weight: 700; color: var(--texte); }
+  .carte-app .distance-detail { display: block; font-weight: 400; font-size: .76rem; color: var(--gris); margin-top: 1px; }
+  .carte-app .info { cursor: help; color: var(--ciel); font-weight: 700; margin-left: 2px; }
   /* B3c — Résumé détaillé par appareil */
   .carte-app { border: 1px solid var(--trait); border-left: 4px solid var(--c, var(--trait)); border-radius: 8px; padding: 8px 10px; margin-top: 8px; font-size: .84rem; }
   .carte-app h4 { margin: 0 0 4px; font-size: .92rem; font-weight: 700; display: flex; justify-content: space-between; gap: 6px; }
@@ -316,7 +320,7 @@
   </div>
 </div>
 
-<script src="position-moteur.js?v=P3b"></script>
+<script src="position-moteur.js?v=P4"></script>
 <script>
 // ── Configuration (aucun secret : uniquement des adresses publiques) ──────────
 const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
@@ -409,7 +413,7 @@ function age(iso) {
 // PV — La page déclare la version de moteur qu'elle attend. Toute différence (ou moteur absent) :
 // AUCUN calcul du moteur n'est utilisé — ni distances, ni absences d'observations. Pas de repli silencieux.
 // Garder synchronisé avec <script src="position-moteur.js?v=…"> ci-dessus.
-const VERSION_MOTEUR_ATTENDUE = 'P3b';
+const VERSION_MOTEUR_ATTENDUE = 'P4';
 const MOTEUR_CHARGE = globalThis.CapturAirMoteur || null;
 const VERSION_MOTEUR_CHARGEE = MOTEUR_CHARGE ? String(MOTEUR_CHARGE.VERSION) : null;
 const MOTEUR = VERSION_MOTEUR_CHARGEE === VERSION_MOTEUR_ATTENDUE ? MOTEUR_CHARGE : null;
@@ -759,8 +763,34 @@ async function lireHistorique(ids, debut, fin) {
   reponses.forEach(d => (d.points || []).forEach(p => tous.push(p)));
   // Tri chronologique stable (à égalité, l'ordre reçu est conservé)
   const tries = tous.map((p, k) => [Date.parse(p.observed_at), k, p]).sort((a, b) => a[0] - b[0] || a[1] - b[1]).map(x => x[2]);
-  return { points: tries, tronque: reponses.some(d => d.tronque) };
+  // P4 — identifiants des appareils dont le paquet a été tronqué (utile au refus du contexte)
+  const idsTronques = new Set();
+  reponses.forEach((d, k) => { if (d.tronque) paquets[k].forEach(id => idsTronques.add(id)); });
+  return { points: tries, tronque: reponses.some(d => d.tronque), idsTronques };
 }
+
+// P4 — Point de contexte : dernière observation STRICTEMENT antérieure à debut, cherchée sur fenetreContexteH.
+// Paramètre provisoire (pas une définition métier). Réponse tronquée : contexte refusé (on ne peut pas garantir
+// d'avoir la dernière observation). Erreur réseau : pas de contexte, sans bloquer l'affichage de la période.
+// Le contexte n'apparaît ni sur la carte, ni dans la timeline, ni dans le nombre d'observations.
+const FENETRE_CONTEXTE_H = 24;
+async function lireContexte(ids, debut) {
+  const resultat = new Map();
+  try {
+    const d = await lireHistorique(ids, new Date(debut.getTime() - FENETRE_CONTEXTE_H * 3600000), debut);
+    ids.forEach(id => {
+      if (d.idsTronques.has(id)) { resultat.set(id, { statut: 'refuse_tronque', observation: null }); return; }
+      const avant = d.points.filter(p => p.appareil_id === id && Number.isFinite(p.latitude) && Number.isFinite(p.longitude)
+        && Date.parse(p.observed_at) < debut.getTime());
+      resultat.set(id, avant.length ? { statut: 'present', observation: avant[avant.length - 1] } : { statut: 'absent', observation: null });
+    });
+  } catch (e) {
+    ids.forEach(id => resultat.set(id, { statut: 'erreur', observation: null }));
+  }
+  return resultat;
+}
+let contexteParAppareil = new Map();
+function contexteListe() { return [...contexteParAppareil.values()].filter(c => c.observation).map(c => c.observation); }
 
 // B4a — Bornes de la période, calculées en America/Toronto (jamais avec le fuseau du navigateur).
 // Jour : minuit local → minuit local suivant (25 h le 1er novembre, 23 h le 8 mars) ; aujourd'hui s'arrête à maintenant.
@@ -891,7 +921,7 @@ async function chargerHistorique() {
   const n = ++numRequete;
   const ids = idsChoisis();
   if (!ids.length) {
-    points = []; selection = null; periodeAffichee = null; vue = null;
+    points = []; selection = null; periodeAffichee = null; vue = null; contexteParAppareil = new Map();
     $('etat').className = ''; $('etat').textContent = '';
     if (carte) viderCarte();
     dessinerTimeline();
@@ -902,8 +932,9 @@ async function chargerHistorique() {
   $('etat').className = '';
   $('etat').textContent = 'Chargement…';
   try {
-    const d = await lireHistorique(ids, debut, fin);
+    const [d, ctx] = await Promise.all([lireHistorique(ids, debut, fin), lireContexte(ids, debut)]);   // P4
     if (n !== numRequete) return;   // une sélection plus récente a été demandée entre-temps
+    contexteParAppareil = ctx;
     points = attribuerUid((d.points || []).filter(p => Number.isFinite(p.latitude) && Number.isFinite(p.longitude)));
     nbObservationsSansCoordonnees = (d.points || []).length - points.length;   // P2 — signalé dans le diagnostic
     selection = null;
@@ -918,6 +949,26 @@ async function chargerHistorique() {
     $('etat').className = 'erreur';
     $('etat').textContent = e.message;
   }
+}
+
+// P4 — Format (§93 du complément) : mètres entiers sous 1 km, une décimale au-delà
+function formaterDistance(m) {
+  const r = Math.round(m);
+  return r < 1000 ? `${r} m` : `${(m / 1000).toLocaleString('fr-CA', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} km`;
+}
+const INFO_DISTANCE = 'Somme des distances entre observations significatives. Généralement inférieure à la distance réellement parcourue.';
+function ligneDistanceObservee(id, observee) {
+  if (!observee) return `<dt>Distance observée</dt><dd>indisponible<span class="distance-detail">module de calcul refusé</span></dd>`;
+  const r = observee.appareils.find(x => x.appareil_id === id);
+  if (!r) return '';
+  const details = [];
+  if (Math.round(r.distanceFiltreeM) === 0) details.push('aucun déplacement significatif observé');
+  if (r.distanceFiltreeSurAbsencesM > 0)
+    details.push(`dont ${formaterDistance(r.distanceFiltreeSurAbsencesM)} entre observations espacées de plus de ${SEUIL_TROU_MIN} min`);
+  if (r.distanceDepuisContexteM > 0 && r.contexte)
+    details.push(`inclut le déplacement depuis la dernière observation précédente (${heureHMS(new Date(r.contexte.observed_at))})`);
+  return `<dt>Distance observée<span class="info" title="${esc(INFO_DISTANCE)}" aria-label="${esc(INFO_DISTANCE)}">ⓘ</span></dt>`
+    + `<dd><span class="distance">${esc(formaterDistance(r.distanceFiltreeM))}</span>${details.map(t => `<span class="distance-detail">${esc(t)}</span>`).join('')}</dd>`;
 }
 
 // B5 — Barre de synthèse. « Dernière observation reçue » : la plus récente tous appareils confondus.
@@ -937,6 +988,16 @@ function afficherSynthese() {
 }
 
 // B3c — Résumé détaillé par appareil sélectionné (faits de la période uniquement)
+// P4 — Libellé du contexte pour le diagnostic
+function libelleContexte(id) {
+  const c = contexteParAppareil.get(id);
+  if (!c) return '—';
+  if (c.statut === 'present') return `${dateHeure(new Date(c.observation.observed_at))} · ${libellePrecision(c.observation.precision_m)}`;
+  if (c.statut === 'refuse_tronque') return 'refusé : réponse tronquée';
+  if (c.statut === 'erreur') return 'indisponible : erreur de lecture';
+  return `aucune observation dans les ${FENETRE_CONTEXTE_H} h précédentes`;
+}
+
 // P2 — Diagnostic : faits du moteur par appareil (distance BRUTE, aucun filtrage, aucun classement)
 const km = m => (m / 1000).toLocaleString('fr-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' km';
 function afficherDiagnostic() {
@@ -946,8 +1007,9 @@ function afficherDiagnostic() {
     return;
   }
   const ids = idsChoisis();
-  const r = MOTEUR.calculerDistanceBrute(points.filter(p => ids.includes(p.appareil_id)));
-  const f = MOTEUR.calculerDistanceObservee(points.filter(p => ids.includes(p.appareil_id)));   // P3
+  const optCtx = { contexte: contexteListe() };   // P4 — même contexte que le résumé
+  const r = MOTEUR.calculerDistanceBrute(points.filter(p => ids.includes(p.appareil_id)), optCtx);
+  const f = MOTEUR.calculerDistanceObservee(points.filter(p => ids.includes(p.appareil_id)), optCtx);   // P3
   const html = ids.map(id => {
     const a = appareils.find(x => x.id === id), idt = identite(id);
     const d = r.appareils.find(x => x.appareil_id === id);
@@ -958,7 +1020,10 @@ function afficherDiagnostic() {
       + `<td>${esc(km(s.distanceM))}<br><small>${s.vitesseMoyenneEntreObservationsKmh == null ? '—' : Math.round(s.vitesseMoyenneEntreObservationsKmh) + ' km/h moy.'}</small></td></tr>`).join('');
     return `<div class="diag-app" style="--c:${idt.couleur}"><h4>${idt.emoji} ${esc(a.nom)}</h4><table>
       <tr><td>Observations · segments</td><td>${d.nbObservations} · ${d.nbSegments}</td></tr>
-      <tr><td>Distance brute (P2)</td><td>${esc(km(d.distanceBruteM))}</td></tr>
+      <tr><td>Point de contexte (P4, ${FENETRE_CONTEXTE_H} h)</td><td>${esc(libelleContexte(id))}</td></tr>
+      <tr><td>dont distance retenue depuis le contexte</td><td>${esc(km(df.distanceDepuisContexteM))}</td></tr>
+      <tr><td>dont distance retenue traversant une absence (${df.nbRetenusSurAbsences})</td><td>${esc(km(df.distanceFiltreeSurAbsencesM))}</td></tr>
+      <tr><td>Distance brute (P2, contexte compris)</td><td>${esc(km(d.distanceBruteM))}</td></tr>
       <tr><td>Distance filtrée candidate (P3)</td><td><b>${esc(km(df.distanceFiltreeM))}</b></td></tr>
       <tr><td>Évaluations : significatives · incertaines · bruit</td><td>${df.nbSignificatifs} · ${df.nbIncertains} · ${df.nbBruitProbable}</td></tr>
       <tr><td>Plus grand écart incertain</td><td>${df.nbIncertains ? esc(km(df.incertainMaxM)) : '—'}</td></tr>
@@ -990,6 +1055,8 @@ function afficherResume() {
   afficherDiagnostic();   // P2
   const ids = idsChoisis();
   if (!ids.length) { $('resume').innerHTML = '<span class="vide">Sélectionnez au moins un appareil.</span>'; return; }
+  // P4 — un calcul par affichage, par appareil (aucun total inter-appareils)
+  const observee = MOTEUR ? MOTEUR.calculerDistanceObservee(points.filter(p => ids.includes(p.appareil_id)), { contexte: contexteListe() }) : null;
   const cartes = ids.map(id => {
     const a = appareils.find(x => x.id === id);
     const idt = identite(id);
@@ -1003,6 +1070,7 @@ function afficherResume() {
     const prem = pts[0], der = pts[pts.length - 1];
     return `<div class="carte-app" style="--c:${idt.couleur}">${tete}
       <dl>
+        ${ligneDistanceObservee(id, observee)}
         <dt>Première</dt><dd>${esc(dateHeure(new Date(prem.observed_at)))}</dd>
         <dt>Dernière</dt><dd>${esc(dateHeure(new Date(der.observed_at)))}</dd>
         <dt>Âge</dt><dd>${esc(age(der.observed_at))}</dd>
