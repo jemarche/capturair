@@ -19,6 +19,15 @@
     --ambre: #C98A0B;
     --pale: #9AA7B6;
     --erreur: #C0392B;
+    /* R0 — Langage d'interaction : durées et courbe communes (150–400 ms) */
+    --t-court: 150ms;
+    --t-moyen: 250ms;
+    --t-long: 400ms;
+    --courbe: cubic-bezier(.2, .8, .2, 1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :root { --t-court: 0ms; --t-moyen: 0ms; --t-long: 0ms; }
+    html { scroll-behavior: auto !important; }
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; }
@@ -237,11 +246,59 @@
   .fiche dd { margin: 0; }
   .fiche .rang { margin-top: 8px; font-size: .78rem; color: var(--gris); }
 
-  @media (max-width: 760px) {
-    .corps { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
-    aside { border-right: 0; border-bottom: 1px solid var(--trait); max-height: 46vh; }
-    main { min-height: 54vh; }
+  /* R0 — transitions fonctionnelles (changement de période : fondu du contenu) */
+  #resume, #tl-graphe, .zone-carte { transition: opacity var(--t-moyen) var(--courbe); }
+  .en-chargement { opacity: .45; }
+  .entete-info, .synthese-court, .vers-carte { display: none; }
+  .synthese-long { display: contents; }
+
+  /* R1 — 900–1099 px : même architecture, panneau gauche resserré */
+  @media (max-width: 1099px) {
+    .corps { grid-template-columns: 280px 1fr; }
+  }
+
+  /* R1 — < 900 px : vraie interface verticale (une colonne qui défile), sans déplacer le HTML */
+  @media (max-width: 899px) {
+    html, body { height: auto; }
+    #app { height: auto; min-height: 100%; min-height: 100dvh; grid-template-rows: auto 1fr; }
+    header { position: sticky; top: 0; z-index: 20; padding: clamp(8px, 2.5vw, 12px) clamp(12px, 4vw, 18px); flex-wrap: wrap; gap: 2px 10px;
+             padding-top: max(clamp(8px, 2.5vw, 12px), env(safe-area-inset-top)); }
+    header h1 { font-size: clamp(1rem, 4.6vw, 1.2rem); }
     header h1 small { display: none; }
+    .entete-info { display: flex; align-items: center; gap: 8px; order: 3; width: 100%; font-size: .82rem; color: #B8C7D8; }
+    .entete-info b { color: #fff; font-weight: 600; }
+    .entete-info .compte { margin-left: auto; color: #fff; }
+    .btn-discret { padding: 4px 10px; font-size: .8rem; }
+
+    .corps { display: flex; flex-direction: column; gap: clamp(10px, 3vw, 14px); padding: clamp(10px, 3vw, 14px);
+             padding-bottom: calc(clamp(10px, 3vw, 14px) + env(safe-area-inset-bottom)); }
+    aside, main { display: contents; }
+    /* Sections en cartes arrondies, ordre validé : Appareils → Période → Résumé → Synthèse → Carte → Timeline */
+    .s-appareils, .s-periode, .s-observations, #diag, #synthese, #timeline {
+      background: #fff; border-radius: 16px; padding: clamp(12px, 3.5vw, 16px);
+      box-shadow: 0 1px 3px rgba(11,31,58,.08), 0 4px 14px rgba(11,31,58,.05); border: 0; }
+    #alerte-moteur { order: 0; border-radius: 12px; }
+    .s-appareils { order: 1; }
+    .s-periode { order: 2; }
+    .s-observations { order: 3; }
+    #synthese { order: 4; padding: 9px 14px; font-size: .82rem; }
+    .zone-carte { order: 5; height: 58vh; height: clamp(340px, 58dvh, 760px); min-height: 340px;
+                  border-radius: 16px; overflow: hidden; box-shadow: 0 2px 10px rgba(11,31,58,.14); }
+    #timeline { order: 6; max-height: none; }
+    #diag { order: 7; }
+    aside section + section { margin-top: 0; }
+    .synthese-long { display: none; }
+    .synthese-court { display: inline; }
+
+    /* Cibles tactiles : au moins 40 px */
+    .periodes button, .navperiode button, #btn-modifier, #btn-termine, #btn-ajuster, .plages button { min-height: 40px; }
+
+    /* ⌖ Carte : retour rapide quand la carte est entièrement hors écran */
+    .vers-carte { display: inline-flex; position: fixed; z-index: 30; right: 14px; bottom: calc(16px + env(safe-area-inset-bottom));
+                  align-items: center; gap: 6px; padding: 10px 16px; border: 0; border-radius: 22px; background: var(--marine); color: #fff;
+                  font-weight: 700; box-shadow: 0 4px 16px rgba(11,31,58,.35); cursor: pointer;
+                  transition: opacity var(--t-moyen) var(--courbe), transform var(--t-moyen) var(--courbe); }
+    .vers-carte.cache { opacity: 0; transform: translateY(12px) scale(.96); pointer-events: none; }
   }
 </style>
 </head>
@@ -274,10 +331,12 @@
   <header>
     <h1>Captur<span>Air</span><small>Historique des positions</small></h1>
     <button class="btn-discret" id="btn-deconnexion" type="button">Se déconnecter</button>
+    <div class="entete-info" id="entete-info" aria-live="polite"></div>
   </header>
+  <button type="button" class="vers-carte cache" id="btn-vers-carte" aria-label="Revenir à la carte">⌖ Carte</button>
   <div class="corps">
     <aside>
-      <section>
+      <section class="s-appareils">
         <h2>Appareils</h2>
         <div id="panneau-appareils">
         <div class="outils-appareils" id="outils-appareils">
@@ -291,7 +350,7 @@
         <button type="button" id="btn-modifier"></button>
         </div>
       </section>
-      <section>
+      <section class="s-periode">
         <h2>Période</h2>
         <div class="periodes" id="periodes">
           <button type="button" data-periode="jour" aria-pressed="false">Aujourd'hui</button>
@@ -314,7 +373,7 @@
         <div class="plages" id="plages" hidden></div>
         <div id="etat" role="status"></div>
       </section>
-      <section>
+      <section class="s-observations">
         <h2>Observations</h2>
         <div id="resume"><span class="vide">Choisissez un appareil.</span></div>
         <div class="options">
@@ -398,6 +457,37 @@ let marqueurs = [];
 let selection = null;   // _uid de l'observation sélectionnée, ou null
 let halo = null;        // marqueur de mise en évidence du point sélectionné sur la carte
 let apercu = null;      // B2c — anneau rouge d'aperçu au survol de la timeline (souris uniquement)
+// ── R0 — Langage d'interaction ────────────────────────────────────────────────────────────────
+// Animations FONCTIONNELLES (150–400 ms) : elles expliquent un changement d'état. Neutralisées si le
+// système demande moins de mouvement (prefers-reduced-motion).
+const requeteMouvementReduit = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+function mouvementReduit() { return !!(requeteMouvementReduit && requeteMouvementReduit.matches); }
+const adoucir = k => 1 - Math.pow(1 - k, 3);   // décélération douce
+function animer(dureeMs, etape, fin) {
+  if (mouvementReduit() || !(dureeMs > 0)) { etape(1); if (fin) fin(); return; }
+  const debut = performance.now();
+  const pas = maintenant => {
+    const k = Math.min(1, (maintenant - debut) / dureeMs);
+    etape(adoucir(k));
+    if (k < 1) requestAnimationFrame(pas); else if (fin) fin();
+  };
+  requestAnimationFrame(pas);
+}
+// Tracé progressif d'une liaison (affichage seulement : aucune position n'est créée ni enregistrée)
+function cheminPartiel(pts, k) {
+  if (pts.length < 2 || k >= 1) return pts;
+  const d = [0];
+  for (let q = 1; q < pts.length; q++) d.push(d[q - 1] + Math.hypot(pts[q].lat - pts[q - 1].lat, pts[q].lng - pts[q - 1].lng));
+  const cible = d[d.length - 1] * k, res = [pts[0]];
+  for (let q = 1; q < pts.length; q++) {
+    if (d[q] <= cible) { res.push(pts[q]); continue; }
+    const f = (cible - d[q - 1]) / ((d[q] - d[q - 1]) || 1);
+    if (f > 0) res.push({ lat: pts[q - 1].lat + (pts[q].lat - pts[q - 1].lat) * f, lng: pts[q - 1].lng + (pts[q].lng - pts[q - 1].lng) * f });
+    break;
+  }
+  return res;
+}
+
 // B10a — Mode de carte mémorisé dans ce navigateur ; Déplacement par défaut
 const CLE_MODE_CARTE = 'posh_mode_carte';
 const MODES_DISPONIBLES = ['points', 'deplacement', 'densite'];
@@ -410,21 +500,41 @@ function afficherModeCarte() {
 }
 function choisirModeCarte(mode) {
   if (!MODES_DISPONIBLES.includes(mode) || mode === modeCarte) return;
+  const ancien = modeCarte;
   modeCarte = mode;
   try { localStorage.setItem(CLE_MODE_CARTE, mode); } catch (e) { /* stockage indisponible */ }
   afficherModeCarte();
-  appliquerModeCarte();
+  appliquerModeCarte(ancien);
 }
 
 // B10a/B10b — Applique le mode : marqueurs (sauf en Densité), liaisons (Déplacement seulement), densité.
 // Le halo de sélection, l'aperçu et la fiche restent disponibles dans les trois modes.
-function appliquerModeCarte() {
+// ancien : mode précédent si l'utilisateur vient de changer de mode (déclenche les transitions R0)
+function appliquerModeCarte(ancien) {
   if (!carte) return;
   const densite = modeCarte === 'densite';
   if (densite && replay.actif) quitterReplay(false);   // B12 — pas de replay en Densité
   $('rp-lecture').disabled = densite || !points.length;
-  marqueurs.forEach(m => m.setMap(densite ? null : carte));
-  lignes.forEach(l => l.setMap(modeCarte === 'deplacement' ? carte : null));
+  const change = ancien && ancien !== modeCarte && !replay.actif;
+  // R0 — marqueurs : fondu en entrant/sortant de Densité
+  if (change && densite) {
+    animer(200, k => { if (modeCarte === 'densite') marqueurs.forEach(m => m.setOpacity(1 - k)); },
+           () => marqueurs.forEach(m => { if (modeCarte === 'densite') m.setMap(null); m.setOpacity(1); }));   // retour rapide : rien masqué
+  } else if (change && ancien === 'densite') {
+    marqueurs.forEach(m => { m.setOpacity(0); m.setMap(carte); });
+    animer(250, k => marqueurs.forEach(m => m.setOpacity(k)));
+  } else {
+    marqueurs.forEach(m => m.setMap(densite ? null : carte));
+  }
+  // R0 — liaisons : elles se dessinent progressivement en entrant dans Déplacement
+  if (change && modeCarte === 'deplacement') {
+    const complets = lignes.map(l => (l._morceau || []).map(p => ({ lat: p.latitude, lng: p.longitude })));
+    lignes.forEach(l => l.setMap(carte));
+    animer(350, k => { if (modeCarte === 'deplacement') lignes.forEach((l, q) => l.setPath(cheminPartiel(complets[q], k))); },
+           () => lignes.forEach((l, q) => l.setPath(complets[q])));   // toujours le tracé complet à la fin
+  } else {
+    lignes.forEach(l => l.setMap(modeCarte === 'deplacement' ? carte : null));
+  }
   $('legende-densite').hidden = !densite;
   dessinerDensite(true);
   if (replay.actif) majCarteReplay(true);   // B12 — Points ↔ Déplacement pendant le replay
@@ -480,6 +590,10 @@ function dessinerDensite(forcer) {
     });
     rectangles.push(rect);
   });
+  // R0 — les cellules apparaissent par un fondu (montée d'opacité jusqu'à 60 %)
+  const cellules = rectangles.slice();
+  cellules.forEach(c => c.setOptions({ fillOpacity: 0 }));
+  animer(300, k => cellules.forEach(c => c.setOptions({ fillOpacity: 0.6 * k })));
 }
 let periodeAffichee = null;   // B2b — { debut, fin } de la dernière période chargée (axe de la timeline)
 let vue = null;               // B2d — fenêtre visible { t0, t1 } (ms) de la timeline ; null = période entière
@@ -1065,6 +1179,7 @@ async function chargerHistorique() {
   const { debut, fin } = bornes();
   $('etat').className = '';
   $('etat').textContent = 'Chargement…';
+  ['resume', 'tl-graphe'].forEach(id => $(id).classList.add('en-chargement'));   // R0 — fondu pendant le chargement
   try {
     if (replay.actif) quitterReplay(false);   // B12 — nouvelles données : vue normale
     const [d, ctx] = await Promise.all([lireHistorique(ids, debut, fin), lireContexte(ids, debut)]);   // P4
@@ -1079,7 +1194,9 @@ async function chargerHistorique() {
     await dessiner();
     dessinerTimeline();
     afficherResume();
+    ['resume', 'tl-graphe'].forEach(id => $(id).classList.remove('en-chargement'));   // R0
   } catch (e) {
+    ['resume', 'tl-graphe'].forEach(id => $(id).classList.remove('en-chargement'));
     if (n !== numRequete) return;
     $('etat').className = 'erreur';
     $('etat').textContent = e.message;
@@ -1115,11 +1232,17 @@ function afficherSynthese() {
   const avec = appareils.filter(a => a.observed_at && a.latitude != null).length;
   const recente = appareils.filter(a => a.observed_at).map(a => a.observed_at)
     .sort((x, y) => Date.parse(y) - Date.parse(x))[0];
-  z.innerHTML = `<span><b>${appareils.length}</b> appareil${appareils.length > 1 ? 's' : ''}</span>`
+  // R1 — en-tête mobile : date du jour (Montréal) et nombre d'appareils cochés
+  const jour = fmtDate.format(new Date());
+  $('entete-info').innerHTML = `<b>${esc(jour.charAt(0).toUpperCase() + jour.slice(1))}</b><span class="compte">● ${choisis.size} / ${appareils.length}</span>`;
+  // R1 — synthèse condensée pour mobile (même information, libellés courts)
+  const courte = `<span class="synthese-court"><b>${appareils.length}</b> app. · 🟢 <b>${avec}</b> · ◯ <b>${appareils.length - avec}</b> · <b>${points.length}</b> obs.`
+    + (recente ? ` · dernière <b>${esc(heureHMS(new Date(recente)))}</b>` : '') + `</span>`;
+  z.innerHTML = courte + `<span class="synthese-long"><span><b>${appareils.length}</b> appareil${appareils.length > 1 ? 's' : ''}</span>`
     + `<span>🟢 <b>${avec}</b> avec position</span>`
     + `<span>◯ <b>${appareils.length - avec}</b> sans position</span><span class="sep"></span>`
     + `<span><b>${points.length}</b> observation${points.length > 1 ? 's' : ''} (appareils cochés)</span><span class="sep"></span>`
-    + `<span>Dernière observation reçue : ${recente ? `<b>${esc(dateHeure(new Date(recente)))}</b> (${esc(age(recente))})` : '<b>aucune</b>'}</span>`;
+    + `<span>Dernière observation reçue : ${recente ? `<b>${esc(dateHeure(new Date(recente)))}</b> (${esc(age(recente))})` : '<b>aucune</b>'}</span></span>`;
 }
 
 // B3c — Résumé détaillé par appareil sélectionné (faits de la période uniquement)
@@ -1811,6 +1934,11 @@ function rendreVisibleDansTimeline(t) {
   appliquerVue(t - span / 2, t + span / 2);
 }
 
+// R1 — en colonne unique, remonter doucement vers la carte SEULEMENT si elle est entièrement hors écran
+function revelerCarteSiHorsEcran() {
+  if (requeteColonne && requeteColonne.matches && !carteDansEcran) allerALaCarte();
+}
+
 function afficherSelectionCarte(i, centrer) {
   const p = points[i];
   const pos = { lat: p.latitude, lng: p.longitude };
@@ -1823,7 +1951,11 @@ function afficherSelectionCarte(i, centrer) {
   }
   halo.setPosition(pos);
   halo.setMap(carte);
+  // R0 — le halo apparaît en douceur (anneau qui se resserre et se densifie)
+  animer(250, k => halo.setIcon({ path: google.maps.SymbolPath.CIRCLE, scale: 22 - 8 * k, fillOpacity: 0,
+                                  strokeColor: '#0B1F3A', strokeOpacity: .9 * k, strokeWeight: 4 }));
   ouvrirFiche(i);
+  revelerCarteSiHorsEcran();   // R1
 }
 
 // B3a — Rang d'une observation parmi celles de son appareil
@@ -1873,6 +2005,19 @@ $('liste-appareils').addEventListener('click', e => {
   const b = e.target.closest('.appareil'); if (b) basculer(b.dataset.id);
 });
 $('btn-ordre').addEventListener('click', retablirOrdre);
+// R1 — ⌖ Carte : visible seulement en colonne unique, quand la carte est ENTIÈREMENT hors écran
+const requeteColonne = window.matchMedia ? window.matchMedia('(max-width: 899px)') : null;
+let carteDansEcran = true;
+if (window.IntersectionObserver) {
+  new IntersectionObserver(entrees => {
+    carteDansEcran = entrees[0].isIntersecting;
+    $('btn-vers-carte').classList.toggle('cache', carteDansEcran);
+  }, { threshold: 0 }).observe(document.querySelector('.zone-carte'));
+}
+function allerALaCarte() {
+  document.querySelector('.zone-carte').scrollIntoView({ behavior: mouvementReduit() ? 'auto' : 'smooth', block: 'center' });
+}
+$('btn-vers-carte').addEventListener('click', allerALaCarte);
 // V2′ — Ouvrir / replier la liste complète
 $('btn-modifier').addEventListener('click', () => ouvrirListe(true));
 $('btn-termine').addEventListener('click', () => ouvrirListe(false));
