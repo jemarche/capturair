@@ -22,7 +22,13 @@
  *   P4.1 : un segment retenu (ancre → point) traverse une absence SI ET SEULEMENT SI, entre l'ancre et le
  *   point, deux observations SUCCESSIVES de l'appareil sont espacées de plus de seuilTrouMin (définition B11).
  *   Toutes les observations intermédiaires comptent, y compris bruit, incertain, pics et excursions écartés.
- *   La durée ancre → point n'est PAS un critère d'absence. Le point de contexte (dernière observation
+ *   La durée ancre → point n'est PAS un critère d'absence.
+ *
+ * B10b (agregerDensite) : représentation INTERPRÉTATIVE. Regroupe les observations en cellules d'une grille
+ *   stable (alignée sur une origine fixe). Exclut uniquement les observations identifiées comme pics P3 ou
+ *   membres d'une excursion fantôme P3b ; les observations bruit_probable / incertain restent comptées.
+ *   Le point de contexte sert à cette détection mais n'est JAMAIS compté dans une cellule.
+ *   Densité d'observations ≠ temps passé (la déduplication n'enregistre presque rien d'un appareil immobile). Le point de contexte (dernière observation
  *   strictement antérieure à la période) n'est jamais compté comme observation de la période :
  *   il sert uniquement d'origine au premier segment, qui appartient à la période de son point d'arrivée.
  *   Tous les seuils sont des paramètres de calibration PROVISOIRES.
@@ -32,7 +38,7 @@
 (function (racine) {
   'use strict';
 
-  const VERSION = 'P4.1';
+  const VERSION = 'B10b';
 
   // Paramètres de calibration : provisoires, centralisés, à ajuster sur les données réelles CapturAir.
   const PARAMETRES = Object.freeze({
@@ -335,12 +341,54 @@
     return { appareils: resultats, ignorees, parametres: params };
   }
 
+  // ── B10b — Densité ──────────────────────────────────────────────────────────────────────────
+  // options : { tailleCelluleM (obligatoire, > 0), latitudeReference (pour la largeur en longitude),
+  //             contexte, parametres }. Retour : { cellules, nbComptees, nbExclues, exclues, maxParCellule }.
+  function agregerDensite(observations, options) {
+    const opt = options || {};
+    const taille = Number(opt.tailleCelluleM);
+    if (!(taille > 0)) throw new Error('agregerDensite : tailleCelluleM doit être > 0');
+    const latRef = Number.isFinite(opt.latitudeReference) ? opt.latitudeReference : 45;
+    const pasLat = taille / 111195;
+    const pasLon = taille / (111195 * Math.max(0.01, Math.cos(latRef * Math.PI / 180)));
+    // Observations écartées par P3 (pics) et P3b (excursions) — même analyse que la distance observée
+    const filtre = calculerDistanceObservee(observations, { contexte: opt.contexte, parametres: opt.parametres });
+    const exclues = new Map();
+    filtre.appareils.forEach(a => {
+      a.pics.forEach(p => exclues.set(p.observation, 'pic'));
+      a.excursions.forEach(e => e.points.forEach(o => exclues.set(o, 'excursion')));
+    });
+    const cellules = new Map();
+    let nbComptees = 0;
+    (observations || []).forEach(o => {
+      if (!coordonneesValides(o) || exclues.has(o)) return;
+      const i = Math.floor(o.latitude / pasLat), j = Math.floor(o.longitude / pasLon);
+      const cle = i + ':' + j;
+      if (!cellules.has(cle)) cellules.set(cle, { i, j, sud: i * pasLat, nord: (i + 1) * pasLat, ouest: j * pasLon, est: (j + 1) * pasLon, n: 0, parAppareil: {} });
+      const c = cellules.get(cle);
+      c.n++;
+      c.parAppareil[o.appareil_id] = (c.parAppareil[o.appareil_id] || 0) + 1;
+      nbComptees++;
+    });
+    const liste = [...cellules.values()];
+    const periode = new Set(observations || []);   // le contexte n'en fait pas partie
+    const listeExclues = [...exclues.entries()].filter(([o]) => periode.has(o)).map(([observation, raison]) => ({ observation, raison }));
+    return {
+      cellules: liste,
+      nbComptees,
+      nbExclues: listeExclues.length,
+      exclues: listeExclues,
+      maxParCellule: liste.reduce((m, c) => Math.max(m, c.n), 0),
+      tailleCelluleM: taille
+    };
+  }
+
   const API = Object.freeze({
     VERSION, PARAMETRES, parametres,
     calculerDistance, precisionEffective, construireSegments, detecterTrous, calculerDistanceBrute,
     detecterPics: (chaine, surcharges) => [...detecterPics(chaine, parametres(surcharges)).values()],
     detecterExcursions: (chaine, surcharges) => detecterExcursions(chaine, parametres(surcharges)),
-    calculerDistanceObservee
+    calculerDistanceObservee, agregerDensite
   });
 
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
