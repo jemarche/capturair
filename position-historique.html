@@ -139,6 +139,9 @@
   .diag-app table { width: 100%; border-collapse: collapse; }
   .diag-app td { padding: 1px 4px; border-bottom: 1px solid #EEF2F7; vertical-align: top; }
   .diag-app td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  /* PV′ — Cellules couvrant deux colonnes (titre, raison) : retour à la ligne, alignées à gauche, jamais plus larges que le panneau */
+  .diag-app table { table-layout: fixed; }
+  .diag-app td[colspan] { text-align: left; white-space: normal; overflow-wrap: anywhere; }
   .diag-app details { margin-top: 4px; }
   .diag-note { font-size: .75rem; color: var(--gris); margin: 0; }
   .diag-alerte { margin: 6px 0 0; padding: 6px 8px; border-left: 3px solid #E59400; background: #FFF6E5; font-size: .74rem; color: #6B4A00; }
