@@ -14,7 +14,8 @@
  *   - première étape autorisée à classer (bruit_probable / incertain / significatif) et à écarter des pics ;
  *   - n'écarte que du CUMUL : aucune observation n'est modifiée ni supprimée ; tout est rapporté au diagnostic ;
  *   - orthogonal à B11 : une absence d'observations n'invalide jamais la distance entre ses deux extrémités ;
- *   - un segment très rapide (> seuilVitesseSuspecteKmH) est SIGNALÉ, jamais supprimé.
+ *   - un segment très rapide (> seuilVitesseSuspecteKmH) est SIGNALÉ, jamais supprimé ;
+ *   - P3b : une excursion groupée (fantôme) n'est écartée que comme un ensemble, et toujours listée.
  *   Tous les seuils sont des paramètres de calibration PROVISOIRES.
  *
  * Utilisable dans le navigateur (globalThis.CapturAirMoteur) et sous Node (module.exports).
@@ -22,7 +23,7 @@
 (function (racine) {
   'use strict';
 
-  const VERSION = 'P3';
+  const VERSION = 'P3b';
 
   // Paramètres de calibration : provisoires, centralisés, à ajuster sur les données réelles CapturAir.
   const PARAMETRES = Object.freeze({
@@ -35,7 +36,11 @@
     facteurSignificatif: 3,          // significatif si distance > facteur × (précision A + précision B)
     facteurPic: 4,                   // pic si l'écart vers X ≤ facteur × (précision voisin + précision X)
     seuilGrandeVitesseKmH: 300,      // pic à grande vitesse : aller ET retour au-delà, retour près du départ
-    seuilVitesseSuspecteKmH: 1000    // au-delà : segment suspect, signalé, jamais supprimé
+    seuilVitesseSuspecteKmH: 1000,   // au-delà : segment suspect, signalé, jamais supprimé
+    // P3b — excursion groupée A → X₁…Xₙ → B (fantôme Find Hub). Provisoires, à recalibrer.
+    facteurDegradationPrecision: 4,  // chaque Xᵢ au moins 4 × moins précis que la MEILLEURE des extrémités A, B
+    rayonRetourM: 100,               // A et B « proches » si d(A,B) ≤ max(pA + pB, rayonRetourM)
+    facteurPorteeExcursion: 15       // écart max. ≤ 15 × précision du point le plus éloigné (sinon : vrai trajet)
   });
 
   const RAYON_TERRE_M = 6371008.8;   // rayon terrestre moyen (UGGI)
@@ -199,6 +204,55 @@
     return pics;
   }
 
+  // P3b — Excursions groupées A → X₁…Xₙ → B, analysées comme un ENSEMBLE.
+  // B est le premier retour « proche » de A. L'excursion n'est écartée du cumul que si les 4 conditions sont réunies :
+  //  1. retour près du départ : d(A,B) ≤ max(pA + pB, rayonRetourM) ;
+  //  2. TOUS les Xᵢ au moins facteurDegradationPrecision fois moins précis que la meilleure des extrémités ;
+  //  3. analyse en ensemble : un seul Xᵢ bien localisé suffit à CONSERVER toute l'excursion ;
+  //  4. portée compatible avec l'imprécision : écart max. ≤ facteurPorteeExcursion × précision du point le plus éloigné.
+  // (Et au moins un Xᵢ s'écarte de A au-delà de la tolérance, sinon ce n'est pas une excursion.)
+  // Les pics déjà écartés (P3) ne sont pas réexaminés.
+  function detecterExcursions(chaine, params) {
+    const excursions = [];
+    const prec = o => precisionEffective(o.precision_m, params).m;
+    const dist = (u, v) => calculerDistance(u.latitude, u.longitude, v.latitude, v.longitude);
+    let i = 0;
+    while (i < chaine.length - 2) {
+      const A = chaine[i], pA = prec(A);
+      const proche = P => dist(A, P) <= Math.max(pA + prec(P), params.rayonRetourM);
+      if (proche(chaine[i + 1])) { i++; continue; }   // pas de départ
+      let j = i + 2;
+      while (j < chaine.length && !proche(chaine[j])) j++;
+      if (j >= chaine.length) { i++; continue; }      // aucun retour près de A
+      const B = chaine[j], interm = chaine.slice(i + 1, j);
+      const meilleure = Math.min(pA, prec(B));
+      const toutesDegradees = interm.every(X => prec(X) >= params.facteurDegradationPrecision * meilleure);
+      const ecartMaxM = Math.max(...interm.map(X => dist(A, X)));
+      const plusEloigne = interm.find(X => dist(A, X) === ecartMaxM);
+      const rapportPortee = ecartMaxM / prec(plusEloigne);
+      const porteeCompatible = rapportPortee <= params.facteurPorteeExcursion;   // condition 4
+      const sort = interm.some(X => dist(A, X) > pA + prec(X));
+      if (toutesDegradees && porteeCompatible && sort) {
+        excursions.push({
+          depart: A, retour: B, points: interm, ecartMaxM,
+          distanceRetourM: dist(A, B),
+          precisionMeilleureExtremiteM: meilleure,
+          precisionMinIntermediaireM: Math.min(...interm.map(prec)),
+          seuilRetourM: Math.max(pA + prec(B), params.rayonRetourM),
+          pointLePlusEloigne: plusEloigne,
+          precisionPointLePlusEloigneM: prec(plusEloigne),
+          rapportPortee,
+          seuilPortee: params.facteurPorteeExcursion,
+          raison: `${interm.length} point(s) au moins ${params.facteurDegradationPrecision} × moins précis que la meilleure extrémité (±${Math.round(meilleure)} m), retour à ${Math.round(dist(A, B))} m du départ, écart max. = ${rapportPortee.toFixed(1)} × la précision du point le plus éloigné (seuil ${params.facteurPorteeExcursion})`
+        });
+        i = j;   // l'analyse reprend au retour B
+      } else {
+        i++;
+      }
+    }
+    return excursions;
+  }
+
   // P3 — Distance observée filtrée (candidate), par appareil.
   // Chaque point (hors pics) est évalué depuis le DERNIER POINT RETENU (ancre) :
   //   distance ≤ tolérance                       → bruit_probable (l'ancre reste)
@@ -219,6 +273,8 @@
       const avant = ctx ? ctx.filter(c => Date.parse(c.observed_at) < Date.parse(obs[0].observed_at)).pop() : null;
       const chaine = avant ? [avant, ...obs] : obs;
       const pics = detecterPics(chaine, params);
+      const excursions = detecterExcursions(chaine.filter(o => !pics.has(o)), params);   // P3b
+      const dansExcursion = new Set(excursions.flatMap(e => e.points));
       const r = {
         appareil_id: id,
         distanceBruteM: (brut.find(b => b.appareil_id === id) || {}).distanceBruteM || 0,
@@ -226,12 +282,13 @@
         nbSignificatifs: 0, nbIncertains: 0, nbBruitProbable: 0,
         incertainMaxM: 0,
         pics: [...pics.values()],
+        excursions,
         suspects: [],
         evaluations: []
       };
       let ancre = null;
       chaine.forEach(P => {
-        if (pics.has(P)) return;
+        if (pics.has(P) || dansExcursion.has(P)) return;
         if (!ancre) { ancre = P; return; }
         const pa = precisionEffective(ancre.precision_m, params).m, pp = precisionEffective(P.precision_m, params).m;
         const tolerance = pa + pp;
@@ -263,6 +320,7 @@
     VERSION, PARAMETRES, parametres,
     calculerDistance, precisionEffective, construireSegments, detecterTrous, calculerDistanceBrute,
     detecterPics: (chaine, surcharges) => [...detecterPics(chaine, parametres(surcharges)).values()],
+    detecterExcursions: (chaine, surcharges) => detecterExcursions(chaine, parametres(surcharges)),
     calculerDistanceObservee
   });
 
