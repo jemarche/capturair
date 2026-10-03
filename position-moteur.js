@@ -16,6 +16,11 @@
  *   - orthogonal à B11 : une absence d'observations n'invalide jamais la distance entre ses deux extrémités ;
  *   - un segment très rapide (> seuilVitesseSuspecteKmH) est SIGNALÉ, jamais supprimé ;
  *   - P3b : une excursion groupée (fantôme) n'est écartée que comme un ensemble, et toujours listée.
+ *
+ * P4 : expose, sur les SEULS segments retenus (significatifs), la part traversant une absence
+ *   d'observations et la part partant du point de contexte. Le point de contexte (dernière observation
+ *   strictement antérieure à la période) n'est jamais compté comme observation de la période :
+ *   il sert uniquement d'origine au premier segment, qui appartient à la période de son point d'arrivée.
  *   Tous les seuils sont des paramètres de calibration PROVISOIRES.
  *
  * Utilisable dans le navigateur (globalThis.CapturAirMoteur) et sous Node (module.exports).
@@ -23,7 +28,7 @@
 (function (racine) {
   'use strict';
 
-  const VERSION = 'P3b';
+  const VERSION = 'P4';
 
   // Paramètres de calibration : provisoires, centralisés, à ajuster sur les données réelles CapturAir.
   const PARAMETRES = Object.freeze({
@@ -279,6 +284,11 @@
         appareil_id: id,
         distanceBruteM: (brut.find(b => b.appareil_id === id) || {}).distanceBruteM || 0,
         distanceFiltreeM: 0,
+        // P4 — calculés uniquement sur les segments RETENUS
+        distanceFiltreeSurAbsencesM: 0,
+        nbRetenusSurAbsences: 0,
+        contexte: avant || null,                // observation de contexte utilisée (jamais comptée dans la période)
+        distanceDepuisContexteM: 0,             // part retenue partant du point de contexte
         nbSignificatifs: 0, nbIncertains: 0, nbBruitProbable: 0,
         incertainMaxM: 0,
         pics: [...pics.values()],
@@ -301,6 +311,8 @@
         if (classe === 'significatif') {
           r.nbSignificatifs++;
           r.distanceFiltreeM += d;
+          if (duree > params.seuilTrouMin * 60000) { r.distanceFiltreeSurAbsencesM += d; r.nbRetenusSurAbsences++; }   // P4
+          if (avant && ancre === avant) r.distanceDepuisContexteM += d;                                                // P4
           if (ev.vitesseMoyenneEntreObservationsKmh != null && ev.vitesseMoyenneEntreObservationsKmh > params.seuilVitesseSuspecteKmH)
             r.suspects.push(ev);   // signalé, conservé dans le cumul
           ancre = P;
