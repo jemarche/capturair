@@ -169,6 +169,13 @@
   /* PV — Alerte persistante : moteur absent ou de version inattendue */
   .alerte-moteur { padding: 10px 14px; background: #FDECEA; border-bottom: 2px solid var(--erreur); color: #7A1C12; font-size: .9rem; font-weight: 600; }
   .alerte-moteur small { display: block; font-weight: 400; margin-top: 2px; }
+  /* B10a — Modes de carte : petite barre flottante (contrôle Google Maps, visible aussi en plein écran) */
+  .modes-carte { display: flex; margin: 10px; padding: 3px; gap: 2px; background: rgba(255,255,255,.96); border-radius: 10px; box-shadow: 0 2px 8px rgba(11,31,58,.22); font-family: 'DM Sans', sans-serif; }
+  .modes-carte button { padding: 5px 10px; border: 0; border-radius: 7px; background: transparent; color: var(--texte); font: 600 .8rem 'DM Sans', sans-serif; cursor: pointer; white-space: nowrap; }
+  .modes-carte button:hover:not(:disabled):not([aria-pressed="true"]) { background: #EEF2F7; }
+  .modes-carte button[aria-pressed="true"] { background: var(--marine); color: #fff; box-shadow: 0 1px 4px rgba(11,31,58,.35); }
+  .modes-carte button:disabled { color: #A9B6C4; cursor: default; }
+  .modes-carte button:focus-visible { outline: 3px solid var(--ciel); outline-offset: 1px; }
   /* B5 — Barre de synthèse */
   .synthese { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding: 7px 14px; background: #fff; border-bottom: 1px solid var(--trait); font-size: .84rem; color: var(--gris); }
   .synthese b { color: var(--texte); font-weight: 700; }
@@ -290,10 +297,9 @@
         <h2>Observations</h2>
         <div id="resume"><span class="vide">Choisissez un appareil.</span></div>
         <div class="options">
-          <label><input type="checkbox" id="opt-ligne" checked> Relier les observations dans l'ordre</label>
           <button type="button" id="btn-ajuster">Afficher tous les points</button>
         </div>
-        <p class="note">Chaque point est une position réellement observée. La ligne pointillée relie les observations dans l'ordre chronologique : elle ne représente pas le trajet réellement parcouru. <span id="note-trou"></span></p>
+        <p class="note">Chaque point est une position réellement observée. En mode Déplacement, la ligne pointillée relie les observations dans l'ordre chronologique : elle ne représente pas le trajet réellement parcouru. <span id="note-trou"></span></p>
       </section>
       <section id="diag" hidden>
         <h2>Diagnostic moteur</h2>
@@ -305,6 +311,11 @@
       <div class="alerte-moteur" id="alerte-moteur" role="alert" hidden></div>
       <div class="synthese" id="synthese" hidden></div>
       <div class="zone-carte"><div id="carte" aria-label="Carte des observations"></div></div>
+      <div class="modes-carte" id="modes-carte" role="group" aria-label="Mode de carte" hidden>
+        <button type="button" data-mode="points" aria-pressed="false" title="Observations seulement, sans liaison">● Points</button>
+        <button type="button" data-mode="deplacement" aria-pressed="true" title="Observations et liaisons chronologiques par appareil">〰 Déplacement</button>
+        <button type="button" data-mode="densite" aria-pressed="false" disabled title="Densité d'observations : en préparation (B10b)">▦ Densité</button>
+      </div>
       <section id="timeline" aria-label="Chronologie des observations" hidden>
         <div class="tl-outils">
           <button type="button" class="tl-nav" id="tl-prec" title="Observation précédente (←)" aria-label="Observation précédente">◀</button>
@@ -347,6 +358,23 @@ let marqueurs = [];
 let selection = null;   // _uid de l'observation sélectionnée, ou null
 let halo = null;        // marqueur de mise en évidence du point sélectionné sur la carte
 let apercu = null;      // B2c — anneau rouge d'aperçu au survol de la timeline (souris uniquement)
+// B10a — Mode de carte mémorisé dans ce navigateur ; Déplacement par défaut
+const CLE_MODE_CARTE = 'posh_mode_carte';
+const MODES_DISPONIBLES = ['points', 'deplacement'];   // 'densite' : B10b
+let modeCarte = (() => {
+  try { const m = localStorage.getItem(CLE_MODE_CARTE); return MODES_DISPONIBLES.includes(m) ? m : 'deplacement'; }
+  catch (e) { return 'deplacement'; }
+})();
+function afficherModeCarte() {
+  document.querySelectorAll('#modes-carte [data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === modeCarte)));
+}
+function choisirModeCarte(mode) {
+  if (!MODES_DISPONIBLES.includes(mode) || mode === modeCarte) return;
+  modeCarte = mode;
+  try { localStorage.setItem(CLE_MODE_CARTE, mode); } catch (e) { /* stockage indisponible */ }
+  afficherModeCarte();
+  lignes.forEach(l => l.setMap(modeCarte === 'deplacement' ? carte : null));   // liaisons seulement en Déplacement
+}
 let periodeAffichee = null;   // B2b — { debut, fin } de la dernière période chargée (axe de la timeline)
 let vue = null;               // B2d — fenêtre visible { t0, t1 } (ms) de la timeline ; null = période entière
 let carteResoudre;
@@ -1093,6 +1121,10 @@ async function assurerCarte() {
     mapTypeControl: false, streetViewControl: false, clickableIcons: false, fullscreenControl: true
   });
   infoWin = new google.maps.InfoWindow();
+  // B10a — la barre de modes devient un contrôle de la carte (coin supérieur gauche, libre)
+  const barre = $('modes-carte');
+  barre.hidden = false;
+  carte.controls[google.maps.ControlPosition.TOP_LEFT].push(barre);
 }
 
 function viderCarte() {
@@ -1137,7 +1169,7 @@ async function dessiner() {
     const tracer = (morceau, couleur, opacite) => lignes.push(new google.maps.Polyline({
       path: morceau.map(p => ({ lat: p.latitude, lng: p.longitude })), strokeOpacity: 0, clickable: false,
       icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: opacite, strokeColor: couleur, scale: 2 }, offset: '0', repeat: '12px' }],
-      map: $('opt-ligne').checked ? carte : null
+      map: modeCarte === 'deplacement' ? carte : null
     }));
     let morceau = [pts[0]];
     for (let k = 1; k < pts.length; k++) {
@@ -1617,7 +1649,12 @@ $('periodes').addEventListener('click', e => {
   document.querySelectorAll('#periodes button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
   chargerHistorique();
 });
-$('opt-ligne').addEventListener('change', e => { lignes.forEach(l => l.setMap(e.target.checked ? carte : null)); });
+// B10a — Modes de carte (Densité : B10b). Changer de mode ne touche ni aux données, ni à la timeline, ni à la sélection.
+$('modes-carte').addEventListener('click', e => {
+  const b = e.target.closest('[data-mode]');
+  if (b && !b.disabled) choisirModeCarte(b.dataset.mode);
+});
+afficherModeCarte();
 $('btn-ajuster').addEventListener('click', ajuster);
 
 // Reprise de session dans le même onglet
