@@ -141,6 +141,7 @@
   .diag-app td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .diag-app details { margin-top: 4px; }
   .diag-note { font-size: .75rem; color: var(--gris); margin: 0; }
+  .diag-alerte { margin: 6px 0 0; padding: 6px 8px; border-left: 3px solid #E59400; background: #FFF6E5; font-size: .74rem; color: #6B4A00; }
   /* B3c — Résumé détaillé par appareil */
   .carte-app { border: 1px solid var(--trait); border-left: 4px solid var(--c, var(--trait)); border-radius: 8px; padding: 8px 10px; margin-top: 8px; font-size: .84rem; }
   .carte-app h4 { margin: 0 0 4px; font-size: .92rem; font-weight: 700; display: flex; justify-content: space-between; gap: 6px; }
@@ -308,7 +309,7 @@
   </div>
 </div>
 
-<script src="position-moteur.js?v=P3"></script>
+<script src="position-moteur.js?v=P3b"></script>
 <script>
 // ── Configuration (aucun secret : uniquement des adresses publiques) ──────────
 const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
@@ -944,17 +945,27 @@ function afficherDiagnostic() {
       <tr><td>Distance filtrée candidate (P3)</td><td><b>${esc(km(df.distanceFiltreeM))}</b></td></tr>
       <tr><td>Évaluations : significatives · incertaines · bruit</td><td>${df.nbSignificatifs} · ${df.nbIncertains} · ${df.nbBruitProbable}</td></tr>
       <tr><td>Plus grand écart incertain</td><td>${df.nbIncertains ? esc(km(df.incertainMaxM)) : '—'}</td></tr>
-      <tr><td>Pics écartés du cumul</td><td>${df.pics.length}</td></tr>
+      <tr><td>Pics ponctuels écartés du cumul</td><td>${df.pics.length}</td></tr>
+      <tr><td>Excursions groupées écartées (P3b)</td><td>${df.excursions.length}</td></tr>
       <tr><td>Segments suspects (&gt; ${MOTEUR.PARAMETRES.seuilVitesseSuspecteKmH} km/h, conservés)</td><td>${df.suspects.length}</td></tr>
       <tr><td>dont segments traversant une absence (${d.nbAbsences})</td><td>${esc(km(d.distanceSurAbsencesM))}</td></tr>
       <tr><td>Précisions inconnues (défaut ${MOTEUR.PARAMETRES.precisionParDefautM} m)</td><td>${d.nbPrecisionsInconnues}</td></tr>
       <tr><td>Vitesse moyenne entre observations, max.</td><td>${d.vitesseMoyenneMaxKmh == null ? '—' : Math.round(d.vitesseMoyenneMaxKmh) + ' km/h'}</td></tr>
     </table>${top ? `<details><summary>5 plus longs segments (bruts)</summary><table>${top}</table></details>` : ''}${df.pics.length ? `<details><summary>Pics écartés (${df.pics.length})</summary><table>${df.pics.map(pc =>
-      `<tr><td>${esc(heureHMS(new Date(pc.observation.observed_at)))}<br><small>${pc.type === 'precision' ? 'expliqué par la précision' : 'grande vitesse'} · ±${Math.round(pc.precisionM)} m</small></td><td>${esc(km(pc.ecartM))}</td></tr>`).join('')}</table></details>` : ''}</div>`;
+      `<tr><td>${esc(heureHMS(new Date(pc.observation.observed_at)))}<br><small>${pc.type === 'precision' ? 'expliqué par la précision' : 'grande vitesse'} · ±${Math.round(pc.precisionM)} m</small></td><td>${esc(km(pc.ecartM))}</td></tr>`).join('')}</table></details>` : ''}${df.excursions.length ? `<details open><summary>Excursions groupées écartées (${df.excursions.length})</summary><table>${df.excursions.map(ex =>
+      `<tr><td colspan="2"><b>${esc(heureHMS(new Date(ex.depart.observed_at)))} → ${esc(heureHMS(new Date(ex.retour.observed_at)))}</b> · ${ex.points.length} point(s) intermédiaire(s)</td></tr>`
+      + `<tr><td>Distance A ↔ B / seuil de retour</td><td>${Math.round(ex.distanceRetourM)} m / ${Math.round(ex.seuilRetourM)} m</td></tr>`
+      + `<tr><td>Écart maximal</td><td>${esc(km(ex.ecartMaxM))}</td></tr>`
+      + `<tr><td>Précision du point le plus éloigné</td><td>±${Math.round(ex.precisionPointLePlusEloigneM)} m</td></tr>`
+      + `<tr><td>Rapport écart / précision (seuil)</td><td>${ex.rapportPortee.toFixed(1)} (≤ ${ex.seuilPortee})</td></tr>`
+      + `<tr><td>Meilleure extrémité / moins bon intermédiaire</td><td>±${Math.round(ex.precisionMeilleureExtremiteM)} / ±${Math.round(ex.precisionMinIntermediaireM)} m</td></tr>`
+      + `<tr><td colspan="2"><small>Raison : ${esc(ex.raison)}</small></td></tr>`).join('')}</table>`
+      + `<p class="diag-alerte">⚠️ Risque résiduel : une vraie excursion courte, mal localisée sur place, peut être classée comme fantôme. Vérifiez avec la vérité terrain.</p></details>` : ''}</div>`;
   }).join('');
   const invalides = nbObservationsSansCoordonnees + r.ignorees.length;
   const P = MOTEUR.PARAMETRES;
-  $('diag-contenu').innerHTML = `<p class="diag-note">Moteur ${esc(MOTEUR.VERSION)} · significatif ×${P.facteurSignificatif} · pic ×${P.facteurPic} · défaut ${P.precisionParDefautM} m · grande vitesse ${P.seuilGrandeVitesseKmH} km/h${invalides ? ` · ${invalides} observation(s) reçue(s) sans coordonnées exploitables : non affichée(s), toujours présente(s) dans D1` : ''}</p>` + html;
+  $('diag-contenu').innerHTML = `<p class="diag-note">Moteur ${esc(MOTEUR.VERSION)} · significatif ×${P.facteurSignificatif} · pic ×${P.facteurPic} · défaut ${P.precisionParDefautM} m · grande vitesse ${P.seuilGrandeVitesseKmH} km/h · suspect ${P.seuilVitesseSuspecteKmH} km/h · excursion : dégradation ×${P.facteurDegradationPrecision}, retour ${P.rayonRetourM} m, portée ×${P.facteurPorteeExcursion}</p>`
+    + `<p class="diag-alerte">⚠️ P3b peut écarter une vraie excursion courte si toutes les positions sur place sont mal localisées (risque résiduel connu, seuils en calibration).</p><p class="diag-note">${invalides ? ` · ${invalides} observation(s) reçue(s) sans coordonnées exploitables : non affichée(s), toujours présente(s) dans D1` : ''}</p>` + html;
 }
 
 function afficherResume() {
