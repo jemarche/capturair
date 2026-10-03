@@ -18,7 +18,11 @@
  *   - P3b : une excursion groupée (fantôme) n'est écartée que comme un ensemble, et toujours listée.
  *
  * P4 : expose, sur les SEULS segments retenus (significatifs), la part traversant une absence
- *   d'observations et la part partant du point de contexte. Le point de contexte (dernière observation
+ *   d'observations et la part partant du point de contexte.
+ *   P4.1 : un segment retenu (ancre → point) traverse une absence SI ET SEULEMENT SI, entre l'ancre et le
+ *   point, deux observations SUCCESSIVES de l'appareil sont espacées de plus de seuilTrouMin (définition B11).
+ *   Toutes les observations intermédiaires comptent, y compris bruit, incertain, pics et excursions écartés.
+ *   La durée ancre → point n'est PAS un critère d'absence. Le point de contexte (dernière observation
  *   strictement antérieure à la période) n'est jamais compté comme observation de la période :
  *   il sert uniquement d'origine au premier segment, qui appartient à la période de son point d'arrivée.
  *   Tous les seuils sont des paramètres de calibration PROVISOIRES.
@@ -28,7 +32,7 @@
 (function (racine) {
   'use strict';
 
-  const VERSION = 'P4';
+  const VERSION = 'P4.1';
 
   // Paramètres de calibration : provisoires, centralisés, à ajuster sur les données réelles CapturAir.
   const PARAMETRES = Object.freeze({
@@ -296,10 +300,13 @@
         suspects: [],
         evaluations: []
       };
-      let ancre = null;
-      chaine.forEach(P => {
+      // P4.1 — écarts entre observations SUCCESSIVES de la chaîne complète (contexte compris, rien n'est filtré ici)
+      const seuilTrouMs = params.seuilTrouMin * 60000;
+      const absenceAvant = chaine.map((o, k) => k > 0 && Date.parse(o.observed_at) - Date.parse(chaine[k - 1].observed_at) > seuilTrouMs);
+      let ancre = null, ancreIdx = -1;
+      chaine.forEach((P, k) => {
         if (pics.has(P) || dansExcursion.has(P)) return;
-        if (!ancre) { ancre = P; return; }
+        if (!ancre) { ancre = P; ancreIdx = k; return; }
         const pa = precisionEffective(ancre.precision_m, params).m, pp = precisionEffective(P.precision_m, params).m;
         const tolerance = pa + pp;
         const d = calculerDistance(ancre.latitude, ancre.longitude, P.latitude, P.longitude);
@@ -311,11 +318,11 @@
         if (classe === 'significatif') {
           r.nbSignificatifs++;
           r.distanceFiltreeM += d;
-          if (duree > params.seuilTrouMin * 60000) { r.distanceFiltreeSurAbsencesM += d; r.nbRetenusSurAbsences++; }   // P4
+          if (absenceAvant.slice(ancreIdx + 1, k + 1).some(Boolean)) { r.distanceFiltreeSurAbsencesM += d; r.nbRetenusSurAbsences++; }   // P4.1
           if (avant && ancre === avant) r.distanceDepuisContexteM += d;                                                // P4
           if (ev.vitesseMoyenneEntreObservationsKmh != null && ev.vitesseMoyenneEntreObservationsKmh > params.seuilVitesseSuspecteKmH)
             r.suspects.push(ev);   // signalé, conservé dans le cumul
-          ancre = P;
+          ancre = P; ancreIdx = k;
         } else if (classe === 'incertain') {
           r.nbIncertains++;
           r.incertainMaxM = Math.max(r.incertainMaxM, d);
