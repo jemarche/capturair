@@ -176,6 +176,21 @@
   .modes-carte button[aria-pressed="true"] { background: var(--marine); color: #fff; box-shadow: 0 1px 4px rgba(11,31,58,.35); }
   .modes-carte button:disabled { color: #A9B6C4; cursor: default; }
   .modes-carte button:focus-visible { outline: 3px solid var(--ciel); outline-offset: 1px; }
+  /* B12 — Replay */
+  .rp { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; padding-left: 8px; border-left: 1px solid var(--trait); }
+  .rp button { padding: 3px 9px; }
+  #rp-lecture { background: var(--marine); color: #fff; border-color: var(--marine); font-weight: 600; }
+  #rp-lecture:disabled { background: #C9D6E3; border-color: #C9D6E3; }
+  .rp-vitesses { display: inline-flex; }
+  .rp-vitesses button { border-radius: 0; margin-left: -1px; }
+  .rp-vitesses button:first-child { border-radius: 6px 0 0 6px; margin-left: 0; }
+  .rp-vitesses button:last-child { border-radius: 0 6px 6px 0; }
+  .rp-vitesses button[aria-pressed="true"] { background: var(--ciel); border-color: var(--ciel); color: #fff; }
+  .rp label { display: inline-flex; align-items: center; gap: 3px; cursor: pointer; }
+  #rp-saut { font-weight: 600; color: #6B4A00; background: #FFF6E5; border-radius: 6px; padding: 2px 6px; }
+  #rp-saut:empty { display: none; }
+  .rp-curseur { stroke: #E53E3E; stroke-width: 2; }
+  .rp-horloge { font-size: 11px; font-weight: 700; fill: #E53E3E; }
   /* B10b — Légende de densité (contrôle Google, en bas à gauche) */
   .legende-densite { margin: 10px; padding: 9px 11px; max-width: 290px; background: rgba(255,255,255,.96); border-radius: 10px; box-shadow: 0 2px 8px rgba(11,31,58,.22); font: .74rem/1.35 'DM Sans', sans-serif; color: var(--texte); }
   .legende-densite b { display: block; font-size: .82rem; margin-bottom: 4px; }
@@ -336,6 +351,18 @@
           <span id="tl-fenetre"></span>
           <button type="button" id="tl-cadrer">Cadrer sur les observations</button>
           <button type="button" id="tl-entiere">Période entière</button>
+          <span class="rp" id="rp" role="group" aria-label="Replay">
+            <button type="button" id="rp-lecture" title="Rejouer la fenêtre visible (barre d'espace)">▶ Lecture</button>
+            <button type="button" id="rp-debut" title="Revenir au début de la fenêtre visible" aria-label="Revenir au début" disabled>⟲</button>
+            <button type="button" id="rp-quitter" title="Quitter le replay : toutes les observations réapparaissent" aria-label="Quitter le replay" disabled>⏹</button>
+            <span class="rp-vitesses" role="group" aria-label="Vitesse">
+              <button type="button" data-vitesse="60000" title="×60 : 1 minute réelle par seconde" aria-pressed="false">1 min/s</button>
+              <button type="button" data-vitesse="600000" title="×600 : 10 minutes réelles par seconde" aria-pressed="true">10 min/s</button>
+              <button type="button" data-vitesse="3600000" title="×3600 : 1 heure réelle par seconde" aria-pressed="false">1 h/s</button>
+            </span>
+            <label title="Recentrer la carte sur chaque nouvelle observation, sans changer le zoom"><input type="checkbox" id="rp-suivre"> Suivre</label>
+            <span id="rp-saut" aria-live="polite"></span>
+          </span>
           <span class="tl-aide">Zoom : molette ou pincement · glisser pour se déplacer</span>
         </div>
         <div id="tl-graphe"></div>
@@ -394,10 +421,13 @@ function choisirModeCarte(mode) {
 function appliquerModeCarte() {
   if (!carte) return;
   const densite = modeCarte === 'densite';
+  if (densite && replay.actif) quitterReplay(false);   // B12 — pas de replay en Densité
+  $('rp-lecture').disabled = densite || !points.length;
   marqueurs.forEach(m => m.setMap(densite ? null : carte));
   lignes.forEach(l => l.setMap(modeCarte === 'deplacement' ? carte : null));
   $('legende-densite').hidden = !densite;
   dessinerDensite(true);
+  if (replay.actif) majCarteReplay(true);   // B12 — Points ↔ Déplacement pendant le replay
   // la fiche ouverte suit le changement de mode (ancrée sur le marqueur, ou posée sur la position en Densité)
   if (selection && infoWin && infoWin.getMap()) {
     const i = points.findIndex(p => p._uid === selection);
@@ -1036,6 +1066,7 @@ async function chargerHistorique() {
   $('etat').className = '';
   $('etat').textContent = 'Chargement…';
   try {
+    if (replay.actif) quitterReplay(false);   // B12 — nouvelles données : vue normale
     const [d, ctx] = await Promise.all([lireHistorique(ids, debut, fin), lireContexte(ids, debut)]);   // P4
     if (n !== numRequete) return;   // une sélection plus récente a été demandée entre-temps
     contexteParAppareil = ctx;
@@ -1218,6 +1249,7 @@ function viderCarte() {
   lignes.forEach(l => l.setMap(null));
   lignes = [];
   effacerDensite();   // B10b
+  replay.tetes.forEach(m => m.setMap(null)); replay.tetes.clear();   // B12
   if (cercle) { cercle.setMap(null); cercle = null; }
   if (infoWin) infoWin.close();
 }
@@ -1250,11 +1282,15 @@ async function dessiner() {
     derniers.add(pts[pts.length - 1]._uid);
     if (pts.length < 2) return;
     // B11 — Les liaisons qui traversent une absence d'observations (> seuil) sont tracées en gris clair
-    const tracer = (morceau, couleur, opacite) => lignes.push(new google.maps.Polyline({
-      path: morceau.map(p => ({ lat: p.latitude, lng: p.longitude })), strokeOpacity: 0, clickable: false,
-      icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: opacite, strokeColor: couleur, scale: 2 }, offset: '0', repeat: '12px' }],
-      map: modeCarte === 'deplacement' ? carte : null
-    }));
+    const tracer = (morceau, couleur, opacite) => {
+      const l = new google.maps.Polyline({
+        path: morceau.map(p => ({ lat: p.latitude, lng: p.longitude })), strokeOpacity: 0, clickable: false,
+        icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: opacite, strokeColor: couleur, scale: 2 }, offset: '0', repeat: '12px' }],
+        map: modeCarte === 'deplacement' ? carte : null
+      });
+      l._morceau = morceau;   // B12 — tracé progressif
+      lignes.push(l);
+    };
     let morceau = [pts[0]];
     for (let k = 1; k < pts.length; k++) {
       const ecart = Date.parse(pts[k].observed_at) - Date.parse(pts[k - 1].observed_at);
@@ -1353,7 +1389,7 @@ function dessinerTimeline() {
 
   // Une ligne par appareil présent dans les observations (plusieurs à partir de B3)
   const ids = idsChoisis();   // B3a — une ligne par appareil sélectionné, même sans observation
-  const H_LIGNE = ids.length > 3 ? 30 : 36, haut = 4;
+  const H_LIGNE = ids.length > 3 ? 30 : 36, haut = replay.actif ? 18 : 4;   // B12 — place pour l'horloge
   const yAxe = haut + ids.length * H_LIGNE + 2;
   geoTimeline.lignes = { ids, haut, H: H_LIGNE };
   const hauteur = yAxe + 18;
@@ -1397,12 +1433,13 @@ function dessinerTimeline() {
       if (!visible(t)) return;
       const x = X(t).toFixed(1);
       const titre = `<title>${esc(dateHeure(new Date(p.observed_at)))}</title>`;
+      const futur = replay.actif && t > replay.t;   // B12 — pas encore atteinte : estompée
       if (i === pts.length - 1) {
         // Dernière observation : symbole distinct (cercle marine, comme sur la carte)
-        svg += `<circle cx="${x}" cy="${y}" r="6" fill="${idt.couleur}" stroke="#0B1F3A" stroke-width="2">${titre}</circle>`;
+        svg += `<circle cx="${x}" cy="${y}" r="6" fill="${idt.couleur}" stroke="#0B1F3A" stroke-width="2"${futur ? ' opacity=".25"' : ''}>${titre}</circle>`;
       } else {
         // Marque fine + zone de survol invisible plus large
-        svg += `<g>${titre}<line class="tl-obs" style="stroke:${idt.couleur}" x1="${x}" x2="${x}" y1="${y - 9}" y2="${y + 9}"/>`
+        svg += `<g>${titre}<line class="tl-obs" style="stroke:${idt.couleur}${futur ? ';stroke-opacity:.15' : ''}" x1="${x}" x2="${x}" y1="${y - 9}" y2="${y + 9}"/>`
              + `<line class="tl-cible" x1="${x}" x2="${x}" y1="${y - 11}" y2="${y + 11}"/></g>`;
       }
     });
@@ -1416,6 +1453,12 @@ function dessinerTimeline() {
       }
     }
   });
+  // B12 — Curseur du replay et horloge locale (America/Toronto, HAE/HNE si ambiguë)
+  if (replay.actif && replay.t >= t0 && replay.t <= t1) {
+    const xc = X(replay.t), xt = Math.min(x1 - 70, Math.max(x0 + 70, xc));
+    svg += `<line class="rp-curseur" x1="${xc.toFixed(1)}" x2="${xc.toFixed(1)}" y1="${haut - 2}" y2="${yAxe}"/>`
+         + `<text class="rp-horloge" x="${xt.toFixed(1)}" y="12" text-anchor="middle">${esc(horlogeReplay(replay.t))}</text>`;
+  }
   $('tl-graphe').innerHTML = svg + '</svg>';
 }
 
@@ -1510,6 +1553,7 @@ $('tl-graphe').addEventListener('pointermove', e => {
 function avantGlisse(x) { pointeurs.set(departClic.id, departClic.x); }   // le glissement part du point d'appui
 $('tl-graphe').addEventListener('pointerup', e => {
   if (departClic && departClic.id === e.pointerId && !departClic.glisse && pointeurs.size === 1) {
+    if (replay.actif) { const tc = tempsSousX(e.clientX); if (tc !== null) placerCurseur(tc); }   // B12
     const p = observationSous(e.clientX, e.clientY);
     if (p) selectionnerObservation(p._uid, 'timeline');
   }
@@ -1522,6 +1566,152 @@ function finPointeur(e) {
 }
 $('tl-graphe').addEventListener('pointerup', finPointeur);
 $('tl-graphe').addEventListener('pointercancel', finPointeur);
+
+// ── B12 — Replay ───────────────────────────────────────────────────────────────────────────────
+// Le replay n'avance qu'entre des observations réellement enregistrées : AUCUNE interpolation.
+// Entre deux observations, chaque appareil reste à sa dernière position observée. Le temps est global ;
+// l'ancienneté est propre à chaque appareil. Les plages sans observation d'AUCUN appareil sélectionné
+// (> seuil B11) sont sautées explicitement : le curseur saute, un message le dit. Aucune donnée modifiée.
+const replay = { actif: false, lecture: false, t: 0, debut: 0, fin: 0, vitesse: 600000, suivre: false,
+                 evts: [], k: 0, raf: 0, dernier: 0, attenteJusqua: 0, tetes: new Map(), rendu: 0 };
+const fmtJourCourt = new Intl.DateTimeFormat('fr-CA', { timeZone: TZ, weekday: 'short', day: 'numeric', month: 'short' });
+function horlogeReplay(t) {
+  const j = fmtJourCourt.format(new Date(t)).replace(/\.?,/g, '.').replace(/\s+/g, ' ');
+  return `${j.charAt(0).toUpperCase()}${j.slice(1)} · ${heureHMS(new Date(t))}`;
+}
+// Observations de la fenêtre, triées : [{ t, p, i }] (i = rang dans points / marqueurs)
+function evenementsReplay(pts, t0, t1) {
+  return pts.map((p, i) => ({ t: Date.parse(p.observed_at), p, i })).filter(e => e.t >= t0 && e.t <= t1).sort((a, b) => a.t - b.t || a.i - b.i);
+}
+// État de chaque appareil à l'instant t : dernière observation atteinte et ancienneté (pâle au-delà du seuil B11)
+function etatAppareilsA(pts, t) {
+  const etat = new Map();
+  pts.forEach(p => {
+    const tp = Date.parse(p.observed_at);
+    if (tp > t) return;
+    const e = etat.get(p.appareil_id);
+    if (!e || tp >= Date.parse(e.derniere.observed_at)) etat.set(p.appareil_id, { derniere: p, ageMs: t - tp });
+  });
+  etat.forEach(e => { e.ancienne = e.ageMs > SEUIL_TROU_MS; });
+  return etat;
+}
+// Saut à faire après l'instant t : plage sans observation d'aucun appareil plus longue que le seuil B11
+function sautApres(evts, t, debut, fin) {
+  let k = 0;
+  while (k < evts.length && evts[k].t <= t) k++;
+  const de = k > 0 ? evts[k - 1].t : debut, a = k < evts.length ? evts[k].t : fin;
+  return a - de > SEUIL_TROU_MS && a > t ? { de, a } : null;
+}
+function libelleAnciennete(e) {
+  const h = heureHMS(new Date(e.derniere.observed_at));
+  return e.ancienne ? `Dernière observation : ${h} · aucune nouvelle observation depuis ${dureeLisible(e.ageMs)}`
+                    : `Dernière observation : ${h} · il y a ${dureeLisible(Math.max(60000, e.ageMs))}`;
+}
+function majCarteReplay(complet) {
+  if (!carte || !replay.actif) return;
+  const densite = modeCarte === 'densite';
+  if (complet) {
+    points.forEach((p, i) => { if (marqueurs[i]) marqueurs[i].setMap(!densite && Date.parse(p.observed_at) <= replay.t ? carte : null); });
+  }
+  lignes.forEach(l => {
+    if (!l._morceau) return;
+    const path = l._morceau.filter(p => Date.parse(p.observed_at) <= replay.t).map(p => ({ lat: p.latitude, lng: p.longitude }));
+    l.setPath(path);
+    l.setMap(modeCarte === 'deplacement' && path.length > 1 ? carte : null);
+  });
+  // Tête de chaque appareil : dernière position OBSERVÉE (jamais interpolée), pâle si ancienne
+  const etat = etatAppareilsA(points, replay.t);
+  replay.tetes.forEach((m, id) => { if (!etat.has(id)) { m.setMap(null); replay.tetes.delete(id); } });
+  etat.forEach((e, id) => {
+    const c = identite(id).couleur;
+    let m = replay.tetes.get(id);
+    if (!m) {
+      m = new google.maps.Marker({ zIndex: 1500 });
+      m.addListener('click', () => { const d = etatAppareilsA(points, replay.t).get(id); if (d) selectionnerObservation(d.derniere._uid, 'timeline'); });
+      replay.tetes.set(id, m);
+    }
+    m.setPosition({ lat: e.derniere.latitude, lng: e.derniere.longitude });
+    m.setIcon({ path: google.maps.SymbolPath.CIRCLE, scale: 11, fillColor: c, fillOpacity: e.ancienne ? 0.35 : 1,
+                strokeColor: e.ancienne ? '#9AA9B8' : '#FFFFFF', strokeWeight: 3 });
+    m.setTitle(`${identite(id).emoji} ${libelleAnciennete(e)}`);
+    m.setMap(densite ? null : carte);
+  });
+}
+function majCommandesReplay() {
+  $('rp-lecture').textContent = replay.lecture ? '⏸ Pause' : '▶ Lecture';
+  $('rp-debut').disabled = !replay.actif;
+  $('rp-quitter').disabled = !replay.actif;
+}
+function entrerReplay() {
+  if (modeCarte === 'densite' || !points.length || !periodeAffichee) return false;
+  replay.debut = vue ? vue.t0 : periodeAffichee.debut.getTime();   // portée : la fenêtre visible
+  replay.fin = vue ? vue.t1 : periodeAffichee.fin.getTime();
+  replay.evts = evenementsReplay(points, replay.debut, replay.fin);
+  replay.actif = true;
+  placerCurseur(replay.debut);
+  return true;
+}
+function placerCurseur(t) {
+  replay.t = Math.min(replay.fin, Math.max(replay.debut, t));
+  replay.k = replay.evts.filter(e => e.t <= replay.t).length;
+  $('rp-saut').textContent = '';
+  majCarteReplay(true);
+  dessinerTimeline();
+  majCommandesReplay();
+}
+function quitterReplay(redessiner = true) {
+  cancelAnimationFrame(replay.raf);
+  replay.actif = false; replay.lecture = false;
+  replay.tetes.forEach(m => m.setMap(null)); replay.tetes.clear();
+  lignes.forEach(l => { if (l._morceau) l.setPath(l._morceau.map(p => ({ lat: p.latitude, lng: p.longitude }))); });
+  $('rp-saut').textContent = '';
+  majCommandesReplay();
+  if (redessiner) { appliquerModeCarte(); dessinerTimeline(); }
+}
+function basculerLecture() {
+  if (!replay.actif && !entrerReplay()) return;
+  if (!replay.lecture && replay.t >= replay.fin) placerCurseur(replay.debut);   // fin atteinte : on recommence
+  replay.lecture = !replay.lecture;
+  majCommandesReplay();
+  if (replay.lecture) { replay.dernier = performance.now(); replay.raf = requestAnimationFrame(pasReplay); }
+  else cancelAnimationFrame(replay.raf);
+}
+function pasReplay(maintenant) {
+  if (!replay.lecture) return;
+  const dt = maintenant - replay.dernier;
+  replay.dernier = maintenant;
+  if (maintenant < replay.attenteJusqua) { replay.raf = requestAnimationFrame(pasReplay); return; }
+  const saut = sautApres(replay.evts, replay.t, replay.debut, replay.fin);
+  if (saut && replay.t >= saut.de) {
+    // Saut EXPLICITE : le curseur saute, le message reste ~1 s
+    $('rp-saut').textContent = `⏭ absence de ${dureeLisible(saut.a - saut.de)} : ${heureHMS(new Date(saut.de))} → ${heureHMS(new Date(saut.a))}`;
+    replay.t = saut.a;
+    replay.attenteJusqua = maintenant + 1000;
+  } else {
+    if ($('rp-saut').textContent && maintenant >= replay.attenteJusqua) $('rp-saut').textContent = '';
+    replay.t = Math.min(replay.fin, replay.t + dt / 1000 * replay.vitesse);
+  }
+  // Observations nouvellement atteintes : apparition (et suivi optionnel, sans changer le zoom)
+  let nouvelle = null;
+  while (replay.k < replay.evts.length && replay.evts[replay.k].t <= replay.t) {
+    const e = replay.evts[replay.k++];
+    if (marqueurs[e.i] && modeCarte !== 'densite') marqueurs[e.i].setMap(carte);
+    nouvelle = e.p;
+  }
+  if (nouvelle && replay.suivre) carte.panTo({ lat: nouvelle.latitude, lng: nouvelle.longitude });
+  if (nouvelle || maintenant - replay.rendu > 250) { majCarteReplay(false); }
+  if (maintenant - replay.rendu > 100) { replay.rendu = maintenant; dessinerTimeline(); }
+  if (replay.t >= replay.fin) { replay.lecture = false; majCommandesReplay(); dessinerTimeline(); return; }
+  replay.raf = requestAnimationFrame(pasReplay);
+}
+$('rp-lecture').addEventListener('click', basculerLecture);
+$('rp-debut').addEventListener('click', () => { if (replay.actif) placerCurseur(replay.debut); });
+$('rp-quitter').addEventListener('click', () => quitterReplay());
+$('rp-suivre').addEventListener('change', e => { replay.suivre = e.target.checked; });
+document.querySelectorAll('.rp-vitesses [data-vitesse]').forEach(b => b.addEventListener('click', () => {
+  replay.vitesse = Number(b.dataset.vitesse);
+  document.querySelectorAll('.rp-vitesses [data-vitesse]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+}));
 
 // B2c — Observation dessinée la plus proche d'un point écran (tolérance horizontale), dans la ligne visée
 const TOLERANCE_PX = 8;
@@ -1572,6 +1762,13 @@ function naviguer(sens) {
 }
 $('tl-prec').addEventListener('click', () => naviguer(-1));
 $('tl-suiv').addEventListener('click', () => naviguer(1));
+document.addEventListener('keydown', e => {   // B12 — barre d'espace : lecture / pause
+  if (e.key !== ' ' || $('timeline').hidden || e.altKey || e.ctrlKey || e.metaKey) return;
+  const c = e.target;
+  if (c.closest && (c.closest('#carte') || c.closest('input, textarea, select, button'))) return;
+  e.preventDefault();
+  basculerLecture();
+});
 document.addEventListener('keydown', e => {
   if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
   if ($('timeline').hidden || e.altKey || e.ctrlKey || e.metaKey) return;
