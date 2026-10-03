@@ -159,6 +159,9 @@
   #etat.erreur { color: var(--erreur); }
 
   main { display: grid; grid-template-rows: auto 1fr auto; min-height: 0; }
+  /* PV — Alerte persistante : moteur absent ou de version inattendue */
+  .alerte-moteur { padding: 10px 14px; background: #FDECEA; border-bottom: 2px solid var(--erreur); color: #7A1C12; font-size: .9rem; font-weight: 600; }
+  .alerte-moteur small { display: block; font-weight: 400; margin-top: 2px; }
   /* B5 — Barre de synthèse */
   .synthese { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding: 7px 14px; background: #fff; border-bottom: 1px solid var(--trait); font-size: .84rem; color: var(--gris); }
   .synthese b { color: var(--texte); font-weight: 700; }
@@ -292,6 +295,7 @@
       </section>
     </aside>
     <main>
+      <div class="alerte-moteur" id="alerte-moteur" role="alert" hidden></div>
       <div class="synthese" id="synthese" hidden></div>
       <div class="zone-carte"><div id="carte" aria-label="Carte des observations"></div></div>
       <section id="timeline" aria-label="Chronologie des observations" hidden>
@@ -399,7 +403,13 @@ function age(iso) {
 // DS4 / B11 — Seuil provisoire d'absence d'observations entre deux observations successives d'un même appareil.
 // Unique constante, à calibrer avec les vraies données CapturAir. Une absence d'observations n'est jamais une panne.
 // P1 — Le seuil et la détection sont désormais dans le moteur (position-moteur.js), source unique.
-const MOTEUR = globalThis.CapturAirMoteur || null;
+// PV — La page déclare la version de moteur qu'elle attend. Toute différence (ou moteur absent) :
+// AUCUN calcul du moteur n'est utilisé — ni distances, ni absences d'observations. Pas de repli silencieux.
+// Garder synchronisé avec <script src="position-moteur.js?v=…"> ci-dessus.
+const VERSION_MOTEUR_ATTENDUE = 'P3b';
+const MOTEUR_CHARGE = globalThis.CapturAirMoteur || null;
+const VERSION_MOTEUR_CHARGEE = MOTEUR_CHARGE ? String(MOTEUR_CHARGE.VERSION) : null;
+const MOTEUR = VERSION_MOTEUR_CHARGEE === VERSION_MOTEUR_ATTENDUE ? MOTEUR_CHARGE : null;
 const SEUIL_TROU_MIN = MOTEUR ? MOTEUR.PARAMETRES.seuilTrouMin : null;
 const SEUIL_TROU_MS = MOTEUR ? SEUIL_TROU_MIN * 60000 : Infinity;   // moteur absent : aucune absence marquée
 function trous(ptsAppareil) { return MOTEUR ? MOTEUR.detecterTrous(ptsAppareil) : []; }
@@ -927,7 +937,11 @@ function afficherSynthese() {
 // P2 — Diagnostic : faits du moteur par appareil (distance BRUTE, aucun filtrage, aucun classement)
 const km = m => (m / 1000).toLocaleString('fr-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' km';
 function afficherDiagnostic() {
-  if (!DIAG || !MOTEUR) return;
+  if (!DIAG) return;
+  if (!MOTEUR) {   // PV — aucun calcul présenté avec un moteur absent ou inattendu
+    $('diag-contenu').innerHTML = `<p class="diag-alerte">⚠️ Moteur refusé : version attendue <b>${esc(VERSION_MOTEUR_ATTENDUE)}</b>, version chargée <b>${esc(VERSION_MOTEUR_CHARGEE || 'aucune')}</b>. Aucune distance n'est calculée.</p>`;
+    return;
+  }
   const ids = idsChoisis();
   const r = MOTEUR.calculerDistanceBrute(points.filter(p => ids.includes(p.appareil_id)));
   const f = MOTEUR.calculerDistanceObservee(points.filter(p => ids.includes(p.appareil_id)));   // P3
@@ -964,7 +978,7 @@ function afficherDiagnostic() {
   }).join('');
   const invalides = nbObservationsSansCoordonnees + r.ignorees.length;
   const P = MOTEUR.PARAMETRES;
-  $('diag-contenu').innerHTML = `<p class="diag-note">Moteur ${esc(MOTEUR.VERSION)} · significatif ×${P.facteurSignificatif} · pic ×${P.facteurPic} · défaut ${P.precisionParDefautM} m · grande vitesse ${P.seuilGrandeVitesseKmH} km/h · suspect ${P.seuilVitesseSuspecteKmH} km/h · excursion : dégradation ×${P.facteurDegradationPrecision}, retour ${P.rayonRetourM} m, portée ×${P.facteurPorteeExcursion}</p>`
+  $('diag-contenu').innerHTML = `<p class="diag-note">Moteur ${esc(MOTEUR.VERSION)} (attendu ${esc(VERSION_MOTEUR_ATTENDUE)} ✓) · significatif ×${P.facteurSignificatif} · pic ×${P.facteurPic} · défaut ${P.precisionParDefautM} m · grande vitesse ${P.seuilGrandeVitesseKmH} km/h · suspect ${P.seuilVitesseSuspecteKmH} km/h · excursion : dégradation ×${P.facteurDegradationPrecision}, retour ${P.rayonRetourM} m, portée ×${P.facteurPorteeExcursion}</p>`
     + `<p class="diag-alerte">⚠️ P3b peut écarter une vraie excursion courte si toutes les positions sur place sont mal localisées (risque résiduel connu, seuils en calibration).</p><p class="diag-note">${invalides ? ` · ${invalides} observation(s) reçue(s) sans coordonnées exploitables : non affichée(s), toujours présente(s) dans D1` : ''}</p>` + html;
 }
 
@@ -1494,11 +1508,16 @@ $('perso-ok').addEventListener('click', () => {   // B4b
 $('per-suiv').addEventListener('click', () => naviguerPeriode(1));
 majNavPeriode();
 if (MOTEUR) $('note-trou').textContent = `Une liaison grise signale plus de ${SEUIL_TROU_MIN} min sans observation : rien n'est connu entre ces deux points.`;   // B11
-else { $('etat').className = 'erreur'; $('etat').textContent = 'position-moteur.js n’a pas pu être chargé : les absences d’observations ne sont pas marquées.'; }
+else {   // PV — alerte persistante (la zone « état » est effacée à chaque chargement)
+  $('alerte-moteur').hidden = false;
+  $('alerte-moteur').innerHTML = VERSION_MOTEUR_CHARGEE
+    ? `⚠️ Le module de calcul des positions n'est pas à la version attendue. Rechargez la page.<small>Version attendue : ${esc(VERSION_MOTEUR_ATTENDUE)} · version chargée : ${esc(VERSION_MOTEUR_CHARGEE)}. Les absences d'observations et les distances ne sont pas calculées.</small>`
+    : `⚠️ Le module de calcul des positions n'a pas pu être chargé. Rechargez la page.<small>Version attendue : ${esc(VERSION_MOTEUR_ATTENDUE)} · aucun module chargé. Les absences d'observations et les distances ne sont pas calculées.</small>`;
+}
 // P2 — Panneau de diagnostic, uniquement avec ?diag=1
 const DIAG = new URLSearchParams(location.search).get('diag') === '1';
 let nbObservationsSansCoordonnees = 0;
-$('diag').hidden = !(DIAG && MOTEUR);
+$('diag').hidden = !DIAG;   // PV — affiché même si le moteur est refusé, pour montrer les deux versions
 // DS2 — Les âges (« Vu il y a … ») et les pastilles sont recalculés chaque minute : une page restée ouverte
 // ne doit pas présenter une position vieillie comme récente. Pas de rechargement des données ici.
 setInterval(() => {
