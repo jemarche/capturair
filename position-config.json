@@ -1,0 +1,116 @@
+{
+  "SCHEMA": 1,
+  "REVISION": "initiale-2026-10-03",
+  "_note": "Valeurs seulement, aucune logique ni aucun secret (fichier public). Les règles restent dans position-moteur.js.",
+  "moteur": {
+    "precisionParDefautM": 30,
+    "seuilTrouMin": 30,
+    "facteurSignificatif": 3,
+    "facteurPic": 4,
+    "seuilGrandeVitesseKmH": 300,
+    "seuilVitesseSuspecteKmH": 1000,
+    "facteurDegradationPrecision": 4,
+    "rayonRetourM": 100,
+    "facteurPorteeExcursion": 15
+  },
+  "contexte": {
+    "fenetreH": 24
+  },
+  "appareils": {
+    "cles": {
+      "couleur": "#E67E22",
+      "emoji": "🔑"
+    },
+    "galaxy_s24_fe": {
+      "couleur": "#8E44AD",
+      "emoji": "📱"
+    },
+    "b77c200e-d535-4d6d-bd6d-02266e65230e": {
+      "couleur": "#1565C0",
+      "emoji": "🚗"
+    },
+    "1": {
+      "couleur": "#00897B",
+      "emoji": "📱"
+    },
+    "valise": {
+      "couleur": "#D81B60",
+      "emoji": "🧳"
+    },
+    "velo": {
+      "couleur": "#43A047",
+      "emoji": "🚲"
+    },
+    "iphone": {
+      "couleur": "#039BE5",
+      "emoji": "📱"
+    },
+    "iphone_astronaute": {
+      "couleur": "#E53935",
+      "emoji": "🧑‍🚀"
+    },
+    "etoile": {
+      "couleur": "#C49000",
+      "emoji": "⭐"
+    }
+  },
+  "couleursReserve": [
+    "#6D4C41",
+    "#546E7A",
+    "#3949AB",
+    "#00ACC1",
+    "#7CB342",
+    "#F4511E"
+  ],
+  "plages": [
+    {
+      "id": "journee",
+      "nom": "Journée",
+      "debut": 0,
+      "fin": 1440,
+      "emoji": "📅",
+      "couleur": "#0B1F3A"
+    },
+    {
+      "id": "matin",
+      "nom": "Matin",
+      "debut": 360,
+      "fin": 720,
+      "emoji": "🌅",
+      "couleur": "#E59400"
+    },
+    {
+      "id": "apresmidi",
+      "nom": "Après-midi",
+      "debut": 720,
+      "fin": 1080,
+      "emoji": "☀️",
+      "couleur": "#1A8FD1"
+    },
+    {
+      "id": "soiree",
+      "nom": "Soirée",
+      "debut": 1080,
+      "fin": 1380,
+      "emoji": "🌇",
+      "couleur": "#D35454"
+    },
+    {
+      "id": "nuit",
+      "nom": "Nuit",
+      "debut": -120,
+      "fin": 360,
+      "emoji": "🌙",
+      "couleur": "#3B3F8F"
+    },
+    {
+      "id": "travail",
+      "nom": "Travail",
+      "debut": 480,
+      "fin": 1020,
+      "emoji": "💼",
+      "couleur": "#4F6D7A"
+    }
+  ],
+  "fonctions": {}
+}
