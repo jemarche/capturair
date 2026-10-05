@@ -28,7 +28,10 @@
  *   stable (alignée sur une origine fixe). Exclut uniquement les observations identifiées comme pics P3 ou
  *   membres d'une excursion fantôme P3b ; les observations bruit_probable / incertain restent comptées.
  *   Le point de contexte sert à cette détection mais n'est JAMAIS compté dans une cellule.
- *   Densité d'observations ≠ temps passé (la déduplication n'enregistre presque rien d'un appareil immobile). Le point de contexte (dernière observation
+ *   Densité d'observations ≠ temps passé (la déduplication n'enregistre presque rien d'un appareil immobile).
+ *
+ * A0 (validerConfiguration) : vérifie position-config.json (valeurs seulement, aucune logique). Schéma strict,
+ *   révision libre. Une configuration invalide est REFUSÉE : jamais de valeur par défaut silencieuse. Le point de contexte (dernière observation
  *   strictement antérieure à la période) n'est jamais compté comme observation de la période :
  *   il sert uniquement d'origine au premier segment, qui appartient à la période de son point d'arrivée.
  *   Tous les seuils sont des paramètres de calibration PROVISOIRES.
@@ -38,7 +41,8 @@
 (function (racine) {
   'use strict';
 
-  const VERSION = 'B10b';
+  const VERSION = 'A0';
+  const SCHEMA_CONFIG = 1;   // A0 — contrat de structure de position-config.json
 
   // Paramètres de calibration : provisoires, centralisés, à ajuster sur les données réelles CapturAir.
   const PARAMETRES = Object.freeze({
@@ -383,12 +387,67 @@
     };
   }
 
+  // ── A0 — Validation de la configuration ─────────────────────────────────────────────────────
+  // Plages admissibles des paramètres de calcul (bornes de sécurité, pas des valeurs de calibration)
+  const BORNES_PARAMETRES = Object.freeze({
+    precisionParDefautM: [1, 1000], seuilTrouMin: [1, 1440], facteurSignificatif: [1, 20], facteurPic: [1, 20],
+    seuilGrandeVitesseKmH: [50, 2000], seuilVitesseSuspecteKmH: [100, 5000], facteurDegradationPrecision: [1, 50],
+    rayonRetourM: [1, 5000], facteurPorteeExcursion: [1, 100]
+  });
+  const estCouleur = v => typeof v === 'string' && /^#[0-9A-Fa-f]{6}$/.test(v);
+  const estTexte = (v, max) => typeof v === 'string' && v.trim().length > 0 && v.length <= max;
+  function validerConfiguration(cfg) {
+    const erreurs = [], avertissements = [];
+    const objet = v => v && typeof v === 'object' && !Array.isArray(v);
+    if (!objet(cfg)) return { ok: false, erreurs: ['configuration absente ou non lisible'], avertissements };
+    if (cfg.SCHEMA !== SCHEMA_CONFIG) erreurs.push(`schéma ${JSON.stringify(cfg.SCHEMA)} ≠ schéma attendu ${SCHEMA_CONFIG}`);
+    if (!estTexte(cfg.REVISION, 80)) erreurs.push('REVISION : texte non vide (80 caractères au plus) attendu');
+    // Paramètres de calcul : tous présents, numériques, dans leurs bornes
+    if (!objet(cfg.moteur)) erreurs.push('moteur : objet attendu');
+    else {
+      Object.keys(BORNES_PARAMETRES).forEach(k => {
+        const v = cfg.moteur[k], [a, b] = BORNES_PARAMETRES[k];
+        if (!(typeof v === 'number' && Number.isFinite(v))) erreurs.push(`moteur.${k} : nombre attendu`);
+        else if (v < a || v > b) erreurs.push(`moteur.${k} = ${v} hors des bornes [${a} ; ${b}]`);
+      });
+      Object.keys(cfg.moteur).filter(k => !(k in BORNES_PARAMETRES)).forEach(k => avertissements.push(`moteur.${k} : paramètre inconnu, ignoré`));
+    }
+    if (!objet(cfg.contexte) || !(Number.isFinite(cfg.contexte.fenetreH) && cfg.contexte.fenetreH >= 1 && cfg.contexte.fenetreH <= 168))
+      erreurs.push('contexte.fenetreH : nombre entre 1 et 168 attendu');
+    // Identités visuelles
+    if (!objet(cfg.appareils)) erreurs.push('appareils : objet attendu');
+    else Object.entries(cfg.appareils).forEach(([id, a]) => {
+      if (!objet(a) || !estCouleur(a.couleur) || !estTexte(a.emoji, 16)) erreurs.push(`appareils.${id} : { couleur: "#RRGGBB", emoji } attendu`);
+    });
+    if (!Array.isArray(cfg.couleursReserve) || !cfg.couleursReserve.length || !cfg.couleursReserve.every(estCouleur))
+      erreurs.push('couleursReserve : liste non vide de couleurs "#RRGGBB" attendue');
+    // Plages horaires
+    if (!Array.isArray(cfg.plages) || !cfg.plages.length) erreurs.push('plages : liste non vide attendue');
+    else {
+      const ids = new Set();
+      cfg.plages.forEach((p, k) => {
+        const ok = objet(p) && typeof p.id === 'string' && /^[a-z0-9_-]+$/.test(p.id) && estTexte(p.nom, 40) && estTexte(p.emoji, 16) && estCouleur(p.couleur)
+          && Number.isInteger(p.debut) && Number.isInteger(p.fin) && p.debut >= -1440 && p.fin <= 2880 && p.fin > p.debut;
+        if (!ok) erreurs.push(`plages[${k}] : { id, nom, emoji, couleur, debut, fin (minutes, fin > debut) } attendu`);
+        else if (ids.has(p.id)) erreurs.push(`plages : identifiant « ${p.id} » en double`);
+        else ids.add(p.id);
+      });
+      if (!ids.has('journee')) erreurs.push('plages : la plage « journee » est obligatoire');
+    }
+    // Interrupteurs : booléens seulement (la page signale ceux qu'elle ne connaît pas)
+    if (!objet(cfg.fonctions)) erreurs.push('fonctions : objet attendu');
+    else Object.entries(cfg.fonctions).forEach(([k, v]) => { if (typeof v !== 'boolean') erreurs.push(`fonctions.${k} : true ou false attendu`); });
+    const ok = erreurs.length === 0;
+    return { ok, erreurs, avertissements, parametres: ok ? Object.freeze(parametres(cfg.moteur)) : null };
+  }
+
   const API = Object.freeze({
     VERSION, PARAMETRES, parametres,
     calculerDistance, precisionEffective, construireSegments, detecterTrous, calculerDistanceBrute,
     detecterPics: (chaine, surcharges) => [...detecterPics(chaine, parametres(surcharges)).values()],
     detecterExcursions: (chaine, surcharges) => detecterExcursions(chaine, parametres(surcharges)),
-    calculerDistanceObservee, agregerDensite
+    calculerDistanceObservee, agregerDensite,
+    SCHEMA_CONFIG, BORNES_PARAMETRES, validerConfiguration
   });
 
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
