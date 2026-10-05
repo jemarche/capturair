@@ -153,6 +153,12 @@
   .diag-app td[colspan] { text-align: left; white-space: normal; overflow-wrap: anywhere; }
   .diag-app details { margin-top: 4px; }
   .diag-note { font-size: .75rem; color: var(--gris); margin: 0; }
+  /* A0 — Auto-contrôles */
+  .ac { width: 100%; border-collapse: collapse; margin: 6px 0 8px; font-size: .76rem; }
+  .ac td { padding: 2px 4px; border-bottom: 1px solid #EEF2F7; vertical-align: top; }
+  .ac td:first-child { white-space: nowrap; font-weight: 700; }
+  .ac .PASS { color: #2E7D32; } .ac .WARN { color: #B26A00; } .ac .FAIL { color: #C62828; } .ac .NA { color: #7B8794; }
+  .ac-copier { margin: 2px 0 8px; padding: 6px 12px; border: 0; border-radius: 6px; background: var(--marine); color: #fff; font-weight: 600; cursor: pointer; }
   .diag-alerte { margin: 6px 0 0; padding: 6px 8px; border-left: 3px solid #E59400; background: #FFF6E5; font-size: .74rem; color: #6B4A00; }
   /* P4 — Distance observée dans le résumé */
   .carte-app .distance { font-weight: 700; color: var(--texte); }
@@ -463,7 +469,7 @@
   </div>
 </div>
 
-<script src="position-moteur.js?v=B10b"></script>
+<script src="position-moteur.js?v=A0"></script>
 <script>
 // ── Configuration (aucun secret : uniquement des adresses publiques) ──────────
 const API = 'https://capturair-portail.tumarchessurlatete.workers.dev';
@@ -605,7 +611,7 @@ function dessinerDensite(forcer) {
   if (!forcer && cle === cleDensite) return;   // simple déplacement de la carte : rien à recalculer
   effacerDensite();
   cleDensite = cle;
-  const r = MOTEUR.agregerDensite(points, { tailleCelluleM: tailleM, latitudeReference: latRef, contexte: contexteListe() });
+  const r = MOTEUR.agregerDensite(points, optionsMoteur({ tailleCelluleM: tailleM, latitudeReference: latRef, contexte: contexteListe() }));
   $('legende-exclues').textContent = r.nbExclues ? ` (${r.nbExclues} sur cette période)` : ' (aucune sur cette période)';
   r.cellules.forEach(c => {
     const marge = 0.08;   // léger espace entre les cellules : la carte reste lisible dessous
@@ -697,13 +703,34 @@ function age(iso) {
 // PV — La page déclare la version de moteur qu'elle attend. Toute différence (ou moteur absent) :
 // AUCUN calcul du moteur n'est utilisé — ni distances, ni absences d'observations. Pas de repli silencieux.
 // Garder synchronisé avec <script src="position-moteur.js?v=…"> ci-dessus.
-const VERSION_MOTEUR_ATTENDUE = 'B10b';
+const PAGE_VERSION = 'A0';
+const VERSION_MOTEUR_ATTENDUE = 'A0';
+const CONFIG_SCHEMA_ATTENDU = 1;   // A0 — schéma strict de position-config.json (la révision est libre)
 const MOTEUR_CHARGE = globalThis.CapturAirMoteur || null;
 const VERSION_MOTEUR_CHARGEE = MOTEUR_CHARGE ? String(MOTEUR_CHARGE.VERSION) : null;
-const MOTEUR = VERSION_MOTEUR_CHARGEE === VERSION_MOTEUR_ATTENDUE ? MOTEUR_CHARGE : null;
-const SEUIL_TROU_MIN = MOTEUR ? MOTEUR.PARAMETRES.seuilTrouMin : null;
-const SEUIL_TROU_MS = MOTEUR ? SEUIL_TROU_MIN * 60000 : Infinity;   // moteur absent : aucune absence marquée
-function trous(ptsAppareil) { return MOTEUR ? MOTEUR.detecterTrous(ptsAppareil) : []; }
+const MOTEUR_CONFORME = VERSION_MOTEUR_CHARGEE === VERSION_MOTEUR_ATTENDUE ? MOTEUR_CHARGE : null;
+// A0 — Le moteur n'est utilisé qu'avec une configuration VALIDÉE (fail-closed) : sinon aucun calcul,
+// mais les observations brutes restent consultables.
+let MOTEUR = null;
+let PARAMS = null;   // paramètres de calcul effectifs, issus de la configuration validée
+let CONFIG = null;
+const etatConfig = { statut: 'attente', erreurs: [], avertissements: [], schema: null, revision: null };
+let SEUIL_TROU_MIN = null, SEUIL_TROU_MS = Infinity;   // sans moteur ni configuration : aucune absence marquée
+function trous(ptsAppareil) { return MOTEUR ? MOTEUR.detecterTrous(ptsAppareil, PARAMS) : []; }
+function optionsMoteur(extra) { return Object.assign({ parametres: PARAMS }, extra || {}); }
+
+// A0 — Interrupteurs : { fonction: [dépendances] }. Une fonction coupée disparaît et n'exécute plus de code.
+// 'moteur' = moteur conforme ET configuration valide. (A0 : aucune fonction optionnelle encore.)
+const FONCTIONS_CONNUES = {};
+function fonctionActive(nom) {
+  const deps = FONCTIONS_CONNUES[nom];
+  if (!deps || !CONFIG || CONFIG.fonctions[nom] !== true) return false;
+  return deps.every(d => d === 'moteur' ? !!MOTEUR : fonctionActive(d));
+}
+function fonctionsInconnues(cfg) {
+  return Object.keys((cfg && cfg.fonctions) || {}).filter(k => !(k in FONCTIONS_CONNUES))
+    .map(k => `fonctions.${k} : fonction inconnue de cette page (ignorée)`);
+}
 function dureeLisible(ms) {
   const m = Math.round(ms / 60000);
   if (m < 60) return `${m} min`;
@@ -739,19 +766,10 @@ function attribuerUid(liste) {
   return liste;
 }
 // B3b — Identité visuelle stable par appareil (DS7) : couleur = appareil. Jamais stockée dans les observations.
-const IDENTITE = {
-  'cles':                                 { couleur: '#E67E22', emoji: '🔑' },
-  'galaxy_s24_fe':                        { couleur: '#8E44AD', emoji: '📱' },
-  'b77c200e-d535-4d6d-bd6d-02266e65230e': { couleur: '#1565C0', emoji: '🚗' },
-  '1':                                    { couleur: '#00897B', emoji: '📱' },
-  'valise':                               { couleur: '#D81B60', emoji: '🧳' },
-  'velo':                                 { couleur: '#43A047', emoji: '🚲' },
-  'iphone':                               { couleur: '#039BE5', emoji: '📱' },
-  'iphone_astronaute':                    { couleur: '#E53935', emoji: '🧑‍🚀' },
-  'etoile':                               { couleur: '#C49000', emoji: '⭐' }
-};
+// A0 — Les identités viennent de position-config.json ; sans configuration valide : identité neutre (annoncée)
+let IDENTITE = {};
 // Appareils futurs non listés : couleur de réserve déterministe (hachage de l'identifiant)
-const COULEURS_RESERVE = ['#6D4C41', '#546E7A', '#3949AB', '#00ACC1', '#7CB342', '#F4511E'];
+let COULEURS_RESERVE = ['#7B8794'];
 function identite(id) {
   if (IDENTITE[id]) return IDENTITE[id];
   let h = 0;
@@ -863,7 +881,61 @@ function deconnecter(message) {
 async function afficherApp() {
   $('login').hidden = true;
   $('app').hidden = false;
+  await chargerConfiguration();   // A0 — avant toute donnée
   await chargerAppareils();
+}
+
+// ── A0 — Configuration (position-config.json : valeurs seulement, publique, sans secret) ─────────
+async function chargerConfiguration() {
+  CONFIG = null; PARAMS = null;
+  Object.assign(etatConfig, { statut: 'attente', erreurs: [], avertissements: [], schema: null, revision: null });
+  let cfg;
+  try {
+    const r = await fetch('position-config.json', { cache: 'no-store' });   // une nouvelle révision est prise en compte immédiatement
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    cfg = await r.json();
+  } catch (e) {
+    Object.assign(etatConfig, { statut: 'absente', erreurs: [`position-config.json illisible (${e.message})`] });
+    majEtatCalculs(); return;
+  }
+  etatConfig.schema = cfg && cfg.SCHEMA; etatConfig.revision = cfg && cfg.REVISION;
+  if (!MOTEUR_CONFORME) {
+    Object.assign(etatConfig, { statut: 'non vérifiée', erreurs: ['moteur refusé : la configuration ne peut pas être validée'] });
+    majEtatCalculs(); return;
+  }
+  const v = MOTEUR_CONFORME.validerConfiguration(cfg);
+  if (v.ok && cfg.SCHEMA !== CONFIG_SCHEMA_ATTENDU) { v.ok = false; v.erreurs.push(`schéma ${cfg.SCHEMA} ≠ schéma attendu par la page ${CONFIG_SCHEMA_ATTENDU}`); }
+  etatConfig.avertissements = v.avertissements.concat(fonctionsInconnues(cfg));
+  if (!v.ok) { Object.assign(etatConfig, { statut: 'invalide', erreurs: v.erreurs }); majEtatCalculs(); return; }
+  CONFIG = cfg; PARAMS = v.parametres;
+  Object.assign(etatConfig, { statut: 'ok', erreurs: [] });
+  majEtatCalculs();
+}
+
+// Applique l'état moteur + configuration : calculs, identités, plages, contexte, bandeau.
+function majEtatCalculs() {
+  const configOk = etatConfig.statut === 'ok';
+  MOTEUR = MOTEUR_CONFORME && configOk ? MOTEUR_CONFORME : null;
+  IDENTITE = configOk ? CONFIG.appareils : {};
+  COULEURS_RESERVE = configOk ? CONFIG.couleursReserve : ['#7B8794'];
+  PLAGES = configOk ? CONFIG.plages : [PLAGE_JOURNEE];
+  FENETRE_CONTEXTE_H = configOk ? CONFIG.contexte.fenetreH : null;
+  if (!configOk) PARAMS = null;
+  SEUIL_TROU_MIN = MOTEUR ? PARAMS.seuilTrouMin : null;
+  SEUIL_TROU_MS = MOTEUR ? SEUIL_TROU_MIN * 60000 : Infinity;
+  if (!PLAGES.some(p => p.id === plage)) plage = 'journee';
+  $('note-trou').textContent = MOTEUR ? `Une liaison grise signale plus de ${SEUIL_TROU_MIN} min sans observation : rien n'est connu entre ces deux points.` : '';
+  // Bandeau persistant : moteur et/ou configuration
+  const msgs = [];
+  if (!MOTEUR_CONFORME) msgs.push(VERSION_MOTEUR_CHARGEE
+    ? `⚠️ Le module de calcul des positions n'est pas à la version attendue. Rechargez la page.<small>Version attendue : ${esc(VERSION_MOTEUR_ATTENDUE)} · version chargée : ${esc(VERSION_MOTEUR_CHARGEE)}.</small>`
+    : `⚠️ Le module de calcul des positions n'a pas pu être chargé. Rechargez la page.<small>Version attendue : ${esc(VERSION_MOTEUR_ATTENDUE)} · aucun module chargé.</small>`);
+  if (etatConfig.statut === 'absente') msgs.push(`⚠️ La configuration CapturAir n'a pas pu être chargée. Rechargez la page.<small>${esc(etatConfig.erreurs[0] || '')}</small>`);
+  if (etatConfig.statut === 'invalide') msgs.push(`⚠️ La configuration CapturAir est invalide.<small>${etatConfig.erreurs.slice(0, 3).map(esc).join(' · ')}${etatConfig.erreurs.length > 3 ? ' · …' : ''}</small>`);
+  if (msgs.length) msgs.push(`<small>Distances, absences d'observations, densité et contexte indisponibles. Les observations brutes restent affichées${configOk ? '' : ', avec une identité neutre'}.</small>`);
+  $('alerte-moteur').hidden = !msgs.length;
+  $('alerte-moteur').innerHTML = msgs.join('');
+  majNavPeriode();
 }
 
 async function chargerAppareils() {
@@ -1057,9 +1129,10 @@ async function lireHistorique(ids, debut, fin) {
 // Paramètre provisoire (pas une définition métier). Réponse tronquée : contexte refusé (on ne peut pas garantir
 // d'avoir la dernière observation). Erreur réseau : pas de contexte, sans bloquer l'affichage de la période.
 // Le contexte n'apparaît ni sur la carte, ni dans la timeline, ni dans le nombre d'observations.
-const FENETRE_CONTEXTE_H = 24;
+let FENETRE_CONTEXTE_H = null;   // A0 — vient de la configuration (contexte.fenetreH)
 async function lireContexte(ids, debut) {
   const resultat = new Map();
+  if (!MOTEUR || !FENETRE_CONTEXTE_H) return resultat;   // A0 — pas de distance, pas de contexte
   try {
     const d = await lireHistorique(ids, new Date(debut.getTime() - FENETRE_CONTEXTE_H * 3600000), debut);
     ids.forEach(id => {
@@ -1138,14 +1211,9 @@ function remplirPerso() {
 
 // B4c — Plages prédéfinies (minutes depuis minuit du jour affiché, heure de Montréal). Modifiables ici.
 // Nuit : de 22:00 la veille à 06:00 le jour affiché.
-const PLAGES = [
-  { id: 'journee',   nom: 'Journée',    debut: 0,       fin: 24 * 60, emoji: '📅', couleur: '#0B1F3A' },
-  { id: 'matin',     nom: 'Matin',      debut: 6 * 60,  fin: 12 * 60, emoji: '🌅', couleur: '#E59400' },
-  { id: 'apresmidi', nom: 'Après-midi', debut: 12 * 60, fin: 18 * 60, emoji: '☀️', couleur: '#1A8FD1' },
-  { id: 'soiree',    nom: 'Soirée',     debut: 18 * 60, fin: 23 * 60, emoji: '🌇', couleur: '#D35454' },
-  { id: 'nuit',      nom: 'Nuit',       debut: -2 * 60, fin: 6 * 60,  emoji: '🌙', couleur: '#3B3F8F' },
-  { id: 'travail',   nom: 'Travail',    debut: 8 * 60,  fin: 17 * 60, emoji: '💼', couleur: '#4F6D7A' }
-];
+// A0 — Les plages viennent de position-config.json ; sans configuration valide, seule « Journée » est proposée
+const PLAGE_JOURNEE = { id: 'journee', nom: 'Journée', debut: 0, fin: 24 * 60, emoji: '📅', couleur: '#0B1F3A' };
+let PLAGES = [PLAGE_JOURNEE];
 const hhmm = min => { const m = ((min % 1440) + 1440) % 1440; return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; };
 // Une plage d'aujourd'hui qui n'a pas encore commencé n'est pas proposée
 function plageCommencee(id, maintenant = Date.now()) {
@@ -1221,6 +1289,7 @@ async function chargerHistorique() {
     const [d, ctx] = await Promise.all([lireHistorique(ids, debut, fin), lireContexte(ids, debut)]);   // P4
     if (n !== numRequete) return;   // une sélection plus récente a été demandée entre-temps
     contexteParAppareil = ctx;
+    dernierChargement = { debut, fin, ids, tronque: !!d.tronque, erreur: null };   // A0
     points = attribuerUid((d.points || []).filter(p => Number.isFinite(p.latitude) && Number.isFinite(p.longitude)));
     nbObservationsSansCoordonnees = (d.points || []).length - points.length;   // P2 — signalé dans le diagnostic
     selection = null;
@@ -1234,6 +1303,7 @@ async function chargerHistorique() {
   } catch (e) {
     ['resume', 'tl-graphe'].forEach(id => $(id).classList.remove('en-chargement'));
     if (n !== numRequete) return;
+    dernierChargement = { debut, fin, ids, tronque: false, erreur: e.message };   // A0
     $('etat').className = 'erreur';
     $('etat').textContent = e.message;
   }
@@ -1282,6 +1352,100 @@ function afficherSynthese() {
 }
 
 // B3c — Résumé détaillé par appareil sélectionné (faits de la période uniquement)
+// ── A0 — Auto-contrôles (?diag=1) : vérifications automatiques sur les données réellement chargées ──
+let dernierChargement = null;   // { debut, fin, ids, tronque, erreur } du dernier chargement
+function autoControles() {
+  const L = [], ajout = (nom, statut, detail) => L.push({ nom, statut, detail: detail || '' });
+  ajout('Versions', MOTEUR_CONFORME && etatConfig.statut === 'ok' ? 'PASS' : 'FAIL',
+    `page ${PAGE_VERSION} · moteur ${VERSION_MOTEUR_CHARGEE || 'aucun'} (attendu ${VERSION_MOTEUR_ATTENDUE}) · config schéma ${etatConfig.schema ?? '—'} (attendu ${CONFIG_SCHEMA_ATTENDU})`);
+  ajout('Configuration', etatConfig.statut !== 'ok' ? 'FAIL' : etatConfig.avertissements.length ? 'WARN' : 'PASS',
+    etatConfig.statut !== 'ok' ? `${etatConfig.statut} : ${etatConfig.erreurs.join(' · ')}` : (etatConfig.avertissements.join(' · ') || `révision ${etatConfig.revision}`));
+  const ids = idsChoisis(), pts = points.filter(p => ids.includes(p.appareil_id)), ctx = contexteListe();
+  if (!MOTEUR) {
+    ['Contexte hors compteur', 'Contexte < début', 'P4.1', 'Distance retenue / brut sur absences', 'Aucun total inter-appareils']
+      .forEach(n => ajout(n, 'N/A', 'calculs indisponibles'));
+  } else {
+    const comptes = ctx.filter(c => pts.some(p => p === c || (p.appareil_id === c.appareil_id && p.observed_at === c.observed_at)));
+    ajout('Contexte hors compteur', comptes.length ? 'FAIL' : 'PASS', `${ctx.length} point(s) de contexte, ${comptes.length} compté(s) dans la période`);
+    const debut = periodeAffichee ? periodeAffichee.debut.getTime() : null;
+    const tardifs = debut == null ? [] : ctx.filter(c => Date.parse(c.observed_at) >= debut);
+    ajout('Contexte < début', tardifs.length ? 'FAIL' : 'PASS', tardifs.length ? `${tardifs.length} contexte(s) postérieur(s) au début` : 'tous strictement antérieurs');
+    const f = MOTEUR.calculerDistanceObservee(pts, optionsMoteur({ contexte: ctx }));
+    const b = MOTEUR.calculerDistanceBrute(pts, optionsMoteur({ contexte: ctx }));
+    const ecarts = [], depassements = [];
+    f.appareils.forEach(a => {
+      // Vérification INDÉPENDANTE de P4.1 : absence = au moins une paire d'observations successives > seuil
+      const chaine = (a.contexte ? [a.contexte] : []).concat(pts.filter(p => p.appareil_id === a.appareil_id));
+      const rang = new Map(chaine.map((o, k) => [o, k]));
+      let attendu = 0;
+      a.evaluations.filter(e => e.classe === 'significatif').forEach(e => {
+        const i0 = rang.get(e.depart), i1 = rang.get(e.arrivee);
+        for (let k = i0 + 1; k <= i1; k++) {
+          if (Date.parse(chaine[k].observed_at) - Date.parse(chaine[k - 1].observed_at) > SEUIL_TROU_MS) { attendu += e.distanceM; break; }
+        }
+      });
+      if (Math.abs(attendu - a.distanceFiltreeSurAbsencesM) > 1e-6) ecarts.push(a.appareil_id);
+      // Retenu ≤ brut sur absences : non garanti au mètre près (écart d'ancre) → tolérance documentée, WARN
+      const brutAbs = (b.appareils.find(x => x.appareil_id === a.appareil_id) || {}).distanceSurAbsencesM || 0;
+      const tolerance = a.evaluations.filter(e => e.classe !== 'significatif').reduce((m, e) => Math.max(m, e.distanceM), 0);
+      if (a.distanceFiltreeSurAbsencesM > brutAbs + tolerance + 1)
+        depassements.push(`${a.appareil_id} : ${Math.round(a.distanceFiltreeSurAbsencesM)} m > ${Math.round(brutAbs)} m + ${Math.round(tolerance)} m`);
+    });
+    ajout('P4.1', ecarts.length ? 'FAIL' : 'PASS', ecarts.length ? `écart moteur / vérification : ${ecarts.join(', ')}` : 'absences retenues recalculées indépendamment');
+    ajout('Distance retenue / brut sur absences', depassements.length ? 'WARN' : 'PASS',
+      depassements.length ? depassements.join(' · ') : 'retenu ≤ brut + écart d’ancre (tolérance documentée)');
+    const avantCartes = ($('resume').innerHTML || '').split('carte-app')[0].replace(/<[^>]+>/g, ' ');
+    ajout('Aucun total inter-appareils', /\d+(,\d)?\s?k?m\b/.test(avantCartes) ? 'FAIL' : 'PASS', 'distances uniquement dans les cartes par appareil');
+  }
+  const desordre = ids.filter(id => { const t = points.filter(p => p.appareil_id === id).map(p => Date.parse(p.observed_at)); return t.some((v, k) => k && v < t[k - 1]); });
+  ajout('Ordre chronologique', desordre.length ? 'FAIL' : 'PASS', desordre.join(', '));
+  ajout('Coordonnées valides', nbObservationsSansCoordonnees ? 'WARN' : 'PASS',
+    nbObservationsSansCoordonnees ? `${nbObservationsSansCoordonnees} observation(s) sans coordonnées exploitables (toujours dans D1)` : '');
+  const ctxTronques = [...contexteParAppareil.values()].filter(c => c.statut === 'refuse_tronque').length;
+  const tronque = !!(dernierChargement && dernierChargement.tronque);
+  ajout('Troncature API', tronque || ctxTronques ? 'WARN' : 'PASS',
+    [tronque ? 'période tronquée (limite de 5 000 points)' : '', ctxTronques ? `${ctxTronques} contexte(s) refusé(s) : réponse tronquée` : ''].filter(Boolean).join(' · '));
+  const ctxErreurs = [...contexteParAppareil.values()].filter(c => c.statut === 'erreur').length;
+  const erreur = dernierChargement && dernierChargement.erreur;
+  ajout('Erreurs réseau', erreur || ctxErreurs ? 'WARN' : 'PASS',
+    [erreur ? `chargement : ${erreur}` : '', ctxErreurs ? `${ctxErreurs} lecture(s) de contexte en erreur` : ''].filter(Boolean).join(' · '));
+  return L;
+}
+function rapportAutoControles() {
+  const ids = idsChoisis(), L = autoControles(), maintenant = new Date();
+  const loc = d => `${fmtDate.format(d)} ${heureHMS(d)}`;
+  const parAppareil = ids.map(id => `${id} ${points.filter(p => p.appareil_id === id).length}`).join(', ');
+  return [
+    'CapturAir — rapport d’auto-contrôle',
+    `Généré : ${maintenant.toISOString()} (${loc(maintenant)}, America/Toronto)`,
+    `Page : ${PAGE_VERSION}`,
+    `Moteur : ${VERSION_MOTEUR_CHARGEE || 'aucun'} (attendu ${VERSION_MOTEUR_ATTENDUE})`,
+    `Configuration : schéma ${etatConfig.schema ?? '—'} (attendu ${CONFIG_SCHEMA_ATTENDU}) · révision ${etatConfig.revision ?? '—'} · ${etatConfig.statut}`,
+    '',
+    `Période UTC : ${periodeAffichee ? `${periodeAffichee.debut.toISOString()} → ${periodeAffichee.fin.toISOString()}` : '—'}`,
+    `Période America/Toronto : ${periodeAffichee ? `${loc(periodeAffichee.debut)} → ${loc(periodeAffichee.fin)}` : '—'}`,
+    `Appareils : ${ids.join(', ') || '—'} (${ids.length})`,
+    `Nombre d'observations : ${points.filter(p => ids.includes(p.appareil_id)).length} (${parAppareil || '—'})`,
+    '',
+    ...L.map(c => `${c.nom.padEnd(38, ' ')} ${c.statut}${c.detail ? `  — ${c.detail}` : ''}`)
+  ].join('\n');
+}
+function blocAutoControles() {
+  const L = autoControles();
+  return `<table class="ac">${L.map(c => `<tr><td class="${c.statut === 'N/A' ? 'NA' : c.statut}">${c.statut}</td><td>${esc(c.nom)}${c.detail ? `<br><small>${esc(c.detail)}</small>` : ''}</td></tr>`).join('')}</table>`
+       + `<button type="button" class="ac-copier" data-action="copier-rapport">📋 Copier le rapport</button>`;
+}
+function copierRapport(bouton) {
+  const texte = rapportAutoControles();
+  const ok = () => { bouton.textContent = '✓ Rapport copié'; setTimeout(() => { bouton.textContent = '📋 Copier le rapport'; }, 2000); };
+  const repli = () => {   // presse-papiers indisponible : sélection d'un champ temporaire
+    const z = document.createElement('textarea'); z.value = texte; document.body.appendChild(z); z.select();
+    try { document.execCommand('copy'); ok(); } catch (e) { bouton.textContent = 'Copie impossible'; }
+    z.remove();
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(texte).then(ok, repli); else repli();
+}
+
 // P4 — Libellé du contexte pour le diagnostic
 function libelleContexte(id) {
   const c = contexteParAppareil.get(id);
@@ -1296,12 +1460,15 @@ function libelleContexte(id) {
 const km = m => (m / 1000).toLocaleString('fr-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' km';
 function afficherDiagnostic() {
   if (!DIAG) return;
-  if (!MOTEUR) {   // PV — aucun calcul présenté avec un moteur absent ou inattendu
-    $('diag-contenu').innerHTML = `<p class="diag-alerte">⚠️ Moteur refusé : version attendue <b>${esc(VERSION_MOTEUR_ATTENDUE)}</b>, version chargée <b>${esc(VERSION_MOTEUR_CHARGEE || 'aucune')}</b>. Aucune distance n'est calculée.</p>`;
+  if (!MOTEUR) {   // PV / A0 — aucun calcul présenté sans moteur conforme ET configuration valide
+    const cause = !MOTEUR_CONFORME
+      ? `Moteur refusé : version attendue <b>${esc(VERSION_MOTEUR_ATTENDUE)}</b>, version chargée <b>${esc(VERSION_MOTEUR_CHARGEE || 'aucune')}</b>.`
+      : `Configuration ${esc(etatConfig.statut)} : ${etatConfig.erreurs.map(esc).join(' · ') || '—'}`;
+    $('diag-contenu').innerHTML = blocAutoControles() + `<p class="diag-alerte">⚠️ ${cause} Aucune distance n'est calculée.</p>`;
     return;
   }
   const ids = idsChoisis();
-  const optCtx = { contexte: contexteListe() };   // P4 — même contexte que le résumé
+  const optCtx = optionsMoteur({ contexte: contexteListe() });   // P4 — même contexte que le résumé ; A0 — paramètres de la configuration
   const r = MOTEUR.calculerDistanceBrute(points.filter(p => ids.includes(p.appareil_id)), optCtx);
   const f = MOTEUR.calculerDistanceObservee(points.filter(p => ids.includes(p.appareil_id)), optCtx);   // P3
   const html = ids.map(id => {
@@ -1323,9 +1490,9 @@ function afficherDiagnostic() {
       <tr><td>Plus grand écart incertain</td><td>${df.nbIncertains ? esc(km(df.incertainMaxM)) : '—'}</td></tr>
       <tr><td>Pics ponctuels écartés du cumul</td><td>${df.pics.length}</td></tr>
       <tr><td>Excursions groupées écartées (P3b)</td><td>${df.excursions.length}</td></tr>
-      <tr><td>Segments suspects (&gt; ${MOTEUR.PARAMETRES.seuilVitesseSuspecteKmH} km/h, conservés)</td><td>${df.suspects.length}</td></tr>
+      <tr><td>Segments suspects (&gt; ${PARAMS.seuilVitesseSuspecteKmH} km/h, conservés)</td><td>${df.suspects.length}</td></tr>
       <tr><td>dont segments traversant une absence (${d.nbAbsences})</td><td>${esc(km(d.distanceSurAbsencesM))}</td></tr>
-      <tr><td>Précisions inconnues (défaut ${MOTEUR.PARAMETRES.precisionParDefautM} m)</td><td>${d.nbPrecisionsInconnues}</td></tr>
+      <tr><td>Précisions inconnues (défaut ${PARAMS.precisionParDefautM} m)</td><td>${d.nbPrecisionsInconnues}</td></tr>
       <tr><td>Vitesse moyenne entre observations, max.</td><td>${d.vitesseMoyenneMaxKmh == null ? '—' : Math.round(d.vitesseMoyenneMaxKmh) + ' km/h'}</td></tr>
     </table>${top ? `<details><summary>5 plus longs segments (bruts)</summary><table>${top}</table></details>` : ''}${df.pics.length ? `<details><summary>Pics écartés (${df.pics.length})</summary><table>${df.pics.map(pc =>
       `<tr><td>${esc(heureHMS(new Date(pc.observation.observed_at)))}<br><small>${pc.type === 'precision' ? 'expliqué par la précision' : 'grande vitesse'} · ±${Math.round(pc.precisionM)} m</small></td><td>${esc(km(pc.ecartM))}</td></tr>`).join('')}</table></details>` : ''}${df.excursions.length ? `<details open><summary>Excursions groupées écartées (${df.excursions.length})</summary><table>${df.excursions.map(ex =>
@@ -1339,8 +1506,8 @@ function afficherDiagnostic() {
       + `<p class="diag-alerte">⚠️ Risque résiduel : une vraie excursion courte, mal localisée sur place, peut être classée comme fantôme. Vérifiez avec la vérité terrain.</p></details>` : ''}</div>`;
   }).join('');
   const invalides = nbObservationsSansCoordonnees + r.ignorees.length;
-  const P = MOTEUR.PARAMETRES;
-  $('diag-contenu').innerHTML = `<p class="diag-note">Moteur ${esc(MOTEUR.VERSION)} (attendu ${esc(VERSION_MOTEUR_ATTENDUE)} ✓) · significatif ×${P.facteurSignificatif} · pic ×${P.facteurPic} · défaut ${P.precisionParDefautM} m · grande vitesse ${P.seuilGrandeVitesseKmH} km/h · suspect ${P.seuilVitesseSuspecteKmH} km/h · excursion : dégradation ×${P.facteurDegradationPrecision}, retour ${P.rayonRetourM} m, portée ×${P.facteurPorteeExcursion}</p>`
+  const P = PARAMS;
+  $('diag-contenu').innerHTML = blocAutoControles() + `<p class="diag-note">Page ${esc(PAGE_VERSION)} · Moteur ${esc(MOTEUR.VERSION)} (attendu ${esc(VERSION_MOTEUR_ATTENDUE)} ✓) · Config schéma ${esc(String(etatConfig.schema))} ✓ · révision ${esc(String(etatConfig.revision))} · significatif ×${P.facteurSignificatif} · pic ×${P.facteurPic} · défaut ${P.precisionParDefautM} m · grande vitesse ${P.seuilGrandeVitesseKmH} km/h · suspect ${P.seuilVitesseSuspecteKmH} km/h · excursion : dégradation ×${P.facteurDegradationPrecision}, retour ${P.rayonRetourM} m, portée ×${P.facteurPorteeExcursion}</p>`
     + `<p class="diag-alerte">⚠️ P3b peut écarter une vraie excursion courte si toutes les positions sur place sont mal localisées (risque résiduel connu, seuils en calibration).</p><p class="diag-note">${invalides ? ` · ${invalides} observation(s) reçue(s) sans coordonnées exploitables : non affichée(s), toujours présente(s) dans D1` : ''}</p>` + html;
 }
 
@@ -1350,7 +1517,7 @@ function afficherResume() {
   const ids = idsChoisis();
   if (!ids.length) { $('resume').innerHTML = '<span class="vide">Sélectionnez au moins un appareil.</span>'; return; }
   // P4 — un calcul par affichage, par appareil (aucun total inter-appareils)
-  const observee = MOTEUR ? MOTEUR.calculerDistanceObservee(points.filter(p => ids.includes(p.appareil_id)), { contexte: contexteListe() }) : null;
+  const observee = MOTEUR ? MOTEUR.calculerDistanceObservee(points.filter(p => ids.includes(p.appareil_id)), optionsMoteur({ contexte: contexteListe() })) : null;
   const cartes = ids.map(id => {
     const a = appareils.find(x => x.id === id);
     const idt = identite(id);
@@ -2066,6 +2233,7 @@ $('liste-appareils').addEventListener('click', e => {
   const b = e.target.closest('.appareil'); if (b) basculer(b.dataset.id);
 });
 $('btn-ordre').addEventListener('click', retablirOrdre);
+$('diag-contenu').addEventListener('click', e => { const b = e.target.closest('[data-action="copier-rapport"]'); if (b) copierRapport(b); });   // A0
 // R1 — ⌖ Carte : visible seulement en colonne unique, quand la carte est ENTIÈREMENT hors écran
 const requeteColonne = window.matchMedia ? window.matchMedia('(max-width: 899px)') : null;
 let carteDansEcran = true;
@@ -2103,13 +2271,7 @@ $('perso-ok').addEventListener('click', () => {   // B4b
 });
 $('per-suiv').addEventListener('click', () => naviguerPeriode(1));
 majNavPeriode();
-if (MOTEUR) $('note-trou').textContent = `Une liaison grise signale plus de ${SEUIL_TROU_MIN} min sans observation : rien n'est connu entre ces deux points.`;   // B11
-else {   // PV — alerte persistante (la zone « état » est effacée à chaque chargement)
-  $('alerte-moteur').hidden = false;
-  $('alerte-moteur').innerHTML = VERSION_MOTEUR_CHARGEE
-    ? `⚠️ Le module de calcul des positions n'est pas à la version attendue. Rechargez la page.<small>Version attendue : ${esc(VERSION_MOTEUR_ATTENDUE)} · version chargée : ${esc(VERSION_MOTEUR_CHARGEE)}. Les absences d'observations et les distances ne sont pas calculées.</small>`
-    : `⚠️ Le module de calcul des positions n'a pas pu être chargé. Rechargez la page.<small>Version attendue : ${esc(VERSION_MOTEUR_ATTENDUE)} · aucun module chargé. Les absences d'observations et les distances ne sont pas calculées.</small>`;
-}
+// A0 — l'état moteur + configuration est appliqué par majEtatCalculs() (après chargement de la configuration)
 // P2 — Panneau de diagnostic, uniquement avec ?diag=1
 const DIAG = new URLSearchParams(location.search).get('diag') === '1';
 let nbObservationsSansCoordonnees = 0;
