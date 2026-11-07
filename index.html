@@ -521,7 +521,57 @@ function showModal(){document.getElementById('successModal').classList.add('acti
 function closeModal(){document.getElementById('successModal').classList.remove('active');document.body.style.overflow='';}
 document.getElementById('successModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 function openSms(e){if(e)e.preventDefault();var body="Bonjour L'équipe CapturAir, je souhaite un devis CapturAir, Merci et bonne journée :)";var encoded=encodeURIComponent(body);var ua=navigator.userAgent||navigator.vendor||window.opera;var isIOS=/iPad|iPhone|iPod/.test(ua)&&!window.MSStream;window.location.href=isIOS?('sms:15144466078&body='+encoded):('sms:+15144466078?body='+encoded);return false;}
-fetch('https://api.open-meteo.com/v1/forecast?latitude=45.8833&longitude=-73.2833&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FToronto').then(function(r){return r.json();}).then(function(d){var hr=new Date().getHours();var isNight=hr>=20||hr<6;var icons={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};var nightIcons={0:'🌙',1:'🌙',2:'🌑',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};var iconSet=isNight?nightIcons:icons;document.getElementById('w-icon').textContent=iconSet[d.current.weather_code]||(isNight?'🌙':'🌡️');var c=Math.round(d.current.temperature_2m);var f=Math.round((c*9/5)+32);var wind=Math.round(d.current.wind_speed_10m);var cond=wind>=30?'❌ Vol déconseillé':wind>=15?'⚠️ Vol prudent':'✅ Vol OK';document.getElementById('w-temp').textContent=c+'°C · '+f+'°F · Vent '+wind+' km/h · '+cond;document.getElementById('w-temp-short').textContent=c+'°C · '+f+'°F';}).catch(function(){});
+var VILLES=[
+{nom:'Lavaltrie',lat:45.8833,lon:-73.2833},
+{nom:'Ajaccio',lat:41.9192,lon:8.7386},
+{nom:'Alger',lat:36.7538,lon:3.0588},
+{nom:'Boucherville',lat:45.5911,lon:-73.4364},
+{nom:'Brossard',lat:45.4584,lon:-73.4651},
+{nom:'Chambly',lat:45.4500,lon:-73.2833},
+{nom:'Charlottetown',lat:46.2382,lon:-63.1311},
+{nom:'Dorval',lat:45.4500,lon:-73.7500},
+{nom:'Joliette',lat:46.0213,lon:-73.4402},
+{nom:'Laval',lat:45.6066,lon:-73.7124},
+{nom:'Lévis',lat:46.8033,lon:-71.1779},
+{nom:'Longueuil',lat:45.5312,lon:-73.5181},
+{nom:'Moncton',lat:46.0878,lon:-64.7782},
+{nom:'Montréal',lat:45.5017,lon:-73.5673},
+{nom:'Paris',lat:48.8566,lon:2.3522},
+{nom:'Rawdon',lat:46.0450,lon:-73.7170},
+{nom:'Repentigny',lat:45.7422,lon:-73.4500},
+{nom:'Saint-Eustache',lat:45.5650,lon:-73.9050},
+{nom:'Sainte-Julie',lat:45.5833,lon:-73.3333},
+{nom:'Terrebonne',lat:45.7000,lon:-73.6333},
+{nom:'Vaudreuil-Dorion',lat:45.4000,lon:-74.0333}
+];
+var METEO=[];
+
+function afficherVille(i){
+  var m=METEO[i];
+  if(!m||!m.current)return;
+  var nuit=m.current.is_day===0;
+  var icones={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+  var iconesNuit={0:'🌙',1:'🌙',2:'🌑',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+  var set=nuit?iconesNuit:icones;
+  var c=Math.round(m.current.temperature_2m);
+  var f=Math.round(c*9/5+32);
+  var vent=Math.round(m.current.wind_speed_10m);
+  var vol=vent>=30?'❌ Vol déconseillé':vent>=15?'⚠️ Vol prudent':'✅ Vol OK';
+  document.getElementById('w-city').textContent=VILLES[i].nom;
+  document.getElementById('w-icon').textContent=set[m.current.weather_code]||(nuit?'🌙':'🌡️');
+  document.getElementById('w-temp').textContent=c+'°C · '+f+'°F · Vent '+vent+' km/h · '+vol;
+  document.getElementById('w-temp-short').textContent=c+'°C · '+f+'°F';
+}
+
+var url='https://api.open-meteo.com/v1/forecast'
+  +'?latitude='+VILLES.map(function(v){return v.lat;}).join(',')
+  +'&longitude='+VILLES.map(function(v){return v.lon;}).join(',')
+  +'&current=temperature_2m,weather_code,wind_speed_10m,is_day&timezone=auto';
+
+fetch(url).then(function(r){return r.json();}).then(function(d){
+  METEO=Array.isArray(d)?d:[d];
+  afficherVille(0);
+}).catch(function(){});  
 (function(){var waBtn=document.querySelector('.whatsapp-float');var contactSection=document.getElementById('contact');if(!waBtn||!contactSection)return;var waObs=new IntersectionObserver(function(entries){entries.forEach(function(en){if(en.isIntersecting){waBtn.classList.add('visible');}else{waBtn.classList.remove('visible');}});},{threshold:0.1});waObs.observe(contactSection);})();
 </script>
 </body>
