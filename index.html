@@ -571,7 +571,13 @@ var url='https://api.open-meteo.com/v1/forecast'
 fetch(url).then(function(r){return r.json();}).then(function(d){
   METEO=Array.isArray(d)?d:[d];
   afficherVille(0);
-}).catch(function(){});  
+}).catch(function(){});
+var villeActuelle=0;
+setInterval(function(){
+  if(METEO.length<2)return;
+  villeActuelle=(villeActuelle+1)%VILLES.length;
+  afficherVille(villeActuelle);
+},5000);  
 (function(){var waBtn=document.querySelector('.whatsapp-float');var contactSection=document.getElementById('contact');if(!waBtn||!contactSection)return;var waObs=new IntersectionObserver(function(entries){entries.forEach(function(en){if(en.isIntersecting){waBtn.classList.add('visible');}else{waBtn.classList.remove('visible');}});},{threshold:0.1});waObs.observe(contactSection);})();
 </script>
 </body>
